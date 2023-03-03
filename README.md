@@ -10,7 +10,10 @@
 "[javascript]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-}
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
 ```
 
 This will let prettier format your code in accordance with the Airbnb style guide used in ESLint
