@@ -17,6 +17,8 @@ This will let prettier format your code in accordance with the Airbnb style guid
 
 *Recommend* going to VS Code settings and setting "Files: Auto Save" to "onFocusChange"
 
+If it doesn't automatically format on save try you may need to set the default formatter in VS Code settings: Settings > Default formatter > Prettier. You can do this by command+shift+p or control+shift+p typing 'format document', clicking 'Format Document' and selecting the first option
+
 *Notes*
 use "npm run dev" to run the development client
 use "npm run server" to run server
