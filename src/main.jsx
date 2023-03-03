@@ -1,6 +1,6 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import App from './App';
 import HomePage from './views/HomePage';
 import Login from './views/login';
@@ -11,9 +11,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <Router>
       <Routes>
         {/* <App /> */}
-        <Route path='/' element={<HomePage/>} />
-        <Route path='/login' element={<Login />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

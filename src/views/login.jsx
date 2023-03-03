@@ -1,15 +1,13 @@
-
-import React, {
-  useState, useEffect, useContext, useRef,
-} from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function Login() {
+const Login = () => {
   return (
     <div>
       <input type="text" placeholder="username" />
       <input type="text" placeholder="password" />
       <button type="button">Go fetch</button>
     </div>
-  )
-}
+  );
+};
+export default Login;
