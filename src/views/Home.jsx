@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-const HomePage = () => {
+const Home = () => {
   const navigate = useNavigate();
 
   function handleClick() {
@@ -18,4 +18,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Home;
