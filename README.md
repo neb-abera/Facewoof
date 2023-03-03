@@ -6,10 +6,12 @@
 3. type "npm install" then press enter
 4. Open your user settings in VS Code (on a Mac, this is Cmd-Shift-P) and click Preferences: Open Settings (JSON). You will need to add this section:
 
-"[javascript]": {
+```"[javascript]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-}
+}```
+
+
 This will let prettier format your code in accordance with the Airbnb style guide used in ESLint
 
 *Notes*
