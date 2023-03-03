@@ -25,5 +25,3 @@ If it doesn't automatically format on save try you may need to set the default f
 *Notes*
 use "npm run dev" to run the development client
 use "npm run server" to run server
-
-Create a new folder for views and components and keep componenets .jsx with their css counterpart
