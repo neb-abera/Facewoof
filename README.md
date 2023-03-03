@@ -12,10 +12,10 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
 }
 ```
-*Recommend* going to VS Code settings and setting "Files: Auto Save" to "onFocusChange"
-
 
 This will let prettier format your code in accordance with the Airbnb style guide used in ESLint
+
+*Recommend* going to VS Code settings and setting "Files: Auto Save" to "onFocusChange"
 
 *Notes*
 use "npm run dev" to run the development client
