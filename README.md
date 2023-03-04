@@ -25,3 +25,5 @@ If it doesn't automatically format on save try you may need to set the default f
 *Notes*
 use "npm run dev" to run the development client
 use "npm run server" to run server
+
+This is a test
