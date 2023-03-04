@@ -9,6 +9,13 @@ const db = require('../db/database');
 function generateDiscoverFeed(user1, zipcodes, count) {
   db.query(`
     SELECT *, relationships.user1Choice FROM users
+    LEFT JOIN
+      (
+        SELECT * FROM pendingRelationships
+        WHERE user2id = ${user1}
+          AND user1Choice = true
+      ) relationships
+    ON users.userId = b.user1id
     WHERE location IN (${zipcodes})
       AND userId NOT IN
       (
@@ -32,13 +39,6 @@ function generateDiscoverFeed(user1, zipcodes, count) {
         SELECT user2ID FROM friends
         WHERE user1ID = ${user1}
       )
-    LEFT JOIN
-      (
-        SELECT * FROM pendingRelationships
-        WHERE user2id = ${user1}
-          AND user1Choice = true
-      ) relationships
-    ON users.userId = b.user1id
     ORDER BY relationships.user1Choice
     LIMIT ${count};
   `)
