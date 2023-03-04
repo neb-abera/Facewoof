@@ -9,6 +9,7 @@ const db = require('../db/database');
 function generateDiscoverFeed(user1, zipcodes, count) {
   db.query(`
     SELECT *, relationships.user1Choice FROM users
+
     LEFT JOIN
       (
         SELECT * FROM pendingRelationships
