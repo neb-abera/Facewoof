@@ -4,7 +4,7 @@ import Home from './views/Home';
 import Login from './views/Login';
 import './App.css';
 
-const App = () => {
+function App() {
   return (
     <div className="App">
       <Router>
@@ -15,6 +15,6 @@ const App = () => {
       </Router>
     </div>
   );
-};
+}
 
 export default App;
