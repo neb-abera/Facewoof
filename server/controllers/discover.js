@@ -39,7 +39,7 @@ function generateDiscoverFeed(user1, zipcodes, count) {
           AND user1Choice = true
       ) relationships
     ON users.userId = b.user1id
-    ORDER BY b.user1Choice
+    ORDER BY relationships.user1Choice
     LIMIT ${count};
   `)
   .then((results) => {
