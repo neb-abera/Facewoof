@@ -44,3 +44,5 @@ dist-ssr
 # other
 *.pem
 *.csv
+
+/server/db/database.js
