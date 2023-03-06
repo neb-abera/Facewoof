@@ -7,12 +7,18 @@ const Home = () => {
   function handleClick() {
     navigate(`/login`, {});
   }
+  function handleDevPackFeed() {
+    navigate(`/packFeed`);
+  }
 
   return (
     <div>
       <div className="text-cyan-400">Welcome to faceWoof!</div>
       <button type="button" onClick={handleClick}>
         Log in
+      </button>
+      <button type="button" onClick={handleDevPackFeed}>
+        Dev Pack Feed
       </button>
     </div>
   );
