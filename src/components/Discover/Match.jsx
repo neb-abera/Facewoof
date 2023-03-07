@@ -10,7 +10,7 @@ export default function Match({ user1, user2, handleContinue }) {
       'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
       'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg'
     ],
-    dogName: '3',
+    dog_name: '3',
     ownerName: 'Jermain',
     age: '6 months',
     breed: 'Golden Retriever',
@@ -25,7 +25,7 @@ export default function Match({ user1, user2, handleContinue }) {
       'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
       'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg'
     ],
-    dogName: '4',
+    dog_name: '4',
     ownerName: 'Jermain',
     age: '6 months',
     breed: 'Golden Retriever',
@@ -37,7 +37,7 @@ export default function Match({ user1, user2, handleContinue }) {
   return (
     <div className="match-parent">
       <h1 className="match-title">It&apos;s a match!</h1>
-      <h2 className="match-subtitle">Now you can add {user2.dogName} to a pack!</h2>
+      <h2 className="match-subtitle">Now you can add {user2.dog_name} to a pack!</h2>
       <div className="match-images">
         <img className="w-full primary-user" src={user1.profile_photo} alt="Doggy" />
         <img className="w-full secondary-user" src={user2.profile_photo} alt="Doggy" />
