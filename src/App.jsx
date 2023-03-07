@@ -6,7 +6,7 @@ import Discover from './views/Discover';
 import Navbar from './components/Navbar/Navbar';
 import './App.css';
 
-const App = () => {
+function App() {
   return (
     <div className="App">
       <Router>
@@ -19,6 +19,6 @@ const App = () => {
       </Router>
     </div>
   );
-};
+}
 
 export default App;
