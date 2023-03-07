@@ -1,11 +1,12 @@
 let eventGuide = 0;
-const todayStr = new Date().toDateString();
+const todayStr = new Date().toLocaleString();
 
 export const createEventId = () => {
-  return String(eventGuide++);
+  eventGuide += 1;
+  return String(eventGuide);
 };
 
 export const initialEvent = [
   { id: createEventId(), title: 'All-day playdate', start: todayStr },
-  { id: createEventId(), title: 'other Playdate', start: `${todayStr}T12:00:00` }
+  { id: createEventId(), title: 'other Playdate', start: `${todayStr} + T12:00:00` }
 ];
