@@ -111,9 +111,3 @@ module.exports = {
   checkForMatchAndCreate,
   generateDiscoverFeed,
 };
-
-// db.connect();
-// generateDiscoverFeed(7, "('10036', '10017', '10029')", 5)
-//   .then((results) => {
-//     console.log(results);
-//   });
