@@ -44,3 +44,4 @@ dist-ssr
 # other
 *.pem
 *.csv
+oktaConfig.js

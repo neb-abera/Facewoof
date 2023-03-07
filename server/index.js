@@ -7,6 +7,15 @@ require('dotenv').config();
 const app = express();
 
 // ----- Middleware ----- //
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://developer.okta.com/',
+    'dev-77750792.okta.com',
+    'okta.com'
+  ]
+};
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
