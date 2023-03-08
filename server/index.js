@@ -1,25 +1,23 @@
-const axios = require('axios');
+/* eslint-disable no-console */
 const express = require('express');
-const path = require('path');
+// const path = require('path');
 const cors = require('cors');
 const packFeed = require('./controllers/packFeed.js');
 require('dotenv').config();
+const db = require('./db/database');
+const router = require('./routes');
 
 const app = express();
+
+const PORT = 3001;
 
 // ----- Middleware ----- //
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.urlencoded({ extended: true }));
 
-const db = require('./db/database');
-
 // ----- Request handling ----- //
-app.get('/', (req, res) => {
-  console.log('GET REQUEST');
-  res.send('received');
-});
+app.use(router);
 
 app.post('/getAllPostsFromSpecificPack', (req, res) => {
   var packId = req.body.packId;
@@ -57,14 +55,12 @@ app.post('/getPfp', (req, res) => {
 });
 
 db.connect()
-  .then((res) => {
-    console.log('Connected to db');
-    app.listen(3001, () => {
-      console.log('Server started on port 3001');
+  .then(() => {
+    console.log('database connected');
+    app.listen(PORT, () => {
+      console.log(`Server started on port ${PORT}`);
     });
   })
-  .catch((err) => {
-    console.log('Error connecting to db', err);
-  });
+  .catch((err) => console.log(err));
 
 module.exports = app;

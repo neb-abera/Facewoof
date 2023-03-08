@@ -4,32 +4,20 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:3001';
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
-  // console.log('viewing', viewing);
   var styles = {
     postMakerImg: {
-      // border: '1px solid black',
       display: 'flex',
       flexDirection: 'row'
     },
     poster: {
       width: '100%'
-      // border: '1px solid green'
     },
     parent: {
-      // border: '1px solid grey',
       alignItems: 'stretch'
     },
-    button: {
-      border: '1px solid white'
-      // margin: '0px',
-      // padding: '0px'
-      // alignItems: ''
-      // backgroundColor: 'white'
-    }
+    button: {}
   };
   var [body, setBody] = useState('');
-  // console.log('viewing', viewing);
-  // console.log('viewing name', viewingName);
 
   return (
     <>

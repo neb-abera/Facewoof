@@ -16,9 +16,11 @@ const AllPostTiles = ({ allPosts }) => {
     posts: {
       display: 'flex',
       flexDirection: 'column',
-      maxWidth: '65vw',
-      gapY: '25px',
-      border: '3px solid black'
+      maxWidth: '100vw',
+      // maxHeight: '100vh',
+      // gapY: '25px',
+      border: '3px solid black',
+      columnGap: '100px'
     },
     packHighest: {
       display: 'flex',

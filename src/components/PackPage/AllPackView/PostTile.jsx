@@ -23,12 +23,13 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
     imageAndPostedOn: {
       display: 'flex',
       flexDirection: 'column',
-      border: '2px solid blue',
+      // border: '2px solid blue',
       width: '25%'
     },
     parent: {
       height: '100%',
       width: '100%',
+      // columnGap: '10px',
       border: '3px solid red'
     },
     content: {

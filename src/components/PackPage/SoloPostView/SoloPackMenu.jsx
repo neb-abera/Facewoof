@@ -10,7 +10,7 @@ const SoloPackMenu = ({ setViewing, userIdentity }) => {
       flexDirection: 'column'
     },
     parent: {
-      border: '3px solid grey',
+      // border: '3px solid grey',
       width: '30%',
       height: '100%',
       // paddingTop: '50px',
@@ -26,7 +26,7 @@ const SoloPackMenu = ({ setViewing, userIdentity }) => {
       height: '25px'
     },
     packList: {
-      border: '2px solid grey',
+      // border: '2px solid grey',
       height: '50vh'
     },
     calendar: {
