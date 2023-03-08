@@ -28,7 +28,7 @@ const CardStack = ({ users }) => {
 
   useEffect(() => {
     setData(users);
-  }, []);
+  }, [users]);
 
   useEffect(() => {
     if (data.length > 1 && (out !== null || pass !== null)) {
