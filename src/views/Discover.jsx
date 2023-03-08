@@ -12,14 +12,24 @@ export default function Discover() {
 
   function getUsers(user) {
     console.log('making request');
-    axios.get('https://localhost:3001/api/discover', {
-      params: {
-        id: 1,
-        zipcode: 10017,
-        radius: 5,
-        count: 1000,
-      },
-    })
+    // axios
+    //   .get('http://localhost:3001/api/discover', {
+    //     params: {
+    //       id: 7,
+    //       zipcode: 10017,
+    //       radius: 5,
+    //       count: 1000
+    //     }
+    //   })
+    axios
+      .get(`http://localhost:3001/api/discover`, {
+        params: {
+          id: 7,
+          zipcode: 10017,
+          radius: 5,
+          count: 1000
+        }
+      })
       .then((results) => {
         console.log('User list:', results);
         setUsers(results);
