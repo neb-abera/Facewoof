@@ -1,7 +1,49 @@
-
+/*
 .discover-cardview-parent {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-around;
+} */
+
+@keyframes run {
+  0% {
+    /* left: -100%; */
+    /* transform: scaleX(1) */
+    opacity: 0;
+  }
+  50% {
+    /* transform: scaleX(-1); */
+    /* left: 100%; */
+    opacity: 1;
+  }
+  100% {
+    /* left: -100%; */
+    /* transform: scaleX(1) */
+    opacity: 0;
+  }
+}
+
+.loading-discover {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  width: fit-content;
+  margin-left: 50%;
+  justify-content: center;
+  height: 100%;
+  scale: 3;
+  margin-top: 30vh;
+  animation-name: run;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  gap: 7px;
+}
+
+.loading-dog1 {
+  scale: 1.2;
+}
+
+.loading-dog2 {
+  transform: scaleX(-1);
 }

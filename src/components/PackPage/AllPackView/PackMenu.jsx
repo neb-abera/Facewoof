@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PackList from './PackList.jsx';
 import Playdates from './Playdates.jsx';
+import AllPacksModal from '../PackModals/AllPacksModal.jsx';
+import CreatePackModal from '../PackModals/CreatePackModal.jsx';
 
 const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
   var styles = {
@@ -34,15 +36,23 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
     },
     calendar: {
       height: '50vh'
+    },
+    menuButtons: {
+      // border: '2px solid grey',
+      display: 'flex',
+      justifyContent: 'space-between'
     }
   };
 
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <>
+      <AllPacksModal />
+      <CreatePackModal />
       <div className="drawer " style={styles.parent}>
         <div className="drawer-content"></div>
         <div className="drawer-side">
-          {/* <label for="my-drawer" className="drawer-overlay"></label> */}
           <ul className="menu p-1 w-100 bg-base-100 text-base-content">
             <div className="card shadow-xl">
               <div style={styles.yourPacks}>Your Packs</div>
@@ -53,6 +63,14 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
                 setViewingName={setViewingName}
                 userIdentity={userIdentity}
               />
+            </div>
+            <div style={styles.menuButtons}>
+              <label htmlFor="all-packs-modal" className="btn">
+                All Packs
+              </label>
+              <label htmlFor="create-pack-modal" className="btn">
+                Create Pack
+              </label>
             </div>
             <div style={styles.calendar}>
               Calendar

@@ -4,6 +4,7 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:3001';
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
+  console.log('viewing this group', viewing);
   var styles = {
     postMakerImg: {
       display: 'flex',
@@ -15,7 +16,11 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
     parent: {
       alignItems: 'stretch'
     },
-    button: {}
+    button: {},
+    textArea: {
+      // borderRadius: '2.5%'
+      padding: '5px'
+    }
   };
   var [body, setBody] = useState('');
 
@@ -30,7 +35,15 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
           </div>
           <div className="card" style={styles.poster}>
             Post To: {viewingName}
-            <input className="input" type="text" />
+            <textarea
+              onChange={(e) => {
+                setBody(e.target.value);
+                console.log('body', body);
+              }}
+              className="textarea-bordered"
+              placeholder="Make A Post"
+              style={styles.textArea}
+            ></textarea>
           </div>
         </div>
         <div style={styles.button}>
