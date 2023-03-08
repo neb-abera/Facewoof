@@ -1,14 +1,13 @@
-const db = require('../db/database');
+const db = require('./database');
 
-const testObj = {
-  pack: { id: 3, name: 'Bigtax' },
-  userId: 20,
-  playdateBody: 'Testing adding playdate',
-  time: '03/12/2023 12:00'
-};
+// const testObj = {
+//   pack: { id: 3, name: 'Bigtax' },
+//   userId: 20,
+//   playdateBody: 'Testing adding playdate',
+//   time: '03/12/2023 12:00'
+// };
 
 const createPlaydate = (playdateInfo) => {
-  db.connect();
   // to format time correctly.... new Date(date of playdate).toLocaleString()
   const packId = playdateInfo.pack.id; // plan on pack being received as an object pack: { packName: 'nameOfPack', id: num}
   const { userId } = playdateInfo;
@@ -20,7 +19,7 @@ const createPlaydate = (playdateInfo) => {
 };
 
 const getAllPlaydates = (userId) => {
-  db.connect();
+  // db.connect();
   return db.query(`select json_agg(json_build_object(
       'pack_id', pack_users.pack_id,
       'pack_name', packs.name,
@@ -33,9 +32,9 @@ const getAllPlaydates = (userId) => {
 	  where pack_users.user_id = ${userId};`);
 };
 
-createPlaydate(testObj)
-  .then(() => console.log('added'))
-  .catch((err) => console.log(err));
+// createPlaydate(testObj)
+//   .then(() => console.log('added'))
+//   .catch((err) => console.log(err));
 
 // getAllPlaydates(1)
 //   .then((data) => console.log(data.rows[0].pack_playdates))

@@ -3,8 +3,9 @@
 /* eslint-disable react/jsx-boolean-value */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable import/no-extraneous-dependencies */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import FullCalendar from '@fullcalendar/react';
 import { formatDate } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -12,34 +13,36 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import PlaydateContext from './CalendarContext';
 import { initialEvent, createEventId } from './calendarUtils';
+
+// const host = process.env.REACT_APP_SERVERHOST;
+// const getPlaydates = `${host}/playdates`;
 // import Playdate from './EditPlaydate';
 
-const PlaydateCalendar = () => {
+const PlaydateCalendar = ({ playdates }) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const location = useLocation();
   const background = location.state && location.state.background;
 
-  const { playdates, setPacks, handleAddPlaydate } = useContext(PlaydateContext);
 
-  const handleDateSelect = (selectInfo) => {
-    // this is currently an alert need to change to modal window
-    console.log(selectInfo);
-    const title = prompt('Please enter a new title for your event');
-    const calendarApi = selectInfo.view.calendar;
+  // const handleDateSelect = (selectInfo) => {
+  //   // this is currently an alert need to change to modal window
+  //   console.log(selectInfo);
+  //   const title = prompt('Please enter a new title for your event');
+  //   const calendarApi = selectInfo.view.calendar;
 
-    calendarApi.unselect();
-    console.log(calendarApi);
+  //   calendarApi.unselect();
+  //   console.log(calendarApi);
 
-    if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title: title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay
-      });
-    }
-  };
+  //   if (title) {
+  //     calendarApi.addEvent({
+  //       id: createEventId(),
+  //       title: title,
+  //       start: selectInfo.startStr,
+  //       end: selectInfo.endStr,
+  //       allDay: selectInfo.allDay
+  //     });
+  //   }
+  // };
 
   const handleEventClick = (clickInfo, e) => {
     console.log(clickInfo, e);
@@ -49,13 +52,15 @@ const PlaydateCalendar = () => {
     // }
   };
 
-  const handleEvents = (events) => {
-    handleAddPlaydate(events);
-  };
+  // const handleEvents = (events) => {
+  //   handleAddPlaydate(events);
+  // };
 
   const playdateContent = (playdateInfo) => (
     <>
       <b>{playdateInfo.timeText}</b>
+      <p>{playdateInfo.pack}</p>
+      <b>{playdateInfo.event.pack}</b>
       <i>{playdateInfo.event.title}</i>
     </>
   );
@@ -63,11 +68,11 @@ const PlaydateCalendar = () => {
   return (
     <div>
       <div>
-        <h2>All Events ({initialEvent.length})</h2>
+        <h2>All Events ({playdates.length})</h2>
         <ul>
-          {initialEvent.map((event) => (
+          {playdates.map((event) => (
             <li key={event.id} onClick={(e) => handleEventClick(event, e)}>
-              <b>{formatDate(event.start, { year: 'numberic', month: 'short', day: 'numeric' })}</b>
+              <b>{event.start}</b>
               <i>{event.title}</i>
             </li>
           ))}
@@ -88,13 +93,14 @@ const PlaydateCalendar = () => {
           editable={true}
           selectable={true}
           selectMirror={true}
-          select={handleDateSelect}
+          // select={handleDateSelect}
           dayMaxEvents={true}
           weekends={true}
-          initialEvents={initialEvent}
+          events={playdates}
+          eventDisplay={true}
           eventContent={playdateContent}
           eventClick={handleEventClick}
-          eventsSet={handleEvents}
+          // eventsSet={handleEvents}
         />
       </div>
     </div>
