@@ -9,11 +9,6 @@ const CreatePackModal = () => {
   return (
     <>
       <div>
-        {/* The button to open modal */}
-        {/* <label htmlFor="my-modal" className="btn">
-          open modal
-        </label> */}
-        {/* Put this part before </body> tag */}
         <input type="checkbox" id="create-pack-modal" className="modal-toggle" />
         <div className="modal">
           <div className="modal-box">

@@ -14,9 +14,10 @@ export default function Discover() {
 
   function getUsers(user) {
     // console.log('making request');
-    axios.get('https://localhost:3001/api/discover', {
+    axios
+      .get('https://localhost:3001/api/discover', {
         params: {
-          id: 1,
+          id: 7,
           zipcode: 10017,
           radius: 5,
           count: 1000
@@ -44,7 +45,7 @@ export default function Discover() {
         <FaDog className="loading-dog1" />
         <FaDog className="loading-dog2" />
       </div>
-    )
+    );
   }
 
   return (

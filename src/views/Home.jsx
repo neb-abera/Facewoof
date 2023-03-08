@@ -1,9 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
+import useUserContext from '../hooks/useUserContext';
 
 const Home = () => {
+  const { loggedIn } = useUserContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loggedIn) {
+      navigate('/discover');
+    }
+  }, [loggedIn]);
+
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
@@ -23,7 +33,7 @@ const Home = () => {
         <AuthForm action="signup" />
         <p className="text-center text-[#bb7c7c]">
           Already Have An Account? &nbsp;
-          <Link to="/login" className="font-bold">
+          <Link to="/login" className="font-bold text-success">
             Sign In
           </Link>
         </p>

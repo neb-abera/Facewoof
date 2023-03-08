@@ -659,8 +659,8 @@ const CardStack = ({ users }) => {
           <div className="card-stack">
             {stack.map((user, index) => (
               <div
-                  key={`user${user.user_id}`}
-                  className={`profile-card
+                key={`user${user.user_id}`}
+                className={`profile-card
                   ${out === user.user_id ? 'unmount' : ''}
                   ${pass === user.user_id ? 'pass-unmount' : ''}
                   ${front === user.user_id ? 'mount' : ''}
@@ -678,18 +678,18 @@ const CardStack = ({ users }) => {
         )}
         <div className="buttons">
           <button
-              id="pass"
-              type="button"
-              className="btn btn-active btn-accent vote-button pass"
-              onClick={handleVote}
+            id="pass"
+            type="button"
+            className="btn btn-active btn-accent vote-button pass"
+            onClick={handleVote}
           >
             Pass
           </button>
           <button
-            id="digg"
-            type="button"
-            className="btn btn-active btn-primary vote-button digg"
-            onClick={handleVote}
+              id="digg"
+              type="button"
+              className="btn btn-active btn-primary vote-button digg"
+              onClick={handleVote}
           >
             Digg &apos;em
           </button>

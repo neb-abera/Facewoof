@@ -5,7 +5,7 @@ const getPlaydates = (req, res) => {
 
   return getAllPlaydates(userId)
     .then((data) => {
-      console.log(data.rows[0].pack_playdates);
+      // console.log(data.rows[0].pack_playdates);
       res.send(data.rows[0].pack_playdates);
     })
     .catch((err) => console.log(err));

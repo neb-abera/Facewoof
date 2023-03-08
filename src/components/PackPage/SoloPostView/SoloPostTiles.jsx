@@ -10,7 +10,7 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
     posts: {
       display: 'flex',
       flexDirection: 'column',
-      maxWidth: '65vw',
+      maxWidth: '100vw',
       gapY: '25px',
       border: '3px solid black'
     },

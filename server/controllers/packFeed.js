@@ -26,7 +26,7 @@ var getUserPacksId = (userId, res) => {
 var getUserInformation = (userId) => {
   db.query(`select * from users where users.user_id = ${userId}`)
     .then((res) => {
-      console.log('Query Response', res.rows);
+      // console.log('Query Response', res.rows);
       return res.rows;
     })
     .catch((err) => {
@@ -79,10 +79,10 @@ var getPfp = (userId, res) => {
 };
 
 module.exports = {
-  getUserPacksId,
-  getPackPosts,
-  getAllPostsFromAllPacks,
-  getUserPlaydatesAllPacks,
-  getSoloPosts,
-  getPfp
+  getUserPacksId: getUserPacksId,
+  getPackPosts: getPackPosts,
+  getAllPostsFromAllPacks: getAllPostsFromAllPacks,
+  getUserPlaydatesAllPacks: getUserPlaydatesAllPacks,
+  getSoloPosts: getSoloPosts,
+  getPfp: getPfp
 };

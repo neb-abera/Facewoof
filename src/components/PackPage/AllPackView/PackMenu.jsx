@@ -6,6 +6,9 @@ import AllPacksModal from '../PackModals/AllPacksModal.jsx';
 import CreatePackModal from '../PackModals/CreatePackModal.jsx';
 
 const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
+  const buttonModal = useRef();
+
+  // var dummyFunc =
   var styles = {
     packList: {
       display: 'flex',
@@ -56,6 +59,14 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
           <ul className="menu p-1 w-100 bg-base-100 text-base-content">
             <div className="card shadow-xl">
               <div style={styles.yourPacks}>Your Packs</div>
+              <button
+                onClick={() => {
+                  console.log('hello');
+                  buttonModal.current.click();
+                }}
+              >
+                testing Modal
+              </button>
             </div>
             <div style={styles.packList}>
               <PackList
@@ -65,7 +76,7 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
               />
             </div>
             <div style={styles.menuButtons}>
-              <label htmlFor="all-packs-modal" className="btn">
+              <label htmlFor="all-packs-modal" className="btn" ref={buttonModal}>
                 All Packs
               </label>
               <label htmlFor="create-pack-modal" className="btn">
