@@ -1,17 +1,24 @@
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import defaultProps from 'prop-types';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import useUserContext from '../../hooks/useUserContext';
 
 moment.locale('en-US');
 const localizer = momentLocalizer(moment);
 
-const PlaydateCalendar = ({ playdates }) => {
+const PlaydateCalendar = () => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
-  const [eventsData, setEventsData] = useState(playdates);
+  const [eventsData, setEventsData] = useState([]);
+
+  const { playdates, setPlaydates, handleSetPlaydates } = useUserContext();
+
+  useEffect(() => {
+    console.log('updating playdates from: ', playdates);
+    setEventsData(playdates);
+  }, [playdates]);
 
   const location = useLocation();
   const background = location.state && location.state.background;
@@ -21,14 +28,14 @@ const PlaydateCalendar = ({ playdates }) => {
     console.log(end);
     const title = window.prompt('New Event Name');
     if (title) {
-      setEventsData((prev) => ([
-        ...eventsData,
+      setEventsData((prev) => [
+        ...prev,
         {
           start: start,
           end: end,
           title: title
         }
-      ]));
+      ]);
     }
   };
 
@@ -48,10 +55,6 @@ const PlaydateCalendar = ({ playdates }) => {
       />
     </div>
   );
-};
-
-PlaydateCalendar.defaultProps = {
-  playdates: []
 };
 
 export default PlaydateCalendar;
