@@ -8,6 +8,7 @@ import axios from 'axios';
 import CardStack from '../components/Discover/CardStack';
 import './discover.css';
 
+// eslint-disable-next-line react/function-component-definition
 export default function Discover() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,7 @@ export default function Discover() {
         setLoading(false);
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.log(err);
       });
   }
