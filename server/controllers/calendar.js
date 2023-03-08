@@ -11,16 +11,6 @@ const getPlaydates = (req, res) => {
     .catch((err) => console.log(err));
 };
 
-const getUserPacks = (req, res) => {
-  const { userId } = req.query;
-
-  return getPacks(userId).then((data) => {
-    // console.log(data.rows[0]);
-    res.send(data.rows[0].json_agg);
-  });
-};
-
 module.exports = {
-  getPlaydates: getPlaydates,
-  getUserPacks: getUserPacks
+  getPlaydates: getPlaydates
 };

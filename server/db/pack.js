@@ -20,6 +20,14 @@ function addToPack(user_id, pack_id) {
     });
 }
 
+const getPacks = (userId) => {
+  return db.query(`SELECT json_agg(packobj) FROM 
+  (SELECT pack_users.pack_id, packs.name FROM pack_users
+    INNER JOIN packs ON packs.pack_id = pack_users.pack_id
+    WHERE pack_users.user_id = ${userId}) as packobj;`);
+};
+
 module.exports = {
-  addToPack,
+  addToPack: addToPack,
+  getPacks: getPacks
 };
