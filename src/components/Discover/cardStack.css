@@ -209,4 +209,43 @@
     z-index: 2;
   }
 
+  @keyframes floatGreen {
+    0% {
+      box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0);
+    }
+    50% {
+      box-shadow: 0 0 20px 5px rgba(54, 108, 0, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0);
+    }
+  }
+
+  @keyframes floatRed {
+    0% {
+      box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0);
+    }
+    50% {
+      box-shadow: 0 0 15px 2px rgba(209, 1, 1, 0.5);
+    }
+    100% {
+      box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0);
+    }
+  }
+
+  .vote-button {
+    scale: 2;
+    /* box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.1); */
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+  }
+
+  .digg {
+    /* transform: translate(20%,0); */
+    animation-name: floatGreen;
+  }
+
+  .pass {
+    animation-name: floatRed;
+  }
 }
