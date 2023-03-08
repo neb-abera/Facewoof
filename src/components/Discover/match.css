@@ -11,7 +11,7 @@
   z-index: 5;
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 80vh;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
@@ -21,6 +21,7 @@
   animation-name: fadein;
   animation-duration: 1s;
   animation-iteration-count: once;
+  /* border: solid green; */
 }
 
 @keyframes fadeout {
@@ -40,13 +41,14 @@
 }
 
 .match-title {
- font-size: 4em;
+ font-size: 10vh;
  font-weight: bold;
+ margin-top: 0;
 }
 
 .match-subtitle {
   margin-bottom: 40px;
-  font-size: 2em;
+  font-size: 4vh;
 }
 
 @keyframes img1 {
@@ -68,8 +70,8 @@
 .primary-user {
   border-radius: 1000px;
   object-fit: cover;
-  height: 400px;
-  width: 400px;
+  height: max(25vh,25vw);
+  width: max(25vh,25vw);
   z-index: 7;
   transform: translate(10%, 0);
   animation-name: img1;
@@ -91,8 +93,8 @@
 .secondary-user {
   border-radius: 1000px;
   object-fit: cover;
-  height: 400px;
-  width: 400px;
+  height: max(25vh,25vw);
+  width: max(25vh,25vw);
   z-index: 6;
   transform: translate(-10%, 0);
   animation-name: img2;
