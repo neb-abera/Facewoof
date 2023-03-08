@@ -16,7 +16,6 @@ const PlaydateCalendar = () => {
   const { playdates, setPlaydates, handleSetPlaydates } = useUserContext();
 
   useEffect(() => {
-    console.log('updating playdates from: ', playdates);
     setEventsData(playdates);
   }, [playdates]);
 
@@ -49,6 +48,8 @@ const PlaydateCalendar = () => {
         selectable
         localizer={localizer}
         defaultDate={new Date()}
+        defaultView="week"
+        step="30"
         events={eventsData}
         onSelectEvent={(event) => alert(event.title)}
         inSelectSlot={handleSelect}

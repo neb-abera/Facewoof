@@ -9,18 +9,15 @@ const Calendar = () => {
 
   useEffect(() => {
     axios.get(`http://localhost:3001/playdates?userId=${1}`).then((data) => {
-      // console.log(data.data);
       const arr = data.data;
       const playdateArr = [];
       arr.forEach((obj, i) => {
         const pdObj = {};
         pdObj.id = i;
         pdObj.title = obj.pack_name + ': ' + obj.playdate_body;
-        const startTime = new Date(obj.playdate_date);
+        const startTime = new Date(obj.playdate_start_date);
         pdObj.start = startTime;
-        const startHour = startTime.getHours();
-        const endTime = new Date(obj.playdate_date);
-        endTime.setHours(startHour + 1);
+        const endTime = new Date(obj.playdate_end_date);
         pdObj.end = new Date(endTime);
         playdateArr.push(pdObj);
       });
