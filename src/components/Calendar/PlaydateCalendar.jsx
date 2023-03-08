@@ -1,20 +1,25 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable react/jsx-boolean-value */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable import/no-extraneous-dependencies */
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import { formatDate } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import PlaydateContext from './CalendarContext';
 import { initialEvent, createEventId } from './calendarUtils';
-import Playdate from './EditPlaydate';
+// import Playdate from './EditPlaydate';
 
-const PlaydateCalendar = ({ playdates, setPlaydates }) => {
+const PlaydateCalendar = () => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const location = useLocation();
   const background = location.state && location.state.background;
+
+  const { playdates, setPacks, handleAddPlaydate } = useContext(PlaydateContext);
 
   const handleDateSelect = (selectInfo) => {
     // this is currently an alert need to change to modal window
@@ -23,6 +28,7 @@ const PlaydateCalendar = ({ playdates, setPlaydates }) => {
     const calendarApi = selectInfo.view.calendar;
 
     calendarApi.unselect();
+    console.log(calendarApi);
 
     if (title) {
       calendarApi.addEvent({
@@ -37,14 +43,14 @@ const PlaydateCalendar = ({ playdates, setPlaydates }) => {
 
   const handleEventClick = (clickInfo, e) => {
     console.log(clickInfo, e);
-    setShowPlaydateModal(true);
+    // setShowPlaydateModal(true);
     // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}`)) {
     //   clickInfo.event.remove();
     // }
   };
 
   const handleEvents = (events) => {
-    setPlaydates(events);
+    handleAddPlaydate(events);
   };
 
   const playdateContent = (playdateInfo) => (
@@ -92,7 +98,7 @@ const PlaydateCalendar = ({ playdates, setPlaydates }) => {
         />
       </div>
     </div>
-  )
+  );
 };
 
 export default PlaydateCalendar;

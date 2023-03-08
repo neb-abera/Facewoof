@@ -5,6 +5,7 @@ import Login from './views/Login';
 import PlaydateCalendar from './views/Calendar';
 import './App.css';
 import Playdate from './components/Calendar/EditPlaydate';
+import { PlaydateProvider } from './components/Calendar/CalendarContext';
 
 const App = () => {
   const location = useLocation();
@@ -12,13 +13,15 @@ const App = () => {
 
   return (
     <div className="App">
-      <Routes location={background || location}>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/calendar" element={<PlaydateCalendar />}>
-          <Route path="calendar/editplaydate" element={<Playdate />} />
-        </Route>
-      </Routes>
+      <PlaydateProvider>
+        <Routes location={background || location}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/calendar" element={<PlaydateCalendar />}>
+            <Route path="calendar/editplaydate" element={<Playdate />} />
+          </Route>
+        </Routes>
+      </PlaydateProvider>
       {background && (
         <Routes>
           <Route path="/editplaydate" element={<Playdate propTest="hi" />} />
