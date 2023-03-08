@@ -1,15 +1,14 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './EditPlaydate.css';
-import PlaydateContext from './CalendarContext';
 
 const Playdate = () => {
   const navigate = useNavigate();
   const [input, setInput] = useState({});
-
-  // const handleAddPlaydates = useContext(PlaydateContext);
 
   return (
     <div className="modalDiv">

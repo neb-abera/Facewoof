@@ -1,3 +1,4 @@
+/* eslint-disable prefer-template */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PlaydateCalendar from '../components/Calendar/PlaydateCalendar';
@@ -13,15 +14,15 @@ const Calendar = () => {
       arr.forEach((obj, i) => {
         const pdObj = {};
         pdObj.id = i;
-        pdObj.title = obj.pack_name + ": " + obj.playdate_body;
+        pdObj.title = obj.pack_name + ': ' + obj.playdate_body;
         // pdObj.title = ;
-        // pdObj.start = new Date(obj.playdate_date).toLocaleString();
+        pdObj.time = new Date(obj.playdate_date).toLocaleString();
         pdObj.start = Date.parse(new Date(obj.playdate_date));
         // console.log('this is date used for comparing: ', obj.playdate_date);
-        // if (pdObj.start > Date.parse(new Date())) {
-        //   console.log('this is  start', pdObj.start);
-        playdateArr.push(pdObj);
-        // }
+        if (pdObj.start > Date.parse(new Date('1/1/2023'))) {
+          // console.log('this is  start', pdObj.start);
+          playdateArr.push(pdObj);
+        }
       });
       // console.log(playdateArr);
       setPlaydates(playdateArr);

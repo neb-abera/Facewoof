@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable react/jsx-boolean-value */
@@ -11,38 +12,32 @@ import { formatDate } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import PlaydateContext from './CalendarContext';
 import { initialEvent, createEventId } from './calendarUtils';
-
-// const host = process.env.REACT_APP_SERVERHOST;
-// const getPlaydates = `${host}/playdates`;
-// import Playdate from './EditPlaydate';
 
 const PlaydateCalendar = ({ playdates }) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const location = useLocation();
   const background = location.state && location.state.background;
 
+  const handleDateSelect = (selectInfo) => {
+    // this is currently an alert need to change to modal window
+    console.log(selectInfo);
+    const title = prompt('Please enter a new title for your event');
+    const calendarApi = selectInfo.view.calendar;
 
-  // const handleDateSelect = (selectInfo) => {
-  //   // this is currently an alert need to change to modal window
-  //   console.log(selectInfo);
-  //   const title = prompt('Please enter a new title for your event');
-  //   const calendarApi = selectInfo.view.calendar;
+    calendarApi.unselect();
+    console.log(calendarApi);
 
-  //   calendarApi.unselect();
-  //   console.log(calendarApi);
-
-  //   if (title) {
-  //     calendarApi.addEvent({
-  //       id: createEventId(),
-  //       title: title,
-  //       start: selectInfo.startStr,
-  //       end: selectInfo.endStr,
-  //       allDay: selectInfo.allDay
-  //     });
-  //   }
-  // };
+    if (title) {
+      calendarApi.addEvent({
+        id: createEventId(),
+        title: title,
+        start: selectInfo.startStr,
+        end: selectInfo.endStr,
+        allDay: selectInfo.allDay
+      });
+    }
+  };
 
   const handleEventClick = (clickInfo, e) => {
     console.log(clickInfo, e);
@@ -72,7 +67,7 @@ const PlaydateCalendar = ({ playdates }) => {
         <ul>
           {playdates.map((event) => (
             <li key={event.id} onClick={(e) => handleEventClick(event, e)}>
-              <b>{event.start}</b>
+              <b>{event.time} </b>
               <i>{event.title}</i>
             </li>
           ))}
@@ -93,7 +88,7 @@ const PlaydateCalendar = ({ playdates }) => {
           editable={true}
           selectable={true}
           selectMirror={true}
-          // select={handleDateSelect}
+          select={handleDateSelect}
           dayMaxEvents={true}
           weekends={true}
           events={playdates}
