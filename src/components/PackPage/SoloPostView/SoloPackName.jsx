@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const PackName = ({ name, setViewing }) => {
+const SoloPackName = ({ name, setViewing }) => {
   var styles = {};
-
+  // console.log(name);
   var click = () => {
     setViewing(name);
     console.log('clicked', name);
@@ -15,4 +15,4 @@ const PackName = ({ name, setViewing }) => {
   );
 };
 
-export default PackName;
+export default SoloPackName;

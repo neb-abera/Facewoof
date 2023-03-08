@@ -1,48 +1,69 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import PostTile from './PostTile.jsx';
-import PackMenu from './PackMenu.jsx';
+import SoloPostTile from './SoloPostTile.jsx';
+import SoloPackMenu from './SoloPackMenu.jsx';
+import PostMaker from './PostMaker.jsx';
+import axios from 'axios';
 
-const SoloPostTiles = ({ viewing }) => {
-  var img =
-    'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/golden-retriever-royalty-free-image-506756303-1560962726.jpg?crop=0.672xw:1.00xh;0.166xw,0&resize=640:*';
-
-  var content =
-    'Lorem ipsum sum sum what yeah woof woof yueah woof woof yeah bark barkl wooohoooo im barking';
-
-  var postedOn = '01/02/2023';
-
-  var parentGroup = 'WolfPack';
-
+const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
   var styles = {
     posts: {
       display: 'flex',
       flexDirection: 'column',
-      gapY: '25px'
+      maxWidth: '65vw',
+      gapY: '25px',
+      border: '3px solid black'
     },
     packHighest: {
       display: 'flex',
-      flexDirection: 'row'
-    },
-    border: {
-      border: '1px solid black',
-      borderRadius: '15%'
+      flexDirection: 'column'
     }
   };
-  //.Render Posts only from a specific group
+
+  var [data, setData] = useState([]);
+  var [pfp, setPfp] = useState([]);
+
+  useEffect(() => {
+    axios
+      .post('/getSoloPosts', {
+        userId: userIdentity,
+        packId: viewing
+      })
+      .then((packet) => {
+        // console.log('data', packet.data);
+        var input = packet.data;
+        setData(input);
+      })
+      .then(() => {
+        axios
+          .post('/getPfp', {
+            userId: userIdentity
+          })
+          .then((resp) => {
+            setPfp(resp.data[0].url);
+            // console.log('pfp', resp.data[0].url);
+          });
+      });
+  }, [viewing]);
+
   return (
     <>
       <div className="card" style={styles.packHighest}>
+        <div>
+          <PostMaker pfp={pfp} viewing={viewing} viewingName={viewingName} />
+        </div>
         <div style={styles.posts}>
-          <div className="card bordered">
-            <div className="form-control">
-              Post Maker
-              <input class="input input-bordered" type="text"></input>
-            </div>
-          </div>
-          <PostTile />
-          <PostTile />
-          <PostTile />
+          {data
+            ? data.map((each, key) => (
+                <SoloPostTile
+                  key={key}
+                  img={each.photo_url}
+                  content={each.body}
+                  postedOn={each.date}
+                  parentGroup={each.pack_id}
+                />
+              ))
+            : null}
         </div>
       </div>
     </>

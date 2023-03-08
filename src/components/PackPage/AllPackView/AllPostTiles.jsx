@@ -3,22 +3,22 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import PostTile from './PostTile.jsx';
 import PackMenu from './PackMenu.jsx';
 
-const AllPostTiles = () => {
-  var img =
-    'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/golden-retriever-royalty-free-image-506756303-1560962726.jpg?crop=0.672xw:1.00xh;0.166xw,0&resize=640:*';
+const AllPostTiles = ({ allPosts }) => {
+  // var img = data.photo_url;
 
-  var content =
-    'Lorem ipsum sum sum what yeah woof woof yueah woof woof yeah bark barkl wooohoooo im barking';
+  // var content = data.body;
 
-  var postedOn = '01/02/2023';
+  // var postedOn = data.date;
 
-  var parentGroup = 'WolfPack';
-
+  // var parentGroup = data.packId;
+  // console.log('AllPostTiles received', data);
   var styles = {
     posts: {
       display: 'flex',
       flexDirection: 'column',
-      gapY: '25px'
+      maxWidth: '65vw',
+      gapY: '25px',
+      border: '3px solid black'
     },
     packHighest: {
       display: 'flex',
@@ -30,9 +30,17 @@ const AllPostTiles = () => {
     <>
       <div className="card" style={styles.packHighest}>
         <div style={styles.posts}>
-          <PostTile />
-          <PostTile />
-          <PostTile />
+          {allPosts
+            ? allPosts.map((each, key) => (
+                <PostTile
+                  key={key}
+                  img={each.photo_url}
+                  content={each.body}
+                  postedOn={each.date}
+                  parentGroup={each.pack_id}
+                />
+              ))
+            : null}
         </div>
       </div>
     </>

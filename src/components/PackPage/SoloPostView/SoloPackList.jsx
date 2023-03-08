@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import PackName from './PackName.jsx';
+import SoloPackName from './SoloPackName.jsx';
 import axios from 'axios';
 
-const PackList = ({ setViewing, userIdentity, setViewingName }) => {
+const SoloPackList = ({ setViewing, userIdentity }) => {
   var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
 
   var [packList, setPackList] = useState([]);
@@ -14,22 +14,27 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
         userId: userIdentity
       })
       .then((data) => {
+        // console.log('data', data.data);
         var input = data.data;
-
-        setPackList(input);
+        var packs = [];
+        for (var i = 0; i < input.length; i++) {
+          packs.push(input[i].name);
+        }
+        setPackList(packs);
+        // console.log(packList);
       });
   }, []);
 
-  var click = (packData) => {
-    // console.log('data in question', packData);
-    setViewing(packData.pack_id);
-    setViewingName(packData.name);
+  var click = (packName) => {
+    setViewing(packName);
+    console.log('clicked', packName);
   };
 
   var styles = {
     packList: {
       width: '100%',
       backgroundColor: 'pink'
+      // flexGrow: 2
     }
   };
 
@@ -45,14 +50,21 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
                 }}
               >
                 <a>
-                  <PackName name={packName.name} setViewing={setViewing} />
+                  <PackName name={packName} setViewing={setViewing} />
                 </a>
               </li>
             ))
           : null}
+
+        {/* <li>
+          <PackName name={listNames[1]} setViewing={setViewing} />
+        </li>
+        <li>
+          <PackName name={listNames[2]} setViewing={setViewing} />
+        </li> */}
       </div>
     </>
   );
 };
 
-export default PackList;
+export default SoloPackList;

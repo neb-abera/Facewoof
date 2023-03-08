@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const PackName = ({ name, setViewing }) => {
   var styles = {};
-
+  // console.log(name);
   var click = () => {
     setViewing(name);
     console.log('clicked', name);
