@@ -6,6 +6,8 @@ import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
 import { oktaConfig } from '../oktaConfig';
 import Home from './views/Home';
 import Login from './views/Login';
+import Discover from './views/Discover';
+import Navbar from './components/Navbar/Navbar';
 import './App.css';
 import Discover from './views/Discover';
 import Locked from './views/Locked';

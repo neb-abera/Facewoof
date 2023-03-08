@@ -1,0 +1,108 @@
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.match-parent {
+  z-index: 5;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  animation-name: fadein;
+  animation-duration: 1s;
+  animation-iteration-count: once;
+}
+
+@keyframes fadeout {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.match-out {
+  animation-name: fadeout;
+  animation-duration: 2s;
+  animation-iteration-count: once;
+  z-index: 10;
+}
+
+.match-title {
+ font-size: 4em;
+ font-weight: bold;
+}
+
+.match-subtitle {
+  margin-bottom: 40px;
+  font-size: 2em;
+}
+
+@keyframes img1 {
+  0% {
+    transform: translate(40%, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(10%, 0);
+    opacity: 1;
+  }
+}
+
+.match-images {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.primary-user {
+  border-radius: 1000px;
+  object-fit: cover;
+  height: 400px;
+  width: 400px;
+  z-index: 7;
+  transform: translate(10%, 0);
+  animation-name: img1;
+  animation-duration: 1s;
+  animation-iteration-count: once;
+}
+
+@keyframes img2 {
+  0% {
+    transform: translate(-40%, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-10%, 0);
+    opacity: 1;
+  }
+}
+
+.secondary-user {
+  border-radius: 1000px;
+  object-fit: cover;
+  height: 400px;
+  width: 400px;
+  z-index: 6;
+  transform: translate(-10%, 0);
+  animation-name: img2;
+  animation-duration: 1s;
+  animation-iteration-count: once;
+}
+
+.match-buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-top: 40px;
+  gap: 30px;
+}
