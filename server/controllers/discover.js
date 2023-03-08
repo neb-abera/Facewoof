@@ -29,7 +29,7 @@ const discoverUsers = async (req, res) => {
 
 const userResponse = async (req, res) => {
   const { currentUserId, otherUserId, currentUserChoice, otherUserChoice } = req.body;
-  console.log(currentUserId, otherUserId, currentUserChoice, otherUserChoice);
+  // console.log(currentUserId, otherUserId, currentUserChoice, otherUserChoice);
   try {
     if (currentUserChoice !== otherUserChoice) {
       await setRelationship(currentUserId, otherUserId, currentUserChoice);

@@ -12,96 +12,10 @@ import Blank from './Blank';
 import './cardStack.css';
 
 const CardStack = ({ users }) => {
-  const exData = [
-    {
-      userId: 1,
-      profile_photo:
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
-      photos: [
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
-        'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg'
-      ],
-      dogName: '1',
-      ownerName: 'Jermain',
-      age: '6 months',
-      breed: 'Golden Retriever',
-      vaccination: true,
-      interests: ['squirrels', 'bones', 'long walks'],
-      bio: 'If a dog chews shoes whose shoes does he choose?',
-      user1Choice: null
-    },
-    {
-      userId: 2,
-      profile_photo: 'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
-      photos: [
-        'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg'
-      ],
-      dogName: '2',
-      ownerName: 'Jermain',
-      age: '6 months',
-      breed: 'Golden Retriever',
-      vaccination: true,
-      interests: ['squirrels', 'bones', 'long walks'],
-      bio: 'If a dog chews shoes whose shoes does he choose?',
-      user1Choice: null
-    },
-    {
-      userId: 3,
-      profile_photo:
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
-      photos: [
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
-        'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg'
-      ],
-      dogName: '3',
-      ownerName: 'Jermain',
-      age: '6 months',
-      breed: 'Golden Retriever',
-      vaccination: true,
-      interests: ['squirrels', 'bones', 'long walks'],
-      bio: 'If a dog chews shoes whose shoes does he choose?',
-      user1Choice: true
-    },
-    {
-      userId: 4,
-      profile_photo: 'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
-      photos: [
-        'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg'
-      ],
-      dogName: '4',
-      ownerName: 'Jermain',
-      age: '6 months',
-      breed: 'Golden Retriever',
-      vaccination: true,
-      interests: ['squirrels', 'bones', 'long walks'],
-      bio: 'If a dog chews shoes whose shoes does he choose?',
-      user1Choice: null
-    },
-    {
-      userId: 5,
-      profile_photo:
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
-      photos: [
-        'https://i.ibb.co/k4rMVRK/dog-puppy-on-garden-royalty-free-image-1586966191.jpg',
-        'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg'
-      ],
-      dogName: '5',
-      ownerName: 'Jermain',
-      age: '6 months',
-      breed: 'Golden Retriever',
-      vaccination: true,
-      interests: ['squirrels', 'bones', 'long walks'],
-      bio: 'If a dog chews shoes whose shoes does he choose?',
-      user1Choice: null
-    }
-  ];
-
   const [front, setFront] = useState(null);
   const [back, setBack] = useState(null);
 
-  const [data, setData] = useState(exData);
+  const [data, setData] = useState([]);
   const [stack, setStack] = useState([]);
   const [user, setUser] = useState(null);
 
@@ -113,19 +27,15 @@ const CardStack = ({ users }) => {
   const [matchOut, setMatchOut] = useState(false);
 
   useEffect(() => {
-    // if (users === undefined) {
-    //   setData(exData);
-    // } else {
-    //   setData(users);
-    // }
+    setData(users);
   }, []);
 
   useEffect(() => {
     if (data.length > 1 && (out !== null || pass !== null)) {
-      setFront(data[1].userId);
+      setFront(data[1].user_id);
     }
     if (data.length > 2 && (out !== null || pass !== null)) {
-      setBack(data[2].userId);
+      setBack(data[2].user_id);
     }
     setTimeout(() => {
       if (out !== null || pass !== null) {
@@ -141,9 +51,9 @@ const CardStack = ({ users }) => {
 
   function handleVote(e) {
     if (e.target.id === 'digg') {
-      setOut(user.userId);
+      setOut(user.user_id);
     } else {
-      setPass(user.userId);
+      setPass(user.user_id);
     }
   }
 
@@ -163,13 +73,13 @@ const CardStack = ({ users }) => {
           <div className="card-stack">
             {stack.map((user, index) => (
               <div
-                  key={`user${user.userId}`}
-                  className={`profile-card
-                    ${out === user.userId ? 'unmount' : ''}
-                    ${pass === user.userId ? 'pass-unmount' : ''}
-                    ${front === user.userId ? 'mount' : ''}
-                    ${back === user.userId ? 'back-mount' : ''}
-                    `}
+                key={`user${user.user_id}`}
+                className={`profile-card
+                  ${out === user.user_id ? 'unmount' : ''}
+                  ${pass === user.user_id ? 'pass-unmount' : ''}
+                  ${front === user.user_id ? 'mount' : ''}
+                  ${back === user.user_id ? 'back-mount' : ''}
+                  `}
               >
                 <div className="card-wrapper">
                   <ProfileCard user={user} />
@@ -182,10 +92,10 @@ const CardStack = ({ users }) => {
         )}
         <div className="buttons">
           <button
-              id="pass"
-              type="button"
-              className="btn btn-active btn-accent"
-              onClick={handleVote}
+            id="pass"
+            type="button"
+            className="btn btn-active btn-accent"
+            onClick={handleVote}
           >
             Pass
           </button>
