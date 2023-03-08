@@ -10,6 +10,7 @@ const app = express();
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:3001',
     'http://localhost:5173',
     'https://developer.okta.com/',
     'dev-77750792.okta.com',

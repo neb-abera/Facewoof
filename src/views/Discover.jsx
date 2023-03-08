@@ -17,6 +17,7 @@ const Discover = () => {
         .getUser()
         .then((info) => {
           setUserInfo(info);
+          console.log(info);
         })
         .catch((err) => {
           console.log(err);

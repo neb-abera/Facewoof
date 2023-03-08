@@ -15,6 +15,7 @@ const Locked = () => {
         .getUser()
         .then((info) => {
           setUserInfo(info);
+          console.log('info in locked is ', info);
         })
         .catch((err) => {
           console.error(err);
@@ -29,6 +30,8 @@ const Locked = () => {
       </div>
     );
   }
+
+  console.log('user is authenticated and is ', userInfo);
 
   return (
     <div>

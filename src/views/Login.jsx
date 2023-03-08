@@ -14,7 +14,7 @@ const Login = ({ config }) => {
   };
 
   const onError = (err) => {
-    console.log('error logging in', err);
+    console.log('Sign in error', err);
   };
 
   if (!authState) {

@@ -7,26 +7,20 @@ const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
   const history = useHistory();
 
-  const login = () => oktaAuth.signInWithRedirect({ originalUri: '/discover' });
-  function handleClick() {
-    history(`/login`, {});
-  }
-
   // return <div>this is a test of the home page</div>;
   if (!authState) {
     return <div>Loading...</div>;
-    // eslint-disable-next-line no-else-return
   }
 
   const handleLogin = async () => history.push('/login');
   const handleLogout = async () => oktaAuth.signOut();
 
   return (
-    <div className="home">
+    <div id="home" className="home">
       <Link to="/">Home</Link> | &nbsp;
       <Link id="locked" to="/locked">
         Locked
-      </Link>{' '}
+      </Link>
       | &nbsp;
       {authState.isAuthenticated ? (
         <button id="logout-button" type="button" onClick={handleLogout}>
