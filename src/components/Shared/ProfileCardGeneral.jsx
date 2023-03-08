@@ -2,10 +2,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/alt-text */
 import React from 'react';
-import './profileCard.css';
+import './profileCardGeneral.css';
 
-export default function ProfileCard({ user, distance }) {
-  distance = distance || 5;
+export default function ProfileCardGeneral({ user }) {
 
   return (
     <div className="profile-card-parent">
@@ -28,7 +27,7 @@ export default function ProfileCard({ user, distance }) {
                   </div>
                 </div>
                 <p className="profile-card-details">
-                  {user.age} • {user.dog_breed} • {distance} miles
+                  {user.age} • {user.dog_breed}
                 </p>
                 {user.vaccination ? (
                   <div className="badge badge-secondary">&#10004; Vaccinated</div>

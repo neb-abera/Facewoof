@@ -1,24 +1,33 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
-import Navbar from './components/Navbar/Navbar';
+import PlaydateCalendar from './views/Calendar';
 import './App.css';
+import Playdate from './components/Calendar/EditPlaydate';
 
-function App() {
+const App = () => {
+  const location = useLocation();
+  const background = location.state && location.state.background;
+
   return (
     <div className="App">
-      <Router>
-        <Navbar />
+      <Routes location={background || location}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/discover" element={<Discover />} />
+        <Route path="/calendar" element={<PlaydateCalendar />}>
+          <Route path="calendar/editplaydate" element={<Playdate />} />
+        </Route>
+      </Routes>
+      {background && (
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/discover" element={<Discover />} />
+          <Route path="/editplaydate" element={<Playdate propTest="hi" />} />
         </Routes>
-      </Router>
+      )}
     </div>
   );
-}
+};
 
 export default App;
