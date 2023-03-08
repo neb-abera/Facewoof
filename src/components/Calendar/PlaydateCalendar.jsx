@@ -8,11 +8,11 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import FullCalendar from '@fullcalendar/react';
-import { formatDate } from '@fullcalendar/core';
+// import { formatDate } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { initialEvent, createEventId } from './calendarUtils';
+import { createEventId } from './calendarUtils'; // initialEvent,
 
 const PlaydateCalendar = ({ playdates }) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
@@ -21,12 +21,12 @@ const PlaydateCalendar = ({ playdates }) => {
 
   const handleDateSelect = (selectInfo) => {
     // this is currently an alert need to change to modal window
-    console.log(selectInfo);
+    // console.log(selectInfo);
     const title = prompt('Please enter a new title for your event');
     const calendarApi = selectInfo.view.calendar;
 
     calendarApi.unselect();
-    console.log(calendarApi);
+    // console.log(calendarApi);
 
     if (title) {
       calendarApi.addEvent({
@@ -40,7 +40,7 @@ const PlaydateCalendar = ({ playdates }) => {
   };
 
   const handleEventClick = (clickInfo, e) => {
-    console.log(clickInfo, e);
+    // console.log(clickInfo, e);
     // setShowPlaydateModal(true);
     // if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}`)) {
     //   clickInfo.event.remove();
