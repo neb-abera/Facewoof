@@ -55,7 +55,7 @@ export default function ProfileCard({ user, distance }) {
                     id={`item${user.user_id}${index}`}
                     className="carousel-item w-full"
                 >
-                  <img className="w-full" src={url} alt="Doggy" />
+                  <img className="w-full no-image-drag" src={url} alt="Doggy" />
                 </div>
               ))}
             </div>
