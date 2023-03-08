@@ -13,7 +13,7 @@ const Playdate = () => {
   return (
     <div className="modalDiv">
       <div className="playdateModal">
-        <h3>Create a PlayDate!</h3>
+        <h3>Playdate Details</h3>
         <div className="dropdown">
           <label tabIndex={0} className="btn m-1">
             Click

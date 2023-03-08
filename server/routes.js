@@ -1,5 +1,5 @@
 const express = require('express');
-const { discoverUsers, userResponse, getPlaydates } = require('./controllers');
+const { discoverUsers, userResponse, getPlaydates, getUserPacks } = require('./controllers');
 
 const router = express.Router();
 
@@ -11,5 +11,7 @@ router.post('/api/response', userResponse);
 
 // Route handling getting all playdates for packs current user is a member of
 router.get('/playdates', getPlaydates);
+
+router.get('/packs', getUserPacks);
 
 module.exports = router;

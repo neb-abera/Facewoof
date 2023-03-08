@@ -1,5 +1,12 @@
 const db = require('./database');
 
+const getPacks = (userId) => {
+  return db.query(`SELECT json_agg(packobj) FROM 
+  (SELECT pack_users.pack_id, packs.name FROM pack_users
+    INNER JOIN packs ON packs.pack_id = pack_users.pack_id
+    WHERE pack_users.user_id = ${userId}) as packobj;`);
+};
+
 const createPlaydate = (playdateInfo) => {
   // to format time correctly.... new Date(date of playdate).toLocaleString()
   const packId = playdateInfo.pack.id; // plan on pack being received as an object pack: { packName: 'nameOfPack', id: num}
@@ -27,6 +34,7 @@ const getAllPlaydates = (userId) => {
 };
 
 module.exports = {
+  getPacks: getPacks,
   createPlaydate: createPlaydate,
   getAllPlaydates: getAllPlaydates
 };

@@ -3,13 +3,21 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
+// import 'moment-timezone';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useUserContext from '../../hooks/useUserContext';
 
 moment.locale('en-US');
 const localizer = momentLocalizer(moment);
 
-const PlaydateCalendar = () => {
+const PlaydateCalendar = ({
+  openEditModal,
+  setEditPlaydateModal,
+  closeEditModal,
+  openAddModal,
+  setAddPlaydateModal,
+  closeAddModal
+}) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const [eventsData, setEventsData] = useState([]);
 
@@ -23,26 +31,30 @@ const PlaydateCalendar = () => {
   const background = location.state && location.state.background;
 
   const handleSelect = ({ start, end }) => {
-    console.log(start);
-    console.log(end);
-    const title = window.prompt('New Event Name');
-    if (title) {
-      setEventsData((prev) => [
-        ...prev,
-        {
-          start: start,
-          end: end,
-          title: title
-        }
-      ]);
-    }
+    // console.log(start);
+    // console.log(end);
+    openEditModal();
+    // const title = window.prompt('New Event Name');
+    // if (title) {
+    //   setEventsData((prev) => [
+    //     ...prev,
+    //     {
+    //       start: start,
+    //       end: end,
+    //       title: title
+    //     }
+    //   ]);
+    // }
   };
 
   return (
     <div>
-      <Link to="/editplaydate" state={{ background: location }}>
+      {/* <Link to="/editplaydate" state={{ background: location }}>
         Edit Playdate Details
-      </Link>
+      </Link> */}
+      <button type="button" onClick={openAddModal}>
+        Add Playdate
+      </button>
       <Calendar
         views={['day', 'agenda', 'week', 'month']}
         selectable
@@ -51,8 +63,8 @@ const PlaydateCalendar = () => {
         defaultView="week"
         step="30"
         events={eventsData}
-        onSelectEvent={(event) => alert(event.title)}
-        inSelectSlot={handleSelect}
+        onSelectEvent={openEditModal}
+        onSelectSlot={openAddModal}
       />
     </div>
   );
