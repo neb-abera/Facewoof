@@ -1,0 +1,22 @@
+.custom-file-input::-webkit-file-upload-button {
+  visibility: hidden;
+  width: 2px;
+}
+
+.custom-file-input::before {
+  content: 'UPLOAD IMAGE';
+  display: inline-block;
+  border-radius: 7px;
+  background-color: rgb(15, 86, 52);
+  color: rgb(155, 211, 185);
+  padding: 7px 35px;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.custom-file-input:hover::before {
+  opacity: 0.95;
+}

@@ -190,10 +190,10 @@ const CardStack = ({ users }) => {
             Pass
           </button>
           <button
-            id="digg"
-            type="button"
-            className="btn btn-active btn-primary vote-button digg"
-            onClick={handleVote}
+              id="digg"
+              type="button"
+              className="btn btn-active btn-primary vote-button digg"
+              onClick={handleVote}
           >
             Digg &apos;em
           </button>
