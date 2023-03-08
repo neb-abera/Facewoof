@@ -6,6 +6,7 @@ import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
 
 import CardStack from '../components/Discover/CardStack';
+import useUserContext from '../hooks/useUserContext';
 import './discover.css';
 
 // eslint-disable-next-line react/function-component-definition
@@ -13,8 +14,9 @@ export default function Discover() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const userContext = useUserContext();
+
   function getUsers(user) {
-    // console.log('making request');
     axios
       .get('https://localhost:3001/api/discover', {
         params: {
@@ -25,7 +27,6 @@ export default function Discover() {
         }
       })
       .then((results) => {
-        // console.log('User list:', results);
         setUsers(results);
       })
       .then(() => {
@@ -51,7 +52,7 @@ export default function Discover() {
   }
 
   return (
-    <div>
+    <div className="discover-view">
       <CardStack users={users} />
     </div>
   );
