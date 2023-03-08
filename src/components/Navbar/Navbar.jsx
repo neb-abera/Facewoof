@@ -19,22 +19,6 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // const test = () => {
-  //   axios
-  //     .get(`/api/discover`, {
-  //       params: {
-  //         id: 7,
-  //         zipcode: 10017,
-  //         radius: 5,
-  //         count: 5
-  //       }
-  //     })
-  //     .then((res) => console.log(res))
-  //     .catch((err) => console.log(err));
-  // };
-
-  // test();
-
   useEffect(() => {
     if (location.pathname === '/' && !loggedIn) {
       setNavBarStyle({

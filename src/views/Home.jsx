@@ -1,9 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
+import useUserContext from '../hooks/useUserContext';
 
 const Home = () => {
+  const { loggedIn } = useUserContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loggedIn) {
+      navigate('/discover');
+    }
+  }, [loggedIn]);
+
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
