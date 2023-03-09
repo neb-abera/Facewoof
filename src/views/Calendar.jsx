@@ -8,10 +8,15 @@ import useUserContext from '../hooks/useUserContext';
 import PlaydateCalendar from '../components/Calendar/PlaydateCalendar';
 import EditPlaydate from '../components/Calendar/EditPlaydate';
 import AddPlaydate from '../components/Calendar/AddPlaydate';
+import '../components/Calendar/Playdate.css';
 
 const Calendar = () => {
   const [editPlaydateModal, setEditPlaydateModal] = useState(false);
   const [addPlaydateModal, setAddPlaydateModal] = useState(false);
+  // Add new Playdate States:
+  const [playStartTime, setStartTime] = useState();
+  const [playEndTime, setEndTime] = useState();
+
   const { playdates, setPlaydates, handleSetPlaydates, setPacks } = useUserContext();
 
   Modal.setAppElement('#root');
@@ -33,7 +38,7 @@ const Calendar = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/api/playdates?userId=${1}`)
+      .get(`http://localhost:3001/api/playdates?userId=${7}`)
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];
@@ -66,12 +71,22 @@ const Calendar = () => {
         openAddModal={openAddModal}
         setAddPlaydateModal={setAddPlaydateModal}
         closeAddModal={closeAddModal}
+        playStartTime={playStartTime}
+        setStartTime={setStartTime}
+        playEndTime={playEndTime}
+        setEndTime={setEndTime}
       />
       <Modal isOpen={editPlaydateModal} onRequestClose={closeEditModal}>
         <EditPlaydate closeEditModal={closeEditModal} />
       </Modal>
-      <Modal isOpen={addPlaydateModal} onRequestClose={closeAddModal}>
-        <AddPlaydate closeAddModal={closeAddModal} />
+      <Modal isOpen={addPlaydateModal} onRequestClose={closeAddModal} className="playdate-modal">
+        <AddPlaydate
+          closeAddModal={closeAddModal}
+          playStartTime={playStartTime}
+          setStartTime={setStartTime}
+          playEndTime={playEndTime}
+          setEndTime={setEndTime}
+        />
       </Modal>
     </div>
   );
