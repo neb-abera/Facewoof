@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PackName from './PackName.jsx';
 import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:3001';
 
 const PackList = ({ setViewing, userIdentity, setViewingName }) => {
   var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
@@ -10,8 +11,8 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
 
   useEffect(() => {
     axios
-      .post('/getUserPacks', {
-        userId: userIdentity
+      .get('/api/getUserPacks', {
+        params: { userId: userIdentity }
       })
       .then((data) => {
         var input = data.data;

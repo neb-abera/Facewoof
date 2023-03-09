@@ -11,8 +11,8 @@ const SoloPlaydates = ({ setViewing, userIdentity }) => {
 
   useEffect(() => {
     axios
-      .post('/getUserPlaydates', {
-        userId: userIdentity
+      .get('/api/getUserPlaydates', {
+        params: { userId: userIdentity }
       })
       .then((data) => {
         // console.log('data', data.data);

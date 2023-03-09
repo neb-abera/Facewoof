@@ -25,9 +25,8 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
 
   useEffect(() => {
     axios
-      .post('/getSoloPosts', {
-        userId: userIdentity,
-        packId: viewing
+      .get('/api/getSoloPosts', {
+        params: { userId: userIdentity, packId: viewing }
       })
       .then((packet) => {
         // console.log('data', packet.data);
@@ -36,8 +35,8 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
       })
       .then(() => {
         axios
-          .post('/getPfp', {
-            userId: userIdentity
+          .get('/api/getPfp', {
+            params: { userId: userIdentity }
           })
           .then((resp) => {
             setPfp(resp.data[0].url);

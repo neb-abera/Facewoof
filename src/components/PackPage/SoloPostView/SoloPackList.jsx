@@ -10,8 +10,8 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
 
   useEffect(() => {
     axios
-      .post('/getUserPacks', {
-        userId: userIdentity
+      .get('/api/getUserPacks', {
+        params: { userId: userIdentity }
       })
       .then((data) => {
         // console.log('data', data.data);
@@ -55,13 +55,6 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
               </li>
             ))
           : null}
-
-        {/* <li>
-          <PackName name={listNames[1]} setViewing={setViewing} />
-        </li>
-        <li>
-          <PackName name={listNames[2]} setViewing={setViewing} />
-        </li> */}
       </div>
     </>
   );

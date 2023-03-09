@@ -3,13 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const Playdate = ({ dataPoint }) => {
   var styles = {
-    cal: {
-      // height: '5vh'
-    }
+    cal: {}
   };
-  // console.log('datapoint', dataPoint);
   var currentDate = new Date(dataPoint.start_date);
-  // console.log(dataPoint);
   return (
     <>
       <div

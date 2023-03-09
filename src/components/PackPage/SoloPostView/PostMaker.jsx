@@ -5,10 +5,6 @@ axios.defaults.baseURL = 'http://localhost:3001';
 import useUserContext from '../../../hooks/useUserContext';
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
-  // console.log('viewing this group', viewing);
-  // const { id } = useUserContext();
-
-  // console.log('identity', id);
   var styles = {
     postMakerImg: {
       display: 'flex',
@@ -32,7 +28,6 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
     var packet = {};
     packet.body = body;
     packet.groupId = viewing;
-    // console.log(packet);
   };
 
   return (
@@ -49,7 +44,6 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
             <textarea
               onChange={(e) => {
                 setBody(e.target.value);
-                // console.log('body', body);
               }}
               className="textarea-bordered"
               placeholder="Make A Post"

@@ -6,7 +6,7 @@ const SoloPackName = ({ name, setViewing }) => {
   // console.log(name);
   var click = () => {
     setViewing(name);
-    console.log('clicked', name);
+    // console.log('clicked', name);
   };
   return (
     <>

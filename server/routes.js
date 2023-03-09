@@ -39,40 +39,44 @@ router.put('/api/addtopack', addUserToPack);
 // Expects a pack_name and array of user ids in the req body
 router.put('/api/createpack', createNewPackAndAdd);
 
-router.post('/getAllPostsFromSpecificPack', (req, res) => {
-  var packId = req.body.packId;
+router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
+  // var packId = req.body.packId;
+  var { packId } = req.query;
   getPackPosts(packId).then((response) => {
     res.status(201).send(response);
   });
 });
 
-router.post('/getUserPacks', (req, res) => {
-  var packId = req.body.userId;
-  getUserPacksId(packId, res);
+router.get('/api/getUserPacks', (req, res) => {
+  // var packId = req.body.userId;
+  var { userId } = req.query;
+  // console.log('userId', userId);
+  getUserPacksId(userId, res);
 });
 
-router.post('/getAllPacksPostsForUser', (req, res) => {
-  var userId = req.body.userId;
+router.get('/api/getAllPacksPostsForUser', (req, res) => {
+  var { userId } = req.query;
   getAllPostsFromAllPacks(userId, res);
 });
 
-router.post('/getUserPlaydates', (req, res) => {
-  var userId = req.body.userId;
+router.get('/api/getUserPlaydates', (req, res) => {
+  var { userId } = req.query;
   getUserPlaydatesAllPacks(userId, res);
 });
 
-router.post('/getSoloPosts', (req, res) => {
-  var userId = req.body.userId;
-  var packId = req.body.packId;
+router.get('/api/getSoloPosts', (req, res) => {
+  var { userId, packId } = req.query;
+  // var packId = req.body.packId;
   getSoloPosts(userId, packId, res);
 });
 
-router.post('/getPfp', (req, res) => {
-  var userId = req.body.userId;
+router.get('/api/getPfp', (req, res) => {
+  // var userId = req.body.userId;
+  var { userId } = req.query;
   getPfp(userId, res);
 });
 
-router.post('/makePost', (req, res) => {
+router.post('/api/makePost', (req, res) => {
   console.log('received request to make post');
 });
 

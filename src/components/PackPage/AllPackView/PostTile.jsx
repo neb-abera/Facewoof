@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-/*
-            <PostTile
-              img={each.photo_url}
-              content={each.body}
-              postedOn={each.date}
-              parentGroup={each.packId}
-            />
-*/
 const PostTile = ({ img, content, postedOn, parentGroup }) => {
   var styles = {
     pfp: {

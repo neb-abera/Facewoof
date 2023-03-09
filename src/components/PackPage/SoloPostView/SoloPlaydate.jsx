@@ -3,13 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const SoloPlaydate = ({ dataPoint }) => {
   var styles = {
-    cal: {
-      // height: '5vh'
-    }
+    cal: {}
   };
 
   var currentDate = new Date(dataPoint.date);
-  // console.log(dataPoint);
   return (
     <>
       <div

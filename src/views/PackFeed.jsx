@@ -24,8 +24,8 @@ const PackFeed = () => {
 
   useEffect(() => {
     axios
-      .post('/getAllPacksPostsForUser', {
-        userId: userIdentity
+      .get('/api/getAllPacksPostsForUser', {
+        params: { userId: userIdentity }
       })
       .then((resp) => {
         // console.log('responses', resp.data);

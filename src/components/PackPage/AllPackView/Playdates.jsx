@@ -11,18 +11,12 @@ const Playdates = ({ setViewing, userIdentity }) => {
 
   useEffect(() => {
     axios
-      .post('/getUserPlaydates', {
-        userId: userIdentity
+      .get('/api/getUserPlaydates', {
+        params: { userId: userIdentity }
       })
       .then((data) => {
-        // console.log('data', data.data);
         var input = data.data;
-        // var packs = [];
-        // for (var i = 0; i < input.length; i++) {
-        //   packs.push({input[i], });
-        // }
         setPlaydates(input);
-        // console.log('playdates state', playdates);
       });
   }, []);
 
@@ -37,7 +31,6 @@ const Playdates = ({ setViewing, userIdentity }) => {
   return (
     <>
       <div>
-        {/* {console.log('within code', typeof playdates)} */}
         {playdates
           ? playdates.map((packName, key) => (
               <li key={key}>
