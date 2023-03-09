@@ -1,7 +1,7 @@
 /* eslint-disable object-shorthand */
 const { discoverUsers, userResponse } = require('./discover');
 const { getPlaydates, AddPlaydate } = require('./calendar');
-const { addUserToPack, getUserPacks } = require('./packs');
+const { addUserToPack, getUserPacks, createNewPackAndAdd } = require('./packs');
 
 module.exports = {
   discoverUsers,
@@ -9,5 +9,6 @@ module.exports = {
   getPlaydates,
   AddPlaydate,
   addUserToPack,
-  getUserPacks
+  getUserPacks,
+  createNewPackAndAdd
 };

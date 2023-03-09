@@ -5,7 +5,8 @@ const {
   getPlaydates,
   AddPlaydate,
   getUserPacks,
-  addUserToPack
+  addUserToPack,
+  createNewPackAndAdd
 } = require('./controllers');
 
 const router = express.Router();
@@ -27,5 +28,9 @@ router.get('/api/getpacks', getUserPacks);
 
 // Route to add person to existing pack
 router.put('/api/addtopack', addUserToPack);
+
+// Route to create a new pack and add user ids
+// Expects a pack_name and array of user ids in the req body
+router.put('/api/createpack', createNewPackAndAdd);
 
 module.exports = router;
