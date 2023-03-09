@@ -27,7 +27,7 @@ const Home = () => {
       </div>
       <div
         className="flex flex-col space-y-5 px-12 items-center justify-center"
-          style={{ width: `--webkit-calc(100% - 600px)` }}
+        style={{ width: `--webkit-calc(100% - 600px)` }}
       >
         <h3 className="text-2xl text-center text-[#bb7c7c] font-medium my-3">Create An Account</h3>
         <AuthForm action="signup" />
