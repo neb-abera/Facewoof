@@ -75,7 +75,7 @@
   .card-stack {
     /* top: 20%; */
     width: 800px;
-    height: 90vh;
+    height: 100vh;
     overflow: none;
     /* position: relative; */
     display: flex;

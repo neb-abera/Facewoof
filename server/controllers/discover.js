@@ -10,23 +10,24 @@ const url = process.env.ZIPCODE_URI;
 const discoverUsers = async (req, res) => {
   try {
     const { id, zipcode, radius, count } = req.query;
-    // const { data } = await axios.get(`${url}/${apiKey}/radius.json/${zipcode}/${radius}/mile`);
-    // const matchedZipcodes = data.zip_codes.reduce((acc, el, index) => {
+    console.log(id, zipcode, radius, count);
+    const { data } = await axios.get(`${url}/${apiKey}/radius.json/${zipcode}/${radius}/mile`);
+    const matchedZipcodes = data.zip_codes.reduce((acc, el, index) => {
       // eslint-disable-next-line no-param-reassign
-      // acc += `'${el.zip_code}', `;
-      // if (index === data.zip_codes.length - 1) {
+      acc += `'${el.zip_code}', `;
+      if (index === data.zip_codes.length - 1) {
         // eslint-disable-next-line no-param-reassign
-    //     acc = `${acc.slice(0, -2)})`;
-    //   }
-    //   return acc;
-    // }, '(');
+        acc = `${acc.slice(0, -2)})`;
+      }
+      return acc;
+    }, '(');
 
-    // const nearbyUsers = await generateDiscoverFeed(id, matchedZipcodes, count);
-    // res.status(200).send(nearbyUsers);
+    const nearbyUsers = await generateDiscoverFeed(id, matchedZipcodes, count);
+    res.status(200).send(nearbyUsers);
 
     // DELETE THIS AFTER FINISH TESTING
-    const result = await readFile(join(__dirname, 'users.json'), { encoding: 'utf8' });
-    res.status(200).send(JSON.parse(result));
+    // const result = await readFile(join(__dirname, 'users.json'), { encoding: 'utf8' });
+    // res.status(200).send(JSON.parse(result));
     // eslint-disable-next-line spaced-comment
     //====================================
   } catch (err) {
