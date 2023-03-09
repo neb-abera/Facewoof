@@ -5,7 +5,7 @@ import Login from './views/Login';
 import Discover from './views/Discover';
 import PlaydateCalendar from './views/Calendar';
 import './App.css';
-import Playdate from './components/Calendar/EditPlaydate';
+// import Playdate from './components/Calendar/EditPlaydate';
 
 const App = () => {
   const location = useLocation();
@@ -17,15 +17,15 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/discover" element={<Discover />} />
-        <Route path="/calendar" element={<PlaydateCalendar />}>
-          <Route path="calendar/editplaydate" element={<Playdate />} />
-        </Route>
+        <Route path="/calendar" element={<PlaydateCalendar />} />
+        {/* <Route path="calendar/editplaydate" element={<Playdate />} /> */}
+        {/* </Route> */}
       </Routes>
-      {background && (
+      {/* {background && (
         <Routes>
           <Route path="/editplaydate" element={<Playdate propTest="hi" />} />
         </Routes>
-      )}
+      )} */}
     </div>
   );
 };
