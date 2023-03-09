@@ -17,7 +17,7 @@ const Calendar = () => {
   const [playStartTime, setStartTime] = useState();
   const [playEndTime, setEndTime] = useState();
 
-  const { playdates, setPlaydates, handleSetPlaydates, setPacks } = useUserContext();
+  const { userId, playdates, setPlaydates, handleSetPlaydates, setPacks } = useUserContext();
 
   Modal.setAppElement('#root');
 
@@ -38,7 +38,7 @@ const Calendar = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/api/playdates?userId=${7}`)
+      .get(`http://localhost:3001/api/playdates?userId=${userId}`)
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];
@@ -54,7 +54,7 @@ const Calendar = () => {
         });
         setPlaydates(playdateArr);
       })
-      .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${7}`))
+      .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`))
       .then((packData) => {
         // console.log(packData.data);
         setPacks(packData.data);
