@@ -5,7 +5,8 @@ const {
   getPlaydates,
   getUserPacks,
   addUserToPack,
-  createNewPackAndAdd
+  createNewPackAndAdd,
+  authUser
 } = require('./controllers');
 
 const {
@@ -19,6 +20,9 @@ const {
 } = require('./controllers/packFeed.js');
 
 const router = express.Router();
+
+// Route to check if user exists and create if not
+router.put('/api/authuser', authUser);
 
 // Route handling discover nearby users
 router.get('/api/discover', discoverUsers);

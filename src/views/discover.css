@@ -50,4 +50,5 @@
 
 .discover-view {
   /* background-color: white; */
+  overflow: hidden;
 }
