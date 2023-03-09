@@ -8,13 +8,18 @@
 }
 
 @media screen and (min-width: 460px) {
+
+  .card-stack-parent {
+    overflow: hidden;
+  }
+
   .discover-cardview-parent {
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    /* border: solid green; */
+    height: 90vh;
+    overflow: hidden;
   }
 
   @keyframes fadeIn {
@@ -70,13 +75,14 @@
   .card-stack {
     /* top: 20%; */
     width: 800px;
-    height: 90vh;
+    height: 100vh;
     overflow: none;
     /* position: relative; */
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
     margin: auto;
+    overflow: hidden;
     /* gap: -20px; */
     /* border: solid red; */
   }
