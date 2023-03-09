@@ -12,13 +12,13 @@ import './discover.css';
 // eslint-disable-next-line react/function-component-definition
 export default function Discover() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const userContext = useUserContext();
 
   function getUsers(user) {
     axios
-      .get('https://localhost:3001/api/discover', {
+      .get('http://localhost:3001/api/discover', {
         params: {
           id: 7,
           zipcode: 10017,
@@ -27,10 +27,7 @@ export default function Discover() {
         }
       })
       .then((results) => {
-        setUsers(results);
-      })
-      .then(() => {
-        setLoading(false);
+        setUsers(results.data);
       })
       .catch((err) => {
         // eslint-disable-next-line no-console
@@ -41,6 +38,12 @@ export default function Discover() {
   useEffect(() => {
     getUsers();
   }, []);
+
+  useEffect(() => {
+    if (users.length > 0) {
+      setLoading(false);
+    }
+  }, [users]);
 
   if (loading) {
     return (

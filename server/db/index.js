@@ -3,6 +3,7 @@ const db = require('./database');
 const { setRelationship, checkForMatchAndCreate, generateDiscoverFeed } = require('./discover');
 const { getAllPlaydates, createPlaydate } = require('./calendar');
 const { addToPack, getPacks, createPackAndAdd } = require('./pack');
+const { checkOrCreateUser } = require('./auth');
 
 module.exports = {
   db,
@@ -13,5 +14,6 @@ module.exports = {
   getAllPlaydates,
   createPlaydate,
   addToPack,
-  createPackAndAdd
+  createPackAndAdd,
+  checkOrCreateUser
 };
