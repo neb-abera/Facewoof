@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-param-reassign */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable object-shorthand */
 /* eslint-disable no-shadow */
@@ -22,8 +24,17 @@ const getCoordinates = () => {
   });
 };
 
-const getUserLocation = async () => {
-  const { latitude, longitude } = (await getCoordinates()).coords;
+const getUserLocation = async (lat, lng) => {
+  // eslint-disable-next-line one-var
+  let latitude, longitude;
+  if (!lat && !lng) {
+    const coordinate = (await getCoordinates()).coords;
+    latitude = coordinate.latitude;
+    longitude = coordinate.longitude;
+  } else {
+    latitude = lat;
+    longitude = lng;
+  }
 
   return axios
     .get(`${googleApiUrl}/json?latlng=${latitude},${longitude}&key=${googleApiKey}`)
@@ -37,7 +48,7 @@ const getUserLocation = async () => {
 // eslint-disable-next-line react/function-component-definition
 export default function Discover() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
@@ -45,7 +56,7 @@ export default function Discover() {
 
   const { userId } = useUserContext();
 
-  function getUsers(zipcode, radius = 5) {
+  const fetchNearbyUsers = (zipcode, radius) => {
     setLoading(true);
     axios
       .get(`${apiUrl}/api/discover`, {
@@ -64,10 +75,25 @@ export default function Discover() {
         setLoading(false);
       })
       .catch((err) => {
-        // eslint-disable-next-line no-console
         console.log(err);
       });
-  }
+  };
+
+  const getUsers = (location, radius = 5) => {
+    location = location.trim();
+    if (!Number.isNaN(location)) {
+      axios
+        .get(`${googleApiUrl}/json?address=${location}&key=${googleApiKey}`)
+        .then(({ data }) => {
+          const { lat, lng } = data.results[0].geometry.location;
+          return getUserLocation(lat, lng);
+        })
+        .then((userLocation) => fetchNearbyUsers(userLocation, radius))
+        .catch((err) => console.log(err));
+    } else {
+      fetchNearbyUsers(location, radius);
+    }
+  };
 
   useEffect(() => {
     if (searchLocation === '') {

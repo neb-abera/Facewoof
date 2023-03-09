@@ -45,3 +45,8 @@ dist-ssr
 # other
 *.pem
 *.csv
+dist/
+.DS_Store
+server/.DS_Store
+src/.DS_Store
+src/components/.DS_Store
