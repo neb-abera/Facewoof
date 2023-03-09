@@ -11,7 +11,6 @@ const SearchBar = ({ radius, onSetRadius, location, onSetLocation, onSearch }) =
         onSearch();
       }}
     >
-      {/* <h3 className="text-secondary">Search by city or zip</h3> */}
       <input
         type="text"
         placeholder="City or zip code"
