@@ -78,6 +78,8 @@ var getPfp = (userId, res) => {
   });
 };
 
+var makePost = () => {};
+
 module.exports = {
   getUserPacksId: getUserPacksId,
   getPackPosts: getPackPosts,

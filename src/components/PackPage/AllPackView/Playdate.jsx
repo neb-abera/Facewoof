@@ -7,8 +7,8 @@ const Playdate = ({ dataPoint }) => {
       // height: '5vh'
     }
   };
-
-  var currentDate = new Date(dataPoint.date);
+  // console.log('datapoint', dataPoint);
+  var currentDate = new Date(dataPoint.start_date);
   // console.log(dataPoint);
   return (
     <>

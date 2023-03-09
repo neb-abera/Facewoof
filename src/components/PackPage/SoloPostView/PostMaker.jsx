@@ -2,9 +2,13 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:3001';
+import useUserContext from '../../../hooks/useUserContext';
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
-  console.log('viewing this group', viewing);
+  // console.log('viewing this group', viewing);
+  // const { id } = useUserContext();
+
+  // console.log('identity', id);
   var styles = {
     postMakerImg: {
       display: 'flex',
@@ -24,6 +28,13 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
   };
   var [body, setBody] = useState('');
 
+  const makePost = () => {
+    var packet = {};
+    packet.body = body;
+    packet.groupId = viewing;
+    // console.log(packet);
+  };
+
   return (
     <>
       <div style={styles.parent}>
@@ -38,7 +49,7 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
             <textarea
               onChange={(e) => {
                 setBody(e.target.value);
-                console.log('body', body);
+                // console.log('body', body);
               }}
               className="textarea-bordered"
               placeholder="Make A Post"
@@ -47,7 +58,14 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
           </div>
         </div>
         <div style={styles.button}>
-          <button className={'btn btn-block'}>Post</button>
+          <button
+            className={'btn btn-block'}
+            onClick={() => {
+              body.length > 50 ? makePost() : null;
+            }}
+          >
+            Post
+          </button>
         </div>
       </div>
     </>

@@ -12,7 +12,8 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
   var styles = {
     packList: {
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      height: '50vh'
     },
     parent: {
       border: '1px solid grey',
@@ -33,10 +34,9 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
       display: 'flex',
       justifyContent: 'center'
     },
-    packList: {
-      // border: '2px solid grey',
-      height: '50vh'
-    },
+    // packList: {
+    //   // border: '2px solid grey',
+    // },
     calendar: {
       height: '50vh'
     },

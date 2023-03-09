@@ -19,29 +19,6 @@ app.use(express.urlencoded({ extended: true }));
 // ----- Request handling ----- //
 app.use(router);
 
-// app.post('/getAllPacksPostsForUser', (req, res) => {
-//   var userId = req.body.userId;
-//   packFeed.getAllPostsFromAllPacks(userId, res);
-// });
-
-// app.post('/getUserPlaydates', (req, res) => {
-//   var userId = req.body.userId;
-//   packFeed.getUserPlaydatesAllPacks(userId, res);
-// });
-
-// app.post('/getSoloPosts', (req, res) => {
-//   var userId = req.body.userId;
-//   var packId = req.body.packId;
-//   // console.log('packId', packId);
-//   // packFeed.getUserPlaydatesAllPacks(userId, res);
-//   packFeed.getSoloPosts(userId, packId, res);
-// });
-
-// app.post('/getPfp', (req, res) => {
-//   var userId = req.body.userId;
-//   packFeed.getPfp(userId, res);
-// });
-
 db.connect()
   .then(() => {
     console.log('database connected');

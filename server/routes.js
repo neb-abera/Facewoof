@@ -47,14 +47,16 @@ router.post('/getUserPlaydates', (req, res) => {
 router.post('/getSoloPosts', (req, res) => {
   var userId = req.body.userId;
   var packId = req.body.packId;
-  // console.log('packId', packId);
-  // getUserPlaydatesAllPacks(userId, res);
   getSoloPosts(userId, packId, res);
 });
 
 router.post('/getPfp', (req, res) => {
   var userId = req.body.userId;
   getPfp(userId, res);
+});
+
+router.post('/makePost', (req, res) => {
+  console.log('received request to make post');
 });
 
 module.exports = router;

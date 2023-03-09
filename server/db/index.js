@@ -11,5 +11,5 @@ module.exports = {
   generateDiscoverFeed,
   getAllPlaydates,
   createPlaydate,
-  addToPack,
+  addToPack
 };
