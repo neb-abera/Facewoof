@@ -5,15 +5,11 @@ const {
   getPlaydates,
   getUserPacks,
   addUserToPack,
-  createNewPackAndAdd
-} = require('./controllers');
-const {
+  createNewPackAndAdd,
   getCurrentUser,
-  getFriends,
-  getPacks,
-  addToPack,
+  getUserFriends,
   createPack
-  } = require('./db/ProfileControllers');
+} = require('./controllers');
 
 const router = express.Router();
 
@@ -36,74 +32,14 @@ router.put('/api/addtopack', addUserToPack);
 // Expects a pack_name and array of user ids in the req body
 router.put('/api/createpack', createNewPackAndAdd);
 
-//idk how yall make it look so neat lol
-router.get('/getFriends', (req, res) => {
-  getFriends(1, (err, results) => {
-    if (err) {
-      console.log('ERR SON', err);
-    } else {
-      // console.log('SUCCESSSS', results);
-      res.status(200);
-      res.json(results);
-      res.end();
-    }
-  });
-});
+// Route to get friends request
+router.get('/getFriends', getUserFriends);
+// 'http://localhost:3000/getFriends?userId=1'
 
-router.get('/getCurrentUser', (req, res) => {
-  getCurrentUser(1, (err, results) => {
-    if (err) {
-      console.log('ERR SON', err);
-    } else {
-      // console.log('SUCCESSSS', results);
-      res.status(200);
-      res.json(results);
-      res.end();
-    }
-  });
-});
+// Route to get current user request
+router.get('/getCurrentUser', getCurrentUser);
 
-router.get('/getPacks', (req, res) => {
-  getPacks(1, (err, results) => {
-    if (err) {
-      console.log('ERR SON', err);
-    } else {
-      // console.log('SUCCESSSS', results);
-      res.status(200);
-      res.json(results);
-      res.end();
-    }
-  });
-});
+// Route to create pack
+router.post('/createPack', createPack);
 
-router.post('/addToPack', (req, res) => {
-  const id = req.body.data.packId;
-  const { userId } = req.body.data;
-  console.log('add to pack', id, userId);
-  addToPack(id, userId, (err, results) => {
-    if (err) {
-      console.log('ERR SON', err);
-    } else {
-      // console.log('SUCCESSSS', results);
-      res.status(200);
-      res.json(results);
-      res.end();
-    }
-  });
-});
-
-router.post('/createPack', (req, res) => {
-  const { packName } = req.body.data;
-  console.log('create pack', packName);
-  createPack(packName, (err, results) => {
-    if (err) {
-      console.log('ERR SON', err);
-    } else {
-      // console.log('SUCCESSSS', results);
-      res.status(200);
-      res.json(results);
-      res.end();
-    }
-  });
-});
 module.exports = router;
