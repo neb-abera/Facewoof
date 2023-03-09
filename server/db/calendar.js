@@ -2,14 +2,15 @@ const db = require('./database');
 
 const createPlaydate = (playdateInfo) => {
   // to format time correctly.... new Date(date of playdate).toLocaleString()
-  const packId = playdateInfo.pack.id; // plan on pack being received as an object pack: { packName: 'nameOfPack', id: num}
+  const { packId } = playdateInfo; // plan on pack being received as an object pack: { packName: 'nameOfPack', id: num}
   const { userId } = playdateInfo;
   const { playdateBody } = playdateInfo;
   // need to fix this to have start_date and end_date
-  const playdateTime = new Date(playdateInfo.time).toLocaleString();
-  // console.log(packId, userId, playdateBody, playdateTime);
+  const playdateStart = new Date(playdateInfo.startTime).toLocaleString();
+  const playdateEnd = new Date(playdateInfo.endTime).toLocaleString();
+  console.log(packId, userId, playdateBody, playdateStart, playdateEnd);
   return db.query(`INSERT INTO playdates (pack_id, user_id, body, start_date, end_date)
-   VALUES (${packId}, ${userId}, '${playdateBody}', '${playdateTime}', 'ADD END_DATE HERE');`);
+   VALUES (${packId}, ${userId}, '${playdateBody}', '${playdateStart}', '${playdateEnd}');`);
 };
 
 const getAllPlaydates = (userId) => {

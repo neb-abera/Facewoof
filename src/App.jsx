@@ -18,14 +18,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/calendar" element={<PlaydateCalendar />} />
-        {/* <Route path="calendar/editplaydate" element={<Playdate />} /> */}
-        {/* </Route> */}
       </Routes>
-      {/* {background && (
-        <Routes>
-          <Route path="/editplaydate" element={<Playdate propTest="hi" />} />
-        </Routes>
-      )} */}
     </div>
   );
 };
