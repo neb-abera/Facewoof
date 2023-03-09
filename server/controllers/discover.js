@@ -10,7 +10,6 @@ const url = process.env.ZIPCODE_URI;
 const discoverUsers = async (req, res) => {
   try {
     const { id, zipcode, radius, count } = req.query;
-    console.log(id, zipcode, radius, count);
     const { data } = await axios.get(`${url}/${apiKey}/radius.json/${zipcode}/${radius}/mile`);
     const matchedZipcodes = data.zip_codes.reduce((acc, el, index) => {
       // eslint-disable-next-line no-param-reassign
