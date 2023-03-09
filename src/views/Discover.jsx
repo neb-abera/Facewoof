@@ -14,6 +14,7 @@ const Discover = () => {
   const [users, setUsers] = useState([]);
   const { authState, oktaAuth } = useOktaAuth();
   const [userInfo, setUserInfo] = useState(null);
+  const userContext = useUserContext();
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
@@ -23,7 +24,7 @@ const Discover = () => {
         .getUser()
         .then((info) => {
           setUserInfo(info);
-          console.log(info);
+          // console.log(info);
         })
         .catch((err) => {
           console.log(err);
@@ -31,8 +32,6 @@ const Discover = () => {
     }
   }, [authState, oktaAuth]);
   const [loading, setLoading] = useState(false);
-
-  const userContext = useUserContext();
 
   function getUsers(user) {
     axios
@@ -56,9 +55,6 @@ const Discover = () => {
       });
   }
 
-  // if (!userInfo) {
-  //   return <div>Loading...</div>;
-  // }
   if (loading) {
     return (
       <div className="loading-discover">

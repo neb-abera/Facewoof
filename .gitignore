@@ -46,3 +46,4 @@ dist-ssr
 *.pem
 *.csv
 oktaConfig.js
+Locked.jsx

@@ -5,6 +5,7 @@ import { useOktaAuth } from '@okta/okta-react';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
+import OktaSignInWidget from './OktaSignInWidget';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
@@ -12,34 +13,36 @@ const Home = () => {
   const [userEmail, setUserEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const { loggedIn, setLoggedIn, setUserId, setUserData } = useUserContext();
+  const [userInfo, setUserInfo] = useState(null);
 
-  // return <div>this is a test of the home page</div>;
-  if (!authState) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (!authState || !authState.isAuthenticated) {
+      // When user isn't authenticated, forget any user info
+      setLoggedIn(false);
+      setUserInfo(null);
+    } else {
+      oktaAuth
+        .getUser()
+        .then((info) => {
+          setUserInfo(info);
+          setLoggedIn(true);
+          setUserEmail(info.email);
+          setFirstName(info.given_name);
+          setLastName(info.family_name);
+          history.push('/discover');
 
-  oktaAuth.token
-    .getUserInfo()
-    .then((info) => {
-      setUserEmail(info.email);
-      setFirstName(info.given_name);
-      setLastName(info.family_name);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  const handleLogin = async () => history.push('/login');
-  const handleLogout = async () => oktaAuth.signOut();
-
-  const { loggedIn } = useUserContext();
-  const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (loggedIn) {
-  //     navigate('/discover');
-  //   }
-  // }, [loggedIn]);
+          // check if there is a user with a matching email
+          // if yes
+          // set userId, send them to discover page
+          // if no
+          // create userId with info, send them to signup page
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }, [authState, oktaAuth, loggedIn]); // says setLoggedIn is missing from deps but it shouldn't be
 
   return (
     <div className="flex h-screen w-screen">
@@ -55,10 +58,10 @@ const Home = () => {
       </div>
       <div
         className="flex flex-col space-y-5 px-12 items-center justify-center"
-          style={{ width: `--webkit-calc(100% - 600px)` }}
+        style={{ width: `--webkit-calc(100% - 600px)` }}
       >
         <h3 className="text-2xl text-center text-[#bb7c7c] font-medium my-3">Create An Account</h3>
-        <AuthForm action="signup" />
+        {/* <AuthForm action="signup" /> */}
         <p className="text-center text-[#bb7c7c]">
           Already Have An Account? &nbsp;
           <Link to="/login" className="font-bold text-success">

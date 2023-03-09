@@ -3,11 +3,12 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom'; // removed useNavigate
 import './EditPlaydate.css';
 
 const Playdate = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const history = useHistory();
   const [input, setInput] = useState({});
 
   return (
@@ -30,7 +31,8 @@ const Playdate = () => {
             </li>
           </ul>
         </div>
-        <button type="submit" onClick={() => navigate(-1)}>
+        <button type="submit" onClick={() => history.goBack()}>
+          {/* <button type="submit" onClick={() => navigate(-1)}> */}
           Close
         </button>
       </div>

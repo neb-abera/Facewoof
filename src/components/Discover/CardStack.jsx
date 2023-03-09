@@ -193,10 +193,6 @@ const CardStack = ({ users }) => {
           <button
             id="digg"
             type="button"
-            className="btn btn-active btn-primary"
-            onClick={handleVote}
-            id="digg"
-            type="button"
             className="btn btn-active btn-primary vote-button digg"
             onClick={handleVote}
           >

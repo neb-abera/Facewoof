@@ -10,10 +10,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   // changed from <Router>
   <React.StrictMode>
     <UserProvider>
-      <Router>
-        <Navbar />
-        <App />
-      </Router>
+      <App />
     </UserProvider>
   </React.StrictMode>
 );

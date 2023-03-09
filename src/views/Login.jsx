@@ -16,7 +16,7 @@ const Login = ({ config }) => {
     oktaAuth.handleLoginRedirect(tokens);
   };
 
-  const { loggedIn } = useUserContext();
+  // const { loggedIn } = useUserContext();
   //  const navigate = useNavigate();
 
   //  useEffect(() => {
