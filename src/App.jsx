@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
+import PackFeed from './views/PackFeed';
 import PlaydateCalendar from './views/Calendar';
 import './App.css';
 // import Playdate from './components/Calendar/EditPlaydate';
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/discover" element={<Discover />} />
+        <Route path="/packFeed" element={<PackFeed />} />
         <Route path="/calendar" element={<PlaydateCalendar />} />
         {/* <Route path="calendar/editplaydate" element={<Playdate />} /> */}
         {/* </Route> */}

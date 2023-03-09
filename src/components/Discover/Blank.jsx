@@ -14,7 +14,7 @@ export default function Blank() {
           <FaDog />
         </div>
         <h1 className="blank-title">That&apos;s all for now!</h1>
-        <h1 className="blank-subtitle">Come back again later to see more potential matches...</h1>
+        <h1 className="blank-subtitle">Come back later to see more potential matches...</h1>
       </div>
     </div>
   );

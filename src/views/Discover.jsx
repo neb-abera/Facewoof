@@ -83,6 +83,12 @@ export default function Discover() {
     getUsers(searchLocation, radius);
   };
 
+  useEffect(() => {
+    if (users.length > 0) {
+      setLoading(false);
+    }
+  }, [users]);
+
   return (
     <div>
       <SearchBar
