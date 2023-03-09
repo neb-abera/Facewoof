@@ -12,6 +12,7 @@ const getPlaydates = (req, res) => {
 };
 
 const AddPlaydate = (req, res) => {
+  console.log('reached server!');
   const { packId, userId, playdateBody, startTime, endTime } = req.body;
   const playdateInfo = {
     packId: packId,
