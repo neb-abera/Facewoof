@@ -56,7 +56,7 @@ const Calendar = () => {
       })
       .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${7}`))
       .then((packData) => {
-        console.log(packData.data);
+        // console.log(packData.data);
         setPacks(packData.data);
       });
   }, []);
