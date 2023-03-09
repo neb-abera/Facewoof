@@ -1,13 +1,12 @@
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
-import CardStack from '../components/Discover/CardStack';
 import { useOktaAuth } from '@okta/okta-react';
+import CardStack from '../components/Discover/CardStack';
 
-export default function Discover() {
+const Discover = () => {
   const [users, setUsers] = useState([]);
   const { authState, oktaAuth } = useOktaAuth();
   const [userInfo, setUserInfo] = useState(null);
@@ -27,10 +26,6 @@ export default function Discover() {
         });
     }
   }, [authState, oktaAuth]);
-
-  if (!userInfo) {
-    return <div>Loading...</div>;
-  }
 
   function getUsers(user) {
     // console.log('making request');
@@ -52,18 +47,14 @@ export default function Discover() {
       });
   }
 
-  useEffect(() => {
-    getUsers();
-  }, []);
-
+  if (!userInfo) {
+    return <div>Loading...</div>;
+  }
   return (
     <div>
-      // remove after testing
-      <div>
-        Welcome, &nbsp;{userInfo.name}! This is the discover page and you are here because you are
-        logged in.
-      </div>
       <CardStack users={users} />
     </div>
   );
-}
+};
+
+export default Discover;
