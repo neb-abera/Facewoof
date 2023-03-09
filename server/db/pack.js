@@ -52,8 +52,6 @@ const getPacks = (userId) => {
     WHERE pack_users.user_id = ${userId}) as packobj;`);
 };
 
-createPackAndAdd('queryTest', [1, 2, 3]);
-
 module.exports = {
   addToPack: addToPack,
   getPacks: getPacks,
