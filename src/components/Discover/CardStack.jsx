@@ -48,20 +48,8 @@ const CardStack = ({ users }) => {
     ]
   });
 
-  function setRelationship(user1, user2, choice) {
-    axios
-      .post('https://localhost:3001/api/response', {
-        currentUserId: user1.user_id,
-        otherUserId: user2.user_id,
-        currentUserChoice: choice,
-        otherUserChoice: user2.user1_choice
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
   useEffect(() => {
+    document.body.style.overflow = 'hidden';
     setData(users);
   }, [users]);
 
@@ -86,13 +74,27 @@ const CardStack = ({ users }) => {
     setUser(data[0]);
   }, [data]);
 
+  function setRelationship(user1, user2, choice) {
+    axios
+      .post('http://localhost:3001/api/response', {
+        currentUserId: user1.user_id,
+        otherUserId: user2.user_id,
+        currentUserChoice: choice,
+        otherUserChoice: user2.user1_choice
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   function handleVote(e) {
     setChoice(user);
     if (e.target.id === 'digg') {
       setOut(user.user_id);
-      setRelationship(currentUser, user, true);
       if (user.user1_choice === true) {
         setMatch(true);
+      } else {
+        setRelationship(currentUser, user, true);
       }
     } else {
       setRelationship(currentUser, user, false);
@@ -122,7 +124,7 @@ const CardStack = ({ users }) => {
   }
 
   return (
-    <div>
+    <div className="card-stack-parent">
       {match ? (
         <div className={matchOut ? 'match-out' : ''}>
           <Match handleContinue={handleContinue} user1={currentUser} user2={choice} />
