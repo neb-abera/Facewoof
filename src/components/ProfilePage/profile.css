@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.profilePhoto {
+  float: left;
+  width:  100px;
+  height: 100px;
+  object-fit: cover;
+
+}
+
+.btn {
+  @apply rounded-full;
+}
+
+/* body {
+  background-color: aqua;
+}
+head {
+  background-color: aqua;
+} */

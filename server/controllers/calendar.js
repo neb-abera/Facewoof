@@ -1,7 +1,7 @@
 const { getAllPlaydates, createPlaydate } = require('../db');
 
 const getPlaydates = (req, res) => {
-  const { userId } = req.query;
+  const { userId } = req.body;
 
   return getAllPlaydates(userId)
     .then((data) => {

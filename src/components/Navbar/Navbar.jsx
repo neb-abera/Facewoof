@@ -41,7 +41,7 @@ const Navbar = () => {
               <Link to="/discover">Discover</Link>
             </li>
             <li>
-              <Link to="/packs">Pack Feed</Link>
+              <Link to="/packFeed">Pack Feed</Link>
             </li>
             <li>
               <Link to="/calendar">Calendar</Link>
