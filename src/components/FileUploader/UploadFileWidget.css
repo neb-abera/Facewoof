@@ -1,0 +1,33 @@
+.widget-container {
+  display: flex;
+  flex-direction: column;
+}
+.uploadfile-widget {
+  gap: 1.5rem;
+};
+
+.primary {
+  width: 10%;
+  padding: 0.5rem;
+  font-size: 80%;
+};
+
+.file-uploaders {
+  display: flex;
+  flex-direction: column;
+};
+
+.file-uploaders > * {
+  display: flex;
+  width: 100%;
+  padding: 0.5rem 0;
+};
+
+.file-uploaders input {
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+  color: transparent;
+  background-color: transparent;
+  font-size: 1rem;
+};
