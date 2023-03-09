@@ -24,7 +24,7 @@ const PlaydateCalendar = ({
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const [eventsData, setEventsData] = useState([]);
 
-  const { playdates /*, setPlaydates, handleSetPlaydates*/ } = useUserContext();
+  const { playdates, setPlaydates, handleSetPlaydates } = useUserContext();
 
   useEffect(() => {
     setEventsData(playdates);
