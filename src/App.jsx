@@ -7,7 +7,9 @@ import { oktaConfig } from '../oktaConfig';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
+import PackFeed from './views/PackFeed';
 import PlaydateCalendar from './views/Calendar';
+import Profile from './views/Profile.jsx';
 import './App.css';
 import Locked from './views/Locked';
 import Navbar from './components/Navbar/Navbar';
@@ -44,6 +46,8 @@ const App = () => {
               <SecureRoute path="/locked" render={() => <Locked />} />
               <SecureRoute path="/discover" render={() => <Discover />} />
               <SecureRoute path="/calendar" render={() => <PlaydateCalendar />} />
+              <Route path="/packFeed" element={<PackFeed />} />
+              <Route path="/profile" element={<Profile />} />
             </Security>
           </Switch>
         </Router>

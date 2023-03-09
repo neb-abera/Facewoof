@@ -2,13 +2,17 @@
 const express = require('express');
 // const path = require('path');
 const cors = require('cors');
-// require('dotenv').config();
+const packFeed = require('./controllers/packFeed.js');
+require('dotenv').config();
 const db = require('./db/database');
 const router = require('./routes');
 
 const app = express();
 
+const PORT = 3001;
+
 // ----- Middleware ----- //
+// need the following routes approved for cors in deployed version
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -26,8 +30,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // ----- Request handling ----- //
 app.use(router);
-
-const PORT = 3001;
 
 db.connect()
   .then(() => {

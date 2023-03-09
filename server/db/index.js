@@ -2,7 +2,9 @@
 const db = require('./database');
 const { setRelationship, checkForMatchAndCreate, generateDiscoverFeed } = require('./discover');
 const { getAllPlaydates, createPlaydate } = require('./calendar');
-const { addToPack, getPacks } = require('./pack');
+const { addToPack, getPacks, createPackAndAdd } = require('./pack');
+const { getCurrentUserPromise, getFriendsPromise, createPackPromise } = require('./profile');
+const { checkOrCreateUser } = require('./auth');
 
 module.exports = {
   db,
@@ -12,5 +14,10 @@ module.exports = {
   getPacks,
   getAllPlaydates,
   createPlaydate,
-  addToPack
+  addToPack,
+  createPackAndAdd,
+  getCurrentUserPromise,
+  getFriendsPromise,
+  createPackPromise,
+  checkOrCreateUser
 };
