@@ -6,12 +6,24 @@ import '../components/Login.css';
 import { Redirect } from 'react-router-dom';
 import OktaSignInWidget from './OktaSignInWidget';
 import { oktaConfig } from '../../oktaConfig';
+// import { useNavigate } from 'react-router-dom';
+import AuthForm from '../components/AuthForm/AuthForm';
+import useUserContext from '../hooks/useUserContext';
 
 const Login = ({ config }) => {
   const { oktaAuth, authState } = useOktaAuth();
   const onSuccess = (tokens) => {
     oktaAuth.handleLoginRedirect(tokens);
   };
+
+  const { loggedIn } = useUserContext();
+  //  const navigate = useNavigate();
+
+  //  useEffect(() => {
+  //    if (loggedIn) {
+  //      navigate('/discover');
+  //    }
+  //  }, [loggedIn]);
 
   const onError = (err) => {
     console.log('Sign in error', err);

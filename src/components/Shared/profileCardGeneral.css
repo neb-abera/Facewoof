@@ -242,11 +242,3 @@
 .profileCard {
   background-color: white;
 }
-
-.no-image-drag {
-  -webkit-user-drag: none;
-  -moz-user-select:none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}

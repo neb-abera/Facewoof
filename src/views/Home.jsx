@@ -4,6 +4,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
+import useUserContext from '../hooks/useUserContext';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
@@ -31,6 +32,15 @@ const Home = () => {
   const handleLogin = async () => history.push('/login');
   const handleLogout = async () => oktaAuth.signOut();
 
+  const { loggedIn } = useUserContext();
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   if (loggedIn) {
+  //     navigate('/discover');
+  //   }
+  // }, [loggedIn]);
+
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
@@ -45,13 +55,13 @@ const Home = () => {
       </div>
       <div
         className="flex flex-col space-y-5 px-12 items-center justify-center"
-        style={{ width: `--webkit-calc(100% - 600px)` }}
+          style={{ width: `--webkit-calc(100% - 600px)` }}
       >
         <h3 className="text-2xl text-center text-[#bb7c7c] font-medium my-3">Create An Account</h3>
         <AuthForm action="signup" />
         <p className="text-center text-[#bb7c7c]">
           Already Have An Account? &nbsp;
-          <Link to="/login" className="font-bold">
+          <Link to="/login" className="font-bold text-success">
             Sign In
           </Link>
         </p>
