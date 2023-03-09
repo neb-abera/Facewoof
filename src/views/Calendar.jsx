@@ -38,7 +38,7 @@ const Calendar = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/api/playdates?userId=${1}`)
+      .get(`http://localhost:3001/api/playdates?userId=${7}`)
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];

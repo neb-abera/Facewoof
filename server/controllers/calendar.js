@@ -5,14 +5,12 @@ const getPlaydates = (req, res) => {
 
   return getAllPlaydates(userId)
     .then((data) => {
-      // console.log(data.rows[0].pack_playdates);
       res.send(data.rows[0].pack_playdates);
     })
     .catch((err) => console.log(err));
 };
 
 const AddPlaydate = (req, res) => {
-  console.log('reached server!');
   const { packId, userId, playdateBody, startTime, endTime } = req.body;
   const playdateInfo = {
     packId: packId,
