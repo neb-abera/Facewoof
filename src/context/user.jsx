@@ -6,12 +6,16 @@ const UserContext = createContext();
 // eslint-disable-next-line react/prop-types
 export const UserProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(true);
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState(7); // CHANGE TO NULL LATER
   const [userData, setUserData] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [friends, setFriends] = useState([]); // friend Ids
   const [packs, setPacks] = useState([]); // packIds
-  const [playdates, setPlayDates] = useState([]); // playDates Objects
+  const [playdates, setPlaydates] = useState([]); // playDates Objects
+
+  const handleSetPlaydates = (arr) => {
+    setPlaydates((prev) => [...prev, arr]);
+  };
 
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const valueToShare = {
@@ -28,7 +32,8 @@ export const UserProvider = ({ children }) => {
     packs,
     setPacks,
     playdates,
-    setPlayDates
+    setPlaydates,
+    handleSetPlaydates
   };
 
   return <UserContext.Provider value={valueToShare}>{children}</UserContext.Provider>;

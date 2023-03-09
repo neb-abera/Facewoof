@@ -1,11 +1,11 @@
 const { getAllPlaydates, createPlaydate } = require('../db');
 
 const getPlaydates = (req, res) => {
-  const { userId } = req.query;
+  const { userId } = req.body;
 
   return getAllPlaydates(userId)
     .then((data) => {
-      console.log(data.rows[0].pack_playdates);
+      // console.log(data.rows[0].pack_playdates);
       res.send(data.rows[0].pack_playdates);
     })
     .catch((err) => console.log(err));
