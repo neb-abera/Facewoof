@@ -3,10 +3,14 @@ const {
   discoverUsers,
   userResponse,
   getPlaydates,
+  AddPlaydate,
   getUserPacks,
   addUserToPack,
   createNewPackAndAdd,
-  authUser
+  authUser,
+  getCurrentUser,
+  getUserFriends,
+  createPack
 } = require('./controllers');
 
 const {
@@ -18,7 +22,6 @@ const {
   getSoloPosts,
   getPfp
 } = require('./controllers/packFeed.js');
-
 const router = express.Router();
 
 // Route to check if user exists and create if not
@@ -33,6 +36,9 @@ router.post('/api/response', userResponse);
 // Route handling getting all playdates for packs current user is a member of
 router.get('/api/playdates', getPlaydates);
 
+// Route handling added a playdate
+router.post('/api/addplaydate', AddPlaydate);
+
 // Route hanlding getting all packs for current
 router.get('/api/getpacks', getUserPacks);
 
@@ -42,6 +48,16 @@ router.put('/api/addtopack', addUserToPack);
 // Route to create a new pack and add user ids
 // Expects a pack_name and array of user ids in the req body
 router.put('/api/createpack', createNewPackAndAdd);
+
+// Route to get friends request
+router.get('/getFriends', getUserFriends);
+// 'http://localhost:3000/getFriends?userId=1'
+
+// Route to get current user request
+router.get('/getCurrentUser', getCurrentUser);
+
+// Route to create pack
+router.post('/createPack', createPack);
 
 router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
   // var packId = req.body.packId;

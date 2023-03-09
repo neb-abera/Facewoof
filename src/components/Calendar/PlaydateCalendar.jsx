@@ -1,14 +1,15 @@
+/* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
+import moment_timezone from 'moment-timezone';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useUserContext from '../../hooks/useUserContext';
 
-moment.locale('en-US');
-const localizer = momentLocalizer(moment);
+moment_timezone.tz.setDefault('Atlantic/Madeira');
+const localizer = momentLocalizer(moment_timezone);
 
 const PlaydateCalendar = ({
   openEditModal,
@@ -16,7 +17,9 @@ const PlaydateCalendar = ({
   closeEditModal,
   openAddModal,
   setAddPlaydateModal,
-  closeAddModal
+  closeAddModal,
+  setStartTime,
+  setEndTime
 }) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const [eventsData, setEventsData] = useState([]);
@@ -31,9 +34,12 @@ const PlaydateCalendar = ({
   const background = location.state && location.state.background;
 
   const handleAddNewPlaydate = ({ start, end }) => {
-    console.log(start);
-    console.log(end);
+    // console.log(start);
+    // console.log(end);
     openAddModal();
+    setStartTime(start);
+    setEndTime(end);
+
     // const title = window.prompt('New Event Name');
     // if (title) {
     //   setEventsData((prev) => [
@@ -62,6 +68,7 @@ const PlaydateCalendar = ({
         defaultDate={new Date()}
         defaultView="week"
         step="30"
+        style={{ height: '90vh', width: '100vw' }}
         events={eventsData}
         onSelectEvent={openEditModal}
         onSelectSlot={handleAddNewPlaydate}

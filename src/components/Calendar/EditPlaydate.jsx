@@ -4,7 +4,7 @@
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './EditPlaydate.css';
+import './Playdate.css';
 
 const Playdate = () => {
   const navigate = useNavigate();
