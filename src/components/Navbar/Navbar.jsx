@@ -46,7 +46,7 @@ const Navbar = () => {
       </div>
       {loggedIn && (
         <div className="navbar-center lg:flex text-primary">
-          <ul className="menu menu-horizontal px-1">
+          <ul className="menu menu-horizontal px-3">
             <li>
               <Link to="/discover">Discover</Link>
             </li>
@@ -65,15 +65,15 @@ const Navbar = () => {
       <div className="navbar-end space-x-5">
         {!loggedIn ? (
           <>
-            <Link to="/login" className="btn btn-secondary">
+            <Link to="/login" className="btn btn-secondary btn-sm">
               Login
             </Link>
-            <Link to="/" className="btn btn-primary">
+            <Link to="/" className="btn btn-primary btn-sm">
               Sign Up
             </Link>
           </>
         ) : (
-          <a className="btn btn-secondary" onClick={logout}>
+          <a className="btn btn-secondary btn-sm" onClick={logout}>
             Logout
           </a>
         )}
