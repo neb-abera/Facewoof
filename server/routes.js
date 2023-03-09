@@ -1,5 +1,12 @@
 const express = require('express');
-const { discoverUsers, userResponse, getPlaydates } = require('./controllers');
+const {
+  discoverUsers,
+  userResponse,
+  getPlaydates,
+  getUserPacks,
+  addUserToPack,
+  createNewPackAndAdd
+} = require('./controllers');
 
 const {
   getUserPacksId,
@@ -20,7 +27,17 @@ router.get('/api/discover', discoverUsers);
 router.post('/api/response', userResponse);
 
 // Route handling getting all playdates for packs current user is a member of
-router.get('/playdates', getPlaydates);
+router.get('/api/playdates', getPlaydates);
+
+// Route hanlding getting all packs for current
+router.get('/api/getpacks', getUserPacks);
+
+// Route to add person to existing pack
+router.put('/api/addtopack', addUserToPack);
+
+// Route to create a new pack and add user ids
+// Expects a pack_name and array of user ids in the req body
+router.put('/api/createpack', createNewPackAndAdd);
 
 router.post('/getAllPostsFromSpecificPack', (req, res) => {
   var packId = req.body.packId;
