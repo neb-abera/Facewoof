@@ -33,7 +33,7 @@ const Calendar = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/playdates?userId=${1}`)
+      .get(`http://localhost:3001/api/playdates?userId=${1}`)
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];
@@ -49,7 +49,7 @@ const Calendar = () => {
         });
         setPlaydates(playdateArr);
       })
-      .then(() => axios.get(`http://localhost:3001/packs?userId=${1}`))
+      .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${7}`))
       .then((packData) => {
         // console.log(packData.data);
         setPacks(packData.data);

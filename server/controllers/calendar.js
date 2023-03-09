@@ -1,4 +1,4 @@
-const { getAllPlaydates, createPlaydate, getPacks } = require('../db');
+const { getAllPlaydates, createPlaydate } = require('../db');
 
 const getPlaydates = (req, res) => {
   const { userId } = req.query;
