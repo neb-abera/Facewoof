@@ -30,7 +30,7 @@ const PackFeed = () => {
         params: { userId: userIdentity }
       })
       .then((resp) => {
-        console.log('responses', resp.data.rows);
+        // console.log('responses', resp.data.rows);
         var allPosts = [];
         setAllPosts(resp.data.rows[0].json_agg);
       }, []);
