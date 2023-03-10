@@ -6,8 +6,8 @@ const UserContext = createContext();
 // eslint-disable-next-line react/prop-types
 export const UserProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(true);
-  const [firstLogin, setFirstLogin] = useState(false); //set to true if first time logging in otherwise false
-  const [userId, setUserId] = useState(null); // CHANGE TO NULL LATER
+  const [firstLogin, setFirstLogin] = useState(true); //set to true if first time logging in otherwise false
+  const [userId, setUserId] = useState(7);  // CHANGE TO NULL LATER
   const [userData, setUserData] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [friends, setFriends] = useState([]); // friend Ids

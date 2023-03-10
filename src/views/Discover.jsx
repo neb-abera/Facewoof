@@ -5,10 +5,10 @@
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // useNavigate was on incoming
+import { Link, useNavigate } from 'react-router-dom';
 import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
-import { useOktaAuth } from '@okta/okta-react';
+
 import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
 import SearchBar from '../components/Discover/SearchBar';
@@ -46,28 +46,9 @@ const getUserLocation = async (lat, lng) => {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const Discover = () => {
+export default function Discover() {
   const [users, setUsers] = useState([]);
-  const { authState, oktaAuth } = useOktaAuth();
-  const [userInfo, setUserInfo] = useState(null);
-  const userContext = useUserContext();
-
-  useEffect(() => {
-    if (!authState || !authState.isAuthenticated) {
-      setUserInfo(null);
-    } else {
-      oktaAuth
-        .getUser()
-        .then((info) => {
-          setUserInfo(info);
-          // console.log(info);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [authState, oktaAuth]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchLocation, setSearchLocation] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
@@ -158,6 +139,4 @@ const Discover = () => {
       )}
     </div>
   );
-};
-
-export default Discover;
+}

@@ -7,10 +7,12 @@ import './index.css';
 import { UserProvider } from './context/user';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // changed from <Router>
-  <React.StrictMode>
-    <UserProvider>
+  // <React.StrictMode>
+  <UserProvider>
+    <Router>
+      <Navbar />
       <App />
-    </UserProvider>
-  </React.StrictMode>
+    </Router>
+  </UserProvider>
+  // </React.StrictMode>
 );

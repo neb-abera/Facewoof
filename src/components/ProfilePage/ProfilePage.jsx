@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { react, useState, useEffect } from 'react';
+import {react, useState, useEffect} from 'react';
 import axios from 'axios';
 import useUserContext from '../../hooks/useUserContext.js';
 
@@ -119,134 +119,66 @@ const ProfilePage = () => {
   return (
     <div className="card w-10/12 max-w-7xl bg-base-10 shadow-xl mx-auto">
       <div className="card-body">
-        <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
-        <form>
+        <h2 className="card-title">{firstLogin ?  'Create Your Profile' : 'Edit Your Profile'}</h2>
+        <form >
           <div class="columns-3">
             <div>
-              <label className="label">Owner First Name:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeOwnerName(e.target.value);
-                }}
-                type="text"
-                name="name"
-                value={userData.owner_first_name ? userData.owner_first_name : ''}
-              />
-              <label className="label">Owner Last Name:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeOwnerLastname(e.target.value);
-                }}
-                type="text"
-                name="name"
-                value={userData.owner_last_name ? userData.owner_last_name : ''}
-              />
-              <label className="label">Owner Email:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeEmail(e.target.value);
-                }}
-                type="text"
-                name="name"
-                value={userData.owner_email ? userData.owner_email : ''}
-              />
-              <label className="label">Location</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Zip code"
-                onChange={(e) => {
-                  changeLocation(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <label className="label break-after-column">
-                {' '}
-                Make Profile Discoverable
-                <input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox" />
+              <label className="label">
+              Owner First Name:
               </label>
+              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeOwnerName(e.target.value)}} type="text" name="name" />
+              <label className="label">
+                Owner Last Name:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeOwnerLastname(e.target.value)}} type="text" name="name" />
+              <label className="label">
+                Owner Email:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeEmail(e.target.value)}} type="text" name="name" />
+              <label className="label">
+                Location
+              </label>
+              <input className="input input-bordered w-full max-w-xs" placeholder='Zip code' onChange={(e) => {changeLocation(e.target.value)}} type="text" name="name" />
+              <label className="label break-after-column"> Make Profile Discoverable<input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox"/></label>
             </div>
             <div>
-              <label className="label">Dog Name:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeDogName(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <label className="label">Age:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeAge(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <label className="label">Breed:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeBreed(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <label className="label break-after-column">
-                {' '}
-                Fully Vaccinated
-                <input className="checkbox" onClick={() => changeVaccinated()} type="checkbox" />
+              <label className="label">
+                Dog Name:
               </label>
+              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeDogName(e.target.value)}}  type="text" name="name" />
+              <label className="label">
+                Age:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeAge(e.target.value)}} type="text" name="name" />
+              <label className="label">
+                Breed:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeBreed(e.target.value)}}   type="text" name="name" />
+              <label className="label break-after-column"> Fully Vaccinated<input className="checkbox" onClick={() => changeVaccinated()} type="checkbox"/></label>
             </div>
             <div>
-              <label className="label">Likes 1:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Chasing Squirrels"
-                onChange={(e) => {
-                  changeLikes1(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
+              <label className="label">
+                Likes 1:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" placeholder='Chasing Squirrels' onChange={(e) => {changeLikes1(e.target.value)}} type="text" name="name" />
               <br />
-              <label className="label">Likes 2:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Playing Fetch"
-                onChange={(e) => {
-                  changeLikes2(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
+              <label className="label">
+                Likes 2:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" placeholder='Playing Fetch'  onChange={(e) => {changeLikes2(e.target.value)}} type="text" name="name" />
               <br />
-              <label className="label">Likes 3:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Biting People"
-                onChange={(e) => {
-                  changeLikes3(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
+              <label className="label">
+                Likes 3:
+              </label>
+              <input className="input input-bordered w-full max-w-xs" placeholder='Biting People' onChange={(e) => {changeLikes3(e.target.value)}} type="text" name="name" />
             </div>
           </div>
           <label class="block">
             <span class="sr-only">Choose profile photo</span>
-            <input
-              type="file"
-              className="file-input file-input-bordered file-input-primary w-full max-w-xs"
-            />
+            <input type="file" className="file-input file-input-bordered file-input-primary w-full max-w-xs" />
           </label>
           <div className="card-actions justify-end">
-            <input className="btn btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
+            <input className="btn btn-active btn-primary"  onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>
       </div>
