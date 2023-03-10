@@ -23,7 +23,6 @@ const CreatePackModal = ({ userIdentity }) => {
         <input type="checkbox" id="create-pack-modal" className="modal-toggle" />
         <div className="modal" style={styles.buttonFormat}>
           <div className="modal-box" style={styles.overallModal}>
-            {console.log('userIdentity', userIdentity)}
             <FriendsListCopy currentUser={userIdentity} />
             <div className="modal-action"></div>
           </div>
