@@ -54,7 +54,9 @@ export default function Discover() {
   const [radius, setRadius] = useState(5);
   const [distances, setDistances] = useState({});
 
-  const { userId } = useUserContext();
+  const { userId, userData } = useUserContext();
+
+  console.log("DATA", userData);
 
   const fetchNearbyUsers = (zipcode, radius) => {
     setLoading(true);
@@ -134,7 +136,7 @@ export default function Discover() {
         </div>
       ) : (
         <div className="discover-view">
-          <CardStack users={users} distances={distances} />
+          <CardStack users={users} distances={distances} userData={userData} />
         </div>
       )}
     </div>
