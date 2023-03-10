@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Link, useLocation, useHistory, Redirect } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useHistory, Redirect } from 'react-router-dom';
 // import './node_modules@okta/okta-signin-widget/css/okta-sign-in.min.css';
 import { useOktaAuth } from '@okta/okta-react';
 import '../components/Login/Login.css';
 import axios from 'axios';
 import OktaSignInWidget from '../components/Login/OktaSignInWidget';
 import { oktaConfig } from '../../oktaConfig';
-// import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm/AuthForm';
 import useUserContext from '../hooks/useUserContext';
 

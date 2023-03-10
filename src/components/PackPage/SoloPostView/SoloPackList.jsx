@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import SoloPackName from './SoloPackName.jsx';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const SoloPackList = ({ setViewing, userIdentity }) => {
-  var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
+  const listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
 
-  var [packList, setPackList] = useState([]);
+  const [packList, setPackList] = useState([]);
 
   useEffect(() => {
     axios
@@ -15,9 +13,9 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
       })
       .then((data) => {
         // console.log('data', data.data);
-        var input = data.data;
-        var packs = [];
-        for (var i = 0; i < input.length; i++) {
+        const input = data.data;
+        const packs = [];
+        for (let i = 0; i < input.length; i++) {
           packs.push(input[i].name);
         }
         setPackList(packs);
@@ -25,12 +23,12 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
       });
   }, []);
 
-  var click = (packName) => {
+  const click = (packName) => {
     setViewing(packName);
     console.log('clicked', packName);
   };
 
-  var styles = {
+  const styles = {
     packList: {
       width: '100vw',
       backgroundColor: 'pink'
@@ -39,24 +37,22 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
   };
 
   return (
-    <>
-      <div>
-        {packList
-          ? packList.map((packName, key) => (
-              <li
-                key={key}
-                onClick={() => {
-                  click(packName);
-                }}
-              >
-                <a>
-                  <PackName name={packName} setViewing={setViewing} />
-                </a>
-              </li>
-            ))
-          : null}
-      </div>
-    </>
+    <div>
+      {packList
+        ? packList.map((packName, key) => (
+            <li
+              key={key}
+              onClick={() => {
+                click(packName);
+              }}
+            >
+              <a>
+                <PackName name={packName} setViewing={setViewing} />
+              </a>
+            </li>
+          ))
+        : null}
+    </div>
   );
 };
 

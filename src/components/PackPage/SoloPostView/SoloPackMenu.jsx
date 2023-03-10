@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import SoloPackList from './SoloPackList.jsx';
-import SoloPlaydates from './SoloPlaydates.jsx';
+import React from 'react';
+import SoloPackList from './SoloPackList';
+import SoloPlaydates from './SoloPlaydates';
 
 const SoloPackMenu = ({ setViewing, userIdentity }) => {
-  var styles = {
+  const styles = {
     packList: {
       display: 'flex',
       flexDirection: 'column',
@@ -36,26 +35,24 @@ const SoloPackMenu = ({ setViewing, userIdentity }) => {
   };
 
   return (
-    <>
-      <div className="drawer" style={styles.parent}>
-        <div className="drawer-content"></div>
-        <div className="drawer-side">
-          {/* <label for="my-drawer" className="drawer-overlay"></label> */}
-          <ul className="menu p-1 w-100 bg-base-100 text-base-content">
-            <div className="card shadow-xl" style={styles.yourPacks}>
-              Your Packs
-            </div>
-            <div style={styles.packList}>
-              <SoloPackList setViewing={setViewing} userIdentity={userIdentity} />
-            </div>
-            <div style={styles.calendar}>
-              Calendar
-              <SoloPlaydates userIdentity={userIdentity} />
-            </div>
-          </ul>
-        </div>
+    <div className="drawer" style={styles.parent}>
+      <div className="drawer-content" />
+      <div className="drawer-side">
+        {/* <label for="my-drawer" className="drawer-overlay"></label> */}
+        <ul className="menu p-1 w-100 bg-base-100 text-base-content">
+          <div className="card shadow-xl" style={styles.yourPacks}>
+            Your Packs
+          </div>
+          <div style={styles.packList}>
+            <SoloPackList setViewing={setViewing} userIdentity={userIdentity} />
+          </div>
+          <div style={styles.calendar}>
+            Calendar
+            <SoloPlaydates userIdentity={userIdentity} />
+          </div>
+        </ul>
       </div>
-    </>
+    </div>
   );
 };
 

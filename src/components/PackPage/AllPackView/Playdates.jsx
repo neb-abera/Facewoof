@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import PackName from './PackName.jsx';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Playdate from './Playdate.jsx';
+import Playdate from './Playdate';
 
 const Playdates = ({ setViewing, userIdentity }) => {
   // var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
 
-  var [playdates, setPlaydates] = useState([]);
+  const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
     axios
@@ -15,12 +13,12 @@ const Playdates = ({ setViewing, userIdentity }) => {
         params: { userId: userIdentity }
       })
       .then((data) => {
-        var input = data.data;
+        const input = data.data;
         setPlaydates(input);
       });
   }, []);
 
-  var styles = {
+  const styles = {
     playdates: {
       width: '100%',
       backgroundColor: 'pink'
@@ -29,26 +27,25 @@ const Playdates = ({ setViewing, userIdentity }) => {
   };
 
   return (
-    <>
-      <div>
-        {playdates
-          ? playdates.map((packName, key) => (
-              <li key={key}>
-                <a>
-                  <Playdate dataPoint={packName} setViewing={setViewing} />
-                </a>
-              </li>
-            ))
-          : null}
+    <div>
+      {playdates
+        ? playdates.map((packName, key) => (
+            <li key={`packName-${key + 1}`}>
+              {/*  eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+              <a>
+                <Playdate dataPoint={packName} setViewing={setViewing} />
+              </a>
+            </li>
+          ))
+        : null}
 
-        {/* <li>
+      {/* <li>
           <PackName name={listNames[1]} setViewing={setViewing} />
         </li>
         <li>
           <PackName name={listNames[2]} setViewing={setViewing} />
         </li> */}
-      </div>
-    </>
+    </div>
   );
 };
 

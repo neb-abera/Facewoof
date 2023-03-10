@@ -1,13 +1,11 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, useLocation } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
 import PackFeed from './views/PackFeed';
 import PlaydateCalendar from './views/Calendar';
 import Profile from './views/Profile';
-import ProfileDisplay from './components/ProfilePage/ProfileDisplay';
-import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
 // import Locked from './views/Locked';
 import Navbar from './components/Navbar/Navbar';
@@ -16,11 +14,7 @@ const oktaAuth = new OktaAuth(oktaConfig.oidc);
 
 // import Playdate from './components/Calendar/EditPlaydate';
 
-
 const App = () => {
-  const location = useLocation();
-  const background = location.state && location.state.background;
-
   return (
     <div className="App">
       <header className="App-header">

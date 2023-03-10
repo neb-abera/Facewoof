@@ -6,7 +6,7 @@
 /* eslint-disable no-unused-vars */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
 

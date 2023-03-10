@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import SoloPostTile from './SoloPostTile.jsx';
-import SoloPackMenu from './SoloPackMenu.jsx';
-import PostMaker from './PostMaker.jsx';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SoloPostTile from './SoloPostTile';
+import PostMaker from './PostMaker';
 
 const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
-  var styles = {
+  const styles = {
     posts: {
       display: 'flex',
       flexDirection: 'column',
@@ -21,8 +19,8 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
     }
   };
 
-  var [data, setData] = useState([]);
-  var [pfp, setPfp] = useState([]);
+  let [data, setData] = useState([]);
+  const [pfp, setPfp] = useState([]);
 
   useEffect(() => {
     axios
@@ -31,7 +29,7 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
       })
       .then((packet) => {
         // console.log('data', packet.data);
-        var input = packet.data;
+        const input = packet.data;
         setData(input);
       })
       .then(() => {
@@ -53,26 +51,25 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
   }
 
   return (
-    <>
-      <div className="card" style={styles.packHighest}>
-        <div>
-          <PostMaker pfp={pfp} viewing={viewing} viewingName={viewingName} />
-        </div>
-        <div style={styles.posts}>
-          {data
-            ? data.map((each, key) => (
-                <SoloPostTile
-                  key={key}
-                  img={each.photo_url}
-                  content={each.body}
-                  postedOn={each.date}
-                  parentGroup={viewingName}
-                />
-              ))
-            : null}
-        </div>
+    <div className="card" style={styles.packHighest}>
+      <div>
+        <PostMaker pfp={pfp} viewing={viewing} viewingName={viewingName} />
       </div>
-    </>
+      <div style={styles.posts}>
+        {data
+          ? data.map((each, key) => (
+              <SoloPostTile
+                // eslint-disable-next-line prettier/prettier
+                  key={`${key + 1}`}
+                img={each.photo_url}
+                content={each.body}
+                postedOn={each.date}
+                parentGroup={viewingName}
+              />
+            ))
+          : null}
+      </div>
+    </div>
   );
 };
 
