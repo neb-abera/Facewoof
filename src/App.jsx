@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
@@ -21,9 +21,9 @@ const App = () => {
         <Router>
           <Switch>
             <Security
-              oktaAuth={oktaAuth}
-              onAuthRequired={customAuthHandler}
-              restoreOriginalUri={restoreOriginalUri}
+                oktaAuth={oktaAuth}
+                onAuthRequired={customAuthHandler}
+                restoreOriginalUri={restoreOriginalUri}
             >
               <Navbar />
               <Route path="/" exact component={Home} />
