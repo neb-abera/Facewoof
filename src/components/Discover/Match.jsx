@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import './match.css';
 
 export default function Match({ user1, user2, handleContinue }) {
-  const navigate = useNavigate();
+  const history = useHistory();
 
   function goToPack() {
-    navigate('/packFeed', { state: { user1: user1, user2: user2 } });
+    history.push('/packFeed');
   }
 
   return (
