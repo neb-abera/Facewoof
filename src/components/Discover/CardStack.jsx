@@ -31,20 +31,20 @@ const CardStack = ({ users, distances, userData }) => {
   const [y, setY] = useState(0);
 
   const [currentUser, setCurrentUser] = useState({
-    user_id: '27',
-    dog_name: 'Murvyn',
-    owner_name: 'Teodora Shearstone',
-    dog_breed: 'Royal tern',
-    age: 13,
+    user_id: '7',
+    dog_name: 'Putnam',
+    owner_name: 'Abdel Dandie',
+    dog_breed: 'Grey mouse lemur',
+    age: 10,
     vaccination: true,
     discoverable: true,
-    owner_email: 'sreapq@blogtalkradio.com',
-    location: '10036',
+    owner_email: 'pyekel6@marketwatch.com',
+    location: '10017',
     user1_choice: null,
     photos: [
-      'http://dummyimage.com/122x100.png/5fa2dd/ffffff',
-      'http://dummyimage.com/191x100.png/dddddd/000000',
-      'http://dummyimage.com/181x100.png/ff4444/ffffff'
+      'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
+      'https://i.ibb.co/GTs9Lc8/124800859-gettyimages-817514614.jpg',
+      'https://i.ibb.co/GTs9Lc8/124800859-gettyimages-817514614.jpg'
     ]
   });
 
