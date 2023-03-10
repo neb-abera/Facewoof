@@ -4,9 +4,20 @@ const { setRelationship, checkForMatchAndCreate, generateDiscoverFeed } = requir
 const { getAllPlaydates, createPlaydate } = require('./calendar');
 const { addToPack, getPacks, createPackAndAdd } = require('./pack');
 const {
+  getUserPacksId,
+  getPackPosts,
+  getAllPostsFromAllPacks,
+  getUserPlaydatesAllPacks,
+  getSoloPosts,
+  getPfp,
+  makePost
+} = require('./packfeed');
+
+const {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
+  addPhoto,
   editProfilePromise,
   getProfilePhotoPromise
 } = require('./profile');
@@ -26,6 +37,14 @@ module.exports = {
   getFriendsPromise,
   createPackPromise,
   checkOrCreateUser,
+  addPhoto,
   editProfilePromise,
-  getProfilePhotoPromise
+  getProfilePhotoPromise,
+  getUserPacksId,
+  getPackPosts,
+  getAllPostsFromAllPacks,
+  getUserPlaydatesAllPacks,
+  getSoloPosts,
+  getPfp,
+  makePost
 };

@@ -13,23 +13,23 @@ const CreatePackCard = ({ currentUser, friend }) => {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const changePackName = (e) => {
-    console.log('packname', e);
+    // console.log('packname', e);
     setPackName(e);
   };
   //  const { user_id, pack_id } = req.params;
   const createPack = () => {
     axios
-    // .post(`http://localhost:3001/createPack?packName=${packName}`)
-    .put('http://localhost:3001/api/createpack', {
-
+      // .post(`http://localhost:3001/createPack?packName=${packName}`)
+      .put('http://localhost:3001/api/createpack', {
         pack_name: packName,
         users: JSON.stringify([Number(userId), Number(friendId)])
-    })
-     // const users
-    .then((results) => {
-      // console.log('sucessfully created pack', results);
+      })
+      // const users
+      .then((results) => {
+        // console.log('sucessfully created pack', results);
         setShowSuccess(true);
         //   const packId = results.data[0].pack_id;
+        // console.log('friend, userid', packId, friendId);
         //   axios
         //     // .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${friendId}`)
         //     .post(`http://localhost:3001/api/addtopack`, {
@@ -64,16 +64,42 @@ const CreatePackCard = ({ currentUser, friend }) => {
     <div>
       <div className="profile-card-parent">
         <div className="card">
-          <div> {showSuccess? <div className="alert alert-success shadow-lg">
           <div>
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>{successText}</span>
+            {' '}
+            {showSuccess ? (
+              <div className="alert alert-success shadow-lg">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current flex-shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span>{successText}</span>
                 </div>
-        </div> : ''}</div>
+              </div>
+            ) : (
+              ''
+            )}
+          </div>
           <label className="" htmlFor="fname">
             Pack Name
           </label>
-          <input onChange={(e) => {changePackName(e.target.value)}} type="text" id="fname" name="fname" />
+          <input
+            onChange={(e) => {
+              changePackName(e.target.value);
+            }}
+            type="text"
+            id="fname"
+            name="fname"
+          />
           <br />
           <input
             onClick={() => createPack()}

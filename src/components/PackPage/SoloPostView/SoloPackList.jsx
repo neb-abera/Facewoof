@@ -32,7 +32,7 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
 
   var styles = {
     packList: {
-      width: '100%',
+      width: '100vw',
       backgroundColor: 'pink'
       // flexGrow: 2
     }

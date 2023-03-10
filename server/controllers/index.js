@@ -7,8 +7,19 @@ const {
   getUserFriends,
   createPack,
   editProfile,
+  createPhotos,
   getProfilePhoto
 } = require('./profile');
+
+const {
+  ctrlPackPosts,
+  ctrlAllPostsFromAllPacks,
+  ctrlUserPlaydatesAllPacks,
+  ctrlSoloPosts,
+  ctrlPfp,
+  ctrlMakePost,
+  ctrlUserPacksId
+} = require('./packfeed');
 const { authUser } = require('./auth');
 
 module.exports = {
@@ -24,5 +35,13 @@ module.exports = {
   createPack,
   authUser,
   editProfile,
-  getProfilePhoto
+  getProfilePhoto,
+  ctrlPackPosts,
+  ctrlAllPostsFromAllPacks,
+  ctrlUserPlaydatesAllPacks,
+  ctrlSoloPosts,
+  ctrlPfp,
+  ctrlMakePost,
+  ctrlUserPacksId,
+  createPhotos
 };
