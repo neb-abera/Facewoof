@@ -11,8 +11,9 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
       display: 'flex',
       flexDirection: 'column',
       maxWidth: '100vw',
-      gapY: '25px',
-      border: '3px solid black'
+      minWidth: '80vw',
+      gapY: '25px'
+      // border: '3px solid black'
     },
     packHighest: {
       display: 'flex',
@@ -45,6 +46,12 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
       });
   }, [viewing]);
 
+  if (data) {
+    data = data.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+  }
+
   return (
     <>
       <div className="card" style={styles.packHighest}>
@@ -59,7 +66,7 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
                   img={each.photo_url}
                   content={each.body}
                   postedOn={each.date}
-                  parentGroup={each.pack_id}
+                  parentGroup={viewingName}
                 />
               ))
             : null}

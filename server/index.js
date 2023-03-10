@@ -2,7 +2,7 @@
 const express = require('express');
 // const path = require('path');
 const cors = require('cors');
-const packFeed = require('./controllers/packFeed.js');
+// const packFeed = require('./controllers/packFeed.js');
 require('dotenv').config();
 const db = require('./db/database');
 const router = require('./routes');

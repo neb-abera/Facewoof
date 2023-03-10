@@ -5,6 +5,7 @@ import PackMenu from '../components/PackPage/AllPackView/PackMenu.jsx';
 import SoloPostTiles from '../components/PackPage/SoloPostView/SoloPostTiles.jsx';
 import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:3001';
+import useUserContext from '../hooks/useUserContext';
 
 const PackFeed = () => {
   var styles = {
@@ -12,7 +13,7 @@ const PackFeed = () => {
       display: 'flex',
       width: '100%',
       flexDirection: 'row',
-      border: '3px solid blue',
+      // border: '3px solid blue',
       // marginLeft: '0px',
       boxSizing: 'content-box'
       // justifyContent: 'space-between'
@@ -20,7 +21,8 @@ const PackFeed = () => {
   };
   const [data, setData] = useState('');
   const [allPosts, setAllPosts] = useState([]);
-  var userIdentity = 4;
+  var { userId } = useUserContext();
+  const userIdentity = userId;
 
   useEffect(() => {
     axios
@@ -28,15 +30,9 @@ const PackFeed = () => {
         params: { userId: userIdentity }
       })
       .then((resp) => {
-        // console.log('responses', resp.data);
+        console.log('responses', resp.data.rows);
         var allPosts = [];
-        for (var i = 0; i < resp.data.length; i++) {
-          for (var j = 0; j < resp.data[i].length; j++) {
-            allPosts.push(resp.data[i][j]);
-          }
-        }
-        setAllPosts(allPosts);
-        // var
+        setAllPosts(resp.data.rows[0].json_agg);
       }, []);
   }, []);
 
@@ -46,6 +42,7 @@ const PackFeed = () => {
     <>
       <div style={styles.PackLayout}>
         <PackMenu
+          viewing={viewing}
           setViewing={setViewing}
           setViewingName={setViewingName}
           userIdentity={userIdentity}
