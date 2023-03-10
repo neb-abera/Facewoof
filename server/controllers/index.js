@@ -7,7 +7,8 @@ const {
   getUserFriends,
   createPack,
   editProfile,
-  createPhotos
+  createPhotos,
+  getProfilePhoto
 } = require('./profile');
 const { authUser } = require('./auth');
 
@@ -24,5 +25,6 @@ module.exports = {
   createPack,
   authUser,
   editProfile,
-  createPhotos
+  createPhotos,
+  getProfilePhoto
 };

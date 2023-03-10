@@ -1,39 +1,18 @@
-/* eslint-disable react/jsx-indent-props */
-import React, { useState, useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import { useOktaAuth } from '@okta/okta-react';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
-import OktaSignInWidget from '../components/Login/OktaSignInWidget';
 
 const Home = () => {
-  const { authState, oktaAuth } = useOktaAuth();
-  const history = useHistory();
-  // const [userEmail, setUserEmail] = useState('');
-  // const [firstName, setFirstName] = useState('');
-  // const [lastName, setLastName] = useState('');
-  const { loggedIn, setLoggedIn, setUserId, setUserData } = useUserContext();
-  // const [userInfo, setUserInfo] = useState(null);
+  const { loggedIn } = useUserContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authState || !authState.isAuthenticated) {
-      // When user isn't authenticated, forget any user info
-      setLoggedIn(false);
-      // setUserInfo(null);
-    } else {
-      oktaAuth
-        .getUser()
-        .then((info) => {
-          // setUserInfo(info);
-          setLoggedIn(true);
-          history.push('/discover');
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+    if (loggedIn) {
+      navigate('/discover');
     }
-  }, [authState, oktaAuth, loggedIn]); // says setLoggedIn is missing from deps but it shouldn't be
+  }, [loggedIn]);
 
   return (
     <div className="flex h-screen w-screen">
@@ -44,7 +23,6 @@ const Home = () => {
         >
           Diggr
         </Link>
-        {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
         <img className="w-full h-full" src={dogImage} alt="dog-image" />
       </div>
       <div
@@ -52,7 +30,7 @@ const Home = () => {
         style={{ width: `--webkit-calc(100% - 600px)` }}
       >
         <h3 className="text-2xl text-center text-[#bb7c7c] font-medium my-3">Create An Account</h3>
-        {/* <AuthForm action="signup" /> */}
+        <AuthForm action="signup" />
         <p className="text-center text-[#bb7c7c]">
           Already Have An Account? &nbsp;
           <Link to="/login" className="font-bold text-success">

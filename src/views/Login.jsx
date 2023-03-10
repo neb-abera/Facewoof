@@ -9,19 +9,10 @@ import { oktaConfig } from '../../oktaConfig';
 // import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm/AuthForm';
 import useUserContext from '../hooks/useUserContext';
-import dogImage from '../assets/dog.jpg';
 
-axios.defaults.baseURL = 'http://localhost:3001';
-
-const Login = ({ config }) => {
-  const { oktaAuth, authState } = useOktaAuth();
-  const history = useHistory();
-  const onSuccess = (tokens) => {
-    oktaAuth.handleLoginRedirect(tokens);
-  };
-
-  const { loggedIn, setLoggedIn, setUserId, setUserData, setFirstLogin } = useUserContext();
-  // const [userInfo, setUserInfo] = useState(null);
+const Login = () => {
+  const { loggedIn } = useUserContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {

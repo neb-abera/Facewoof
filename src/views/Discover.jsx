@@ -163,10 +163,10 @@
 // export default Discover;
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // useNavigate was on incoming
+import { Link, useNavigate } from 'react-router-dom';
 import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
-import { useOktaAuth } from '@okta/okta-react';
+
 import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
 import SearchBar from '../components/Discover/SearchBar';
@@ -206,7 +206,7 @@ const getUserLocation = async (lat, lng) => {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const Discover = () => {
+export default function Discover() {
   const [users, setUsers] = useState([]);
   const { authState, oktaAuth } = useOktaAuth();
   const [userInfo, setUserInfo] = useState(null);
@@ -305,6 +305,4 @@ const Discover = () => {
       )}
     </div>
   );
-};
-
-export default Discover;
+}

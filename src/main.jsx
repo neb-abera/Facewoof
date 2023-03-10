@@ -7,7 +7,6 @@ import './index.css';
 import { UserProvider } from './context/user';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // changed from <Router>
   <UserProvider>
     <App />
   </UserProvider>

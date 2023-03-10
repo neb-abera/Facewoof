@@ -50,9 +50,3 @@ dist/
 server/.DS_Store
 src/.DS_Store
 src/components/.DS_Store
-
-# other
-*.pem
-*.csv
-oktaConfig.js
-Locked.jsx

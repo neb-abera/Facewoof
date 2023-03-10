@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SoloPackList from './SoloPackList.jsx';
 import SoloPlaydates from './SoloPlaydates.jsx';
 

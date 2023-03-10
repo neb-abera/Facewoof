@@ -1,9 +1,5 @@
-/* eslint-disable react/jsx-indent-props */
 import React from 'react';
-import { BrowserRouter as Router, Route, useHistory, Switch } from 'react-router-dom'; // useLocation was here
-import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
-import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
-import { oktaConfig } from '../oktaConfig';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
@@ -18,18 +14,12 @@ import Navbar from './components/Navbar/Navbar';
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
 
+// import Playdate from './components/Calendar/EditPlaydate';
+
+
 const App = () => {
-  const history = useHistory();
-
-  const customAuthHandler = () => {
-    history.push('/login');
-  };
-
-  const restoreOriginalUri = async (_oktaAuth, originalUri) => {
-    history.replace(toRelativeUrl(originalUri || '', window.location.origin));
-  };
-
-  const CALLBACK_PATH = '/login/callback';
+  const location = useLocation();
+  const background = location.state && location.state.background;
 
   return (
     <div className="App">
