@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import PostTile from './PostTile.jsx';
 import PackMenu from './PackMenu.jsx';
 
@@ -12,7 +12,7 @@ const AllPostTiles = ({ allPosts }) => {
 
   // var parentGroup = data.packId;
   // console.log('AllPostTiles received', data);
-  var styles = {
+  const styles = {
     posts: {
       display: 'flex',
       flexDirection: 'column',
@@ -34,23 +34,21 @@ const AllPostTiles = ({ allPosts }) => {
   });
 
   return (
-    <>
-      <div className="card" style={styles.packHighest}>
-        <div style={styles.posts}>
-          {allPosts
-            ? allPosts.map((each, key) => (
-                <PostTile
+    <div className="card" style={styles.packHighest}>
+      <div style={styles.posts}>
+        {allPosts
+          ? allPosts.map((each, key) => (
+              <PostTile
                   key={key}
                   img={each.photo_url}
                   content={each.body}
-                  postedOn={each.date}
+                postedOn={each.date}
                   parentGroup={each.name}
-                />
-              ))
-            : null}
-        </div>
+              />
+            ))
+          : null}
       </div>
-    </>
+    </div>
   );
 };
 

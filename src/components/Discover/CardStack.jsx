@@ -2,7 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import axios from 'axios';
 import Draggable from 'react-draggable';
@@ -143,16 +143,16 @@ const CardStack = ({ users, distances, userData }) => {
               if (index === stack.length - 1) {
                 return (
                   <Draggable
-                    key={`user${user.user_id}`}
-                    position={{ x: x, y: y }}
-                    onDrag={dragHandler}
-                    onStop={upHandler}
-                    axis="x"
+                      key={`user${user.user_id}`}
+                      position={{ x: x, y: y }}
+                      onDrag={dragHandler}
+                      onStop={upHandler}
+                      axis="x"
                   >
                     <div
-                      id="test"
-                      key={`user${user.user_id}`}
-                      className={`profile-card
+                        id="test"
+                        key={`user${user.user_id}`}
+                        className={`profile-card
                         ${out === user.user_id ? 'unmount' : ''}
                         ${pass === user.user_id ? 'pass-unmount' : ''}
                         ${front === user.user_id ? 'mount' : ''}
@@ -169,8 +169,8 @@ const CardStack = ({ users, distances, userData }) => {
               }
               return (
                 <div
-                  key={`user${user.user_id}`}
-                  className={`profile-card
+                    key={`user${user.user_id}`}
+                    className={`profile-card
                     ${out === user.user_id ? 'unmount' : ''}
                     ${pass === user.user_id ? 'pass-unmount' : ''}
                     ${front === user.user_id ? 'mount' : ''}
@@ -190,18 +190,18 @@ const CardStack = ({ users, distances, userData }) => {
         )}
         <div className="buttons">
           <button
-            id="pass"
-            type="button"
-            className="btn btn-active btn-secondary vote-button pass"
-            onClick={handleVote}
+              id="pass"
+              type="button"
+              className="btn btn-active btn-secondary vote-button pass"
+              onClick={handleVote}
           >
             Pass
           </button>
           <button
-              id="digg"
-              type="button"
-              className="btn btn-active btn-primary vote-button digg"
-              onClick={handleVote}
+            id="digg"
+            type="button"
+            className="btn btn-active btn-primary vote-button digg"
+            onClick={handleVote}
           >
             Digg &apos;em
           </button>
