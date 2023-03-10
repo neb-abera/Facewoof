@@ -37,6 +37,7 @@ const getUserPacks = (req, res) => {
   });
 };
 
+
 module.exports = {
   addUserToPack: addUserToPack,
   getUserPacks: getUserPacks,

@@ -6,7 +6,7 @@ import '../Discover/profileCard.css';
 import axios from 'axios';
 
 const CreatePackCard = ({ currentUser, friend }) => {
-  console.log('currentUser friend', currentUser, friend);
+  // console.log('currentUser friend', currentUser, friend);
 
   const userId = currentUser.user_id;
   const friendId = friend.user_id;

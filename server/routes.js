@@ -11,7 +11,8 @@ const {
   getCurrentUser,
   getUserFriends,
   createPack,
-  editProfile
+  editProfile,
+  getProfilePhoto
 } = require('./controllers');
 
 const {
@@ -61,6 +62,8 @@ router.put('/editUser', editProfile);
 
 // Route to create pack
 router.post('/createPack', createPack);
+
+router.get('/getProfilePhoto', getProfilePhoto);
 
 router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
   // var packId = req.body.packId;
