@@ -5,7 +5,9 @@ import Login from './views/Login';
 import Discover from './views/Discover';
 import PackFeed from './views/PackFeed';
 import PlaydateCalendar from './views/Calendar';
-import Profile from './views/Profile.jsx';
+import Profile from './views/Profile';
+import ProfileDisplay from './components/ProfilePage/ProfileDisplay';
+import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
 // import Playdate from './components/Calendar/EditPlaydate';
 
@@ -22,6 +24,7 @@ const App = () => {
         <Route path="/packFeed" element={<PackFeed />} />
         <Route path="/calendar" element={<PlaydateCalendar />} />
         <Route path="/profile" element={<Profile />} />
+        {/* <Route path="/editprofile" element={<ProfilePage />} /> */}
         {/* <Route path="calendar/editplaydate" element={<Playdate />} /> */}
         {/* </Route> */}
       </Routes>

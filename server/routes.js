@@ -9,7 +9,8 @@ const {
   authUser,
   getCurrentUser,
   getUserFriends,
-  createPack
+  createPack,
+  editProfile
 } = require('./controllers');
 
 const {
@@ -52,23 +53,11 @@ router.get('/getFriends', getUserFriends);
 // Route to get current user request
 router.get('/getCurrentUser', getCurrentUser);
 
+router.put('/editUser', editProfile);
+
 // Route to create pack
 router.post('/createPack', createPack);
 
-router.post('/createPack', (req, res) => {
-  const { packName } = req.body.data;
-  console.log('create pack', packName);
-  createPack(packName, (err, results) => {
-    if (err) {
-      console.log('ERR SON', err);
-    } else {
-      // console.log('SUCCESSSS', results);
-      res.status(200);
-      res.json(results);
-      res.end();
-    }
-  });
-});
 router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
   // var packId = req.body.packId;
   var { packId } = req.query;
