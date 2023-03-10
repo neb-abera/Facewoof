@@ -52,21 +52,21 @@ const Discover = () => {
   const [userInfo, setUserInfo] = useState(null);
   const userContext = useUserContext();
 
-  useEffect(() => {
-    if (!authState || !authState.isAuthenticated) {
-      setUserInfo(null);
-    } else {
-      oktaAuth
-        .getUser()
-        .then((info) => {
-          setUserInfo(info);
-          // console.log(info);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [authState, oktaAuth]);
+  // useEffect(() => {
+  //   if (!authState || !authState.isAuthenticated) {
+  //     setUserInfo(null);
+  //   } else {
+  //     oktaAuth
+  //       .getUser()
+  //       .then((info) => {
+  //         setUserInfo(info);
+  //         // console.log(info);
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //   }
+  // }, [authState, oktaAuth]);
   const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
   const [userLocation, setUserLocation] = useState(null);
@@ -99,6 +99,7 @@ const Discover = () => {
   };
 
   const getUsers = (location, radius = 5) => {
+    console.log(location);
     location = location.trim();
     if (!Number.isNaN(location)) {
       axios

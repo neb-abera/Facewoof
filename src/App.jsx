@@ -13,7 +13,7 @@ import Profile from './views/Profile';
 import ProfileDisplay from './components/ProfilePage/ProfileDisplay';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
-import Locked from './views/Locked';
+// import Locked from './views/Locked';
 import Navbar from './components/Navbar/Navbar';
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
