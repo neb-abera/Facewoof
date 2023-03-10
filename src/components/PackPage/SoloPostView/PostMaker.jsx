@@ -6,7 +6,7 @@ import useUserContext from '../../../hooks/useUserContext';
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
   const { userId } = useUserContext();
-  console.log('user_id', userId);
+  // console.log('user_id', userId);
   var styles = {
     postMakerImg: {
       display: 'flex',
@@ -44,10 +44,10 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
         }
       })
       .then((resp) => {
-        console.log('received pfp', resp.data[0].url);
+        // console.log('received pfp', resp.data[0].url);
         packet.photo_url = resp.data[0].url;
         axios.post('/api/makePost', { packet: packet }).then(() => {
-          console.log('sent');
+          // console.log('sent');
         });
       });
   };
