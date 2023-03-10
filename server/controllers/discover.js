@@ -10,12 +10,12 @@ const url = process.env.ZIPCODE_URI;
 const discoverUsers = async (req, res) => {
   try {
     const { id, zipcode, radius, count } = req.query;
-    const { data } = await axios.get(`${url}/${apiKey}/radius.json/${zipcode}/${radius}/mile`);
-    // console.log(data);
-    const matchedZipcodes = data.zip_codes.reduce((acc, el, index) => {
+    const result = await axios.get(`${url}/${apiKey}/radius.json/${zipcode}/${radius}/mile`);
+    console.log(result);
+    const matchedZipcodes = result.data.zip_codes.reduce((acc, el, index) => {
       // eslint-disable-next-line no-param-reassign
       acc += `'${el.zip_code}', `;
-      if (index === data.zip_codes.length - 1) {
+      if (index === result.data.zip_codes.length - 1) {
         // eslint-disable-next-line no-param-reassign
         acc = `${acc.slice(0, -2)})`;
       }
@@ -23,7 +23,7 @@ const discoverUsers = async (req, res) => {
     }, '(');
 
     const distances = {};
-    data.zip_codes.forEach((zip) => {
+    result.data.zip_codes.forEach((zip) => {
       if (distances[zip.zip_code] === undefined) {
         distances[zip.zip_code] = zip.distance;
       }

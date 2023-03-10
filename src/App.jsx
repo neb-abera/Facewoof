@@ -9,7 +9,13 @@ import Profile from './views/Profile';
 import ProfileDisplay from './components/ProfilePage/ProfileDisplay';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
+// import Locked from './views/Locked';
+import Navbar from './components/Navbar/Navbar';
+
+const oktaAuth = new OktaAuth(oktaConfig.oidc);
+
 // import Playdate from './components/Calendar/EditPlaydate';
+
 
 const App = () => {
   const location = useLocation();
@@ -17,15 +23,27 @@ const App = () => {
 
   return (
     <div className="App">
-      <Routes location={background || location}>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/discover" element={<Discover />} />
-        <Route path="/packFeed" element={<PackFeed />} />
-        <Route path="/calendar" element={<PlaydateCalendar />} />
-        <Route path="/profile" element={<Profile />} />
-
-      </Routes>
+      <header className="App-header">
+        <Router>
+          <Switch>
+            <Security
+              oktaAuth={oktaAuth}
+              onAuthRequired={customAuthHandler}
+              restoreOriginalUri={restoreOriginalUri}
+            >
+              <Navbar />
+              <Route path="/" exact component={Home} />
+              <Route exact path="/login" render={() => <Login />} />
+              <Route path={CALLBACK_PATH} componenet={LoginCallback} />
+              {/* <SecureRoute path="/locked" render={() => <Locked />} /> */}
+              <SecureRoute path="/discover" render={() => <Discover />} />
+              <SecureRoute path="/calendar" render={() => <PlaydateCalendar />} />
+              <SecureRoute path="/packFeed" render={() => <PackFeed />} />
+              <SecureRoute path="/profile" render={() => <Profile />} />
+            </Security>
+          </Switch>
+        </Router>
+      </header>
     </div>
   );
 };

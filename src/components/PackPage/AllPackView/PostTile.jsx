@@ -10,7 +10,8 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
     },
     tile: {
       display: 'flex',
-      flexDirection: 'row'
+      flexDirection: 'row',
+      padding: '10px'
     },
     imageAndPostedOn: {
       display: 'flex',
@@ -21,15 +22,19 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
     parent: {
       height: '100%',
       width: '100%',
+      padding: '15px'
       // columnGap: '10px',
-      border: '3px solid red'
+      // border: '3px solid red'
     },
     content: {
-      border: '3px solid grey',
+      // border: '3px solid grey',
+      padding: '10px',
       maxWidth: '85%',
       width: '85%'
     }
   };
+
+  var currentDate = new Date(postedOn);
 
   return (
     <>
@@ -37,7 +42,7 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
         <div className="card shadow-xl" style={styles.tile}>
           <figure style={styles.imageAndPostedOn}>
             <img style={styles.pfp} src={img}></img>
-            <div className="card">Posted On: {postedOn}</div>
+            <div className="card">Posted On: {currentDate.toLocaleString()}</div>
             <div className="">Part Of: {parentGroup}</div>
           </figure>
           <div className="card shadow-xl" style={styles.content}>

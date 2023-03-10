@@ -2,6 +2,7 @@
 import {react, useState, useEffect} from 'react';
 import axios from 'axios';
 import useUserContext from '../../hooks/useUserContext.js';
+import UploadFileWidget from '../FileUploader/UploadFileWidget';
 
 // to do later:
 // if profile logged in, render values in textinput as current values of profile
@@ -123,9 +124,9 @@ const ProfilePage = () => {
   return (
     <div className="card w-10/12 max-w-7xl bg-base-10 bg-[#fefcfc] mt-2.5 shadow-xl mx-auto">
       <div className="card-body">
-        <h2 className="card-title">{firstLogin ?  'Create Your Profile' : 'Edit Your Profile'}</h2>
-        <form >
-          <div class="columns-3">
+        <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
+        <form>
+          <div className="columns-3">
             <div>
               <label className="label">
               Owner First Name:
@@ -177,13 +178,9 @@ const ProfilePage = () => {
               <input className="input input-bordered w-full max-w-xs" placeholder='Eating Sticks' onChange={(e) => {changeLikes3(e.target.value)}} type="text" name="name" />
             </div>
           </div>
-          <label class="block">
-            <span class="sr-only">Choose profile photo</span>
-            <input type="file" className="file-input file-input-bordered file-input-primary w-full max-w-xs" />
-          </label>
-          <div className="card-actions justify-between mt-3.5">
-            <button onClick={handleBackButton} className='btn btn-accent'>Back</button>
-            <input className="btn btn-active btn-primary"  onClick={(e) => handleSubmit(e)} type="submit" />
+          <UploadFileWidget />
+          <div className="card-actions justify-end">
+            <input className="btn btn-active btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>
       </div>
