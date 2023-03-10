@@ -49,78 +49,70 @@ const Profile = () => {
 
 
   return (
-    <div className="flex grid-cols-2">
-
-
-  {/* <div className="ProfileCard card"> */}
-  <div className="flex card card-compact w-96 bg-base-100 shadow-xl ml-28 mt-44 max-w-3xl w-max">
-
-    <div className="avatar grid-cols-1 w-48 mb-1">
-      <div className="w-32 rounded-full">
-      <img className="profilePhoto" src={profilePhoto} alt="Italian Trulli"></img>
-      </div>
-      <div className='card-title absolute left-36 top-2'>{dummyText.dog_name}</div>
-    </div>
-
-    <div className="flex flex-row justify-items-stretch items-center absolute left-36 top-14">
-      <div className='flex-auto justify-start'>{dummyText.age}</div>
-      <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
-      <div className='flex-auto justify-start'>{dummyText.dog_breed}</div>
-      <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
-      <div className='flex-auto justify-start'>{dummyText.location}</div>
-    </div>
-      <div className="flex grid-cols-2 items-center absolute left-36 top-24">
-      <div class="w-4 h-4 bg-rose-300 rounded-full mr-2"></div>
-      <div> {dummyText.vaccinated ? 'Vaccinated' : 'Unvaccinated' }</div>
-    </div>
-
-    <div className="flex grid-cols-3 items-end rounded-full">
-    <div className="btn btn-outline btn-primary w-32 rounded-full mr-6">{dummyText.likes_one}</div>
-    <div className="btn btn-outline btn-primary w-32 rounded-full mr-6 ">{dummyText.likes_two}</div>
-    <div className="btn btn-outline btn-primary w-32 rounded-full mr-6">{dummyText.likes_three}</div>
-    </div>
-
-
-    <div className="carousel carousel-center p-4 space-x-4 bg-blue rounded-box h-96 w-128 overflow-x-scroll">
-      {photosArray.map((photo, index) => {
-        return (
-          <div id={String(index)} className="carousel-item">
-          <img src={photo.url} className="rounded-box" />
+    <div className="container mx-auto columns-2 min-h-screen">
+      <div className="card shadow-xl min-h-fit mx-auto">
+        <div className="avatar grid-cols-1 w-48 mb-1">
+          <div className="w-32 rounded-full">{/** this is profile photo */}
+            <img className="profilePhoto" src={profilePhoto} alt="Italian Trulli"></img>
           </div>
-        )}
-        )}
+          <div className='card-title absolute left-36 top-2'>
+            {dummyText.dog_name}
+          </div>
+        </div>
 
-      {/* <div className="carousel-item">
-      <img src="https://i.kym-cdn.com/photos/images/original/002/085/702/ba2.jpg" className="rounded-box" />
+        <div className="flex flex-row justify-items-stretch items-center absolute left-36 top-14">
+          <div className='flex-auto justify-start'>
+            {dummyText.age}
+          </div>
+          <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
+          <div className='flex-auto justify-start'>
+            {dummyText.dog_breed}
+          </div>
+          <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
+          <div className='flex-auto justify-start'>
+            {dummyText.location}
+          </div>
+        </div>
+        <div className="flex grid-cols-2 items-center absolute left-36 top-24">
+          <div class="w-4 h-4 bg-rose-300 rounded-full mr-2"></div>
+          <div> {dummyText.vaccinated ? 'Vaccinated' : 'Unvaccinated' }</div>
+        </div>
+
+        <div className="flex grid-cols-3 items-end rounded-full">
+          <div className="btn btn-outline btn-primary w-32 rounded-full mr-6">
+            {dummyText.likes_one}
+          </div>
+          <div className="btn btn-outline btn-primary w-32 rounded-full mr-6 ">
+            {dummyText.likes_two}
+          </div>
+          <div className="btn btn-outline btn-primary w-32 rounded-full mr-6">
+            {dummyText.likes_three}
+          </div>
+        </div>
+
+
+        <div className="carousel carousel-center p-4 space-x-4 bg-blue rounded-box h-96 w-128 overflow-x-scroll">
+          {photosArray.map((photo, index) => {
+            return (
+              <div id={String(index)} className="carousel-item">
+              <img src={photo.url} className="rounded-box" />
+              </div>
+            )}
+            )}
+        </div>
+        <div className="flex justify-center w-full py-2 gap-2">
+        {photosArray.map((photo, index) => {
+            return (
+              <a href={`#${index}`} className="btn btn-xs">{index + 1}</a>
+            )}
+            )}
+        </div>
+        <div className="break-after-column">{fillerData.description}</div>
       </div>
-    <div className="carousel-item">
-      <img src="https://i.imgflip.com/4aylx8.jpg?a465912" className="rounded-box" />
-      </div>
-    <div className="carousel-item">
-      <img src="https://i.kym-cdn.com/photos/images/facebook/002/035/687/1e8.png" className="rounded-box" />
-      </div>
-    <div className="carousel-item">
-    <img src="https://static.boredpanda.com/blog/wp-content/uploads/2020/07/shiba-cheems-meme-dog-balltze-4-1.jpg" className="rounded-box" />
-      </div> */}
+    {/* <div> */}
+      <FriendsList currentUser={dummyText}/>
+    {/* </div> */}
     </div>
-    <div className="flex justify-center w-full py-2 gap-2">
-    {photosArray.map((photo, index) => {
-        return (
-          <a href={`#${index}`} className="btn btn-xs">{index + 1}</a>
-        )}
-        )}
-  {/* <a href="#item1" className="btn btn-xs">1</a>
-  <a href="#item2" className="btn btn-xs">2</a>
-  <a href="#item3" className="btn btn-xs">3</a>
-  <a href="#item4" className="btn btn-xs">4</a> */}
-</div>
-    <div>{fillerData.description}</div>
-
-
-
-  </div>
-    <FriendsList currentUser={dummyText}/>
-  </div>
   );
 };
 
