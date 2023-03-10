@@ -13,18 +13,15 @@ const {
   createPack,
   createPhotos,
   editProfile,
-  getProfilePhoto
+  getProfilePhoto,
+  ctrlUserPacksId,
+  ctrlPackPosts,
+  ctrlAllPostsFromAllPacks,
+  ctrlUserPlaydatesAllPacks,
+  ctrlSoloPosts,
+  ctrlPfp,
+  ctrlMakePost
 } = require('./controllers');
-
-const {
-  getUserPacksId,
-  getUserInformation,
-  getPackPosts,
-  getAllPostsFromAllPacks,
-  getUserPlaydatesAllPacks,
-  getSoloPosts,
-  getPfp
-} = require('./controllers/packFeed');
 
 const router = express.Router();
 
@@ -70,45 +67,18 @@ router.post('/createPack', createPack);
 
 router.get('/getProfilePhoto', getProfilePhoto);
 
-router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
-  // var packId = req.body.packId;
-  const { packId } = req.query;
-  getPackPosts(packId).then((response) => {
-    res.status(201).send(response);
-  });
-});
+router.get('/api/getAllPostsFromSpecificPack', ctrlPackPosts);
 
-router.get('/api/getUserPacks', (req, res) => {
-  // var packId = req.body.userId;
-  const { userId } = req.query;
-  // console.log('userId', userId);
-  getUserPacksId(userId, res);
-});
+router.get('/api/getUserPacks', ctrlUserPacksId);
 
-router.get('/api/getAllPacksPostsForUser', (req, res) => {
-  const { userId } = req.query;
-  getAllPostsFromAllPacks(userId, res);
-});
+router.get('/api/getAllPacksPostsForUser', ctrlAllPostsFromAllPacks);
 
-router.get('/api/getUserPlaydates', (req, res) => {
-  const { userId } = req.query;
-  getUserPlaydatesAllPacks(userId, res);
-});
+router.get('/api/getUserPlaydates', ctrlUserPlaydatesAllPacks);
 
-router.get('/api/getSoloPosts', (req, res) => {
-  const { userId, packId } = req.query;
-  // var packId = req.body.packId;
-  getSoloPosts(userId, packId, res);
-});
+router.get('/api/getSoloPosts', ctrlSoloPosts);
 
-router.get('/api/getPfp', (req, res) => {
-  // var userId = req.body.userId;
-  const { userId } = req.query;
-  getPfp(userId, res);
-});
+router.get('/api/getPfp', ctrlPfp);
 
-router.post('/api/makePost', (req, res) => {
-  console.log('received request to make post');
-});
+router.post('/api/makePost', ctrlMakePost);
 
 module.exports = router;

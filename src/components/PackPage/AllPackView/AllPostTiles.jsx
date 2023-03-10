@@ -17,9 +17,10 @@ const AllPostTiles = ({ allPosts }) => {
       display: 'flex',
       flexDirection: 'column',
       maxWidth: '100vw',
+      minWidth: '80vw',
       // maxHeight: '100vh',
       // gapY: '25px',
-      border: '3px solid black',
+      // border: '3px solid black',
       columnGap: '100px'
     },
     packHighest: {
@@ -27,6 +28,10 @@ const AllPostTiles = ({ allPosts }) => {
       flexDirection: 'row'
     }
   };
+  // console.log('all posts', allPosts);
+  allPosts = allPosts.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
 
   return (
     <>
@@ -39,7 +44,7 @@ const AllPostTiles = ({ allPosts }) => {
                   img={each.photo_url}
                   content={each.body}
                   postedOn={each.date}
-                  parentGroup={each.pack_id}
+                  parentGroup={each.name}
                 />
               ))
             : null}
