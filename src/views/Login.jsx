@@ -12,7 +12,7 @@ import useUserContext from '../hooks/useUserContext';
 
 const Login = () => {
   const { loggedIn } = useUserContext();
-  const navigate = useNavigate();
+  const history = useHistory();
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
