@@ -5,14 +5,13 @@ import React from 'react';
 import './profileCardGeneral.css';
 
 export default function ProfileCardGeneral({ user }) {
-
   return (
-    <div className="profile-card-parent">
-      <div className="card w-96 bg-base-100 shadow-xl profileCard">
+    <div className="profile-card-parent drop-shadow-none">
+      <div className="card w-96 bg-base-100 shadow-xl profileCard drop-shadow-none">
         <div className="card-header">
           <div className="card-header-title">
             <div className="avatar">
-              <div className="w-24 rounded-contain profile-image">
+              <div className="w-24 rounded-contain profile-image drop-shadow-none">
                 <img src={user.photos[0]} />
               </div>
             </div>
