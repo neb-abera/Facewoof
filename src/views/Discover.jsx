@@ -4,6 +4,7 @@
 /* eslint-disable object-shorthand */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaDog, FaBone } from 'react-icons/fa';
@@ -13,6 +14,8 @@ import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
 import SearchBar from '../components/Discover/SearchBar';
 import './discover.css';
+
+import UploadFileWidget from '../components/FileUploader/UploadFileWidget';
 
 const googleApiUrl = import.meta.env.VITE_GOOGLE_API_URL;
 const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY;
@@ -48,7 +51,11 @@ const getUserLocation = async (lat, lng) => {
 // eslint-disable-next-line react/function-component-definition
 export default function Discover() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { authState, oktaAuth } = useOktaAuth();
+  const [userInfo, setUserInfo] = useState(null);
+  const userContext = useUserContext();
+
+  const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
@@ -80,6 +87,8 @@ export default function Discover() {
   };
 
   const getUsers = (location, radius = 5) => {
+    if (!userId) return;
+
     location = location.trim();
     if (!Number.isNaN(location)) {
       axios
@@ -113,7 +122,7 @@ export default function Discover() {
   };
 
   useEffect(() => {
-    if (users.length > 0) {
+    if (users?.length > 0) {
       setLoading(false);
     }
   }, [users]);

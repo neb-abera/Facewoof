@@ -7,12 +7,7 @@ import './index.css';
 import { UserProvider } from './context/user';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // <React.StrictMode>
   <UserProvider>
-    <Router>
-      <Navbar />
-      <App />
-    </Router>
+    <App />
   </UserProvider>
-  // </React.StrictMode>
 );

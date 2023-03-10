@@ -7,6 +7,7 @@ const {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
+  addPhoto,
   editProfilePromise,
   getProfilePhotoPromise
 } = require('./profile');
@@ -26,6 +27,7 @@ module.exports = {
   getFriendsPromise,
   createPackPromise,
   checkOrCreateUser,
+  addPhoto,
   editProfilePromise,
   getProfilePhotoPromise
 };

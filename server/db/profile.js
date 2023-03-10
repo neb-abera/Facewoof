@@ -79,6 +79,14 @@ const createPackPromise = (packName) => {
   return db.query('INSERT INTO packs(name) VALUES($1) RETURNING pack_id', [packName]);
 };
 
+const addPhoto = (userId, photo) => {
+  const q = 'INSERT INTO "public"."profile_photos" (user_id, url) VALUES ($1, $2)';
+  return db
+    .query(q, [userId, photo])
+    .then((res) => res)
+    .catch((err) => err);
+};
+
 const editProfilePromise = (
   dogName,
   ownerName,
@@ -96,6 +104,7 @@ const editProfilePromise = (
 // return db.query(`
 // UPDATE users SET "${dogName}" = dog_name, "${ownerName}" = owner_name, "${dogBreed}" = dog_breed, ${age} = age, ${vaccination} = vaccination, ${discoverable} = discoverable, ${ownerEmail}" = owner_email, "${location} "= location WHERE user_id = ${userId};`);
 
+
 const getProfilePhotoPromise = (userId) => {
   return db.query(`select url from profile_photos WHERE user_id = ${userId}`);
 };
@@ -104,6 +113,7 @@ module.exports = {
   getCurrentUserPromise: getCurrentUserPromise,
   getFriendsPromise: getFriendsPromise,
   createPackPromise: createPackPromise,
+  addPhoto: addPhoto,
   editProfilePromise: editProfilePromise,
   getProfilePhotoPromise: getProfilePhotoPromise
   // addToPack: addToPack
