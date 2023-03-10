@@ -16,8 +16,14 @@ const getCurrentUserPromise = (userId) => db.query(`Select * from users where us
 const getFriendsPromise = (userId) => {
   // console.log('USER ID IN GETFRIENDS', userId)
   return db.query(
-    `select * from users where user_id IN (select user2_id from friends where user1_id = ${userId})`
+    // `select * from users where user_id IN (select user2_id from friends where user1_id = ${userId})`
+    `select * from (
+      ( SELECT * FROM users where user_id IN (select user2_id from friends where user1_id = ${userId}) ) a
+      LEFT JOIN (SELECT user_id, array_agg(url) as photos FROM profile_photos GROUP BY user_id) b
+      ON (a.user_id = b.user_id)
+      )`
   );
+  // `select * from users where user_id IN (select user2_id from friends where user1_id = ${userId})`
 };
 
 // this is not needed see db/packs.js

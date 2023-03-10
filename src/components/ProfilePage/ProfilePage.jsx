@@ -29,47 +29,47 @@ const ProfilePage = () => {
   };
 
   const changeEmail = (e) => {
-    console.log('email', e);
+    // console.log('email', e);
     setEmail(e);
   };
   const changeOwnerLastname = (e) => {
-    console.log('lastname', e);
+    // console.log('lastname', e);
     setOwnerLastname(e);
   };
   const changeDogName = (e) => {
-    console.log('dogname', e);
+    // console.log('dogname', e);
     setDogName(e);
   };
   const changeBreed = (e) => {
-    console.log('breed', e);
+    // console.log('breed', e);
     setBreed(e);
   };
   const changeAge = (e) => {
-    console.log('age', e);
+    // console.log('age', e);
     setAge(Number(e));
   };
   const changeLocation = (e) => {
-    console.log('loc', e);
+    // console.log('loc', e);
     setLocation(Number(e));
   };
   const changeVaccinated = () => {
-    console.log('vacc', vaccinated);
+    // console.log('vacc', vaccinated);
     setVaccinated(!vaccinated);
   };
   const changeDiscoverable = () => {
-    console.log('discoverable', discoverable);
+    // console.log('discoverable', discoverable);
     setDiscoverable(!discoverable);
   };
   const changeLikes1 = (e) => {
-    console.log('likes1', e);
+    // console.log('likes1', e);
     setLikes1(e);
   };
   const changeLikes2 = (e) => {
-    console.log('likes2', e);
+    // console.log('likes2', e);
     setLikes2(e);
   };
   const changeLikes3 = (e) => {
-    console.log('likes3', e);
+    // console.log('likes3', e);
     setLikes3(e);
   };
   const handleSubmit = (e) => {
@@ -96,7 +96,7 @@ const ProfilePage = () => {
       email.length === 0
     ) {
       // eslint-disable-next-line no-alert
-      console.log('Please make sure all required forms are filled out!!! Gosh!!!', sendObj);
+      // console.log('Please make sure all required forms are filled out!!! Gosh!!!', sendObj);
     } else if (typeof age !== 'number') {
       // eslint-disable-next-line no-alert
       alert('Please make sure age is a number');
@@ -104,18 +104,17 @@ const ProfilePage = () => {
       // eslint-disable-next-line no-alert
       alert('Please make sure location is your zip code');
     } else {
-      console.log('success!!');
+      // console.log('success!!');
       axios
         .put('http://localhost:3001/editUser', sendObj)
         .then((results) => {
-          console.log('succ post', results);
+          // console.log('succ post', results);
         })
         .catch((err) => {
           console.log('err', err);
         });
     }
   };
-
   const handleBackButton = () => {
     setFirstLogin(false);
   }
@@ -124,8 +123,8 @@ const ProfilePage = () => {
   return (
     <div className="card w-10/12 max-w-7xl bg-base-10 bg-[#fefcfc] mt-2.5 shadow-xl mx-auto">
       <div className="card-body">
-        <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
-        <form>
+        <h2 className="card-title">{firstLogin ?  'Create Your Profile' : 'Edit Your Profile'}</h2>
+        <form >
           <div className="columns-3">
             <div>
               <label className="label">
@@ -180,7 +179,7 @@ const ProfilePage = () => {
           </div>
           <UploadFileWidget />
           <div className="card-actions justify-end">
-            <input className="btn btn-active btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
+          <input className="btn btn-active btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>
       </div>

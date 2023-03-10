@@ -16,7 +16,7 @@ const Profile = () => {
   useEffect(() => {
     axios.get(`http://localhost:3001/getCurrentUser?userId=${userId}`)
     .then((results) => {
-     console.log('results son from get currentUser', results.data[0])
+    //  console.log('results son from get currentUser', results.data[0])
      setDummyText(results.data[0]);
     })
     .catch((err) => {
@@ -28,10 +28,10 @@ const Profile = () => {
   useEffect(() => {
     axios.get(`http://localhost:3001/getProfilePhoto?userId=${userId}`)
     .then((results) => {
-     console.log('results son from get profilephoto', results.data.rows)
+    //  console.log('results son from get profilephoto', results.data.rows)
      setProfilePhoto(results.data.rows[0].url);
      const slice = results.data.rows.slice(1);
-     console.log('SLICE', slice);
+    //  console.log('SLICE', slice);
      setPhotosArray(slice);
     })
     .catch((err) => {
