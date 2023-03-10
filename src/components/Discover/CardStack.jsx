@@ -1,8 +1,9 @@
+/* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import axios from 'axios';
 import Draggable from 'react-draggable';
@@ -191,10 +192,10 @@ const CardStack = ({ users, distances }) => {
             Pass
           </button>
           <button
-              id="digg"
-              type="button"
-              className="btn btn-active btn-primary vote-button digg"
-              onClick={handleVote}
+            id="digg"
+            type="button"
+            className="btn btn-active btn-primary vote-button digg"
+            onClick={handleVote}
           >
             Digg &apos;em
           </button>

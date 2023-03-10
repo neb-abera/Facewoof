@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useHistory } from 'react-router-dom'; // removed useNavigate
+import { useOktaAuth } from '@okta/okta-react';
 import useUserContext from '../../hooks/useUserContext';
 import Logo from '../../assets/diggrLogo3.png';
 import './nav.css';
@@ -8,16 +9,26 @@ const Navbar = () => {
   const location = useLocation();
   const [navBarStyle, setNavBarStyle] = useState(null);
   const { loggedIn, setLoggedIn } = useUserContext();
+  const { authState, oktaAuth } = useOktaAuth();
+  const [userInfo, setUserInfo] = useState(null);
 
-  const navigate = useNavigate();
+  const history = useHistory();
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    navigate('/login');
+    history.push('/login');
   }, [loggedIn]);
 
   const logout = () => {
     setLoggedIn(false);
-    navigate('/login');
+    oktaAuth
+      .signOut()
+      .then(() => {
+        history.push('/login');
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
   };
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import PackList from './PackList.jsx';
 import Playdates from './Playdates.jsx';
 import AllPacksModal from '../PackModals/AllPacksModal.jsx';
