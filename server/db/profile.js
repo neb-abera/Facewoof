@@ -80,12 +80,9 @@ const createPackPromise = (packName) => {
 };
 
 const addPhoto = (userId, photo) => {
-  db.query(
-    `
-    INSERT INTO "public"."profile_photos" ("user_id", "url")
-    VALUES (${userId}, ${photo});
-  `
-  )
+  const q = 'INSERT INTO "public"."profile_photos" (user_id, url) VALUES ($1, $2)';
+  return db
+    .query(q, [userId, photo])
     .then((res) => res)
     .catch((err) => err);
 };

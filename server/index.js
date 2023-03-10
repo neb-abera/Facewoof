@@ -12,7 +12,6 @@ const PORT = 3001;
 
 // ----- Middleware ----- //
 
-// app.use(cors());
 // need the following routes approved for cors in deployed version
 const corsOptions = {
   origin: [
@@ -24,7 +23,7 @@ const corsOptions = {
     'okta.com'
   ]
 };
-// app.use(express.static(path.join(__dirname, '../public')));
+// app.use(express.static(path.join(__dirname, '../dist')));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

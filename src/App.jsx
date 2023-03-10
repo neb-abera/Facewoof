@@ -13,7 +13,7 @@ import Profile from './views/Profile';
 import ProfileDisplay from './components/ProfilePage/ProfileDisplay';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
-import Locked from './views/Locked';
+// import Locked from './views/Locked';
 import Navbar from './components/Navbar/Navbar';
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
@@ -45,7 +45,7 @@ const App = () => {
               <Route path="/" exact component={Home} />
               <Route exact path="/login" render={() => <Login />} />
               <Route path={CALLBACK_PATH} componenet={LoginCallback} />
-              <SecureRoute path="/locked" render={() => <Locked />} />
+              {/* <SecureRoute path="/locked" render={() => <Locked />} /> */}
               <SecureRoute path="/discover" render={() => <Discover />} />
               <SecureRoute path="/calendar" render={() => <PlaydateCalendar />} />
               <SecureRoute path="/packFeed" render={() => <PackFeed />} />

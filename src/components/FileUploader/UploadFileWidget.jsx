@@ -14,7 +14,6 @@ const API_URL = import.meta.env.VITE_APP_API_URL;
 // eslint-disable-next-line react/prop-types
 const UploadFileWidget = () => {
   const [urls, setUrls] = useState([]);
-  // const [fileUploaders, setFileUploaders] = useState([]);
   const { userId } = useUserContext();
 
   const uploadImage = (img) => {
@@ -32,17 +31,6 @@ const UploadFileWidget = () => {
       });
     });
   };
-
-  // const handleOnAddImage = () => {
-  //   if (fileUploaders.length < 5) {
-  //     setFileUploaders((prev) => [...prev, true]);
-  //   } else if (fileUploaders.filter((el) => el === true).length < 5) {
-  //     const uploaders = fileUploaders.slice();
-  //     let uploader = uploaders.find((el) => el === false);
-  //     uploader = true;
-  //     setFileUploaders(uploaders);
-  //   }
-  // };
 
   const handleChange = (e) => {
     uploadImage(e.target.files[0]);

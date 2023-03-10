@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Link, useLocation, useHistory } from 'react-router-dom';
+import { Link, useLocation, useHistory, Redirect } from 'react-router-dom';
 // import './node_modules@okta/okta-signin-widget/css/okta-sign-in.min.css';
 import { useOktaAuth } from '@okta/okta-react';
 import '../components/Login/Login.css';
-import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 import OktaSignInWidget from '../components/Login/OktaSignInWidget';
 import { oktaConfig } from '../../oktaConfig';
@@ -71,7 +70,7 @@ const Login = ({ config }) => {
           //   if (res.data.age !== null) {
           //     // need to verify what returns to indicate user exists and if it contains correct data
           //     setFirstLogin(false);
-          //    // console.log('response from db query', res.data);
+          //     // console.log('response from db query', res.data);
           //     setUserId(res.data.user_id);
           //     const user = {
           //       user_id: res.data.user_id,
@@ -127,8 +126,8 @@ const Login = ({ config }) => {
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
         <Link
-          to="/"
-          className="absolute top-4 left-4 border border-0 px-12 py-2 bg-[#8d5426] rounded text-white"
+            to="/"
+            className="absolute top-4 left-4 border border-0 px-12 py-2 bg-[#8d5426] rounded text-white"
         >
           Diggr
         </Link>
@@ -136,8 +135,8 @@ const Login = ({ config }) => {
         <img className="w-full h-full" src={dogImage} alt="dog-image" />
       </div>
       <div
-        className="flex flex-col space-y-5 px-12 items-center justify-center"
-        style={{ width: `--webkit-calc(100% - 600px)` }}
+          className="flex flex-col space-y-5 px-12 items-center justify-center"
+          style={{ width: `--webkit-calc(100% - 600px)` }}
       >
         <OktaSignInWidget config={config} onSuccess={onSuccess} onError={onError} />
       </div>

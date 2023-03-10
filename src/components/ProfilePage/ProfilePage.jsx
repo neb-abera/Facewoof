@@ -2,6 +2,7 @@
 import { react, useState, useEffect } from 'react';
 import axios from 'axios';
 import useUserContext from '../../hooks/useUserContext.js';
+import UploadFileWidget from '../FileUploader/UploadFileWidget';
 
 // to do later:
 // if profile logged in, render values in textinput as current values of profile
@@ -121,7 +122,7 @@ const ProfilePage = () => {
       <div className="card-body">
         <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
         <form>
-          <div class="columns-3">
+          <div className="columns-3">
             <div>
               <label className="label">Owner First Name:</label>
               <input
@@ -238,15 +239,9 @@ const ProfilePage = () => {
               />
             </div>
           </div>
-          <label class="block">
-            <span class="sr-only">Choose profile photo</span>
-            <input
-              type="file"
-              className="file-input file-input-bordered file-input-primary w-full max-w-xs"
-            />
-          </label>
+          <UploadFileWidget />
           <div className="card-actions justify-end">
-            <input className="btn btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
+            <input className="btn btn-active btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>
       </div>
