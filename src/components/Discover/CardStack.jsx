@@ -1,8 +1,9 @@
+/* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import axios from 'axios';
 import Draggable from 'react-draggable';
@@ -12,7 +13,7 @@ import Match from './Match';
 import Blank from './Blank';
 import './cardStack.css';
 
-const CardStack = ({ users }) => {
+const CardStack = ({ users, distances }) => {
   const [front, setFront] = useState(null);
   const [back, setBack] = useState(null);
 
@@ -49,7 +50,7 @@ const CardStack = ({ users }) => {
   });
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflowX = 'hidden';
     setData(users);
   }, [users]);
 
@@ -91,10 +92,9 @@ const CardStack = ({ users }) => {
     setChoice(user);
     if (e.target.id === 'digg') {
       setOut(user.user_id);
+      setRelationship(currentUser, user, true);
       if (user.user1_choice === true) {
         setMatch(true);
-      } else {
-        setRelationship(currentUser, user, true);
       }
     } else {
       setRelationship(currentUser, user, false);
@@ -155,7 +155,7 @@ const CardStack = ({ users }) => {
                       `}
                     >
                       <div className="card-wrapper">
-                        <ProfileCard user={user} />
+                        <ProfileCard user={user} distance={distances[user.location]} />
                       </div>
                     </div>
                   </Draggable>
@@ -173,7 +173,7 @@ const CardStack = ({ users }) => {
                   `}
                 >
                   <div className="card-wrapper">
-                    <ProfileCard user={user} />
+                    <ProfileCard user={user} distance={distances[user.location]} />
                   </div>
                 </div>
               );
@@ -186,16 +186,16 @@ const CardStack = ({ users }) => {
           <button
             id="pass"
             type="button"
-            className="btn btn-active btn-accent vote-button pass"
+            className="btn btn-active btn-secondary vote-button pass"
             onClick={handleVote}
           >
             Pass
           </button>
           <button
-              id="digg"
-              type="button"
-              className="btn btn-active btn-primary vote-button digg"
-              onClick={handleVote}
+            id="digg"
+            type="button"
+            className="btn btn-active btn-primary vote-button digg"
+            onClick={handleVote}
           >
             Digg &apos;em
           </button>

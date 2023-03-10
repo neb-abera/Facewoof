@@ -7,7 +7,11 @@ const {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
+<<<<<<< HEAD
   addPhoto
+=======
+  editProfilePromise
+>>>>>>> main
 } = require('./profile');
 const { checkOrCreateUser } = require('./auth');
 
@@ -25,5 +29,9 @@ module.exports = {
   getFriendsPromise,
   createPackPromise,
   checkOrCreateUser,
+<<<<<<< HEAD
   addPhoto
+=======
+  editProfilePromise
+>>>>>>> main
 };

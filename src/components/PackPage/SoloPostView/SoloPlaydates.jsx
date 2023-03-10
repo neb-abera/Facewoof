@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import SoloPackName from './SoloPackName.jsx';
 import axios from 'axios';
 import SoloPlaydate from './SoloPlaydate.jsx';

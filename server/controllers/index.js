@@ -2,7 +2,13 @@
 const { discoverUsers, userResponse } = require('./discover');
 const { getPlaydates, AddPlaydate } = require('./calendar');
 const { addUserToPack, getUserPacks, createNewPackAndAdd } = require('./packs');
-const { getCurrentUser, getUserFriends, createPack, createPhotos } = require('./profile');
+const {
+  getCurrentUser,
+  getUserFriends,
+  createPack,
+  editProfile,
+  createPhotos
+} = require('./profile');
 const { authUser } = require('./auth');
 
 module.exports = {
@@ -17,5 +23,6 @@ module.exports = {
   getUserFriends,
   createPack,
   authUser,
+  editProfile,
   createPhotos
 };
