@@ -20,7 +20,7 @@ const ProfilePage = () => {
   const [likes2, setLikes2] = useState('');
   const [likes3, setLikes3] = useState('');
 
-  const { userData, firstLogin } = useUserContext();
+  const { userData, firstLogin, setFirstLogin } = useUserContext();
 
   const changeOwnerName = (e) => {
     console.log('firstname', e);
@@ -114,10 +114,14 @@ const ProfilePage = () => {
         });
     }
   };
+
+  const handleBackButton = () => {
+    setFirstLogin(false);
+  }
   // card w-96 bg-base-100 shadow-xl top-15 mx-auto overflow-auto scroll-auto
   // flex card card-compact w-[700px] bg-base-100 shadow-xl ml-[500px] mt-44 max-w-3xl w-max
   return (
-    <div className="card w-10/12 max-w-7xl bg-base-10 shadow-xl mx-auto">
+    <div className="card w-10/12 max-w-7xl bg-base-10 bg-[#fefcfc] mt-2.5 shadow-xl mx-auto">
       <div className="card-body">
         <h2 className="card-title">{firstLogin ?  'Create Your Profile' : 'Edit Your Profile'}</h2>
         <form >
@@ -177,7 +181,8 @@ const ProfilePage = () => {
             <span class="sr-only">Choose profile photo</span>
             <input type="file" className="file-input file-input-bordered file-input-primary w-full max-w-xs" />
           </label>
-          <div className="card-actions justify-end">
+          <div className="card-actions justify-between mt-3.5">
+            <button onClick={handleBackButton} className='btn btn-accent'>Back</button>
             <input className="btn btn-active btn-primary"  onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>

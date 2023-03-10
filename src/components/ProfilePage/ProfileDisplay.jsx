@@ -7,7 +7,7 @@ import useUserContext from '../../hooks/useUserContext';
 const Profile = () => {
   // const userId = 1
   const [dummyText, setDummyText] = useState({})
-  const { userId, packs, userData, friends, setFriends, photos } = useUserContext();
+  const { userId, packs, userData, friends, setFriends, photos, setFirstLogin} = useUserContext();
   const [profilePhoto, setProfilePhoto] = useState("https://i.redd.it/vg9bk4f19lp71.jpg");
   const [photosArray, setPhotosArray] = useState([]);
 
@@ -47,6 +47,9 @@ const Profile = () => {
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam rutrum enim magna, sed sodales purus porta eget. Fusce vel posuere odio. Suspendisse potenti. Maecenas sapien nulla, ultricies nec fermentum non, aliquam eget elit. In nec nulla urna. Integer non felis ac est scelerisque porta. Etiam tempor sem quam, nec viverra lorem accumsan vitae.'
   };
 
+  const handleButtonClick = () => {
+    setFirstLogin(true);
+  }
 
   return (
     <div className="container mx-auto my-2 columns-2 min-h-fit">
@@ -78,7 +81,7 @@ const Profile = () => {
               </div>
           </div>
           <div className='mt-2.5 mr-3.5'>
-            <button className="btn">Edit Profile</button>
+            <button onClick={handleButtonClick} className="btn">Edit Profile</button>
           </div>
         </div>
 
