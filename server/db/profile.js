@@ -14,7 +14,7 @@ const db = require('./database');
 const getCurrentUserPromise = (userId) => db.query(`Select * from users where user_id = ${userId}`);
 
 const getFriendsPromise = (userId) => {
-  console.log('USER ID IN GETFRIENDS', userId);
+  // console.log('USER ID IN GETFRIENDS', userId)
   return db.query(
     // `select * from users where user_id IN (select user2_id from friends where user1_id = ${userId})`
     `select * from (
