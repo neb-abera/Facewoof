@@ -7,7 +7,7 @@ var getUserPacksId = (req, res) => {
   return db.query(`SELECT json_agg(packobj) FROM
     (SELECT pack_users.pack_id, packs.name FROM pack_users
       INNER JOIN packs ON packs.pack_id = pack_users.pack_id
-      WHERE pack_users.user_id = 1) as packobj;`);
+      WHERE pack_users.user_id = ${userId}) as packobj;`);
 };
 
 var getUserInformation = (req, res) => {
@@ -50,9 +50,9 @@ var getPfp = (req, res) => {
 };
 
 var makePost = (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   var { user_id, pack_id, body, date, photo_url } = req.body.packet;
-  console.log('user_id:', user_id, 'pack_id:', pack_id, 'body:', body, 'photo_url:', photo_url);
+  // console.log('user_id:', user_id, 'pack_id:', pack_id, 'body:', body, 'photo_url:', photo_url);
   return db.query(
     `insert into posts(user_id, pack_id, body, date, photo_url) values ('${user_id}', ${pack_id}, '${body}', now(), '${photo_url}')`
   );
