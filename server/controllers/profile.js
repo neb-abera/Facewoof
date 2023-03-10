@@ -1,4 +1,4 @@
-const { getCurrentUserPromise, getFriendsPromise, createPackPromise } = require('../db/');
+const { getCurrentUserPromise, getFriendsPromise, createPackPromise, addPhoto } = require('../db/');
 
 const getUserFriends = (req, res) => {
   const { userId } = req.query;
@@ -36,8 +36,22 @@ const createPack = (req, res) => {
     });
 };
 
+const createPhotos = async (req, res) => {
+  const { userId } = req.params;
+  const { photoUrl } = req.body;
+console.log(userId, photoUrl);
+  // try {
+  //   await addPhoto(userId, photoUrl);
+  //   res.status(201).send('Successfully added new photo');
+  // } catch (err) {
+  //   res.status(404).send('Unable to add new photo');
+  // }
+  res.status(200).send('hi');
+};
+
 module.exports = {
   getCurrentUser: getCurrentUser,
   getUserFriends: getUserFriends,
-  createPack: createPack
+  createPack: createPack,
+  createPhotos: createPhotos
 };

@@ -10,7 +10,8 @@ const {
   authUser,
   getCurrentUser,
   getUserFriends,
-  createPack
+  createPack,
+  createPhotos
 } = require('./controllers');
 
 const {
@@ -32,6 +33,9 @@ router.get('/api/discover', discoverUsers);
 
 // Route handling response (dig/deny) from current user
 router.post('/api/response', userResponse);
+
+// Route handling adding user photos
+router.post('/api/photos/:userId/new', createPhotos);
 
 // Route handling getting all playdates for packs current user is a member of
 router.get('/api/playdates', getPlaydates);

@@ -77,9 +77,21 @@ const createPackPromise = (packName) => {
   return db.query('INSERT INTO packs(name) VALUES($1) RETURNING pack_id', [packName]);
 };
 
+const addPhoto = (userId, photo) => {
+  db.query(
+    `
+    INSERT INTO "public"."profile_photos" ("user_id", "url")
+    VALUES (${userId}, ${photo});
+  `
+  )
+    .then((res) => res)
+    .catch((err) => err);
+};
+
 module.exports = {
   getCurrentUserPromise: getCurrentUserPromise,
   getFriendsPromise: getFriendsPromise,
-  createPackPromise: createPackPromise
+  createPackPromise: createPackPromise,
+  addPhoto: addPhoto
   // addToPack: addToPack
 };
