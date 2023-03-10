@@ -63,8 +63,6 @@ export default function Discover() {
 
   const { userId, userData } = useUserContext();
 
-  console.log("DATA", userData);
-
   const fetchNearbyUsers = (zipcode, radius) => {
     setLoading(true);
     axios
