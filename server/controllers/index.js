@@ -7,6 +7,7 @@ const {
   getUserFriends,
   createPack,
   editProfile,
+  createPhotos,
   getProfilePhoto
 } = require('./profile');
 
@@ -41,5 +42,6 @@ module.exports = {
   ctrlSoloPosts,
   ctrlPfp,
   ctrlMakePost,
-  ctrlUserPacksId
+  ctrlUserPacksId,
+  createPhotos
 };

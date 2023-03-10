@@ -3,6 +3,7 @@ const {
   getFriendsPromise,
   createPackPromise,
   editProfilePromise,
+  addPhoto,
   getProfilePhotoPromise
 } = require('../db/');
 
@@ -40,6 +41,17 @@ const createPack = (req, res) => {
     .catch((err) => {
       console.log('err', err);
     });
+};
+
+const createPhotos = async (req, res) => {
+  const { userId } = req.params;
+  const { photoUrl } = req.body;
+  try {
+    await addPhoto(userId, photoUrl);
+    res.status(201).send('Successfully added new photo');
+  } catch (err) {
+    res.status(404).send('Unable to add new photo');
+  }
 };
 
 const editProfile = (req, res) => {
@@ -91,6 +103,7 @@ module.exports = {
   getCurrentUser: getCurrentUser,
   getUserFriends: getUserFriends,
   createPack: createPack,
+  createPhotos: createPhotos,
   editProfile: editProfile,
   getProfilePhoto: getProfilePhoto
 };
