@@ -11,7 +11,9 @@ const {
   getCurrentUser,
   getUserFriends,
   createPack,
-  editProfile
+  createPhotos,
+  editProfile,
+  getProfilePhoto
 } = require('./controllers');
 
 const {
@@ -22,7 +24,8 @@ const {
   getUserPlaydatesAllPacks,
   getSoloPosts,
   getPfp
-} = require('./controllers/packFeed.js');
+} = require('./controllers/packFeed');
+
 const router = express.Router();
 
 // Route to check if user exists and create if not
@@ -33,6 +36,9 @@ router.get('/api/discover', discoverUsers);
 
 // Route handling response (dig/deny) from current user
 router.post('/api/response', userResponse);
+
+// Route handling adding user photos
+router.post('/api/photos/:userId/new', createPhotos);
 
 // Route handling getting all playdates for packs current user is a member of
 router.get('/api/playdates', getPlaydates);
@@ -62,9 +68,11 @@ router.put('/editUser', editProfile);
 // Route to create pack
 router.post('/createPack', createPack);
 
+router.get('/getProfilePhoto', getProfilePhoto);
+
 router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
   // var packId = req.body.packId;
-  var { packId } = req.query;
+  const { packId } = req.query;
   getPackPosts(packId).then((response) => {
     res.status(201).send(response);
   });
@@ -72,30 +80,30 @@ router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
 
 router.get('/api/getUserPacks', (req, res) => {
   // var packId = req.body.userId;
-  var { userId } = req.query;
+  const { userId } = req.query;
   // console.log('userId', userId);
   getUserPacksId(userId, res);
 });
 
 router.get('/api/getAllPacksPostsForUser', (req, res) => {
-  var { userId } = req.query;
+  const { userId } = req.query;
   getAllPostsFromAllPacks(userId, res);
 });
 
 router.get('/api/getUserPlaydates', (req, res) => {
-  var { userId } = req.query;
+  const { userId } = req.query;
   getUserPlaydatesAllPacks(userId, res);
 });
 
 router.get('/api/getSoloPosts', (req, res) => {
-  var { userId, packId } = req.query;
+  const { userId, packId } = req.query;
   // var packId = req.body.packId;
   getSoloPosts(userId, packId, res);
 });
 
 router.get('/api/getPfp', (req, res) => {
   // var userId = req.body.userId;
-  var { userId } = req.query;
+  const { userId } = req.query;
   getPfp(userId, res);
 });
 

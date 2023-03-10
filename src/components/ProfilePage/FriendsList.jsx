@@ -70,7 +70,7 @@ const FriendsList = ( { currentUser }) => {
 
   return (
 
-  <div className="flex overflow-x-auto w-[470px] h-48 overflow-y-auto scroll-smooth place-self-start mt-[500px] ml-16">
+  <div className="card g-base-96 shadow-xl max-w-fit max-h-fit mx-auto">
   <table className="table w-[470px]">
     {/* head */}
     <thead>
@@ -116,20 +116,20 @@ const FriendsList = ( { currentUser }) => {
       <label htmlFor={hrefString2} className="btn">Create Pack</label>
 
 {/* Put this part before </body> tag */}
-<input type="checkbox" id={hrefString2} className="modal-toggle" />
-<div className="modal">
-  <div className="modal-box relative">
-    <label htmlFor={hrefString2} className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <CreatePackCard currentUser={currentUser} friend={user}/>
+  <input type="checkbox" id={hrefString2} className="modal-toggle" />
+  <div className="modal">
+    <div className="modal-box relative">
+      <label htmlFor={hrefString2} className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+      <CreatePackCard currentUser={currentUser} friend={user}/>
+    </div>
   </div>
-</div>
-  </td>
-    </tr></div>
-      )}
-  )}
-  </div>
-    </tbody>
-  </table>
+    </td>
+      </tr></div>
+        )}
+    )}
+    </div>
+      </tbody>
+    </table>
 </div>
   )
 }
