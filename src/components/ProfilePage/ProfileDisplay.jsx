@@ -55,16 +55,16 @@ const Profile = () => {
             <div className="justify-self-start ml-3.5 mt-1.5">{/** this is profile photo */}
               <img className="profilePhoto max-h-32 rounded-full" src={profilePhoto} alt="Italian Trulli"></img>
             </div>
-            <div className='ml-3.5 mt-2.5'>
+            <div className='ml-3.5 mt-2.5 flex-grow'>
               <div className='card-title'>
                 {dummyText.dog_name}
               </div>
-              <div className="flex flex-row justify-items-stretch items-center mt-1.5">
-                <div className='flex-auto justify-start'>
+              <div className="flex flex-row justify-start items-center mt-1.5">
+                <div className='flex-auto justify-start max-w-fit'>
                   {dummyText.age}
                 </div>
-                <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
-                <div className='flex-auto justify-start'>
+                <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2 "></div>
+                <div className='flex-auto max-w-fit justify-start'>
                   {dummyText.dog_breed}
                 </div>
                 <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
@@ -76,6 +76,9 @@ const Profile = () => {
                 <div class="w-4 h-4 bg-rose-300 rounded-full mr-2"></div>
                 <div> {dummyText.vaccinated ? 'Vaccinated' : 'Unvaccinated' }</div>
               </div>
+          </div>
+          <div className='mt-2.5 mr-3.5'>
+            <button className="btn">Edit Profile</button>
           </div>
         </div>
 
