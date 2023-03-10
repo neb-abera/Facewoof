@@ -14,7 +14,7 @@ const CreatePackCard = ({ currentUser, friend }) => {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const changePackName = (e) => {
-    console.log('packname', e);
+    // console.log('packname', e);
     setPackName(e);
   };
   //  const { user_id, pack_id } = req.params;
@@ -27,7 +27,7 @@ const CreatePackCard = ({ currentUser, friend }) => {
       })
       // const users
       .then((results) => {
-        console.log('sucessfully created pack', results);
+        // console.log('sucessfully created pack', results);
         setShowSuccess(true);
         //   const packId = results.data[0].pack_id;
         // console.log('friend, userid', packId, friendId);
