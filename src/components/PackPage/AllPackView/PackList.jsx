@@ -15,7 +15,7 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
         params: { userId: userIdentity }
       })
       .then((data) => {
-        console.log('packlist data', data);
+        // console.log('packlist data', data);
         var input = data.data.rows[0].json_agg;
 
         setPackList(input);
