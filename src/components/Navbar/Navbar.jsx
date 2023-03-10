@@ -1,21 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useHistory } from 'react-router-dom'; // removed useNavigate
+import { useOktaAuth } from '@okta/okta-react';
 import useUserContext from '../../hooks/useUserContext';
+import Logo from '../../assets/diggrLogo3.png';
+import './nav.css';
 
 const Navbar = () => {
   const location = useLocation();
   const [navBarStyle, setNavBarStyle] = useState(null);
   const { loggedIn, setLoggedIn } = useUserContext();
+  const { authState, oktaAuth } = useOktaAuth();
+  const [userInfo, setUserInfo] = useState(null);
 
-  const navigate = useNavigate();
+  const history = useHistory();
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    navigate('/login');
+    history.push('/login');
   }, [loggedIn]);
 
   const logout = () => {
     setLoggedIn(false);
-    navigate('/login');
+    oktaAuth
+      .signOut()
+      .then(() => {
+        history.push('/login');
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -29,8 +42,9 @@ const Navbar = () => {
   }, [location, loggedIn]);
 
   return (
-    <div className="navbar bg-base-100 px-10" style={navBarStyle}>
+    <div className="navbar bg-base-100 px-10 navbar" style={navBarStyle}>
       <div className="navbar-start">
+        <img src={Logo} className="logo" />
         <a className="btn btn-ghost normal-case text-xl text-[#bb7c7c]">Diggr</a>
       </div>
       {loggedIn && (

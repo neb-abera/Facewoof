@@ -33,7 +33,7 @@ module.exports = {
     ],
     // stying
     'comma-dangle': [1, 'never'],
-    'no-console': 1,
+    'no-console': 0,
     'object-shorthand': ['error', 'never'],
     'no-unused-vars': 'warn',
     // react rules

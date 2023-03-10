@@ -14,7 +14,10 @@ const db = require('./database');
 const getCurrentUserPromise = (userId) => db.query(`Select * from users where user_id = ${userId}`);
 
 const getFriendsPromise = (userId) => {
-  return db.query(`select * from users where user_id IN (select user2_id from friends where user1_id = ${userId})`);
+  console.log('USER ID IN GETFRIENDS', userId);
+  return db.query(
+    `select * from users where user_id IN (select user2_id from friends where user1_id = ${userId})`
+  );
 };
 
 // this is not needed see db/packs.js
@@ -57,7 +60,6 @@ const addToPackPromise = (packId, userId) => {
   return db.query('INSERT INTO pack_users(pack_id, user_id) VALUES($1, $2)', [packId, userId]);
 };
 
-
 // const addUser = (userObj) => {
 // };
 
@@ -77,9 +79,36 @@ const createPackPromise = (packName) => {
   return db.query('INSERT INTO packs(name) VALUES($1) RETURNING pack_id', [packName]);
 };
 
+const addPhoto = (userId, photo) => {
+  const q = 'INSERT INTO "public"."profile_photos" (user_id, url) VALUES ($1, $2)';
+  return db
+    .query(q, [userId, photo])
+    .then((res) => res)
+    .catch((err) => err);
+};
+
+const editProfilePromise = (
+  dogName,
+  ownerName,
+  dogBreed,
+  age,
+  vaccination,
+  discoverable,
+  ownerEmail,
+  location,
+  userId
+) => {
+  return db.query(`
+  UPDATE users SET dog_name = '${dogName}', owner_name = '${ownerName}', dog_breed = '${dogBreed}', age = ${age}, vaccination = ${vaccination}, discoverable = ${discoverable}, owner_email = '${ownerEmail}', location = '${location}' WHERE user_id = ${userId};`);
+};
+// return db.query(`
+// UPDATE users SET "${dogName}" = dog_name, "${ownerName}" = owner_name, "${dogBreed}" = dog_breed, ${age} = age, ${vaccination} = vaccination, ${discoverable} = discoverable, ${ownerEmail}" = owner_email, "${location} "= location WHERE user_id = ${userId};`);
+
 module.exports = {
   getCurrentUserPromise: getCurrentUserPromise,
   getFriendsPromise: getFriendsPromise,
-  createPackPromise: createPackPromise
+  createPackPromise: createPackPromise,
+  addPhoto: addPhoto,
+  editProfilePromise: editProfilePromise
   // addToPack: addToPack
 };

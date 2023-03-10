@@ -9,23 +9,23 @@ import CreatePackCard from './createPack.jsx'
 import useUserContext from '../../hooks/useUserContext';
 
 const FriendsList = ( { currentUser }) => {
-  // const [friends, setFriends] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [friendsData, setFriendsData] = useState([])
   const [gotFriends, setGotFriends] = useState(false)
   const [gotPacks, setGotPacks] = useState(false)
+  const [packs, setPacks] = useState([])
+  const { userId, /*packs*/ userData, /*friends, setFriends,*/ photos } = useUserContext();
+  // const userId = 1
 
-  const { /*userId,*/ packs, userData, friends, setFriends, photos } = useUserContext();
-
-  const userId = 1
   useEffect(() => {
     if (!gotFriends) {
       axios.get(`http://localhost:3001/getFriends?userId=${userId}`)
       .then((results) => {
-      //  console.log('results son', results.data)
+       console.log('results son from getfriends', results.data)
        let friendos = results.data;
        let friendsArray = [];
        friendos.forEach(friend => {
-        //  friendsArray.push(friend.dog_name)
+         friendsArray.push(friend.dog_name)
          friend.photos = ['https://i.imgflip.com/3nzkub.png?a465864', 'https://i.imgflip.com/3nzkub.png?a465864'];
        })
        setFriends(friendsArray);
@@ -38,29 +38,24 @@ const FriendsList = ( { currentUser }) => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (!gotPacks) {
-  //     axios.get('http://localhost:3001/getPacks')
-  //     .then((results) => {
-  //      console.log('packs son', results.data.rows)
-  //       setPacks(results.data.rows);
-  //       setGotPacks(true);
-  //       console.log('friendsdata', friendsData);
-  //     })
-  //     .catch((err) => {
-  //      console.log('err', err);
-  //     })
-  //   }
-  //  });
+  useEffect(() => {
+    if (!gotPacks) {
+      axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`)
+      .then((results) => {
+       console.log('packs son', results.data)
+        setPacks(results.data);
+        setGotPacks(true);
+        // console.log('friendsdata', friendsData);
+      })
+      .catch((err) => {
+       console.log('err in getpacks', err);
+      })
+    }
+   }, []);
 
    const addToPack = (packId, userId) => {
     // console.log('packId', packId, userId)
-    axios.put('http://localhost:3001/addtopack', {
-      params: {
-        packId: packId,
-        userId: userId
-      }
-    })
+    axios.put(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
     .then(() => {
       console.log('added to pack')
     })
@@ -100,9 +95,7 @@ const FriendsList = ( { currentUser }) => {
       <div className="modal">
         <div className="modal-box relative">
           <label htmlFor={hrefString} className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-            {/* <ProfileCard user={friendsData[index]}/> */}
-            {/* <ProfileCard user={user}/> */}
-
+            <ProfileCard user={friendsData[index]}/>
         </div>
       </div>
 

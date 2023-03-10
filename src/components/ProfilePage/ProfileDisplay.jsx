@@ -5,20 +5,20 @@ import FriendsList from './FriendsList.jsx';
 import axios from 'axios';
 import useUserContext from '../../hooks/useUserContext';
 const Profile = () => {
-  const userId = 1
+  // const userId = 1
   const [dummyText, setDummyText] = useState({})
-  const { /*userId,*/ packs, userData, friends, setFriends, photos } = useUserContext();
+  const { userId, packs, userData, friends, setFriends, photos } = useUserContext();
 
   // console.log('userdata', userData);
 
   useEffect(() => {
     axios.get(`http://localhost:3001/getCurrentUser?userId=${userId}`)
     .then((results) => {
-    //  console.log('results son', results.data[0])
+    //  console.log('results son from get currentUser', results.data[0])
      setDummyText(results.data[0]);
     })
     .catch((err) => {
-     console.log('err', err);
+     console.log('er in get current user', err);
     })
   }, []);
 

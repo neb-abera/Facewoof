@@ -1,15 +1,16 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment_timezone from 'moment-timezone';
+import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import useUserContext from '../../hooks/useUserContext';
 
-moment_timezone.tz.setDefault('Atlantic/Madeira');
-const localizer = momentLocalizer(moment_timezone);
+moment.locale('en-US');
+const localizer = momentLocalizer(moment);
 
 const PlaydateCalendar = ({
   openEditModal,
@@ -19,7 +20,8 @@ const PlaydateCalendar = ({
   setAddPlaydateModal,
   closeAddModal,
   setStartTime,
-  setEndTime
+  setEndTime,
+  setSelectedPlaydate
 }) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const [eventsData, setEventsData] = useState([]);
@@ -53,12 +55,18 @@ const PlaydateCalendar = ({
     // }
   };
 
+  const handleSelectPlaydate = (playdateObj) => {
+    // console.log(playdateObj);
+    setSelectedPlaydate(playdateObj);
+    openEditModal();
+  };
+
   return (
-    <div>
+    <div className="items-center text-center">
       {/* <Link to="/editplaydate" state={{ background: location }}>
         Edit Playdate Details
       </Link> */}
-      <button type="button" onClick={openAddModal}>
+      <button className="btn btn-active btn-primary" type="button" onClick={openAddModal}>
         Add Playdate
       </button>
       <Calendar
@@ -70,7 +78,7 @@ const PlaydateCalendar = ({
         step="30"
         style={{ height: '90vh', width: '100vw' }}
         events={eventsData}
-        onSelectEvent={openEditModal}
+        onSelectEvent={handleSelectPlaydate}
         onSelectSlot={handleAddNewPlaydate}
       />
     </div>
