@@ -70,7 +70,7 @@ const FriendsList = ( { currentUser }) => {
 
   return (
 
-  <div className="flex overflow-x-auto w-[470px] h-48 overflow-y-auto scroll-smooth place-self-start mt-[500px] ml-16">
+  <div className="flex overflow-x-auto w-[510px] h-48 overflow-y-auto scroll-smooth place-self-start mt-[500px] ml-16">
   <table className="table w-[470px]">
     {/* head */}
     <thead>

@@ -2,7 +2,8 @@ const {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
-  editProfilePromise
+  editProfilePromise,
+  getProfilePhotoPromise
 } = require('../db/');
 
 const getUserFriends = (req, res) => {
@@ -74,9 +75,22 @@ const editProfile = (req, res) => {
     });
 };
 
+const getProfilePhoto = (req, res) => {
+  console.log('getprofilePhoto request', req);
+  const { userId } = req.query;
+  return getProfilePhotoPromise(userId).then((data) => {
+      console.log('successfully got profilephoto', data);
+      res.send(data);
+    })
+    .catch((err) => {
+      console.log('err in getting profilephoto', err);
+    });
+};
+
 module.exports = {
   getCurrentUser: getCurrentUser,
   getUserFriends: getUserFriends,
   createPack: createPack,
-  editProfile: editProfile
+  editProfile: editProfile,
+  getProfilePhoto: getProfilePhoto
 };

@@ -96,11 +96,15 @@ const editProfilePromise = (
 // return db.query(`
 // UPDATE users SET "${dogName}" = dog_name, "${ownerName}" = owner_name, "${dogBreed}" = dog_breed, ${age} = age, ${vaccination} = vaccination, ${discoverable} = discoverable, ${ownerEmail}" = owner_email, "${location} "= location WHERE user_id = ${userId};`);
 
+const getProfilePhotoPromise = (userId) => {
+  return db.query(`select url from profile_photos WHERE user_id = ${userId}`);
+};
 
 module.exports = {
   getCurrentUserPromise: getCurrentUserPromise,
   getFriendsPromise: getFriendsPromise,
   createPackPromise: createPackPromise,
-  editProfilePromise: editProfilePromise
+  editProfilePromise: editProfilePromise,
+  getProfilePhotoPromise: getProfilePhotoPromise
   // addToPack: addToPack
 };

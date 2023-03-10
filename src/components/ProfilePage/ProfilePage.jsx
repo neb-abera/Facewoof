@@ -170,7 +170,7 @@ const ProfilePage = () => {
               <label className="label">
                 Likes 3:
               </label>
-              <input className="input input-bordered w-full max-w-xs" placeholder='Biting People' onChange={(e) => {changeLikes3(e.target.value)}} type="text" name="name" />
+              <input className="input input-bordered w-full max-w-xs" placeholder='Eating Sticks' onChange={(e) => {changeLikes3(e.target.value)}} type="text" name="name" />
             </div>
           </div>
           <label class="block">
