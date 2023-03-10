@@ -131,6 +131,7 @@ const ProfilePage = () => {
                 }}
                 type="text"
                 name="name"
+                value={userData.owner_first_name ? userData.owner_first_name : ''}
               />
               <label className="label">Owner Last Name:</label>
               <input
@@ -140,6 +141,7 @@ const ProfilePage = () => {
                 }}
                 type="text"
                 name="name"
+                value={userData.owner_last_name ? userData.owner_last_name : ''}
               />
               <label className="label">Owner Email:</label>
               <input
@@ -149,6 +151,7 @@ const ProfilePage = () => {
                 }}
                 type="text"
                 name="name"
+                value={userData.owner_email ? userData.owner_email : ''}
               />
               <label className="label">Location</label>
               <input

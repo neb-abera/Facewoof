@@ -5,7 +5,7 @@ import { useOktaAuth } from '@okta/okta-react';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
-import OktaSignInWidget from './OktaSignInWidget';
+import OktaSignInWidget from '../components/Login/OktaSignInWidget';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
@@ -14,18 +14,18 @@ const Home = () => {
   // const [firstName, setFirstName] = useState('');
   // const [lastName, setLastName] = useState('');
   const { loggedIn, setLoggedIn, setUserId, setUserData } = useUserContext();
-  const [userInfo, setUserInfo] = useState(null);
+  // const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
       // When user isn't authenticated, forget any user info
       setLoggedIn(false);
-      setUserInfo(null);
+      // setUserInfo(null);
     } else {
       oktaAuth
         .getUser()
         .then((info) => {
-          setUserInfo(info);
+          // setUserInfo(info);
           setLoggedIn(true);
           history.push('/discover');
         })
