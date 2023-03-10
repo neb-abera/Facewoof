@@ -6,9 +6,10 @@ import '../Discover/profileCard.css';
 import axios from 'axios';
 
 const CreatePackCard = ({ currentUser, friend }) => {
-  // console.log('currentUser friend', currentUser, friend);
+  console.log('currentUser friend', currentUser, friend);
+
   const userId = currentUser.user_id;
-  const friendId = currentUser.user_id;
+  const friendId = friend.user_id;
   const [packName, setPackName] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -16,38 +17,41 @@ const CreatePackCard = ({ currentUser, friend }) => {
     console.log('packname', e);
     setPackName(e);
   };
+  //  const { user_id, pack_id } = req.params;
   const createPack = () => {
     axios
-      .post('http://localhost:3001/createPack', {
-        data: {
-          packName: packName
-        }
-      })
-      .then((results) => {
-        console.log('sucessfully created pack', results.data.rows[0].pack_id);
-        const packId = results.data.rows[0].pack_id;
-        axios
-          .post('http://localhost:3001/addToPack', {
-            data: {
-              packId: packId,
-              userId: userId
-            }
+    // .post(`http://localhost:3001/createPack?packName=${packName}`)
+    .put('http://localhost:3001/api/createpack', {
+
+        pack_name: packName,
+          users: JSON.stringify([Number(userId), Number(friendId)])
+
+    })
+    // const users
+    .then((results) => {
+      console.log('sucessfully created pack', results);
+      setShowSuccess(true);
+      //   const packId = results.data[0].pack_id;
+      // console.log('friend, userid', packId, friendId);
+      //   axios
+      //     // .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${friendId}`)
+      //     .post(`http://localhost:3001/api/addtopack`, {
+      //       params: {
+      //         pack_id: packId,
+      //         user_id: userId
+      //       }
+      //     })
+      //     .then((res) => {
+      //       console.log('success adding user to pack', res);
+        // axios
+        //   .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
+        //   .then((reesults) => {
+        //     console.log('success final', reesults);
+        //     alert('successfully made pack and all that');
+        //     setShowSuccess(true);
+        //   });
           })
-          .then((res) => {
-            console.log('success adding user to pack', res);
-            axios
-              .post('http://localhost:3001/addToPack', {
-                data: {
-                  packId: packId,
-                  userId: friendId
-                }
-              })
-              .then((reesults) => {
-                console.log('success final', reesults);
-                setShowSuccess(true);
-              });
-          });
-      })
+      // })
       .catch((err) => {
         console.log('err in creating pack', err);
       });

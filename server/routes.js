@@ -10,7 +10,8 @@ const {
   authUser,
   getCurrentUser,
   getUserFriends,
-  createPack
+  createPack,
+  editProfile
 } = require('./controllers');
 
 const {
@@ -55,6 +56,8 @@ router.get('/getFriends', getUserFriends);
 
 // Route to get current user request
 router.get('/getCurrentUser', getCurrentUser);
+
+router.put('/editUser', editProfile);
 
 // Route to create pack
 router.post('/createPack', createPack);
