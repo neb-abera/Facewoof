@@ -50,7 +50,7 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto my-2 columns-2 min-h-fit">
-      <div className="card shadow-xl min-h-fit mx-auto">
+      <div className="card shadow-xl min-h-fit mx-auto bg-[#fefcfc]">
         <div className="avatar columns-2 mb-auto  max-h-40 place-content-baseline">
             <div className="justify-self-start ml-3.5 mt-1.5">{/** this is profile photo */}
               <img className="profilePhoto max-h-32 rounded-full" src={profilePhoto} alt="Italian Trulli"></img>
@@ -92,7 +92,7 @@ const Profile = () => {
         </div>
 
 
-        <div className="carousel carousel-center p-4 space-x-4 bg-blue rounded-box h-96 max-w-max overflow-x-scroll">
+        <div className="carousel carousel-center mr-3.5 p-4 space-x-4 bg-blue rounded-box h-96 max-w-max overflow-x-scroll">
           {photosArray.map((photo, index) => {
             return (
               <div id={String(index)} className="carousel-item max-w-max">
