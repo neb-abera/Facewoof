@@ -5,6 +5,7 @@ import Modal from './Modal.jsx';
 import './profile.css';
 import axios from 'axios';
 import ProfileCard from '../Discover/ProfileCard.jsx';
+import ProfileCardGeneral from '../Shared/ProfileCardGeneral';
 import CreatePackCard from './createPack.jsx'
 import useUserContext from '../../hooks/useUserContext';
 
@@ -14,6 +15,8 @@ const FriendsList = ( { currentUser }) => {
   const [gotFriends, setGotFriends] = useState(false)
   const [gotPacks, setGotPacks] = useState(false)
   const [packs, setPacks] = useState([])
+
+
   const { userId, /*packs*/ userData, /*friends, setFriends,*/ photos } = useUserContext();
   // const userId = 1
 
@@ -26,8 +29,9 @@ const FriendsList = ( { currentUser }) => {
        let friendsArray = [];
        friendos.forEach(friend => {
          friendsArray.push(friend.dog_name)
-         friend.photos = ['https://i.imgflip.com/3nzkub.png?a465864', 'https://i.imgflip.com/3nzkub.png?a465864'];
+        //  friend.photos = ['https://i.imgflip.com/3nzkub.png?a465864', 'https://i.imgflip.com/3nzkub.png?a465864'];
        })
+
        setFriends(friendsArray);
        setFriendsData(friendos)
        setGotFriends(true)
@@ -70,7 +74,7 @@ const FriendsList = ( { currentUser }) => {
 
   return (
 
-  <div className="flex overflow-x-auto w-[510px] h-48 overflow-y-auto scroll-smooth place-self-start mt-[500px] ml-16">
+  <div className="flex overflow-x-auto w-[510px] h-96 overflow-y-auto scroll-smooth place-self-start mt-[300px] ml-16">
   <table className="table w-[470px]">
     {/* head */}
     <thead>
@@ -93,9 +97,11 @@ const FriendsList = ( { currentUser }) => {
       {/* Put this part before </body> tag */}
       <input type="checkbox" id={hrefString} className="modal-toggle" />
       <div className="modal">
-        <div className="modal-box relative">
+        <div className="modal-box relative bg-white">
           <label htmlFor={hrefString} className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-            <ProfileCard user={friendsData[index]}/>
+            {/* <ProfileCard user={friendsData[index]}/> */}
+            <ProfileCardGeneral user={friendsData[index]}/>
+
         </div>
       </div>
 
