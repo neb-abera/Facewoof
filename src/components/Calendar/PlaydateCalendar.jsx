@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable camelcase */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-indent-props */
 import React, { useState, useContext, useEffect } from 'react';
@@ -16,7 +18,10 @@ const PlaydateCalendar = ({
   closeEditModal,
   openAddModal,
   setAddPlaydateModal,
-  closeAddModal
+  closeAddModal,
+  setStartTime,
+  setEndTime,
+  setSelectedPlaydate
 }) => {
   const [showPlaydateModal, setShowPlaydateModal] = useState(false);
   const [eventsData, setEventsData] = useState([]);
@@ -31,9 +36,12 @@ const PlaydateCalendar = ({
   const background = location.state && location.state.background;
 
   const handleAddNewPlaydate = ({ start, end }) => {
-    console.log(start);
-    console.log(end);
+    // console.log(start);
+    // console.log(end);
     openAddModal();
+    setStartTime(start);
+    setEndTime(end);
+
     // const title = window.prompt('New Event Name');
     // if (title) {
     //   setEventsData((prev) => [
@@ -47,12 +55,18 @@ const PlaydateCalendar = ({
     // }
   };
 
+  const handleSelectPlaydate = (playdateObj) => {
+    // console.log(playdateObj);
+    setSelectedPlaydate(playdateObj);
+    openEditModal();
+  };
+
   return (
-    <div>
+    <div className="items-center text-center">
       {/* <Link to="/editplaydate" state={{ background: location }}>
         Edit Playdate Details
       </Link> */}
-      <button type="button" onClick={openAddModal}>
+      <button className="btn btn-active btn-primary" type="button" onClick={openAddModal}>
         Add Playdate
       </button>
       <Calendar
@@ -62,8 +76,9 @@ const PlaydateCalendar = ({
         defaultDate={new Date()}
         defaultView="week"
         step="30"
+        style={{ height: '90vh', width: '100vw' }}
         events={eventsData}
-        onSelectEvent={openEditModal}
+        onSelectEvent={handleSelectPlaydate}
         onSelectSlot={handleAddNewPlaydate}
       />
     </div>

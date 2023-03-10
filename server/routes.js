@@ -3,6 +3,7 @@ const {
   discoverUsers,
   userResponse,
   getPlaydates,
+  AddPlaydate,
   getUserPacks,
   addUserToPack,
   createNewPackAndAdd,
@@ -35,6 +36,9 @@ router.post('/api/response', userResponse);
 
 // Route handling getting all playdates for packs current user is a member of
 router.get('/api/playdates', getPlaydates);
+
+// Route handling added a playdate
+router.post('/api/addplaydate', AddPlaydate);
 
 // Route hanlding getting all packs for current
 router.get('/api/getpacks', getUserPacks);

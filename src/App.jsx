@@ -24,15 +24,8 @@ const App = () => {
         <Route path="/packFeed" element={<PackFeed />} />
         <Route path="/calendar" element={<PlaydateCalendar />} />
         <Route path="/profile" element={<Profile />} />
-        {/* <Route path="/editprofile" element={<ProfilePage />} /> */}
-        {/* <Route path="calendar/editplaydate" element={<Playdate />} /> */}
-        {/* </Route> */}
+
       </Routes>
-      {/* {background && (
-        <Routes>
-          <Route path="/editplaydate" element={<Playdate propTest="hi" />} />
-        </Routes>
-      )} */}
     </div>
   );
 };
