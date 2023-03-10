@@ -24,7 +24,7 @@ const ProfilePage = () => {
   const { userData, firstLogin, setFirstLogin } = useUserContext();
 
   const changeOwnerName = (e) => {
-    console.log('firstname', e);
+    // console.log('firstname', e);
     setOwnerName(e);
   };
 
