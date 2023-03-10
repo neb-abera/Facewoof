@@ -71,10 +71,12 @@ const Discover = () => {
   const [searchLocation, setSearchLocation] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
+  const [distances, setDistances] = useState({});
 
   const { userId } = useUserContext();
 
   const fetchNearbyUsers = (zipcode, radius) => {
+    setLoading(true);
     axios
       .get(`${apiUrl}/api/discover`, {
         params: {
@@ -85,7 +87,10 @@ const Discover = () => {
         }
       })
       .then(({ data }) => {
-        setUsers(data);
+        setUsers(data.users);
+        setDistances(data.distances);
+      })
+      .then(() => {
         setLoading(false);
       })
       .catch((err) => {
@@ -133,7 +138,7 @@ const Discover = () => {
   }, [users]);
 
   return (
-    <div>
+    <div className="discover-parent">
       <SearchBar
         radius={radius}
         location={searchLocation}
@@ -148,7 +153,7 @@ const Discover = () => {
         </div>
       ) : (
         <div className="discover-view">
-          <CardStack users={users} />
+          <CardStack users={users} distances={distances} />
         </div>
       )}
     </div>

@@ -5,7 +5,7 @@ import React from 'react';
 import './profileCard.css';
 
 export default function ProfileCard({ user, distance }) {
-  distance = distance || 5;
+  distance = distance === 0 ? '< .5' : distance;
 
   return (
     <div className="profile-card-parent">
@@ -14,7 +14,7 @@ export default function ProfileCard({ user, distance }) {
           <div className="card-header-title">
             <div className="avatar">
               <div className="w-24 rounded-contain profile-image">
-                <img src={user.photos[0]} />
+                <img src={user.photos[0]} alt={`photo of a dog named ${user.dog_name}`} />
               </div>
             </div>
 
@@ -55,7 +55,7 @@ export default function ProfileCard({ user, distance }) {
                     id={`item${user.user_id}${index}`}
                     className="carousel-item w-full"
                 >
-                  <img className="w-full no-image-drag" src={url} alt="Doggy" />
+                  <img className="w-full no-image-drag" src={url} alt={`photo of a dog named ${user.dog_name}`} />
                 </div>
               ))}
             </div>

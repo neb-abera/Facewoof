@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useHistory } from 'react-router-dom'; // removed useNavigate
 import { useOktaAuth } from '@okta/okta-react';
 import useUserContext from '../../hooks/useUserContext';
+import Logo from '../../assets/diggrLogo3.png';
+import './nav.css';
 
 const Navbar = () => {
   const location = useLocation();
@@ -40,8 +42,9 @@ const Navbar = () => {
   }, [location, loggedIn]);
 
   return (
-    <div className="navbar bg-base-100 px-10" style={navBarStyle}>
+    <div className="navbar bg-base-100 px-10 navbar" style={navBarStyle}>
       <div className="navbar-start">
+        <img src={Logo} className="logo" />
         <a className="btn btn-ghost normal-case text-xl text-[#bb7c7c]">Diggr</a>
       </div>
       {loggedIn && (

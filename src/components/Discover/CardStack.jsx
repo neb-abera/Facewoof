@@ -13,7 +13,7 @@ import Match from './Match';
 import Blank from './Blank';
 import './cardStack.css';
 
-const CardStack = ({ users }) => {
+const CardStack = ({ users, distances }) => {
   const [front, setFront] = useState(null);
   const [back, setBack] = useState(null);
 
@@ -50,7 +50,7 @@ const CardStack = ({ users }) => {
   });
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflowX = 'hidden';
     setData(users);
   }, [users]);
 
@@ -92,10 +92,9 @@ const CardStack = ({ users }) => {
     setChoice(user);
     if (e.target.id === 'digg') {
       setOut(user.user_id);
+      setRelationship(currentUser, user, true);
       if (user.user1_choice === true) {
         setMatch(true);
-      } else {
-        setRelationship(currentUser, user, true);
       }
     } else {
       setRelationship(currentUser, user, false);
@@ -156,7 +155,7 @@ const CardStack = ({ users }) => {
                       `}
                     >
                       <div className="card-wrapper">
-                        <ProfileCard user={user} />
+                        <ProfileCard user={user} distance={distances[user.location]} />
                       </div>
                     </div>
                   </Draggable>
@@ -174,7 +173,7 @@ const CardStack = ({ users }) => {
                   `}
                 >
                   <div className="card-wrapper">
-                    <ProfileCard user={user} />
+                    <ProfileCard user={user} distance={distances[user.location]} />
                   </div>
                 </div>
               );
@@ -187,7 +186,7 @@ const CardStack = ({ users }) => {
           <button
             id="pass"
             type="button"
-            className="btn btn-active btn-accent vote-button pass"
+            className="btn btn-active btn-secondary vote-button pass"
             onClick={handleVote}
           >
             Pass
