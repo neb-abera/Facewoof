@@ -85,16 +85,17 @@ const FriendsList = ( { currentUser }) => {
       let hrefString2 = `#my-modal-${index + 10}`
       let user = friendsData[index];
       return (
-      <div>      <tr className="hover flex">
+      <div>      
+        <tr className=" flex">
       <th className='self-center bg-[#fefcfc]'>{index + 1}</th>
       {/* <td className='w-40 self-center'>{item}</td> */}
 
-      <label htmlFor={hrefString} className="btn w-40 self-center">{item}</label>
+      <label htmlFor={hrefString} className="btn btn-primary w-40 self-center">{item}</label>
       {/* Put this part before </body> tag */}
       <input type="checkbox" id={hrefString} className="modal-toggle" />
       <div className="modal">
         <div className="modal-box relative">
-          <label htmlFor={hrefString} className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+          <label htmlFor={hrefString} className="btn btn-secondary btn-sm btn-circle absolute right-2 top-2">✕</label>
             <ProfileCard user={friendsData[index]}/>
         </div>
       </div>
@@ -102,7 +103,7 @@ const FriendsList = ( { currentUser }) => {
       <td className='bg-[#fefcfc]'>
         {/* <a className="btn btn-outline btn-primary w-24 rounded-full mr-6 text-xs self-center">Add To Pack</a> */}
       <div className="dropdown">
-  <label tabIndex={0} className="btn m-1">Add To Pack</label>
+  <label tabIndex={0} className="btn btn-secondary m-1">Add To Pack</label>
   <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
     {packs.map(pack => {
       let userId = user.user_id;
@@ -113,7 +114,7 @@ const FriendsList = ( { currentUser }) => {
   </ul>
   </div>
       {/* <div className="btn btn-outline btn-primary w-24 rounded-full mr-6 text-xs">Create Pack</div> */}
-      <label htmlFor={hrefString2} className="btn">Create Pack</label>
+      <label htmlFor={hrefString2} className="ml-2 btn">Create Pack</label>
 
 {/* Put this part before </body> tag */}
   <input type="checkbox" id={hrefString2} className="modal-toggle" />
