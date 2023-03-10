@@ -1,5 +1,5 @@
 /* eslint-disable */
-import {react, useState, useEffect} from 'react';
+import { react, useState, useEffect } from 'react';
 import axios from 'axios';
 import useUserContext from '../../hooks/useUserContext.js';
 
@@ -118,66 +118,125 @@ const ProfilePage = () => {
   // flex card card-compact w-[700px] bg-base-100 shadow-xl ml-[500px] mt-44 max-w-3xl w-max
   return (
     <div className="card w-96 bg-base-100 shadow-xl top-15 mx-auto overflow-auto scroll-auto">
-      <div className="card-body" style={{"overflow": "auto"}}>
-        <h2 className="card-title">{firstLogin ?  'Create Your Profile' : 'Edit Your Profile'}</h2>
-        <form >
-          <label className="label">
-          Owner First Name:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeOwnerName(e.target.value)}} type="text" name="name" />
+      <div className="card-body" style={{ overflow: 'auto' }}>
+        <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
+        <form>
+          <label className="label">Owner First Name:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => {
+              changeOwnerName(e.target.value);
+            }}
+            type="text"
+            name="name"
+            value={userData.owner_first_name}
+          />
           <br />
-          <label className="label">
-            Owner Last Name:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeOwnerLastname(e.target.value)}} type="text" name="name" />
+          <label className="label">Owner Last Name:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => {
+              changeOwnerLastname(e.target.value);
+            }}
+            type="text"
+            name="name"
+            value={userData.owner_last_name}
+          />
           <br />
-          <label className="label">
-            Owner Email:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeEmail(e.target.value)}} type="text" name="name" />
+          <label className="label">Owner Email:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => {
+              changeEmail(e.target.value);
+            }}
+            type="text"
+            name="name"
+            value={userData.owner_email}
+          />
           <br />
-          <label className="label">
-            Dog Name:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeDogName(e.target.value)}}  type="text" name="name" />
+          <label className="label">Dog Name:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => {
+              changeDogName(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
-          <label className="label">
-            Breed
-          </label>
-          <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeBreed(e.target.value)}}   type="text" name="name" />
+          <label className="label">Breed</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => {
+              changeBreed(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
-          <label className="label">
-            Age
-          </label>
-          <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeAge(e.target.value)}} type="text" name="name" />
+          <label className="label">Age</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            onChange={(e) => {
+              changeAge(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
-          <label className="label">
-            Likes 1:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" placeholder='Chasing Squirrels' onChange={(e) => {changeLikes1(e.target.value)}} type="text" name="name" />
+          <label className="label">Likes 1:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            placeholder="Chasing Squirrels"
+            onChange={(e) => {
+              changeLikes1(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
-          <label className="label">
-            Likes 2:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" placeholder='Playing Fetch'  onChange={(e) => {changeLikes2(e.target.value)}} type="text" name="name" />
+          <label className="label">Likes 2:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            placeholder="Playing Fetch"
+            onChange={(e) => {
+              changeLikes2(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
-          <label className="label">
-            Likes 3:
-          </label>
-          <input className="input input-bordered w-full max-w-xs" placeholder='Biting People' onChange={(e) => {changeLikes3(e.target.value)}} type="text" name="name" />
+          <label className="label">Likes 3:</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            placeholder="Biting People"
+            onChange={(e) => {
+              changeLikes3(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
-          <label className="label">
-            Location
-          </label>
-          <input className="input input-bordered w-full max-w-xs" placeholder='Zip code' onChange={(e) => {changeLocation(e.target.value)}} type="text" name="name" />
+          <label className="label">Location</label>
+          <input
+            className="input input-bordered w-full max-w-xs"
+            placeholder="Zip code"
+            onChange={(e) => {
+              changeLocation(e.target.value);
+            }}
+            type="text"
+            name="name"
+          />
           <br />
 
-          <input className="checkbox" onClick={() => changeVaccinated()} type="checkbox"/>
-          <label className="label"> Fully Vaccinated</label><br />
-          <input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox"/>
-          <label className="label"> Make Profile Discoverable</label><br />
+          <input className="checkbox" onClick={() => changeVaccinated()} type="checkbox" />
+          <label className="label"> Fully Vaccinated</label>
+          <br />
+          <input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox" />
+          <label className="label"> Make Profile Discoverable</label>
+          <br />
           <div className="card-actions justify-end">
-            <input className="btn btn-primary"  onClick={(e) => handleSubmit(e)} type="submit" />
+            <input className="btn btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>
       </div>

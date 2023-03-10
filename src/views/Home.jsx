@@ -10,9 +10,9 @@ import OktaSignInWidget from './OktaSignInWidget';
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
   const history = useHistory();
-  const [userEmail, setUserEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  // const [userEmail, setUserEmail] = useState('');
+  // const [firstName, setFirstName] = useState('');
+  // const [lastName, setLastName] = useState('');
   const { loggedIn, setLoggedIn, setUserId, setUserData } = useUserContext();
   const [userInfo, setUserInfo] = useState(null);
 
@@ -27,16 +27,7 @@ const Home = () => {
         .then((info) => {
           setUserInfo(info);
           setLoggedIn(true);
-          setUserEmail(info.email);
-          setFirstName(info.given_name);
-          setLastName(info.family_name);
           history.push('/discover');
-
-          // check if there is a user with a matching email
-          // if yes
-          // set userId, send them to discover page
-          // if no
-          // create userId with info, send them to signup page
         })
         .catch((err) => {
           console.error(err);
