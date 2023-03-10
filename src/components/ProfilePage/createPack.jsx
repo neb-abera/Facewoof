@@ -6,7 +6,6 @@ import '../Discover/profileCard.css';
 import axios from 'axios';
 
 const CreatePackCard = ({ currentUser, friend }) => {
-  // console.log('currentUser friend', currentUser, friend);
 
   const userId = currentUser.user_id;
   const friendId = friend.user_id;
@@ -24,25 +23,23 @@ const CreatePackCard = ({ currentUser, friend }) => {
     .put('http://localhost:3001/api/createpack', {
 
         pack_name: packName,
-          users: JSON.stringify([Number(userId), Number(friendId)])
-
+        users: JSON.stringify([Number(userId), Number(friendId)])
     })
-    // const users
+     // const users
     .then((results) => {
-      console.log('sucessfully created pack', results);
-      setShowSuccess(true);
-      //   const packId = results.data[0].pack_id;
-      // console.log('friend, userid', packId, friendId);
-      //   axios
-      //     // .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${friendId}`)
-      //     .post(`http://localhost:3001/api/addtopack`, {
-      //       params: {
-      //         pack_id: packId,
-      //         user_id: userId
-      //       }
-      //     })
-      //     .then((res) => {
-      //       console.log('success adding user to pack', res);
+      // console.log('sucessfully created pack', results);
+        setShowSuccess(true);
+        //   const packId = results.data[0].pack_id;
+        //   axios
+        //     // .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${friendId}`)
+        //     .post(`http://localhost:3001/api/addtopack`, {
+        //       params: {
+        //         pack_id: packId,
+        //         user_id: userId
+        //       }
+        //     })
+        //     .then((res) => {
+        //       console.log('success adding user to pack', res);
         // axios
         //   .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
         //   .then((reesults) => {
@@ -50,7 +47,7 @@ const CreatePackCard = ({ currentUser, friend }) => {
         //     alert('successfully made pack and all that');
         //     setShowSuccess(true);
         //   });
-          })
+      })
       // })
       .catch((err) => {
         console.log('err in creating pack', err);
@@ -63,7 +60,6 @@ const CreatePackCard = ({ currentUser, friend }) => {
   // const submitText = `Create Pack with ${user.dog_name} and ${friend.dog_name}`
   const submitText = `Create Pack with ${currentUser.dog_name} and ${friend.dog_name}`;
   const successText = `${packName} with ${currentUser.dog_name} and ${friend.dog_name} has been created!!`;
-  // console.log('user', user);
   return (
     <div>
       <div className="profile-card-parent">

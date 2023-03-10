@@ -46,7 +46,7 @@ const FriendsList = ( { currentUser }) => {
     if (!gotPacks) {
       axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`)
       .then((results) => {
-       console.log('packs son', results.data)
+      //  console.log('packs son', results.data)
         setPacks(results.data);
         setGotPacks(true);
         // console.log('friendsdata', friendsData);
@@ -61,7 +61,7 @@ const FriendsList = ( { currentUser }) => {
     // console.log('packId', packId, userId)
     axios.put(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
     .then(() => {
-      console.log('added to pack')
+      // console.log('added to pack')
     })
     .catch(() => {
       alert('That user is already a part of that pack')
