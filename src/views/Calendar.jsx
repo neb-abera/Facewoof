@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
 import useUserContext from '../hooks/useUserContext';
+import useCalendar from '../hooks/useCalender';
 import PlaydateCalendar from '../components/Calendar/PlaydateCalendar';
 import ViewPlaydate from '../components/Calendar/ViewPlaydate';
 import AddPlaydate from '../components/Calendar/AddPlaydate';
@@ -19,7 +20,9 @@ const Calendar = () => {
   // View Selected Playdate states
   const [selectedPlaydate, setSelectedPlaydate] = useState();
 
-  const { userId, setPlaydates, setPacks } = useUserContext();
+  const { userId, setPlaydates, loggedIn } = useUserContext();
+  const { getPacks } = useCalendar();
+  console.log('call hook useCalendar');
 
   Modal.setAppElement('#root');
 
@@ -39,29 +42,9 @@ const Calendar = () => {
   };
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:3001/api/playdates?userId=${userId}`)
-      .then((data) => {
-        const arr = data.data;
-        const playdateArr = [];
-        arr.forEach((obj, i) => {
-          const pdObj = {};
-          pdObj.id = i;
-          pdObj.title = obj.pack_name + ': ' + obj.playdate_body;
-          const startTime = new Date(obj.playdate_start_date);
-          pdObj.start = startTime;
-          const endTime = new Date(obj.playdate_end_date);
-          pdObj.end = new Date(endTime);
-          playdateArr.push(pdObj);
-        });
-        setPlaydates(playdateArr);
-      })
-      .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`))
-      .then((packData) => {
-        // console.log(packData.data);
-        setPacks(packData.data);
-      });
-  }, []);
+    // console.log('function getPacks is called with userId as: ', userId);
+    getPacks();
+  }, [userId, loggedIn]);
 
   return (
     <div id="calendar">

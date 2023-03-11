@@ -22,7 +22,7 @@ const PackFeed = () => {
   };
 
   const [allPosts, setAllPosts] = useState([]);
-  const { userId } = useUserContext();
+  const { userId, loggedIn } = useUserContext();
   const userIdentity = userId;
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const PackFeed = () => {
         // console.log('responses', resp.data.rows);
         setAllPosts(resp.data.rows[0].json_agg);
       }, []);
-  }, []);
+  }, [userId, loggedIn]);
 
   const [viewing, setViewing] = useState('-1');
   const [viewingName, setViewingName] = useState('');

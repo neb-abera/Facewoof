@@ -1,26 +1,32 @@
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link, useHistory } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import useUserContext from '../../hooks/useUserContext';
+import useAuth from '../../hooks/useAuth';
 import Logo from '../../assets/diggrLogo3.png';
 import './nav.css';
 
 const Navbar = () => {
   const location = useLocation();
   const [navBarStyle, setNavBarStyle] = useState(null);
-  const { loggedIn } = useUserContext();
+  const { loggedIn, setLoggedIn, userId } = useUserContext();
   const { oktaAuth } = useOktaAuth();
-  const [userInfo, setUserInfo] = useState(null);
+  // const [userInfo, setUserInfo] = useState(null);
+  const { checkAuth } = useAuth();
 
-  const history = useHistory();
+  useEffect(() => {
+    console.log('check auth', userId);
+    if (!loggedIn || !userId) checkAuth();
+  }, [loggedIn, userId]);
 
   const logout = () => {
     oktaAuth
       .signOut()
-      .then(() => {})
+      .then(() => setLoggedIn(false))
       .catch((err) => console.log(err));
   };
-
   useEffect(() => {
     if ((location.pathname === '/' && !loggedIn) || (location.pathname === '/login' && !loggedIn)) {
       setNavBarStyle({
@@ -30,12 +36,11 @@ const Navbar = () => {
       setNavBarStyle(null);
     }
   }, [location, loggedIn]);
-
   return (
     <div className="navbar bg-base-100 px-10 navbar" style={navBarStyle}>
       <div className="navbar-start">
         <img src={Logo} className="logo" />
-        <a className="btn btn-ghost normal-case text-xl text-[#bb7c7c]">Diggr</a>
+        <a className="btn btn-ghost normal-case text-xl text-[#BB7C7C]">Diggr</a>
       </div>
       {loggedIn && (
         <div className="navbar-center lg:flex text-primary">
@@ -74,5 +79,4 @@ const Navbar = () => {
     </div>
   );
 };
-
 export default Navbar;

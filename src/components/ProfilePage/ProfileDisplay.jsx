@@ -7,7 +7,7 @@ import useUserContext from '../../hooks/useUserContext';
 const Profile = () => {
   // const userId = 1
   const [dummyText, setDummyText] = useState({})
-  const { userId, packs, userData, friends, setFriends, photos, setFirstLogin} = useUserContext();
+  const { userId, loggedIn, packs, userData, friends, setFriends, photos, setFirstLogin} = useUserContext();
   const [profilePhoto, setProfilePhoto] = useState("https://i.redd.it/vg9bk4f19lp71.jpg");
   const [photosArray, setPhotosArray] = useState([]);
 
@@ -22,7 +22,7 @@ const Profile = () => {
     .catch((err) => {
      console.log('er in get current user', err);
     })
-  }, []);
+  }, [userId, loggedIn]);
 
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const Profile = () => {
     .catch((err) => {
      console.log('er in get current user', err);
     })
-  }, []);
+  }, [userId, loggedIn]);
 
   const fillerData = {
 
@@ -66,17 +66,17 @@ const Profile = () => {
                 <div className='flex-auto justify-start max-w-fit'>
                   {dummyText.age}
                 </div>
-                <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2 "></div>
+                <div className="w-2 h-2 bg-black rounded-full mr-2 ml-2 "></div>
                 <div className='flex-auto max-w-fit justify-start'>
                   {dummyText.dog_breed}
                 </div>
-                <div class="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
+                <div className="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
                 <div className='flex-auto justify-start'>
                   {dummyText.location}
                 </div>
               </div>
               <div className="flex grid-cols-2 items-center mt-1.5">
-                <div class="w-4 h-4 bg-rose-300 rounded-full mr-2"></div>
+                <div className="w-4 h-4 bg-rose-300 rounded-full mr-2"></div>
                 <div> {dummyText.vaccinated ? 'Vaccinated' : 'Unvaccinated' }</div>
               </div>
           </div>
@@ -101,7 +101,7 @@ const Profile = () => {
         <div className="carousel carousel-center mr-3.5 p-4 space-x-4 bg-blue rounded-box h-96 max-w-max overflow-x-scroll">
           {photosArray.map((photo, index) => {
             return (
-              <div id={String(index)} className="carousel-item max-w-max">
+              <div id={String(index)} key={index} className="carousel-item max-w-max">
               <img src={photo.url} className="rounded-box mx-auto" />
               </div>
             )}
@@ -110,7 +110,7 @@ const Profile = () => {
         <div className="flex justify-center max-w-min mx-auto py-2 gap-2">
         {photosArray.map((photo, index) => {
             return (
-              <a href={`#${index}`} className="btn btn-xs">{index + 1}</a>
+              <a href={`#${index}`} key={index} className="btn btn-xs">{index + 1}</a>
             )}
             )}
         </div>

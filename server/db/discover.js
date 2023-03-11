@@ -7,7 +7,9 @@ const db = require('./database');
 /* GET X POTENTIAL MATCHES AND SERVE UP A SORTED LIST */
 /* OUT: array of users within set mile radius, ideally, first to appear are users who have already said yes to primary user */
 function generateDiscoverFeed(user1, zipcodes, count) {
-  return db.query(`
+  return db
+    .query(
+      `
   SELECT u.user_id, u.dog_name, u.owner_name, u.dog_breed, u.age, u.vaccination, u.discoverable, u.owner_email, u.location, u.user1_choice, p.photos, ARRAY[u.likes_one, u.likes_two, u.likes_three] as interests FROM
   (
     SELECT * FROM
@@ -55,14 +57,13 @@ function generateDiscoverFeed(user1, zipcodes, count) {
   WHERE discoverable = true
   ORDER BY u.user1_choice
   LIMIT ${count};
-  `)
-  .then((results) => {
-    // console.log('Discover feed results', results.rows, results.rows.length);
-    return results.rows;
-  })
-  .catch((err) => {
-    console.log('Error querying for discover feed', err);
-  });
+  `
+    )
+    .then((results) => {
+      // console.log('Discover feed results', results.rows, results.rows.length);
+      return results.rows;
+    })
+    .catch((err) => err);
 }
 
 /* SET A USER'S RESPONSE TO A DIFFERENT USER TO THEIR CHOICE */
@@ -70,17 +71,17 @@ function setRelationship(user1, user2, choice) {
   let date = new Date();
   date = Math.floor(date.getTime() / 1000);
 
-  db.query(`
+  db.query(
+    `
     INSERT INTO pending_relationships ("user1_id", "user1_choice", "user2_id", "date")
     VALUES (${user1}, ${choice}, ${user2}, to_timestamp(${date}));
-  `)
+  `
+  )
     .then((result) => {
       // console.log('🚀 setRelationships query result:', result);
       return result;
     })
-    .catch((err) => {
-      console.log('Error setting relationships:', err);
-    });
+    .catch((err) => err);
 }
 
 /* DETECT IF MATCH, IF SO, CREATE FRIENDSHIP BETWEEN USER 1 AND USER 2 */
@@ -88,27 +89,26 @@ function checkForMatchAndCreate(user1, user2) {
   let date = new Date();
   date = Math.floor(date.getTime() / 1000);
 
-  return db.query(`
+  return db
+    .query(
+      `
     do $$
     BEGIN
       DELETE FROM pending_relationships WHERE "user1_id" = ${user2} AND "user2_id" = ${user1};
       INSERT INTO friends ("user1_id", "user2_id", "date") VALUES (${user1}, ${user2}, to_timestamp(${date}));
     END
     $$
-  `)
-  .then((results) => {
-    // console.log('checking for match result:', results, true);
-    return true;
-  })
-  .catch((err) => {
-    console.log('not a match:', err);
-    return false;
-  });
+  `
+    )
+    .then((results) => {
+      // console.log('checking for match result:', results, true);
+      return true;
+    })
+    .catch((err) => err);
 }
 
-
 module.exports = {
-  setRelationship,
-  checkForMatchAndCreate,
-  generateDiscoverFeed,
+  setRelationship: setRelationship,
+  checkForMatchAndCreate: checkForMatchAndCreate,
+  generateDiscoverFeed: generateDiscoverFeed
 };

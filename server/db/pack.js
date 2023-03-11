@@ -22,9 +22,7 @@ function createPackAndAdd(pack_name, users) {
       VALUES ${inserts};
   `;
 
-  return db.query(query).catch((err) => {
-    console.log('Error creating a pack and adding users', err);
-  });
+  return db.query(query).catch((err) => err);
 }
 
 // Add a user to a pack if not already in that pack
@@ -40,16 +38,18 @@ function addToPack(user_id, pack_id) {
     )
   `
     )
-    .catch((err) => {
-      console.log('Error adding to packs:', err);
-    });
+    .catch((err) => err);
 }
 
 const getPacks = (userId) => {
-  return db.query(`SELECT json_agg(packobj) FROM
+  return db
+    .query(
+      `SELECT json_agg(packobj) FROM
   (SELECT pack_users.pack_id, packs.name FROM pack_users
     INNER JOIN packs ON packs.pack_id = pack_users.pack_id
-    WHERE pack_users.user_id = ${userId}) as packobj;`);
+    WHERE pack_users.user_id = ${userId}) as packobj;`
+    )
+    .catch((err) => err);
 };
 
 module.exports = {

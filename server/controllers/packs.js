@@ -9,34 +9,35 @@ const addUserToPack = (req, res) => {
     .then(() => {
       res.status(201).send('Added to pack');
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(404).send('Error adding to pack');
     });
 };
 
 const createNewPackAndAdd = (req, res) => {
-  console.log('REQ BODY', req.body);
   let { pack_name, users } = req.body;
   users = JSON.parse(users);
   return createPackAndAdd(pack_name, users)
     .then(() => {
       res.status(201).send('Pack created');
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(404).send('Error creating pack');
     });
 };
 
 const getUserPacks = (req, res) => {
-  console.log('getuserpacks request', req);
   const { userId } = req.query;
 
-  return getPacks(userId).then((data) => {
-    // console.log(data.rows[0]);
-    res.send(data.rows[0].json_agg);
-  });
+  return getPacks(userId)
+    .then((data) => {
+      // console.log(data.rows[0]);
+      res.send(data.rows[0].json_agg);
+    })
+    .catch(() => {
+      res.status(404).send('unable to get packs');
+    });
 };
-
 
 module.exports = {
   addUserToPack: addUserToPack,

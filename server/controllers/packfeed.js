@@ -6,49 +6,84 @@ const {
   getSoloPosts,
   getPfp,
   makePost
-} = require('../db/');
+} = require('../db');
 
-var ctrlPackPosts = (req, res) => {
-  getPackPosts(req, res).then((resp) => {
-    res.status(201).send(resp);
-  });
+const ctrlPackPosts = (req, res) => {
+  getPackPosts(req, res)
+    .then((resp) => {
+      res.status(201).send(resp);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get pack posts');
+    });
 };
 
-var ctrlUserPacksId = (req, res) => {
-  getUserPacksId(req, res).then((resp) => {
-    res.status(201).send(resp);
-  });
+const ctrlUserPacksId = (req, res) => {
+  getUserPacksId(req, res)
+    .then((resp) => {
+      res.status(201).send(resp);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get user pack ID');
+    });
 };
 
-var ctrlAllPostsFromAllPacks = (req, res) => {
-  getAllPostsFromAllPacks(req, res).then((resp) => {
-    res.status(201).send(resp);
-  });
+const ctrlAllPostsFromAllPacks = (req, res) => {
+  getAllPostsFromAllPacks(req, res)
+    .then((resp) => {
+      res.status(201).send(resp);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get all pack posts');
+    });
 };
 
-var ctrlUserPlaydatesAllPacks = (req, res) => {
-  getUserPlaydatesAllPacks(req, res).then((resp) => {
-    res.status(201).send(resp.rows);
-  });
+const ctrlUserPlaydatesAllPacks = (req, res) => {
+  getUserPlaydatesAllPacks(req, res)
+    .then((resp) => {
+      res.status(201).send(resp.rows);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get all playdates');
+    });
 };
 
-var ctrlSoloPosts = (req, res) => {
-  getSoloPosts(req, res).then((response) => {
-    // console.log('response for solodolo', response.rows);
-    res.status(201).send(response.rows);
-  });
+const ctrlSoloPosts = (req, res) => {
+  getSoloPosts(req, res)
+    .then((response) => {
+      // console.log('response for solodolo', response.rows);
+      res.status(201).send(response.rows);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get solo posts');
+    });
 };
 
-var ctrlPfp = (req, res) => {
-  getPfp(req, res).then((resp) => {
-    res.status(201).send(resp.rows);
-  });
+const ctrlPfp = (req, res) => {
+  getPfp(req, res)
+    .then((resp) => {
+      res.status(201).send(resp.rows);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get packfeed');
+    });
 };
 
-var ctrlMakePost = (req, res) => {
-  makePost(req, res).then((resp) => {
-    res.status(201).send(resp);
-  });
+const ctrlMakePost = (req, res) => {
+  makePost(req, res)
+    .then((resp) => {
+      res.status(201).send(resp);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to make post');
+    });
 };
 
 module.exports = {

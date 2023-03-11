@@ -17,6 +17,7 @@ const getCoordinates = () => {
 const useUserLocation = (setUsers, setDistances) => {
   const [loading, setLoading] = useState(false);
   const { userId } = useUserContext();
+  console.log('this is userId in useUserLocation: ', userId);
 
   const getUserLocation = useCallback(async (lat, lng) => {
     // eslint-disable-next-line one-var
