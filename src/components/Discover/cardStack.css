@@ -76,14 +76,10 @@
     width: 800px;
     height: 800px;
     overflow: none;
-    /* position: relative; */
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
-    /* margin: auto; */
     overflow: hidden;
-    /* gap: -20px; */
-    /* border: solid red; */
   }
 
   .profile-card {
@@ -94,13 +90,10 @@
     margin-top: 0px;
     height: fit-content;
     width: fit-content;
-    /* border: solid blue; */
-    /* transform: translate(-50%,0); */
   }
 
   .profile-card:nth-last-child(2) {
     margin-top: min(70px, 4%);
-    /* border: solid red; */
     height: fit-content;
     scale: .9;
     transform: translate(-5%,0);
@@ -109,10 +102,7 @@
 
 
   .profile-card:nth-last-child(3) {
-    /* margin-top: 35px; */
     margin-top: min(60px, 4%);
-    /* scale: .7; */
-    /* transform-origin: bottom; */
     transform: translate(-15%,0) scaleX(.7);
     -webkit-mask-image: -webkit-gradient(linear, bottom, top, from(rgb(255, 255, 255, 1)), to(rgba(255, 255, 255, 0)));
     opacity: .2;
@@ -165,11 +155,9 @@
   @keyframes drop-in {
     0% {
       transform: translate(-15%,-5%) scaleX(.7);
-      /* scale: .7; */
     }
     100% {
       transform: translate(-15%,0) scaleX(.7);
-      /* scale: .7; */
     }
   }
 
@@ -213,13 +201,10 @@
   @keyframes pass {
     0% {
       opacity: 1;
-      /* transform: rotate(10deg); */
-      /* transform: rotate(0); */
 
     }
     100% {
       opacity: 0;
-      /* transform: translate(-50%, 0); */
       transform: rotate(-10deg) translate(-20%, 0);
       transform-origin: bottom left;
     }
