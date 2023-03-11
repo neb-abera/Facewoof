@@ -1,64 +1,39 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
+/* eslint-disable react/jsx-indent-props */
 import React, { useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import AuthForm from '../components/AuthForm/AuthForm';
+import { FaDog } from 'react-icons/fa';
+import useAuth from '../hooks/useAuth';
 import dogImage from '../assets/dog.jpg';
-import useUserContext from '../hooks/useUserContext';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
-  const { loggedIn, setLoggedIn } = useUserContext();
-  const history = useHistory();
+  const { checkAuth } = useAuth();
 
   useEffect(() => {
-    if (loggedIn) {
-      history.push('/discover');
-    }
-  }, [loggedIn]);
-
-  useEffect(() => {
-    if (!authState || !authState.isAuthenticated) {
-      // When user isn't authenticated, forget any user info
-      setLoggedIn(false);
-      history.push('/login');
-      // setUserInfo(null);
-    } else {
-      oktaAuth
-        .getUser()
-        .then((info) => {
-          // setUserInfo(info);
-          setLoggedIn(true);
-          history.push('/discover');
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
-  }, [authState, oktaAuth, loggedIn]);
+    checkAuth();
+  }, [authState, oktaAuth]);
 
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
         <Link
-            to="/"
-            className="absolute top-4 left-4 border border-0 px-12 py-2 bg-[#8d5426] rounded text-white"
+          to="/"
+          className="absolute top-4 left-4 border border-0 px-12 py-2 bg-[#8d5426] rounded text-white"
         >
           Diggr
         </Link>
         <img className="w-full h-full" src={dogImage} alt="dog-image" />
       </div>
       <div
-          className="flex flex-col space-y-5 px-12 items-center justify-center"
-          style={{ width: `--webkit-calc(100% - 600px)` }}
+        className="flex flex-col space-y-5 px-12 items-center justify-center"
+        style={{ width: `--webkit-calc(100% - 600px)` }}
       >
-        <h3 className="text-2xl text-center text-[#bb7c7c] font-medium my-3">Create An Account</h3>
-        <AuthForm action="signup" />
-        <p className="text-center text-[#bb7c7c]">
-          Already Have An Account? &nbsp;
-          <Link to="/login" className="font-bold text-success">
-            Sign In
-          </Link>
-        </p>
+        <div className="loading-discover items-center justify-center">
+          <FaDog className="loading-dog1" />
+          <FaDog className="loading-dog2" />
+        </div>
       </div>
     </div>
   );

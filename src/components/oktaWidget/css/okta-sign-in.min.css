@@ -1,0 +1,146 @@
+.signin-container h2 {
+  font-size: 1.8rem;
+  color: rgb(114 212 147);
+  font-weight: 500;
+  text-align: center;
+}
+
+.signin-container form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.o-form-fieldset-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  row-gap: 0.6rem;
+  padding: 1rem 0;
+}
+
+.clearfix {
+  padding: 1rem 2rem;
+}
+
+.clearfix h2 {
+  font-size: 1.4rem;
+}
+
+.identifier-container {
+  margin-top: 0.3rem;
+}
+
+.o-form-info-container {
+  margin-top: 1rem;
+}
+
+.okta-form-subtitle span {
+  font-style: italic;
+}
+
+form input {
+  border-radius: 5px;
+  padding: 0.3rem 0.8rem;
+  color: rgb(67, 44, 18);
+  width: 100%;
+}
+
+form input:focus {
+  outline: none;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox input {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 5px;
+  margin-right: 0.7rem;
+  cursor: pointer;
+}
+
+.auth-footer {
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.js-cancel {
+  margin-left: 5.2rem;
+}
+
+.js-back {
+  margin-left: 1.5rem;
+}
+
+.js-forgot-password {
+  margin-left: none;
+}
+
+.infobox-warning {
+  padding: 0;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.infobox-warning a {
+  cursor: pointer;
+  font-weight: 500;
+  color:antiquewhite
+}
+
+.auth-footer a {
+  color: rgb(216, 188, 131);
+  text-decoration: none;
+  margin-right: 0.3rem;
+}
+
+.o-form-button-bar {
+  width: 60%;
+  align-self: center;
+}
+
+.o-form-button-bar input {
+  color: rgb(211, 239, 230);
+  background-color: rgb(61, 156, 102);
+  padding: 0.5rem 0;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.o-form-button-bar input:hover {
+  background-color: rgb(42, 147, 87);
+  color: rgb(211, 239, 230);
+  cursor: pointer;
+}
+
+.button-link {
+  margin-top: 0.3rem;
+  color:rgb(216, 188, 131);
+  font-weight: 400;
+}
+
+.siw-main-footer {
+  margin-top: 1rem;
+}
+
+.footer-info {
+  margin-top: 0.2rem;
+}
+
+.signup-info span {
+  margin-right: 0.3rem;
+}
+
+.signup-info a {
+  font-weight: 500;
+}
+
+.okta-form-input-error {
+  color: rgb(215, 138, 175);
+  font-size: 0.9rem;
+  font-style: italic;
+}

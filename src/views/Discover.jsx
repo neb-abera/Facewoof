@@ -12,94 +12,22 @@ import axios from 'axios';
 import { useOktaAuth } from '@okta/okta-react';
 import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
+import useUserLocation from '../hooks/useUserLocation';
 import SearchBar from '../components/Discover/SearchBar';
 import './discover.css';
-
-const googleApiUrl = import.meta.env.VITE_GOOGLE_API_URL;
-const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-const apiUrl = import.meta.env.VITE_APP_API_URL;
-
-const getCoordinates = () => {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
-  });
-};
-
-const getUserLocation = async (lat, lng) => {
-  // eslint-disable-next-line one-var
-  let latitude, longitude;
-  if (!lat && !lng) {
-    const coordinate = (await getCoordinates()).coords;
-    latitude = coordinate.latitude;
-    longitude = coordinate.longitude;
-  } else {
-    latitude = lat;
-    longitude = lng;
-  }
-
-  return axios
-    .get(`${googleApiUrl}/json?latlng=${latitude},${longitude}&key=${googleApiKey}`)
-    .then((res) => {
-      const filteredResult = res.data.results.filter((result) => result.types[0] === 'postal_code');
-      return filteredResult[0].address_components[0].long_name;
-    })
-    .catch((err) => console.log(err));
-};
 
 // eslint-disable-next-line react/function-component-definition
 export default function Discover() {
   const [users, setUsers] = useState([]);
-
-  const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
-  // const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
   const [distances, setDistances] = useState({});
 
-  const { userId, userData } = useUserContext();
-
-  console.log(userId);
-
-  const fetchNearbyUsers = (zipcode, radius) => {
-    setLoading(true);
-    axios
-      .get(`${apiUrl}/api/discover`, {
-        params: {
-          id: userId,
-          zipcode,
-          radius,
-          count: 1000
-        }
-      })
-      .then(({ data }) => {
-        setUsers(data.users);
-        setDistances(data.distances);
-      })
-      .then(() => {
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const getUsers = (location, radius = 5) => {
-    if (!userId) return;
-
-    location = location.trim();
-    if (!Number.isNaN(location)) {
-      axios
-        .get(`${googleApiUrl}/json?address=${location}&key=${googleApiKey}`)
-        .then(({ data }) => {
-          const { lat, lng } = data.results[0].geometry.location;
-          return getUserLocation(lat, lng);
-        })
-        .then((userLocation) => fetchNearbyUsers(userLocation, radius))
-        .catch((err) => console.log(err));
-    } else {
-      fetchNearbyUsers(location, radius);
-    }
-  };
+  const { userData } = useUserContext();
+  const { loading, setLoading, getUserLocation, getUsers } = useUserLocation(
+    setUsers,
+    setDistances
+  );
 
   useEffect(() => {
     if (searchLocation === '') {
