@@ -23,7 +23,7 @@ export default function Discover() {
   const [radius, setRadius] = useState(5);
   const [distances, setDistances] = useState({});
 
-  const { userData } = useUserContext();
+  const { userData, photos } = useUserContext();
   const { loading, setLoading, getUserLocation, getUsers } = useUserLocation(
     setUsers,
     setDistances
@@ -68,7 +68,7 @@ export default function Discover() {
         </div>
       ) : (
         <div className="discover-view">
-          <CardStack users={users} distances={distances} userData={userData} />
+          <CardStack users={users} distances={distances} userData={userData} photos={photos} />
         </div>
       )}
     </div>

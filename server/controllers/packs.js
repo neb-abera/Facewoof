@@ -31,7 +31,6 @@ const getUserPacks = (req, res) => {
 
   return getPacks(userId)
     .then((data) => {
-      // console.log(data.rows[0]);
       res.send(data.rows[0].json_agg);
     })
     .catch(() => {
