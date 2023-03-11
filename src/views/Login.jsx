@@ -41,7 +41,6 @@ const Login = ({ config }) => {
           axios
             .put('/api/authuser', { email: 'pyekel6@marketwatch.com', name: 'Abdel Dandie' })
             .then((res) => {
-              console.log('res.data: ', res.data);
               const user = {
                 user_id: res.data.user_id,
                 dog_name: res.data.dog_name,

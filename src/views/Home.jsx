@@ -15,7 +15,7 @@ const Home = () => {
     if (loggedIn) {
       history.push('/discover');
     }
-  }, [loggedIn]);
+  }, [loggedIn]); // didn't we remove this due to an loading error?
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
