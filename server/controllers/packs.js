@@ -9,7 +9,7 @@ const addUserToPack = (req, res) => {
     .then(() => {
       res.status(201).send('Added to pack');
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(404).send('Error adding to pack');
     });
 };
@@ -21,7 +21,7 @@ const createNewPackAndAdd = (req, res) => {
     .then(() => {
       res.status(201).send('Pack created');
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(404).send('Error creating pack');
     });
 };
@@ -29,9 +29,13 @@ const createNewPackAndAdd = (req, res) => {
 const getUserPacks = (req, res) => {
   const { userId } = req.query;
 
-  return getPacks(userId).then((data) => {
-    res.send(data.rows[0].json_agg);
-  });
+  return getPacks(userId)
+    .then((data) => {
+      res.send(data.rows[0].json_agg);
+    })
+    .catch(() => {
+      res.status(404).send('unable to get packs');
+    });
 };
 
 module.exports = {

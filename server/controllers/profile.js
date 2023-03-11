@@ -15,7 +15,9 @@ const getUserFriends = (req, res) => {
       // console.log(data.rows);
       res.send(data.rows);
     })
-    .catch((err) => console.log('err in getuserfriends', err));
+    .catch((err) => {
+      res.status(404).send('unable to get user friends');
+    });
 };
 
 const getCurrentUser = (req, res) => {
@@ -26,7 +28,9 @@ const getCurrentUser = (req, res) => {
       // console.log(data.rows);
       res.send(data.rows);
     })
-    .catch((err) => console.log('err in getcurrentuser', err));
+    .catch((err) => {
+      res.status(404).send('unable to get current user');
+    });
 };
 
 // post request to create a pack
@@ -39,7 +43,7 @@ const createPack = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      console.log('err', err);
+      res.status(404).send('unable to get pack posts');
     });
 };
 
@@ -83,7 +87,8 @@ const editProfile = (req, res) => {
       res.send(results);
     })
     .catch((err) => {
-      console.log('err in editprofile', err);
+      console.log(err);
+      res.status(404).send('unable to update profile');
     });
 };
 
@@ -96,7 +101,8 @@ const getProfilePhoto = (req, res) => {
       res.send(data);
     })
     .catch((err) => {
-      console.log('err in getting profilephoto', err);
+      console.log(err);
+      res.status(404).send('unable to get profile photo');
     });
 };
 
