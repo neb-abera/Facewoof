@@ -4,6 +4,7 @@ import { Link, useHistory } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
+import AuthForm from '../components/AuthForm/AuthForm';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();

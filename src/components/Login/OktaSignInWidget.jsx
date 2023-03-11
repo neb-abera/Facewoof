@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useRef } from 'react';
 import OktaSignIn from '@okta/okta-signin-widget';
-import '../oktaWidget/css/okta-sign-in.min.css';
+import '../../../node_modules/@okta/okta-signin-widget/dist/css/okta-sign-in.min.css';
 import { oktaConfig } from '../../../oktaConfig';
 
 const OktaSignInWidget = ({ onSuccess, onError }) => {
