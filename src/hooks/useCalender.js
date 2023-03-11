@@ -4,12 +4,10 @@ import useUserContext from './useUserContext';
 
 const useCalendar = () => {
   const { userId, setPlaydates, setPacks } = useUserContext();
-  console.log('this is userId in useCalendar hook', userId);
   const getPacks = useCallback(() => {
     axios
       .get(`http://localhost:3001/api/playdates?userId=${userId}`)
       .then((data) => {
-        console.log('this is the data response: ', data);
         const arr = data.data;
         const playdateArr = [];
         arr.forEach((obj, i) => {
@@ -26,7 +24,6 @@ const useCalendar = () => {
       })
       .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`))
       .then((packData) => {
-        // console.log(packData.data);
         setPacks(packData.data);
       });
   }, [userId]);

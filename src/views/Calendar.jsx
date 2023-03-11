@@ -22,7 +22,6 @@ const Calendar = () => {
 
   const { userId, setPlaydates, loggedIn } = useUserContext();
   const { getPacks } = useCalendar();
-  console.log('call hook useCalendar');
 
   Modal.setAppElement('#root');
 
@@ -42,7 +41,6 @@ const Calendar = () => {
   };
 
   useEffect(() => {
-    // console.log('function getPacks is called with userId as: ', userId);
     getPacks();
   }, [userId, loggedIn]);
 

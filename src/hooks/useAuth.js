@@ -49,17 +49,11 @@ const useAuth = () => {
               setUserId(res.data.user_id);
               setUserData(user);
               setLoading(false);
-              // console.log('get packs called in useAuth with userId: ', userId);
-              // getPacks();
               // history.push('/discover');
               console.log('routing to ', destination);
               // history.push(destination);
             });
         })
-        // .then(() => {
-        //   console.log('get packs called in useAuth second time with userId: ', userId);
-        //   getPacks();
-        // })
         .catch((err) => console.error(err));
     } else {
       setLoggedIn(false);
