@@ -8,34 +8,21 @@ import './nav.css';
 const Navbar = () => {
   const location = useLocation();
   const [navBarStyle, setNavBarStyle] = useState(null);
-  const { loggedIn, setLoggedIn } = useUserContext();
-  const { authState, oktaAuth } = useOktaAuth();
+  const { loggedIn } = useUserContext();
+  const { oktaAuth } = useOktaAuth();
   const [userInfo, setUserInfo] = useState(null);
 
   const history = useHistory();
 
-  useEffect(() => {
-    history.push('/login');
-  }, [loggedIn]);
-
-  // const logout = () => {
-  //   setLoggedIn(false);
-  //   history.push('/login');
-  // };
   const logout = () => {
-    setLoggedIn(false);
     oktaAuth
       .signOut()
-      .then(() => {
-        history.push('/login');
-      })
-      .catch((err) => {
-        // console.log(err);
-      });
+      .then(() => {})
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
-    if (location.pathname === '/' && !loggedIn) {
+    if ((location.pathname === '/' && !loggedIn) || (location.pathname === '/login' && !loggedIn)) {
       setNavBarStyle({
         display: 'none'
       });

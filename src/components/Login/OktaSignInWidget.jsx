@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/prop-types */
 import React, { useEffect, useRef } from 'react';
 import OktaSignIn from '@okta/okta-signin-widget';
@@ -6,6 +7,7 @@ import { oktaConfig } from '../../../oktaConfig';
 
 const OktaSignInWidget = ({ onSuccess, onError }) => {
   const widgetRef = useRef();
+
   useEffect(() => {
     if (!widgetRef.current) {
       return false;
@@ -15,7 +17,7 @@ const OktaSignInWidget = ({ onSuccess, onError }) => {
 
     // Search for URL Parameters to see if a user is being routed to the application to recover password
     // eslint-disable-next-line vars-on-top, no-var, prefer-destructuring
-    var searchParams = new URL(window.location.href).searchParams;
+    const searchParams = new URL(window.location.href).searchParams;
     widget.otp = searchParams.get('otp');
     widget.state = searchParams.get('state');
     widget
@@ -28,7 +30,12 @@ const OktaSignInWidget = ({ onSuccess, onError }) => {
     return () => widget.remove();
   }, [onSuccess, onError]);
 
-  return <div ref={widgetRef} />;
+  return (
+    <div
+      className="signin-container w-[300px] bg-[#737373] flex flex-col justify-center items-center py-5 text-white rounded-lg h-auto"
+      ref={widgetRef}
+    />
+  );
 };
 
 export default OktaSignInWidget;
