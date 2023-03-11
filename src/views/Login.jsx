@@ -10,6 +10,8 @@ import AuthForm from '../components/AuthForm/AuthForm';
 import useUserContext from '../hooks/useUserContext';
 import dogImage from '../assets/dog.jpg';
 
+axios.defaults.baseURL = 'http://localhost:3001';
+
 // eslint-disable-next-line react/prop-types
 const Login = ({ config }) => {
   const { loggedIn, setLoggedIn, setUserData, setUserId, setFirstLogin } = useUserContext();
