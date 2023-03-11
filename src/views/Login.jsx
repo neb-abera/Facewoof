@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Link, useLocation, useHistory } from 'react-router-dom';
+/* eslint-disable react/jsx-indent-props */
+import React, { useEffect } from 'react';
+import { Link, useHistory, Redirect } from 'react-router-dom';
 // import './node_modules@okta/okta-signin-widget/css/okta-sign-in.min.css';
 import { useOktaAuth } from '@okta/okta-react';
 import '../components/Login/Login.css';
-import { Redirect } from 'react-router-dom';
 import axios from 'axios';
 import OktaSignInWidget from '../components/Login/OktaSignInWidget';
-import { oktaConfig } from '../../oktaConfig';
+// import { oktaConfig } from '../../oktaConfig';
 // import { useNavigate } from 'react-router-dom';
-import AuthForm from '../components/AuthForm/AuthForm';
+// import AuthForm from '../components/AuthForm/AuthForm';
 import useUserContext from '../hooks/useUserContext';
 import dogImage from '../assets/dog.jpg';
 
@@ -22,7 +22,6 @@ const Login = ({ config }) => {
   };
 
   const { loggedIn, setLoggedIn, setUserId, setUserData, setFirstLogin } = useUserContext();
-  // const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
@@ -30,7 +29,6 @@ const Login = ({ config }) => {
       setLoggedIn(false);
       setUserId(null);
       setUserData(null); // should it be null or {}
-      // setUserInfo(null);
     } else {
       oktaAuth
         .getUser()
@@ -41,7 +39,7 @@ const Login = ({ config }) => {
           axios
             .put('/api/authuser', { email: 'pyekel6@marketwatch.com', name: 'Abdel Dandie' })
             .then((res) => {
-              // console.log('response from db query', res.data);
+              console.log('res.data: ', res.data);
               const user = {
                 user_id: res.data.user_id,
                 dog_name: res.data.dog_name,
@@ -122,7 +120,7 @@ const Login = ({ config }) => {
   }
 
   return authState.isAuthenticated ? (
-    <Redirect to={{ pathname: '/' }} />
+    <Redirect to={{ pathname: '/discover' }} />
   ) : (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">

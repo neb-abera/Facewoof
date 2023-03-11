@@ -5,10 +5,9 @@
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // useNavigate was on incoming
 import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
-import { useOktaAuth } from '@okta/okta-react';
+// import { useOktaAuth } from '@okta/okta-react';
 import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
 import SearchBar from '../components/Discover/SearchBar';
@@ -48,8 +47,8 @@ const getUserLocation = async (lat, lng) => {
 // eslint-disable-next-line react/function-component-definition
 const Discover = () => {
   const [users, setUsers] = useState([]);
-  const { authState, oktaAuth } = useOktaAuth();
-  const [userInfo, setUserInfo] = useState(null);
+  // const { authState, oktaAuth } = useOktaAuth();
+  // const [userInfo, setUserInfo] = useState(null);
   const userContext = useUserContext();
 
   // useEffect(() => {
@@ -133,6 +132,9 @@ const Discover = () => {
   };
 
   useEffect(() => {
+    if (!users) {
+      return;
+    } // addressing the error of users being undefined
     if (users.length > 0) {
       setLoading(false);
     }

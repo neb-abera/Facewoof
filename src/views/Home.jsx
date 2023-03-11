@@ -1,31 +1,24 @@
 /* eslint-disable react/jsx-indent-props */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { useOktaAuth } from '@okta/okta-react';
-import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
-import OktaSignInWidget from '../components/Login/OktaSignInWidget';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
   const history = useHistory();
-  // const [userEmail, setUserEmail] = useState('');
-  // const [firstName, setFirstName] = useState('');
-  // const [lastName, setLastName] = useState('');
-  const { loggedIn, setLoggedIn, setUserId, setUserData } = useUserContext();
-  // const [userInfo, setUserInfo] = useState(null);
+  const { loggedIn, setLoggedIn } = useUserContext();
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
       // When user isn't authenticated, forget any user info
       setLoggedIn(false);
-      // setUserInfo(null);
+      history.push('/login'); // wasn't here before, necessary now?
     } else {
       oktaAuth
         .getUser()
         .then((info) => {
-          // setUserInfo(info);
           setLoggedIn(true);
           history.push('/discover');
         })

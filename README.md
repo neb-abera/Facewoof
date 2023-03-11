@@ -1,4 +1,4 @@
-# FaceWoof
+# Diggr
 
 
 1. Clone repo to your device
