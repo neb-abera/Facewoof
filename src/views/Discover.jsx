@@ -9,13 +9,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
-
+import { useOktaAuth } from '@okta/okta-react';
 import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
 import SearchBar from '../components/Discover/SearchBar';
 import './discover.css';
-
-import UploadFileWidget from '../components/FileUploader/UploadFileWidget';
 
 const googleApiUrl = import.meta.env.VITE_GOOGLE_API_URL;
 const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY;
@@ -51,17 +49,16 @@ const getUserLocation = async (lat, lng) => {
 // eslint-disable-next-line react/function-component-definition
 export default function Discover() {
   const [users, setUsers] = useState([]);
-  const { authState, oktaAuth } = useOktaAuth();
-  const [userInfo, setUserInfo] = useState(null);
-  const userContext = useUserContext();
 
   const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
-  const [userLocation, setUserLocation] = useState(null);
+  // const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
   const [distances, setDistances] = useState({});
 
   const { userId, userData } = useUserContext();
+
+  console.log(userId);
 
   const fetchNearbyUsers = (zipcode, radius) => {
     setLoading(true);
