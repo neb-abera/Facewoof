@@ -34,8 +34,14 @@ The Discover feed is the perfect place for dog owners to discover potential new 
 
 To help you get started, Diggr will ask to access your location in order to show you a list of users in the mile radius you specify. 
 
+<p align="center">
+<img src="https://github.com/gbb1/diggr/blob/1eecefad57b6bca2980be7eeb44f9ff88cff52fa/public/READMEGIF/searchCity.gif" width="450"/>
+</p>
 If you're travelling soon and want to plan some social time for your pets, you can search by a specific zipcode or city to see users in that area.
 
+---
+![Alt text](https://github.com/gbb1/diggr/blob/1eecefad57b6bca2980be7eeb44f9ff88cff52fa/public/READMEGIF/matchGif2.gif)
 Once you've specified your locale and distance preferences, Diggr will provide a list of potential matches that you can swipe right to 'Digg' or left to 'Pass'. Each profile in the list will have information available like photos, vaccination status, interests, age, and distance. Diggr will also show you profiles in a relevant order, so you see the pets and owners who have indicated interest in you first. 
 
 Upon a successful match, you'll have the option to keep exploring or start a pack with your new friend. If you want to start a pack later, you'll be able to access your matches at any time from your friends list. 
+<br />
