@@ -34,7 +34,6 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        {/* <Router> */}
           <Switch>
             <Security
                 oktaAuth={oktaAuth}
@@ -52,7 +51,6 @@ const App = () => {
               <SecureRoute path="/profile" render={() => <Profile />} />
             </Security>
           </Switch>
-        {/* </Router> */}
       </header>
     </div>
   );
