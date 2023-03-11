@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+
 import PackList from './PackList.jsx';
 import Playdates from './Playdates.jsx';
-import AllPacksModal from '../PackModals/AllPacksModal.jsx';
+// import AllPacksModal from '../PackModals/AllPacksModal.jsx';
 import CreatePackModal from '../PackModals/CreatePackModal.jsx';
+import FriendsListCopy from '../PackModals/FriendsListCopy.jsx';
 
-const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
+const PackMenu = ({ viewing, setViewing, userIdentity, setViewingName }) => {
   const buttonModal = useRef();
 
   // var dummyFunc =
@@ -13,11 +14,12 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
     packList: {
       display: 'flex',
       flexDirection: 'column',
-      height: '50vh'
+      height: '40vh',
+      overflowY: 'scroll'
     },
     parent: {
-      border: '1px solid grey',
-      width: '20vw',
+      // border: '1px solid grey',
+      width: '25vw',
       height: '100vh',
       // paddingTop: '50px',
       position: 'sticky',
@@ -38,7 +40,9 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
     //   // border: '2px solid grey',
     // },
     calendar: {
-      height: '50vh'
+      height: '50vh',
+      overflowY: 'scroll',
+      padding: '15px'
     },
     menuButtons: {
       // border: '2px solid grey',
@@ -51,22 +55,15 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
 
   return (
     <>
-      <AllPacksModal />
-      <CreatePackModal />
+      {/* <AllPacksModal /> */}
+      <CreatePackModal userIdentity={{ user_id: userIdentity }} />
+      {/* <FriendsListCopy currentUser={{ user_id: userIdentity }} /> */}
       <div className="drawer " style={styles.parent}>
         <div className="drawer-content"></div>
         <div className="drawer-side">
           <ul className="menu p-1 w-100 bg-base-100 text-base-content">
             <div className="card shadow-xl">
               <div style={styles.yourPacks}>Your Packs</div>
-              <button
-                onClick={() => {
-                  console.log('hello');
-                  buttonModal.current.click();
-                }}
-              >
-                testing Modal
-              </button>
             </div>
             <div style={styles.packList}>
               <PackList
@@ -76,12 +73,19 @@ const PackMenu = ({ setViewing, userIdentity, setViewingName }) => {
               />
             </div>
             <div style={styles.menuButtons}>
-              <label htmlFor="all-packs-modal" className="btn" ref={buttonModal}>
-                All Packs
-              </label>
               <label htmlFor="create-pack-modal" className="btn">
                 Create Pack
               </label>
+              {viewing !== '-1' ? (
+                <button
+                  className="btn"
+                  onClick={() => {
+                    setViewing('-1');
+                  }}
+                >
+                  View All
+                </button>
+              ) : null}
             </div>
             <div style={styles.calendar}>
               Calendar

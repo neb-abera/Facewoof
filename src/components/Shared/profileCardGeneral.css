@@ -73,7 +73,7 @@
   .profileCard {
     width: 40vw;
     min-width: 500px;
-    max-width: 800px;
+    max-width: 500px;
   }
 
   .profile-image {
@@ -241,4 +241,6 @@
 
 .profileCard {
   background-color: white;
+  box-shadow: none;
+  z-index: -1;
 }

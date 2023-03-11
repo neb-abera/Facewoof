@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const PackName = ({ name, setViewing }) => {
-  var styles = {};
-  var click = () => {
+  const styles = {};
+  const click = () => {
     setViewing(name);
   };
-  return (
-    <>
-      <div onClick={click}>{name}</div>
-    </>
-  );
+  return <div onClick={click}>{name}</div>;
 };
 
 export default PackName;

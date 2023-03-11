@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useHistory } from 'react-router-dom';
 import useUserContext from '../../hooks/useUserContext';
 import Logo from '../../assets/diggrLogo3.png';
 import './nav.css';
@@ -9,15 +9,15 @@ const Navbar = () => {
   const [navBarStyle, setNavBarStyle] = useState(null);
   const { loggedIn, setLoggedIn } = useUserContext();
 
-  const navigate = useNavigate();
+  const history = useHistory();
 
   useEffect(() => {
-    navigate('/login');
+    history.push('/login');
   }, [loggedIn]);
 
   const logout = () => {
     setLoggedIn(false);
-    navigate('/login');
+    history.push('/login');
   };
 
   useEffect(() => {

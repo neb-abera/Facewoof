@@ -8,7 +8,7 @@ const db = require('./database');
 /* OUT: array of users within set mile radius, ideally, first to appear are users who have already said yes to primary user */
 function generateDiscoverFeed(user1, zipcodes, count) {
   return db.query(`
-  SELECT u.user_id, u.dog_name, u.owner_name, u.dog_breed, u.age, u.vaccination, u.discoverable, u.owner_email, u.location, u.user1_choice, p.photos FROM
+  SELECT u.user_id, u.dog_name, u.owner_name, u.dog_breed, u.age, u.vaccination, u.discoverable, u.owner_email, u.location, u.user1_choice, p.photos, ARRAY[u.likes_one, u.likes_two, u.likes_three] as interests FROM
   (
     SELECT * FROM
       (
@@ -105,6 +105,7 @@ function checkForMatchAndCreate(user1, user2) {
     return false;
   });
 }
+
 
 module.exports = {
   setRelationship,

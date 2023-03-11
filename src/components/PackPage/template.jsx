@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
 import axios from 'axios';
+
 axios.defaults.baseURL = 'http://localhost:3001';
 
 const template = () => {
-  var styles = {};
+  const styles = {};
 
-  return (
-    <>
-      <div></div>
-    </>
-  );
+  return <div />;
 };
 
 export default template;

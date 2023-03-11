@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import PackName from './PackName.jsx';
 import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:3001';
@@ -15,7 +15,8 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
         params: { userId: userIdentity }
       })
       .then((data) => {
-        var input = data.data;
+        // console.log('packlist data', data);
+        var input = data.data.rows[0].json_agg;
 
         setPackList(input);
       });

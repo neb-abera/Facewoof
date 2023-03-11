@@ -5,6 +5,7 @@ import Modal from './Modal.jsx';
 import './profile.css';
 import axios from 'axios';
 import ProfileCard from '../Discover/ProfileCard.jsx';
+import ProfileCardGeneral from '../Shared/ProfileCardGeneral';
 import CreatePackCard from './createPack.jsx'
 import useUserContext from '../../hooks/useUserContext';
 
@@ -14,6 +15,8 @@ const FriendsList = ( { currentUser }) => {
   const [gotFriends, setGotFriends] = useState(false)
   const [gotPacks, setGotPacks] = useState(false)
   const [packs, setPacks] = useState([])
+
+
   const { userId, /*packs*/ userData, /*friends, setFriends,*/ photos } = useUserContext();
   // const userId = 1
 
@@ -26,8 +29,9 @@ const FriendsList = ( { currentUser }) => {
        let friendsArray = [];
        friendos.forEach(friend => {
          friendsArray.push(friend.dog_name)
-         friend.photos = ['https://i.imgflip.com/3nzkub.png?a465864', 'https://i.imgflip.com/3nzkub.png?a465864'];
+        //  friend.photos = ['https://i.imgflip.com/3nzkub.png?a465864', 'https://i.imgflip.com/3nzkub.png?a465864'];
        })
+
        setFriends(friendsArray);
        setFriendsData(friendos)
        setGotFriends(true)
@@ -42,7 +46,7 @@ const FriendsList = ( { currentUser }) => {
     if (!gotPacks) {
       axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`)
       .then((results) => {
-       console.log('packs son', results.data)
+      //  console.log('packs son', results.data)
         setPacks(results.data);
         setGotPacks(true);
         // console.log('friendsdata', friendsData);
@@ -57,7 +61,7 @@ const FriendsList = ( { currentUser }) => {
     // console.log('packId', packId, userId)
     axios.put(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
     .then(() => {
-      console.log('added to pack')
+      // console.log('added to pack')
     })
     .catch(() => {
       alert('That user is already a part of that pack')
@@ -70,7 +74,7 @@ const FriendsList = ( { currentUser }) => {
 
   return (
 
-  <div className="card g-base-96 shadow-xl max-w-fit max-h-fit mx-auto">
+  <div className="card g-base-96 bg-[#fefcfc] shadow-xl max-w-fit max-h-fit mx-auto">
   <table className="table w-[470px]">
     {/* head */}
     <thead>
@@ -85,24 +89,25 @@ const FriendsList = ( { currentUser }) => {
       let hrefString2 = `#my-modal-${index + 10}`
       let user = friendsData[index];
       return (
-      <div>      <tr className="hover flex">
-      <th className='self-center'>{index + 1}</th>
+      <div>
+        <tr className=" flex">
+      <th className='self-center bg-[#fefcfc]'>{index + 1}</th>
       {/* <td className='w-40 self-center'>{item}</td> */}
 
-      <label htmlFor={hrefString} className="btn w-40 self-center">{item}</label>
+      <label htmlFor={hrefString} className="btn btn-primary w-40 self-center">{item}</label>
       {/* Put this part before </body> tag */}
       <input type="checkbox" id={hrefString} className="modal-toggle" />
       <div className="modal">
-        <div className="modal-box relative">
-          <label htmlFor={hrefString} className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-            <ProfileCard user={friendsData[index]}/>
+        <div className="modal-box relative bg-white">
+          <label htmlFor={hrefString} className="btn btn-secondary btn-sm btn-circle absolute right-2 top-2">✕</label>
+            <ProfileCardGeneral user={friendsData[index]}/>
         </div>
       </div>
 
-      <td>
+      <td className='bg-[#fefcfc]'>
         {/* <a className="btn btn-outline btn-primary w-24 rounded-full mr-6 text-xs self-center">Add To Pack</a> */}
       <div className="dropdown">
-  <label tabIndex={0} className="btn m-1">Add To Pack</label>
+  <label tabIndex={0} className="btn btn-secondary m-1">Add To Pack</label>
   <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
     {packs.map(pack => {
       let userId = user.user_id;
@@ -113,7 +118,7 @@ const FriendsList = ( { currentUser }) => {
   </ul>
   </div>
       {/* <div className="btn btn-outline btn-primary w-24 rounded-full mr-6 text-xs">Create Pack</div> */}
-      <label htmlFor={hrefString2} className="btn">Create Pack</label>
+      <label htmlFor={hrefString2} className="ml-2 btn">Create Pack</label>
 
 {/* Put this part before </body> tag */}
   <input type="checkbox" id={hrefString2} className="modal-toggle" />
