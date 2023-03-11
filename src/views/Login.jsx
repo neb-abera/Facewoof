@@ -8,14 +8,22 @@ import OktaSignInWidget from '../components/Login/OktaSignInWidget';
 import { oktaConfig } from '../../oktaConfig';
 import AuthForm from '../components/AuthForm/AuthForm';
 import useUserContext from '../hooks/useUserContext';
+import dogImage from '../assets/dog.jpg';
 
-const Login = () => {
-  const { loggedIn } = useUserContext();
+// eslint-disable-next-line react/prop-types
+const Login = ({ config }) => {
+  const { loggedIn, setLoggedIn, setUserData, setUserId, setFirstLogin } = useUserContext();
   const history = useHistory();
+
+  const { oktaAuth, authState } = useOktaAuth();
+  const onSuccess = (tokens) => {
+    oktaAuth.handleLoginRedirect(tokens);
+  };
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
       // When user isn't authenticated, forget any user info
+
       setLoggedIn(false);
       setUserId(null);
       setUserData(null); // should it be null or {}

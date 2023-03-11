@@ -3,6 +3,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import './match.css';
 
+// eslint-disable-next-line react/function-component-definition
 export default function Match({ user1, user2, handleContinue }) {
   const history = useHistory();
 

@@ -15,6 +15,7 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
         // console.log('data', data.data);
         const input = data.data;
         const packs = [];
+        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < input.length; i++) {
           packs.push(input[i].name);
         }

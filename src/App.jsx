@@ -1,24 +1,40 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { Switch, Route, useHistory } from 'react-router-dom';
+import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
+import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
+import { oktaConfig } from '../oktaConfig';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
 import PackFeed from './views/PackFeed';
 import PlaydateCalendar from './views/Calendar';
 import Profile from './views/Profile';
+import ProfileDisplay from './components/ProfilePage/ProfileDisplay';
+import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
 // import Locked from './views/Locked';
 import Navbar from './components/Navbar/Navbar';
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
 
-// import Playdate from './components/Calendar/EditPlaydate';
-
 const App = () => {
+  const history = useHistory();
+
+  const customAuthHandler = () => {
+    history.push('/login');
+  };
+
+  const restoreOriginalUri = async (_oktaAuth, originalUri) => {
+    history.replace(toRelativeUrl(originalUri || '', window.location.origin));
+  };
+
+  const CALLBACK_PATH = '/login/callback';
+
   return (
     <div className="App">
       <header className="App-header">
-        <Router>
+        {/* <Router> */}
           <Switch>
             <Security
                 oktaAuth={oktaAuth}
@@ -36,7 +52,7 @@ const App = () => {
               <SecureRoute path="/profile" render={() => <Profile />} />
             </Security>
           </Switch>
-        </Router>
+        {/* </Router> */}
       </header>
     </div>
   );
