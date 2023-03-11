@@ -11,7 +11,6 @@ const discoverUsers = async (req, res) => {
   try {
     const { id, zipcode, radius, count } = req.query;
     const result = await axios.get(`${url}/${apiKey}/radius.json/${zipcode}/${radius}/mile`);
-    console.log(result);
     const matchedZipcodes = result.data.zip_codes.reduce((acc, el, index) => {
       // eslint-disable-next-line no-param-reassign
       acc += `'${el.zip_code}', `;
@@ -45,7 +44,6 @@ const discoverUsers = async (req, res) => {
 
 const userResponse = async (req, res) => {
   const { currentUserId, otherUserId, currentUserChoice, otherUserChoice } = req.body;
-  // console.log(currentUserId, otherUserId, currentUserChoice, otherUserChoice);
   try {
     if (currentUserChoice !== otherUserChoice) {
       await setRelationship(currentUserId, otherUserId, currentUserChoice);

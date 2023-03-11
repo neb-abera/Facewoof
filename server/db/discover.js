@@ -57,7 +57,6 @@ function generateDiscoverFeed(user1, zipcodes, count) {
   LIMIT ${count};
   `)
   .then((results) => {
-    // console.log('Discover feed results', results.rows, results.rows.length);
     return results.rows;
   })
   .catch((err) => {
@@ -72,10 +71,13 @@ function setRelationship(user1, user2, choice) {
 
   db.query(`
     INSERT INTO pending_relationships ("user1_id", "user1_choice", "user2_id", "date")
-    VALUES (${user1}, ${choice}, ${user2}, to_timestamp(${date}));
+    SELECT ${user1}, ${choice}, ${user2}, to_timestamp(${date})
+    WHERE NOT EXISTS (
+      SELECT * FROM pending_relationships
+      WHERE user1_id = ${user1} AND user2_id = ${user2}
+    );
   `)
     .then((result) => {
-      // console.log('🚀 setRelationships query result:', result);
       return result;
     })
     .catch((err) => {
@@ -97,7 +99,6 @@ function checkForMatchAndCreate(user1, user2) {
     $$
   `)
   .then((results) => {
-    // console.log('checking for match result:', results, true);
     return true;
   })
   .catch((err) => {

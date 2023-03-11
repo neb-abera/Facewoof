@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import './match.css';
 
 // eslint-disable-next-line react/function-component-definition
-export default function Match({ user1, user2, handleContinue }) {
+export default function Match({ user1, user2, handleContinue, photos }) {
   const history = useHistory();
 
   function goToPack() {
@@ -16,7 +16,7 @@ export default function Match({ user1, user2, handleContinue }) {
       <h1 className="match-title">It&apos;s a match!</h1>
       <h2 className="match-subtitle">Now you can add {user2.dog_name} to a pack!</h2>
       <div className="match-images">
-        <img className="w-full primary-user" src={user1.photos[0]} alt="Doggy" />
+        <img className="w-full primary-user" src='https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg' alt="Doggy" />
         <img className="w-full secondary-user" src={user2.photos[0]} alt="Doggy" />
       </div>
       <div className="match-buttons">

@@ -8,7 +8,7 @@ export default function ProfileCard({ user, distance }) {
   distance = distance === 0 ? '< .5' : distance;
 
   return (
-    <div className="profile-card-parent">
+    <div className="profile-card-parent drop-shadow-lg">
       <div className="card w-96 bg-base-100 shadow-xl profileCard">
         <div className="card-header">
           <div className="card-header-title">

@@ -15,7 +15,6 @@ const addUserToPack = (req, res) => {
 };
 
 const createNewPackAndAdd = (req, res) => {
-  console.log('REQ BODY', req.body);
   let { pack_name, users } = req.body;
   users = JSON.parse(users);
   return createPackAndAdd(pack_name, users)
@@ -28,15 +27,12 @@ const createNewPackAndAdd = (req, res) => {
 };
 
 const getUserPacks = (req, res) => {
-  console.log('getuserpacks request', req);
   const { userId } = req.query;
 
   return getPacks(userId).then((data) => {
-    // console.log(data.rows[0]);
     res.send(data.rows[0].json_agg);
   });
 };
-
 
 module.exports = {
   addUserToPack: addUserToPack,
