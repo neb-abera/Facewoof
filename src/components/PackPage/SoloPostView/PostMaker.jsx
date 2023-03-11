@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:3001';
 import useUserContext from '../../../hooks/useUserContext';
+
+axios.defaults.baseURL = 'http://localhost:3001';
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
   const { userId } = useUserContext();
   // console.log('user_id', userId);
-  var styles = {
+  const styles = {
     postMakerImg: {
       display: 'flex',
       flexDirection: 'row'
@@ -27,10 +27,10 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
       // padding: '5px'
     }
   };
-  var [body, setBody] = useState('');
+  const [body, setBody] = useState('');
 
   const makePost = () => {
-    var packet = {};
+    const packet = {};
     packet.body = body;
     packet.user_id = userId;
     packet.pack_id = viewing;
@@ -53,44 +53,42 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
   };
 
   return (
-    <>
-      <div className="card bordered" style={styles.parent}>
-        <div style={styles.postMakerImg}>
-          <div className="avatar">
-            <div className="w-24 rounded-full">
-              <img src={pfp} />
-            </div>
-          </div>
-          <div className="card" style={styles.poster}>
-            Post To: {viewingName}
-            {body.length <= 50 ? (
-              <div>Characters Left: {50 - body.length}</div>
-            ) : (
-              <div>Minimum Reached</div>
-            )}
-            <textarea
-              id="inputTextField"
-              onChange={(e) => {
-                setBody(e.target.value);
-              }}
-              className="textarea-bordered"
-              placeholder="Make A Post"
-              style={styles.textArea}
-            ></textarea>
+    <div className="card bordered" style={styles.parent}>
+      <div style={styles.postMakerImg}>
+        <div className="avatar">
+          <div className="w-24 rounded-full">
+            <img src={pfp} />
           </div>
         </div>
-        <div style={styles.button}>
-          <button
-            className={'btn btn-block'}
-            onClick={() => {
-              body.length > 50 ? makePost() : null;
+        <div className="card" style={styles.poster}>
+          Post To: {viewingName}
+          {body.length <= 50 ? (
+            <div>Characters Left: {50 - body.length}</div>
+          ) : (
+            <div>Minimum Reached</div>
+          )}
+          <textarea
+            id="inputTextField"
+            onChange={(e) => {
+              setBody(e.target.value);
             }}
-          >
-            Post
-          </button>
+            className="textarea-bordered"
+            placeholder="Make A Post"
+            style={styles.textArea}
+          />
         </div>
       </div>
-    </>
+      <div style={styles.button}>
+        <button
+          className="btn btn-block"
+            onClick={() => {
+            body.length > 50 ? makePost() : null;
+          }}
+        >
+          Post
+        </button>
+      </div>
+    </div>
   );
 };
 

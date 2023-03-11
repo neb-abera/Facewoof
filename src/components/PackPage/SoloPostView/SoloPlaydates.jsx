@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import SoloPackName from './SoloPackName.jsx';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import SoloPlaydate from './SoloPlaydate.jsx';
+import SoloPlaydate from './SoloPlaydate';
 
 const SoloPlaydates = ({ setViewing, userIdentity }) => {
   // var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
 
-  var [playdates, setPlaydates] = useState([]);
+  const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
     axios
@@ -16,7 +15,7 @@ const SoloPlaydates = ({ setViewing, userIdentity }) => {
       })
       .then((data) => {
         // console.log('data', data.data);
-        var input = data.data;
+        const input = data.data;
         // var packs = [];
         // for (var i = 0; i < input.length; i++) {
         //   packs.push({input[i], });
@@ -26,7 +25,7 @@ const SoloPlaydates = ({ setViewing, userIdentity }) => {
       });
   }, []);
 
-  var styles = {
+  const styles = {
     playdates: {
       width: '100%',
       backgroundColor: 'pink'
@@ -35,27 +34,25 @@ const SoloPlaydates = ({ setViewing, userIdentity }) => {
   };
 
   return (
-    <>
-      <div>
-        {/* {console.log('within code', typeof playdates)} */}
-        {playdates
-          ? playdates.map((packName, key) => (
-              <li key={key}>
-                <a>
-                  <SoloPlaydate dataPoint={packName} setViewing={setViewing} />
-                </a>
-              </li>
-            ))
-          : null}
+    <div>
+      {/* {console.log('within code', typeof playdates)} */}
+      {playdates
+        ? playdates.map((packName, key) => (
+            <li key={`packName-${key + 1}`}>
+              <a>
+                <SoloPlaydate dataPoint={packName} setViewing={setViewing} />
+              </a>
+            </li>
+          ))
+        : null}
 
-        {/* <li>
+      {/* <li>
           <PackName name={listNames[1]} setViewing={setViewing} />
         </li>
         <li>
           <PackName name={listNames[2]} setViewing={setViewing} />
         </li> */}
-      </div>
-    </>
+    </div>
   );
 };
 

@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import AuthForm from '../components/AuthForm/AuthForm';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
 
 const Home = () => {
   const { loggedIn } = useUserContext();
-  const navigate = useNavigate();
+  const history = useHistory();
 
   useEffect(() => {
     if (loggedIn) {
-      navigate('/discover');
+      history.push('/discover');
     }
   }, [loggedIn]);
 

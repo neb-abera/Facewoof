@@ -1,5 +1,9 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Switch, Route, useHistory } from 'react-router-dom';
+import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
+import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
+import { oktaConfig } from '../oktaConfig';
 import Home from './views/Home';
 import Login from './views/Login';
 import Discover from './views/Discover';
@@ -14,22 +18,27 @@ import Navbar from './components/Navbar/Navbar';
 
 const oktaAuth = new OktaAuth(oktaConfig.oidc);
 
-// import Playdate from './components/Calendar/EditPlaydate';
-
-
 const App = () => {
-  const location = useLocation();
-  const background = location.state && location.state.background;
+  const history = useHistory();
+
+  const customAuthHandler = () => {
+    history.push('/login');
+  };
+
+  const restoreOriginalUri = async (_oktaAuth, originalUri) => {
+    history.replace(toRelativeUrl(originalUri || '', window.location.origin));
+  };
+
+  const CALLBACK_PATH = '/login/callback';
 
   return (
     <div className="App">
       <header className="App-header">
-        <Router>
           <Switch>
             <Security
-              oktaAuth={oktaAuth}
-              onAuthRequired={customAuthHandler}
-              restoreOriginalUri={restoreOriginalUri}
+                oktaAuth={oktaAuth}
+                onAuthRequired={customAuthHandler}
+                restoreOriginalUri={restoreOriginalUri}
             >
               <Navbar />
               <Route path="/" exact component={Home} />
@@ -42,7 +51,6 @@ const App = () => {
               <SecureRoute path="/profile" render={() => <Profile />} />
             </Security>
           </Switch>
-        </Router>
       </header>
     </div>
   );

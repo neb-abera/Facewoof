@@ -1,18 +1,13 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const SoloPackName = ({ name, setViewing }) => {
-  var styles = {};
+  const styles = {};
   // console.log(name);
-  var click = () => {
+  const click = () => {
     setViewing(name);
     // console.log('clicked', name);
   };
-  return (
-    <>
-      <div onClick={click}>{name}</div>
-    </>
-  );
+  return <div onClick={click}>{name}</div>;
 };
 
 export default SoloPackName;

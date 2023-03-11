@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const PostTile = ({ img, content, postedOn, parentGroup }) => {
-  var styles = {
+  const styles = {
     pfp: {
       borderRadius: '25%',
       maxWidth: '100px',
@@ -34,23 +33,21 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
     }
   };
 
-  var currentDate = new Date(postedOn);
+  const currentDate = new Date(postedOn);
 
   return (
-    <>
-      <div style={styles.parent}>
-        <div className="card shadow-xl" style={styles.tile}>
-          <figure style={styles.imageAndPostedOn}>
-            <img style={styles.pfp} src={img}></img>
-            <div className="card">Posted On: {currentDate.toLocaleString()}</div>
-            <div className="">Part Of: {parentGroup}</div>
-          </figure>
-          <div className="card shadow-xl" style={styles.content}>
-            {content}
-          </div>
+    <div style={styles.parent}>
+      <div className="card shadow-xl" style={styles.tile}>
+        <figure style={styles.imageAndPostedOn}>
+          <img style={styles.pfp} src={img} />
+          <div className="card">Posted On: {currentDate.toLocaleString()}</div>
+          <div className="">Part Of: {parentGroup}</div>
+        </figure>
+        <div className="card shadow-xl" style={styles.content}>
+          {content}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

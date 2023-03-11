@@ -38,6 +38,7 @@ const FriendsListCopy = ({ currentUser }) => {
           let friendos = results.data;
           let friendsArray = [];
           friendos.forEach((friend) => {
+            console.log('in FriendListCopy.jsx ', friendsArray);
             friendsArray.push(friend.dog_name);
             friend.photos = [
               'https://i.imgflip.com/3nzkub.png?a465864',

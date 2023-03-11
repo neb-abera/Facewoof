@@ -4,11 +4,9 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 /* eslint-disable react/jsx-indent-props */
 import React from 'react';
-// import { useNavigate } from 'react-router-dom';
 import './Playdate.css';
 
 const ViewPlaydate = ({ selectedPlaydate, closeEditModal }) => {
-  // const navigate = useNavigate();
   // const [input, setInput] = useState({});
   // className="playdateModal"
   const packName = selectedPlaydate.title.split(':')[0];

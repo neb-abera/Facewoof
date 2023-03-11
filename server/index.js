@@ -23,9 +23,13 @@ const corsOptions = {
     'okta.com'
   ]
 };
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+});
 // app.use(express.static(path.join(__dirname, '../dist')));
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
