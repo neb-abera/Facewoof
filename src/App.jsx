@@ -1,6 +1,6 @@
-/* eslint-disable react/jsx-indent-props */
+/* eslint-disable prettier/prettier */
 import React from 'react';
-import { BrowserRouter as Router, Route, useHistory } from 'react-router-dom'; // useLocation was here
+import { Route, useHistory } from 'react-router-dom'; // useLocation was here
 import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
 import { Security, LoginCallback, SecureRoute } from '@okta/okta-react';
 import { oktaConfig } from '../oktaConfig';

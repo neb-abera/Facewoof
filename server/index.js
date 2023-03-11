@@ -2,7 +2,6 @@
 const express = require('express');
 // const path = require('path');
 const cors = require('cors');
-const packFeed = require('./controllers/packFeed.js');
 require('dotenv').config();
 const db = require('./db/database');
 const router = require('./routes');
@@ -12,6 +11,7 @@ const app = express();
 const PORT = 3001;
 
 // ----- Middleware ----- //
+
 // need the following routes approved for cors in deployed version
 const corsOptions = {
   origin: [
@@ -23,7 +23,12 @@ const corsOptions = {
     'okta.com'
   ]
 };
-// app.use(express.static(path.join(__dirname, '../public')));
+
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+// });
+// app.use(express.static(path.join(__dirname, '../dist')));
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

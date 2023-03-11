@@ -4,6 +4,7 @@
 /* eslint-disable object-shorthand */
 /* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { FaDog, FaBone } from 'react-icons/fa';
 import axios from 'axios';
@@ -45,34 +46,18 @@ const getUserLocation = async (lat, lng) => {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const Discover = () => {
+export default function Discover() {
   const [users, setUsers] = useState([]);
-  // const { authState, oktaAuth } = useOktaAuth();
-  // const [userInfo, setUserInfo] = useState(null);
-  const userContext = useUserContext();
 
-  // useEffect(() => {
-  //   if (!authState || !authState.isAuthenticated) {
-  //     setUserInfo(null);
-  //   } else {
-  //     oktaAuth
-  //       .getUser()
-  //       .then((info) => {
-  //         setUserInfo(info);
-  //         // console.log(info);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   }
-  // }, [authState, oktaAuth]);
   const [loading, setLoading] = useState(false);
   const [searchLocation, setSearchLocation] = useState('');
-  const [userLocation, setUserLocation] = useState(null);
+  // const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(5);
   const [distances, setDistances] = useState({});
 
-  const { userId } = useUserContext();
+  const { userId, userData } = useUserContext();
+
+  console.log(userId);
 
   const fetchNearbyUsers = (zipcode, radius) => {
     setLoading(true);
@@ -98,7 +83,8 @@ const Discover = () => {
   };
 
   const getUsers = (location, radius = 5) => {
-    console.log(location);
+    if (!userId) return;
+
     location = location.trim();
     if (!Number.isNaN(location)) {
       axios
@@ -132,10 +118,7 @@ const Discover = () => {
   };
 
   useEffect(() => {
-    if (!users) {
-      return;
-    } // addressing the error of users being undefined
-    if (users.length > 0) {
+    if (users?.length > 0) {
       setLoading(false);
     }
   }, [users]);
@@ -156,11 +139,9 @@ const Discover = () => {
         </div>
       ) : (
         <div className="discover-view">
-          <CardStack users={users} distances={distances} />
+          <CardStack users={users} distances={distances} userData={userData} />
         </div>
       )}
     </div>
   );
-};
-
-export default Discover;
+}

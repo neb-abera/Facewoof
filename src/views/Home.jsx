@@ -7,8 +7,14 @@ import useUserContext from '../hooks/useUserContext';
 
 const Home = () => {
   const { authState, oktaAuth } = useOktaAuth();
-  const history = useHistory();
   const { loggedIn, setLoggedIn } = useUserContext();
+  const history = useHistory();
+
+  useEffect(() => {
+    if (loggedIn) {
+      history.push('/discover');
+    }
+  }, [loggedIn]);
 
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
@@ -26,7 +32,7 @@ const Home = () => {
           console.error(err);
         });
     }
-  }, [authState, oktaAuth, loggedIn]); // says setLoggedIn is missing from deps but it shouldn't be
+  }, [authState, oktaAuth, loggedIn]);
 
   return (
     <div className="flex h-screen w-screen">
@@ -37,7 +43,6 @@ const Home = () => {
         >
           Diggr
         </Link>
-        {/* eslint-disable-next-line jsx-a11y/img-redundant-alt */}
         <img className="w-full h-full" src={dogImage} alt="dog-image" />
       </div>
       <div
@@ -45,7 +50,7 @@ const Home = () => {
         style={{ width: `--webkit-calc(100% - 600px)` }}
       >
         <h3 className="text-2xl text-center text-[#bb7c7c] font-medium my-3">Create An Account</h3>
-        {/* <AuthForm action="signup" /> */}
+        <AuthForm action="signup" />
         <p className="text-center text-[#bb7c7c]">
           Already Have An Account? &nbsp;
           <Link to="/login" className="font-bold text-success">

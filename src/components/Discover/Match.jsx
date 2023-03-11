@@ -1,8 +1,16 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import './match.css';
 
+// eslint-disable-next-line react/function-component-definition
 export default function Match({ user1, user2, handleContinue }) {
+  const history = useHistory();
+
+  function goToPack() {
+    history.push('/packFeed');
+  }
+
   return (
     <div className="match-parent">
       <h1 className="match-title">It&apos;s a match!</h1>
@@ -15,7 +23,7 @@ export default function Match({ user1, user2, handleContinue }) {
         <button className="btn btn-active btn-primary" type="button" onClick={handleContinue}>
           Keep searching
         </button>
-        <button className="btn btn-active btn-primary" type="button">
+        <button className="btn btn-active btn-primary" type="button" onClick={goToPack}>
           Add to Pack
         </button>
       </div>

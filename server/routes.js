@@ -11,18 +11,18 @@ const {
   getCurrentUser,
   getUserFriends,
   createPack,
-  editProfile
+  createPhotos,
+  editProfile,
+  getProfilePhoto,
+  ctrlUserPacksId,
+  ctrlPackPosts,
+  ctrlAllPostsFromAllPacks,
+  ctrlUserPlaydatesAllPacks,
+  ctrlSoloPosts,
+  ctrlPfp,
+  ctrlMakePost
 } = require('./controllers');
 
-const {
-  getUserPacksId,
-  getUserInformation,
-  getPackPosts,
-  getAllPostsFromAllPacks,
-  getUserPlaydatesAllPacks,
-  getSoloPosts,
-  getPfp
-} = require('./controllers/packFeed.js');
 const router = express.Router();
 
 // Route to check if user exists and create if not
@@ -33,6 +33,9 @@ router.get('/api/discover', discoverUsers);
 
 // Route handling response (dig/deny) from current user
 router.post('/api/response', userResponse);
+
+// Route handling adding user photos
+router.post('/api/photos/:userId/new', createPhotos);
 
 // Route handling getting all playdates for packs current user is a member of
 router.get('/api/playdates', getPlaydates);
@@ -62,45 +65,20 @@ router.put('/editUser', editProfile);
 // Route to create pack
 router.post('/createPack', createPack);
 
-router.get('/api/getAllPostsFromSpecificPack', (req, res) => {
-  // var packId = req.body.packId;
-  var { packId } = req.query;
-  getPackPosts(packId).then((response) => {
-    res.status(201).send(response);
-  });
-});
+router.get('/getProfilePhoto', getProfilePhoto);
 
-router.get('/api/getUserPacks', (req, res) => {
-  // var packId = req.body.userId;
-  var { userId } = req.query;
-  // console.log('userId', userId);
-  getUserPacksId(userId, res);
-});
+router.get('/api/getAllPostsFromSpecificPack', ctrlPackPosts);
 
-router.get('/api/getAllPacksPostsForUser', (req, res) => {
-  var { userId } = req.query;
-  getAllPostsFromAllPacks(userId, res);
-});
+router.get('/api/getUserPacks', ctrlUserPacksId);
 
-router.get('/api/getUserPlaydates', (req, res) => {
-  var { userId } = req.query;
-  getUserPlaydatesAllPacks(userId, res);
-});
+router.get('/api/getAllPacksPostsForUser', ctrlAllPostsFromAllPacks);
 
-router.get('/api/getSoloPosts', (req, res) => {
-  var { userId, packId } = req.query;
-  // var packId = req.body.packId;
-  getSoloPosts(userId, packId, res);
-});
+router.get('/api/getUserPlaydates', ctrlUserPlaydatesAllPacks);
 
-router.get('/api/getPfp', (req, res) => {
-  // var userId = req.body.userId;
-  var { userId } = req.query;
-  getPfp(userId, res);
-});
+router.get('/api/getSoloPosts', ctrlSoloPosts);
 
-router.post('/api/makePost', (req, res) => {
-  console.log('received request to make post');
-});
+router.get('/api/getPfp', ctrlPfp);
+
+router.post('/api/makePost', ctrlMakePost);
 
 module.exports = router;

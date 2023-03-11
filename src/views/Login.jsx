@@ -14,18 +14,20 @@ import dogImage from '../assets/dog.jpg';
 
 axios.defaults.baseURL = 'http://localhost:3001';
 
+// eslint-disable-next-line react/prop-types
 const Login = ({ config }) => {
-  const { oktaAuth, authState } = useOktaAuth();
+  const { loggedIn, setLoggedIn, setUserData, setUserId, setFirstLogin } = useUserContext();
   const history = useHistory();
+
+  const { oktaAuth, authState } = useOktaAuth();
   const onSuccess = (tokens) => {
     oktaAuth.handleLoginRedirect(tokens);
   };
 
-  const { loggedIn, setLoggedIn, setUserId, setUserData, setFirstLogin } = useUserContext();
-
   useEffect(() => {
     if (!authState || !authState.isAuthenticated) {
       // When user isn't authenticated, forget any user info
+
       setLoggedIn(false);
       setUserId(null);
       setUserData(null); // should it be null or {}
@@ -69,7 +71,7 @@ const Login = ({ config }) => {
           //   if (res.data.age !== null) {
           //     // need to verify what returns to indicate user exists and if it contains correct data
           //     setFirstLogin(false);
-          //    // console.log('response from db query', res.data);
+          //     // console.log('response from db query', res.data);
           //     setUserId(res.data.user_id);
           //     const user = {
           //       user_id: res.data.user_id,

@@ -2,15 +2,17 @@ const {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
-  editProfilePromise
-} = require('../db/');
+  editProfilePromise,
+  addPhoto,
+  getProfilePhotoPromise
+} = require('../db');
 
 const getUserFriends = (req, res) => {
   const { userId } = req.query;
 
   return getFriendsPromise(userId)
     .then((data) => {
-      console.log(data.rows);
+      // console.log(data.rows);
       res.send(data.rows);
     })
     .catch((err) => console.log('err in getuserfriends', err));
@@ -21,7 +23,7 @@ const getCurrentUser = (req, res) => {
 
   return getCurrentUserPromise(userId)
     .then((data) => {
-      console.log(data.rows);
+      // console.log(data.rows);
       res.send(data.rows);
     })
     .catch((err) => console.log('err in getcurrentuser', err));
@@ -33,12 +35,23 @@ const createPack = (req, res) => {
 
   return createPackPromise(packName)
     .then((data) => {
-      console.log(data.rows);
+      // console.log(data.rows);
       res.send(data.rows);
     })
     .catch((err) => {
       console.log('err', err);
     });
+};
+
+const createPhotos = async (req, res) => {
+  const { userId } = req.params;
+  const { photoUrl } = req.body;
+  try {
+    await addPhoto(userId, photoUrl);
+    res.status(201).send('Successfully added new photo');
+  } catch (err) {
+    res.status(404).send('Unable to add new photo');
+  }
 };
 
 const editProfile = (req, res) => {
@@ -66,7 +79,7 @@ const editProfile = (req, res) => {
     userId
   )
     .then((results) => {
-      console.log('results from editprofile', results);
+      // console.log('results from editprofile', results);
       res.send(results);
     })
     .catch((err) => {
@@ -74,9 +87,24 @@ const editProfile = (req, res) => {
     });
 };
 
+const getProfilePhoto = (req, res) => {
+  // console.log('getprofilePhoto request', req);
+  const { userId } = req.query;
+  return getProfilePhotoPromise(userId)
+    .then((data) => {
+      // console.log('successfully got profilephoto', data);
+      res.send(data);
+    })
+    .catch((err) => {
+      console.log('err in getting profilephoto', err);
+    });
+};
+
 module.exports = {
   getCurrentUser: getCurrentUser,
   getUserFriends: getUserFriends,
   createPack: createPack,
-  editProfile: editProfile
+  createPhotos: createPhotos,
+  editProfile: editProfile,
+  getProfilePhoto: getProfilePhoto
 };
