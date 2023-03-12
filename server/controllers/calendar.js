@@ -7,7 +7,10 @@ const getPlaydates = (req, res) => {
     .then((data) => {
       res.send(data.rows[0].pack_playdates);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to get playdates');
+    });
 };
 
 const AddPlaydate = (req, res) => {
@@ -22,7 +25,10 @@ const AddPlaydate = (req, res) => {
 
   return createPlaydate(playdateInfo)
     .then(() => res.send('playdate added'))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+      res.status(404).send('unable to create playdate');
+    });
 };
 
 module.exports = {

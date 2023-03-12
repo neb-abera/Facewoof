@@ -16,9 +16,7 @@ function checkOrCreateUser(email, name) {
     SELECT * FROM users WHERE owner_email = '${email}';
   `
     )
-    .catch((err) => {
-      console.log('Error checking/creating user', err);
-    });
+    .catch((err) => err);
 }
 
 module.exports = {
