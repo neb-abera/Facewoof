@@ -50,8 +50,8 @@ const useAuth = () => {
               setUserData(user);
               setLoading(false);
               // history.push('/discover');
-              console.log('routing to ', destination);
-              // history.push(destination);
+              // console.log('routing to ', destination);
+              history.push(destination);
             });
         })
         .catch((err) => console.error(err));

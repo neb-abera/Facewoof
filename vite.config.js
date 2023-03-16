@@ -8,6 +8,7 @@ export default defineConfig({
     'process.env': process.env
   },
   server: {
+    port: 5173,
     watch: {
       usePolling: true,
       interval: 100
