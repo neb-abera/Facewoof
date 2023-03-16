@@ -179,7 +179,8 @@ const ProfilePage = () => {
           </div>
           <UploadFileWidget />
           <div className="card-actions justify-end">
-          <input className="btn btn-active btn-primary" onClick={(e) => handleSubmit(e)} type="submit" />
+            <button className="btn" onClick={handleBackButton}>Back</button>
+            <input className="btn btn-active btn-primary max-w-min" onClick={(e) => handleSubmit(e)} type="submit" />
           </div>
         </form>
       </div>
