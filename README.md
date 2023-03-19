@@ -2,7 +2,7 @@
 
 
 1. Clone repo to your device
-2. cd into FaceWoof folder
+2. cd into Diggr folder
 3. type "npm install" then press enter
 4. Open your user settings in VS Code (on a Mac, this is Cmd-Shift-P) and click Preferences: Open Settings (JSON). You will need to add this section:
 
