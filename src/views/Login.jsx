@@ -1,31 +1,12 @@
-/* eslint-disable prettier/prettier */
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useOktaAuth } from '@okta/okta-react';
 import { FaDog } from 'react-icons/fa';
-import OktaSignInWidget from '../components/Login/OktaSignInWidget';
-import useAuth from '../hooks/useAuth';
 import dogImage from '../assets/dog.jpg';
 import '../components/Login/Login.css';
 import '../components/oktaWidget/css/okta-sign-in.min.css';
 
 // eslint-disable-next-line react/prop-types
 const Login = ({ config }) => {
-  const { oktaAuth, authState } = useOktaAuth();
-  const onSuccess = (tokens) => {
-    oktaAuth.handleLoginRedirect(tokens);
-  };
-
-  const { loading, checkAuth } = useAuth();
-
-  useEffect(() => {
-    checkAuth();
-  }, [authState, oktaAuth]); // says setLoggedIn is missing from deps but it shouldn't be
-
-  const onError = (err) => {
-    console.log('Sign in error', err);
-  };
-
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
@@ -42,13 +23,13 @@ const Login = ({ config }) => {
         className="flex flex-col space-y-5 px-12 items-center justify-center"
         style={{ width: `--webkit-calc(100% - 600px)` }}
       >
-        {loading ? (
+        {true ? (
           <div className="loading-discover items-center justify-center">
             <FaDog className="loading-dog1" />
             <FaDog className="loading-dog2" />
           </div>
         ) : (
-          <OktaSignInWidget config={config} onSuccess={onSuccess} onError={onError} />
+          <div>Here's where the login widget goes</div>
         )}
       </div>
     </div>

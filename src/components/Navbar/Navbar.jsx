@@ -2,9 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { useOktaAuth } from '@okta/okta-react';
 import useUserContext from '../../hooks/useUserContext';
-import useAuth from '../../hooks/useAuth';
 import Logo from '../../assets/diggrLogo3.png';
 import './nav.css';
 
@@ -12,20 +10,13 @@ const Navbar = () => {
   const location = useLocation();
   const [navBarStyle, setNavBarStyle] = useState(null);
   const { loggedIn, setLoggedIn, userId } = useUserContext();
-  const { oktaAuth } = useOktaAuth();
-  // const [userInfo, setUserInfo] = useState(null);
-  const { checkAuth } = useAuth();
 
   useEffect(() => {
-    console.log('check auth', userId);
-    if (!loggedIn || !userId) checkAuth();
+    console.log('check auth');
   }, [loggedIn, userId]);
 
   const logout = () => {
-    oktaAuth
-      .signOut()
-      .then(() => setLoggedIn(false))
-      .catch((err) => console.log(err));
+    console.log('clicked logout');
   };
   useEffect(() => {
     if ((location.pathname === '/' && !loggedIn) || (location.pathname === '/login' && !loggedIn)) {

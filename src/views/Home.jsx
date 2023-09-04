@@ -1,20 +1,11 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable react/jsx-indent-props */
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useOktaAuth } from '@okta/okta-react';
 import { FaDog } from 'react-icons/fa';
-import useAuth from '../hooks/useAuth';
 import dogImage from '../assets/dog.jpg';
 
 const Home = () => {
-  const { authState, oktaAuth } = useOktaAuth();
-  const { checkAuth } = useAuth();
-
-  useEffect(() => {
-    checkAuth();
-  }, [authState, oktaAuth]);
-
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">
