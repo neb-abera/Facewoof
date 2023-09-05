@@ -1,12 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import dogImage from '../assets/dog.jpg';
 import '../components/Login/Login.css';
-import '../components/oktaWidget/css/okta-sign-in.min.css';
+import { useHistory } from 'react-router-dom';
+import useUserContext from '../hooks/useUserContext';
+import axios from 'axios';
 
 // eslint-disable-next-line react/prop-types
 const Login = ({ config }) => {
+  const { setUserData, setUserId, setFirstLogin } = useUserContext();
+  const history = useHistory();
+
+  axios
+    .put('/api/authuser', { email: 'pyekel6@marketwatch.com', name: 'Abdel Dandie' })
+    .then((res) => {
+      const user = {
+        user_id: res.data.user_id,
+        dog_name: res.data.dog_name,
+        owner_name: res.data.owner_name,
+        owner_first_name: 'Abdel',
+        owner_last_name: 'Dandie',
+        dog_breed: res.data.dog_breed,
+        age: res.data.age,
+        vaccination: res.data.vaccination,
+        discoverable: res.data.discoverable,
+        owner_email: res.data.owner_email,
+        location: res.data.location,
+        likes_one: res.data.likes_one,
+        likes_two: res.data.likes_two,
+        likes_three: res.data.likes_three
+      };
+      setUserId(res.data.user_id);
+      setUserData(user);
+      setFirstLogin(false);
+      history.push('/discover');
+    });
+
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px]">

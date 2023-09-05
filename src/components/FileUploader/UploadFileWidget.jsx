@@ -4,8 +4,8 @@ import FileUploader from './FileUploader';
 import './UploadFileWidget.css';
 import useUserContext from '../../hooks/useUserContext';
 
-const UPLOAD_PRESET = 'fkvl2mpr';
-const CLOUD_NAME = 'dji28yqki';
+const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
+const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
 const FOLDER_NAME = 'Diggr';
 const URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 

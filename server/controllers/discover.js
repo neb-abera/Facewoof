@@ -4,8 +4,8 @@ const { join } = require('path');
 require('dotenv').config();
 const { generateDiscoverFeed, setRelationship, checkForMatchAndCreate } = require('../db');
 
-const apiKey = process.env.ZIPCODE_APIKEY;
-const url = process.env.ZIPCODE_URI;
+const apiKey = import.meta.env.VITE_ZIPCODE_APIKEY;
+const url = import.meta.env.VITE_ZIPCODE_URL;
 
 const discoverUsers = async (req, res) => {
   try {
