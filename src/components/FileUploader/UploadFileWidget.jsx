@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import path from 'path';
 import FileUploader from './FileUploader';
 import './UploadFileWidget.css';
 import useUserContext from '../../hooks/useUserContext';
+require('dotenv').config({ path: path.join(__dirname, '../../../.env') });
 
-const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
-const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
+const UPLOAD_PRESET = process.env.VITE_UPLOAD_PRESET;
+const CLOUD_NAME = process.env.VITE_CLOUD_NAME;
 const FOLDER_NAME = 'Diggr';
 const URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
-const API_URL = import.meta.env.VITE_APP_API_URL;
+const API_URL = process.env.VITE_APP_API_URL;
 
 // eslint-disable-next-line react/prop-types
 const UploadFileWidget = () => {

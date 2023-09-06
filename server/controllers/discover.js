@@ -1,11 +1,11 @@
 const axios = require('axios');
 const { readFile } = require('node:fs/promises');
-const { join } = require('path');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const { generateDiscoverFeed, setRelationship, checkForMatchAndCreate } = require('../db');
 
-const apiKey = import.meta.env.VITE_ZIPCODE_APIKEY;
-const url = import.meta.env.VITE_ZIPCODE_URL;
+const apiKey = process.env.VITE_ZIPCODE_APIKEY;
+const url = process.env.VITE_ZIPCODE_URL;
 
 const discoverUsers = async (req, res) => {
   try {

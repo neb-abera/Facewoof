@@ -4,9 +4,12 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import useUserContext from './useUserContext';
 
-const googleApiUrl = import.meta.env.VITE_GOOGLE_API_URL;
-const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-const apiUrl = import.meta.env.VITE_APP_API_URL;
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
+const googleApiUrl = process.env.VITE_GOOGLE_API_URL;
+const googleApiKey = process.env.VITE_GOOGLE_API_KEY;
+const apiUrl = process.env.VITE_APP_API_URL;
 
 const getCoordinates = () => {
   return new Promise((resolve, reject) => {
