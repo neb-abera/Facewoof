@@ -39,7 +39,11 @@ image: ## Build the production image the deploy pipeline builds
 	$(DOCKER) build --target final -t facewoof .
 
 run: image ## Build and run the production image on http://localhost:8080
-	$(DOCKER) run --rm -p 127.0.0.1:8080:8080 \
+	# The image needs a database, and the compose network has to exist before
+	# --network can join it. Without this the target only worked if `make dev`
+	# happened to be running in another terminal.
+	$(COMPOSE) up -d db
+	$(DOCKER) run --rm --name facewoof-app -p 127.0.0.1:8080:8080 \
 		--network facewoof_default \
 		-e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
 		facewoof
