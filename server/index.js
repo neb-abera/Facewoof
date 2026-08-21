@@ -8,6 +8,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const db = require('./db/database');
 const { purgeExpiredGuests } = require('./db/auth');
+const { migrate } = require('./db/migrate');
 const { apiLimiter } = require('./limits');
 const router = require('./routes');
 
@@ -103,6 +104,10 @@ const sweepGuests = () =>
 // Only listen when run directly, so tests can import the app without binding.
 if (require.main === module) {
   db.query('SELECT 1')
+    // Bring the schema up to date before serving. The runner takes an advisory
+    // lock, so several replicas starting at once on a deploy is safe: one
+    // applies, the rest wait and find nothing to do.
+    .then(() => migrate())
     .then(() => {
       console.log('database connected');
       sweepGuests();
