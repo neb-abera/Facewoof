@@ -112,9 +112,15 @@ needs no `.env` at all.
 
 ## Deploying
 
+Facewoof runs on Azure Container Apps at
+[facewoof.abera.tech](https://facewoof.abera.tech), deployed by
+`.github/workflows/deploy.yml` on every push to `main` whose checks pass. The
+one-time Azure and DNS setup is in [docs/DEPLOY.md](docs/DEPLOY.md).
+
 The production image serves the client and the API on port 8080 and runs as a
-non-root user. `/healthz` checks the database and is what the platform should
-poll.
+non-root user. `/healthz` checks the database and is what the platform polls.
+Migrations run at start-up behind an advisory lock, so several replicas
+starting at once on a deploy is safe.
 
 At the root of its own host:
 
