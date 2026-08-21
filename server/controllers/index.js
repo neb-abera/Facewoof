@@ -1,5 +1,4 @@
-/* eslint-disable object-shorthand */
-const { discoverUsers, userResponse } = require('./discover');
+const { discoverUsers, userResponse, resolveLocation } = require('./discover');
 const { getPlaydates, AddPlaydate } = require('./calendar');
 const { addUserToPack, getUserPacks, createNewPackAndAdd } = require('./packs');
 const {
@@ -10,7 +9,6 @@ const {
   createPhotos,
   getProfilePhoto
 } = require('./profile');
-
 const {
   ctrlPackPosts,
   ctrlAllPostsFromAllPacks,
@@ -20,11 +18,12 @@ const {
   ctrlMakePost,
   ctrlUserPacksId
 } = require('./packfeed');
-const { authUser } = require('./auth');
+const { authUser, guestLogin } = require('./auth');
 
 module.exports = {
   discoverUsers,
   userResponse,
+  resolveLocation,
   getPlaydates,
   AddPlaydate,
   addUserToPack,
@@ -34,6 +33,7 @@ module.exports = {
   getUserFriends,
   createPack,
   authUser,
+  guestLogin,
   editProfile,
   getProfilePhoto,
   ctrlPackPosts,
