@@ -1,0 +1,97 @@
+name: checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A second push to a PR makes the first run irrelevant.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: eslint and prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint and format check
+        # Built from the Dockerfile so it runs on the same node as everything
+        # else. `make lint` needs compose and a working tree mount; this is the
+        # hermetic equivalent.
+        run: |
+          docker build --target deps -t facewoof-deps .
+          docker run --rm -v "$PWD":/repo -w /repo \
+            --entrypoint sh facewoof-deps -c \
+            'cp -r /app/node_modules /tmp/nm && ln -s /tmp/nm node_modules && npx eslint . && npx prettier --check .'
+
+  build:
+    name: production image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image the deploy pipeline builds
+        run: docker build --target final -t facewoof .
+
+  smoke:
+    name: smoke test against postgres
+    runs-on: ubuntu-latest
+    needs: build
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: facewoof
+          POSTGRES_PASSWORD: facewoof
+          POSTGRES_DB: facewoof
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U facewoof -d facewoof"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load schema and seed
+        run: |
+          sudo apt-get install -y --no-install-recommends postgresql-client
+          psql "$DB" -v ON_ERROR_STOP=1 -f server/db/sql/schema.sql
+          psql "$DB" -v ON_ERROR_STOP=1 -f server/db/sql/seed.sql
+        env:
+          DB: postgres://facewoof:facewoof@localhost:5432/facewoof
+
+      - name: Seed is reproducible
+        # A committed seed that no longer matches its generator is a trap for
+        # the next person who regenerates it.
+        run: |
+          python3 server/db/sql/generate-seed.py
+          git diff --exit-code -- server/db/sql/seed.sql
+
+      - name: Build and start
+        run: |
+          docker build --target final -t facewoof .
+          docker run -d --name app --network host \
+            -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
+            -e PORT=8080 facewoof
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080/healthz && break || sleep 2
+          done
+
+      - name: The demo actually shows dogs
+        run: |
+          set -euo pipefail
+          curl -sf http://localhost:8080/healthz
+          UID_=$(curl -sf -X POST http://localhost:8080/api/auth/guest \
+            -H 'content-type: application/json' -d '{"zip":"60601"}' \
+            | python3 -c 'import sys,json; print(json.load(sys.stdin)["user_id"])')
+          N=$(curl -sf "http://localhost:8080/api/discover?id=$UID_&zipcode=60601&radius=25&limit=10" \
+            | python3 -c 'import sys,json; print(len(json.load(sys.stdin)["users"]))')
+          echo "discover returned $N dogs"
+          test "$N" -gt 0
+
+      - name: Server logs
+        if: always()
+        run: docker logs app || true

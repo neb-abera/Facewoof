@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-shadow */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import axios from 'axios';
@@ -11,7 +11,11 @@ import Match from './Match';
 import Blank from './Blank';
 import './cardStack.css';
 
-const CardStack = ({ users, distances, userData, photos }) => {
+// Ask for the next page while this many cards are still in hand, so the
+// request lands before the stack empties and nobody waits on the network.
+const TOP_UP_AT = 4;
+
+const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, searchKey }) => {
   const [front, setFront] = useState(null);
   const [back, setBack] = useState(null);
 
@@ -34,9 +38,23 @@ const CardStack = ({ users, distances, userData, photos }) => {
   // every swipe was recorded against that person rather than the real one.
   const currentUser = userData;
 
+  // Which dogs have been swiped away. The feed arrives in pages and `users`
+  // grows as they land, so rebuilding straight from it would resurrect cards
+  // that were already dealt with.
+  const swiped = useRef(new Set());
+
   useEffect(() => {
-    setData(users);
+    swiped.current = new Set();
+  }, [searchKey]);
+
+  useEffect(() => {
+    setData(users.filter((u) => !swiped.current.has(u.user_id)));
   }, [users]);
+
+  // Top up before the stack runs out rather than when it has.
+  useEffect(() => {
+    if (hasMore && data.length <= TOP_UP_AT) onRunningLow();
+  }, [data.length, hasMore, onRunningLow]);
 
   useEffect(() => {
     if (data.length > 1 && (out !== null || pass !== null)) {
@@ -74,6 +92,7 @@ const CardStack = ({ users, distances, userData, photos }) => {
 
   function handleVote(e) {
     if (!user || !currentUser) return;
+    swiped.current.add(user.user_id);
     setChoice(user);
     if (e.target.id === 'digg') {
       setOut(user.user_id);

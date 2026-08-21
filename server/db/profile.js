@@ -45,6 +45,9 @@ const getUserLocation = (userId) =>
     .query('SELECT location FROM users WHERE user_id = $1', [userId])
     .then(({ rows }) => rows[0]?.location ?? null);
 
+const setUserLocation = (userId, zip) =>
+  db.query('UPDATE users SET location = $2 WHERE user_id = $1', [userId, zip]);
+
 const getProfilePhotoPromise = (userId) =>
   db.query('SELECT url FROM profile_photos WHERE user_id = $1', [userId]);
 
@@ -55,5 +58,6 @@ module.exports = {
   addPhoto,
   editProfilePromise,
   getProfilePhotoPromise,
-  getUserLocation
+  getUserLocation,
+  setUserLocation
 };
