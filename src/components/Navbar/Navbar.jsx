@@ -52,7 +52,7 @@ const Navbar = () => {
         </div>
 
         <img src={Logo} className="logo" alt="" />
-        <Link to="/discover" className="btn btn-ghost normal-case text-xl text-[#BB7C7C] px-2">
+        <Link to="/discover" className="btn btn-ghost normal-case text-xl text-primary px-2">
           Facewoof
         </Link>
       </div>

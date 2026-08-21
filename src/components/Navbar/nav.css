@@ -5,7 +5,7 @@
 }
 
 .navbar {
-  background-color: white;
+  background-color: hsl(var(--b2));
   /* 100vw includes the scrollbar gutter, so the bar was always a little wider
      than the page and pushed a horizontal scrollbar onto every view. */
   width: 100%;

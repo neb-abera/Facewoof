@@ -57,7 +57,10 @@ const Login = () => {
   return (
     <div className="flex h-screen w-screen">
       <div className="relative w-[600px] shrink-0 max-lg:hidden">
-        <Link to="/" className="absolute top-4 left-4 px-12 py-2 bg-[#8d5426] rounded text-white">
+        <Link
+          to="/"
+          className="absolute top-4 left-4 px-12 py-2 bg-primary rounded text-primary-content"
+        >
           Facewoof
         </Link>
         <img className="w-full h-full object-cover" src={dogImage} alt="A dog in a park" />

@@ -17,7 +17,7 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
     parent: {
       alignItems: 'stretch',
       padding: '10px',
-      backgroundColor: '#d0f2f8'
+      backgroundColor: 'hsl(var(--b3))'
     },
     button: {},
     textArea: {

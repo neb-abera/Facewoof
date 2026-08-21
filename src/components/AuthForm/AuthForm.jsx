@@ -6,11 +6,11 @@ const AuthForm = ({ action }) => {
   const [password, setPassword] = useState('');
 
   return (
-    <form className="w-[350px] flex flex-col justify-center border bg-[#737373] h-fit py-10 px-8 rounded-lg">
+    <form className="w-[350px] flex flex-col justify-center border border-base-300 bg-base-200 h-fit py-10 px-8 rounded-lg">
       <div className="flex flex-col">
         {action === 'signup' && (
           <>
-            <label htmlFor="name" className="text-gray-200">
+            <label htmlFor="name" className="text-base-content">
               Name
             </label>
             <input
@@ -21,7 +21,7 @@ const AuthForm = ({ action }) => {
             />
           </>
         )}
-        <label htmlFor="email" className="text-gray-200">
+        <label htmlFor="email" className="text-base-content">
           Email
         </label>
         <input
@@ -30,7 +30,7 @@ const AuthForm = ({ action }) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <label htmlFor="password" className="text-gray-200">
+        <label htmlFor="password" className="text-base-content">
           Password
         </label>
         <input
@@ -44,7 +44,7 @@ const AuthForm = ({ action }) => {
         <button className="btn btn-primary normal-case text-base font-medium">
           {action === 'signup' ? 'Create Account' : 'Sign In'}
         </button>
-        <button className="btn btn-secondary normal-case text-base font-medium text-gray-500">
+        <button className="btn btn-secondary normal-case text-base font-medium ">
           {action === 'signup' ? 'Sign Up' : 'Sign In'} With Google
         </button>
       </div>

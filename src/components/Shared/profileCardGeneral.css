@@ -132,13 +132,13 @@
 .owner {
   align-self: center;
   margin-left: 10px;
-  background-color: #3d4451;
-  color: white;
+  background-color: hsl(var(--bc));
+  color: hsl(var(--bc));
   font-size: 0.7em;
 }
 
 .card-header {
-  background-color: white;
+  background-color: hsl(var(--b2));
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   display: flex;
@@ -232,13 +232,13 @@
 }
 
 .card-bottom {
-  background-color: white;
+  background-color: hsl(var(--b2));
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
 }
 
 .profileCard {
-  background-color: white;
+  background-color: hsl(var(--b2));
   box-shadow: none;
   z-index: -1;
 }

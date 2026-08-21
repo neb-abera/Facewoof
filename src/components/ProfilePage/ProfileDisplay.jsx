@@ -55,7 +55,7 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto my-2 grid gap-4 grid-cols-1 lg:grid-cols-2 items-start min-h-fit">
-      <div className="card shadow-xl min-h-fit mx-auto bg-[#fefcfc]">
+      <div className="card shadow-xl min-h-fit mx-auto bg-base-200">
         <div className="avatar flex flex-wrap gap-3 mb-auto place-content-baseline">
           <div className="justify-self-start ml-3.5 mt-1.5">
             {/** this is profile photo */}
@@ -69,9 +69,9 @@ const Profile = () => {
             <div className="card-title">{dummyText.dog_name}</div>
             <div className="flex flex-row justify-start items-center mt-1.5">
               <div className="flex-auto justify-start max-w-fit">{dummyText.age}</div>
-              <div className="w-2 h-2 bg-black rounded-full mr-2 ml-2 "></div>
+              <div className="w-2 h-2 bg-base-content rounded-full mr-2 ml-2 "></div>
               <div className="flex-auto max-w-fit justify-start">{dummyText.dog_breed}</div>
-              <div className="w-2 h-2 bg-black rounded-full mr-2 ml-2"></div>
+              <div className="w-2 h-2 bg-base-content rounded-full mr-2 ml-2"></div>
               <div className="flex-auto justify-start">{dummyText.location}</div>
             </div>
             <div className="flex grid-cols-2 items-center mt-1.5">
@@ -94,7 +94,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="carousel carousel-center mr-3.5 p-4 space-x-4 bg-blue rounded-box h-96 max-w-max overflow-x-scroll">
+        <div className="carousel carousel-center mr-3.5 p-4 space-x-4 bg-base-300 rounded-box h-96 max-w-max overflow-x-scroll">
           {photosArray.map((photo, index) => {
             return (
               <div id={String(index)} key={index} className="carousel-item max-w-max">

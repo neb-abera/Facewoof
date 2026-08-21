@@ -65,7 +65,7 @@ const FriendsList = ({ currentUser }) => {
   };
 
   return (
-    <div className="card g-base-96 bg-[#fefcfc] shadow-xl max-w-fit max-h-fit mx-auto">
+    <div className="card g-base-96 bg-base-200 shadow-xl max-w-fit max-h-fit mx-auto">
       <table className="table w-[470px]">
         <thead>
           <tr>
@@ -79,7 +79,7 @@ const FriendsList = ({ currentUser }) => {
             const user = friendsData[index];
             return (
               <tr key={index} className="flex">
-                <td className="bg-[#fefcfc]">
+                <td className="bg-base-200">
                   <label htmlFor={hrefString} className="btn btn-primary w-40 self-center">
                     {item}
                   </label>
