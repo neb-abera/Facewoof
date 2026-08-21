@@ -1,4 +1,3 @@
-/* eslint-disable object-shorthand */
 const db = require('./database');
 const { setRelationship, checkForMatchAndCreate, generateDiscoverFeed } = require('./discover');
 const { getAllPlaydates, createPlaydate } = require('./calendar');
@@ -12,7 +11,6 @@ const {
   getPfp,
   makePost
 } = require('./packfeed');
-
 const {
   getCurrentUserPromise,
   getFriendsPromise,
@@ -21,7 +19,12 @@ const {
   editProfilePromise,
   getProfilePhotoPromise
 } = require('./profile');
-const { checkOrCreateUser } = require('./auth');
+const {
+  checkOrCreateUser,
+  createGuestUser,
+  purgeExpiredGuests,
+  TEMPLATE_USER_ID
+} = require('./auth');
 
 module.exports = {
   db,
@@ -37,6 +40,9 @@ module.exports = {
   getFriendsPromise,
   createPackPromise,
   checkOrCreateUser,
+  createGuestUser,
+  purgeExpiredGuests,
+  TEMPLATE_USER_ID,
   addPhoto,
   editProfilePromise,
   getProfilePhotoPromise,

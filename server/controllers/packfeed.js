@@ -8,91 +8,63 @@ const {
   makePost
 } = require('../db');
 
+// json_agg returns a single row holding NULL when nothing matched, so every
+// caller has to turn that into an empty list.
+const aggregated = (result) => result.rows[0]?.json_agg ?? [];
+
+const fail = (res, status, message) => (err) => {
+  console.error(message, err);
+  res.status(status).send(message);
+};
+
 const ctrlPackPosts = (req, res) => {
-  getPackPosts(req, res)
-    .then((resp) => {
-      res.status(201).send(resp);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get pack posts');
-    });
+  getPackPosts(req.query.packId)
+    .then((resp) => res.status(200).send(resp.rows))
+    .catch(fail(res, 500, 'unable to get pack posts'));
 };
 
 const ctrlUserPacksId = (req, res) => {
-  getUserPacksId(req, res)
-    .then((resp) => {
-      res.status(201).send(resp);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get user pack ID');
-    });
+  getUserPacksId(req.query.userId)
+    .then((resp) => res.status(200).send(aggregated(resp)))
+    .catch(fail(res, 500, 'unable to get user packs'));
 };
 
 const ctrlAllPostsFromAllPacks = (req, res) => {
-  getAllPostsFromAllPacks(req, res)
-    .then((resp) => {
-      res.status(201).send(resp);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get all pack posts');
-    });
+  getAllPostsFromAllPacks(req.query.userId)
+    .then((resp) => res.status(200).send(aggregated(resp)))
+    .catch(fail(res, 500, 'unable to get all pack posts'));
 };
 
 const ctrlUserPlaydatesAllPacks = (req, res) => {
-  getUserPlaydatesAllPacks(req, res)
-    .then((resp) => {
-      res.status(201).send(resp.rows);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get all playdates');
-    });
+  getUserPlaydatesAllPacks(req.query.userId)
+    .then((resp) => res.status(200).send(resp.rows))
+    .catch(fail(res, 500, 'unable to get all playdates'));
 };
 
 const ctrlSoloPosts = (req, res) => {
-  getSoloPosts(req, res)
-    .then((response) => {
-      // console.log('response for solodolo', response.rows);
-      res.status(201).send(response.rows);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get solo posts');
-    });
+  getSoloPosts(req.query.packId)
+    .then((resp) => res.status(200).send(resp.rows))
+    .catch(fail(res, 500, 'unable to get solo posts'));
 };
 
 const ctrlPfp = (req, res) => {
-  getPfp(req, res)
-    .then((resp) => {
-      res.status(201).send(resp.rows);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get packfeed');
-    });
+  getPfp(req.query.userId)
+    .then((resp) => res.status(200).send(resp.rows))
+    .catch(fail(res, 500, 'unable to get profile photos'));
 };
 
 const ctrlMakePost = (req, res) => {
-  makePost(req, res)
-    .then((resp) => {
-      res.status(201).send(resp);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to make post');
-    });
+  makePost(req.body.packet || {})
+    .then(() => res.status(201).send('post created'))
+    .catch(fail(res, 500, 'unable to make post'));
 };
 
 module.exports = {
-  // getUserPacksId: getUserPacksId,
-  ctrlPackPosts: ctrlPackPosts,
-  ctrlAllPostsFromAllPacks: ctrlAllPostsFromAllPacks,
-  ctrlUserPlaydatesAllPacks: ctrlUserPlaydatesAllPacks,
-  ctrlSoloPosts: ctrlSoloPosts,
-  ctrlPfp: ctrlPfp,
-  ctrlMakePost: ctrlMakePost,
-  ctrlUserPacksId: ctrlUserPacksId
+  ctrlPackPosts,
+  ctrlAllPostsFromAllPacks,
+  ctrlUserPlaydatesAllPacks,
+  ctrlSoloPosts,
+  ctrlPfp,
+  ctrlMakePost,
+  ctrlUserPacksId
 };
