@@ -26,7 +26,7 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
   var styles = {
     packList: {
       width: '100%',
-      backgroundColor: 'pink'
+      backgroundColor: 'transparent'
     }
   };
 
