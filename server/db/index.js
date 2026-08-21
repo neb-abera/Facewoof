@@ -17,7 +17,8 @@ const {
   createPackPromise,
   addPhoto,
   editProfilePromise,
-  getProfilePhotoPromise
+  getProfilePhotoPromise,
+  getUserLocation
 } = require('./profile');
 const {
   checkOrCreateUser,
@@ -46,6 +47,7 @@ module.exports = {
   addPhoto,
   editProfilePromise,
   getProfilePhotoPromise,
+  getUserLocation,
   getUserPacksId,
   getPackPosts,
   getAllPostsFromAllPacks,
