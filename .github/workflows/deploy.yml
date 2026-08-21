@@ -1,0 +1,92 @@
+name: deploy
+
+# Only from main, and only once the checks workflow has passed on it. Nothing
+# reaches the internet that has not been linted, built and smoke tested.
+on:
+  workflow_run:
+    workflows: ['checks']
+    branches: [main]
+    types: [completed]
+  # For redeploying the current main without a new commit.
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  # Required for the OIDC token azure/login exchanges for credentials. There is
+  # no client secret stored anywhere as a result: the trust is between this
+  # repository's main branch and the Azure app registration.
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    # workflow_run fires whether or not the checks passed, so a failed run has
+    # to be filtered out here rather than assumed away.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      REGISTRY: ${{ vars.ACR_LOGIN_SERVER }}
+      IMAGE: facewoof
+      CONTAINER_APP: ${{ vars.CONTAINER_APP_NAME }}
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # workflow_run checks out the default branch by default, which is
+          # what we want, but be explicit about the commit that passed.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push the image
+        # Built by ACR rather than here: the image never travels over the
+        # runner's network, and ACR keeps the layer cache between builds.
+        run: |
+          az acr build \
+            --registry "${REGISTRY%%.*}" \
+            --image "$IMAGE:${{ github.sha }}" \
+            --image "$IMAGE:latest" \
+            --target final \
+            --file Dockerfile .
+
+      - name: Deploy the revision
+        run: |
+          az containerapp update \
+            --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --image "$REGISTRY/$IMAGE:${{ github.sha }}"
+
+      - name: Wait for the new revision to be healthy
+        # `az containerapp update` returns once the revision is created, not
+        # once it is serving. Without this a broken deploy looks green.
+        run: |
+          set -euo pipefail
+          fqdn=$(az containerapp show --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" \
+            --query 'properties.configuration.ingress.fqdn' -o tsv)
+          echo "checking https://$fqdn/healthz"
+          for attempt in $(seq 1 30); do
+            if curl -sf --max-time 10 "https://$fqdn/healthz" > /tmp/health.json; then
+              cat /tmp/health.json
+              echo "healthy after $attempt attempt(s)"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "revision did not become healthy within five minutes"
+          az containerapp logs show --name "$CONTAINER_APP" \
+            --resource-group "$RESOURCE_GROUP" --tail 50 || true
+          exit 1
