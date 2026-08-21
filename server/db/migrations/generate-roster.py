@@ -79,7 +79,7 @@ while len(users) < ROSTER_SIZE:
         'photos': [None, None, None],
     })
 
-out = ["-- Facewoof seed data.",
+out = ["-- Facewoof demo roster and demo content.",
        "--",
        "-- Rebuilt from server/controllers/users.json, the fixture the original",
        "-- team left behind, plus generated packs, posts and playdates so the",
@@ -89,7 +89,7 @@ out = ["-- Facewoof seed data.",
        "-- createGuestUser clones them next to whoever is signing in, so the",
        "-- discover feed has dogs nearby wherever that happens to be.",
        "",
-       "BEGIN;", ""]
+       ""]
 
 # The guest account every demo visitor lands in. Fixed id so the server can
 # find it without a lookup by email on every request.
@@ -100,7 +100,8 @@ out.append(
     "INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, "
     "discoverable, owner_email, location, likes_one, likes_two, likes_three) VALUES\n"
     "  (1, 'Biscuit', 'Sam Rivera', 'Golden Retriever', 4, true, false, "
-    "'biscuit@facewoof.app', '10011', 'fetch', 'dog parks', 'belly rubs');")
+    "'biscuit@facewoof.app', '10011', 'fetch', 'dog parks', 'belly rubs')\n"
+    "ON CONFLICT (owner_email) DO NOTHING;")
 out.append("")
 
 rows = []
@@ -117,7 +118,7 @@ out.append("-- The demo roster, from the original fixture. Cloned per visitor.")
 out.append(
     "INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, "
     "discoverable, owner_email, location, likes_one, likes_two, likes_three) VALUES\n"
-    + ",\n".join(rows) + ";")
+    + ",\n".join(rows) + "\nON CONFLICT (owner_email) DO NOTHING;")
 out.append("")
 
 # The fixture's photos were grey dummyimage placeholders. placedog.net serves
@@ -219,7 +220,7 @@ out.append("-- The inserts above set explicit ids, which leaves the sequences be
 out.append("SELECT setval('users_user_id_seq', (SELECT max(user_id) FROM users));")
 out.append("SELECT setval('packs_pack_id_seq', (SELECT max(pack_id) FROM packs));")
 out.append("")
-out.append("COMMIT;")
+# No BEGIN/COMMIT: migrate.js wraps each migration in its own transaction.
 
-open('server/db/sql/seed.sql', 'w').write("\n".join(out) + "\n")
-print("wrote server/db/sql/seed.sql")
+open('server/db/migrations/0002_demo_roster.sql', 'w').write("\n".join(out) + "\n")
+print("wrote server/db/migrations/0002_demo_roster.sql")
