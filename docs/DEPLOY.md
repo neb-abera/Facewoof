@@ -26,11 +26,18 @@ databases costs roughly what one does, and about half what two servers do.
 ```bash
 az group create --name "$RG" --location "$LOCATION"
 
+# Generated into a variable, and printed, because `az` never echoes back a
+# password you passed in: generating it inline would lock you out of your own
+# database. Alphanumeric on purpose, so it needs no escaping in the connection
+# string URL later.
+PG_PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32)
+echo "postgres admin password: $PG_PASSWORD"   # save this now
+
 az postgres flexible-server create \
   --resource-group "$RG" --name "$PG" --location "$LOCATION" \
   --tier Burstable --sku-name Standard_B1ms \
   --storage-size 32 --version 16 \
-  --admin-user "$PG_ADMIN" --admin-password "$(openssl rand -base64 24)" \
+  --admin-user "$PG_ADMIN" --admin-password "$PG_PASSWORD" \
   --public-access 0.0.0.0
 
 az postgres flexible-server db create -g "$RG" -s "$PG" -d facewoof
@@ -48,8 +55,9 @@ az postgres flexible-server firewall-rule create -g "$RG" -n "$PG" \
   --end-ip-address "$(curl -s ifconfig.me)"
 ```
 
-Save the admin password somewhere safe when the create command prints it. There
-is no way to read it back.
+There is no way to read that password back out of Azure later, so save it
+before moving on. If you lose it, reset it with
+`az postgres flexible-server update -g "$RG" -n "$PG" --admin-password ...`.
 
 The application applies its own migrations at start-up, so there is nothing to
 load by hand. The first revision creates the schema and the demo roster.
@@ -78,7 +86,7 @@ variable so it does not show up in `az containerapp show`:
 
 ```bash
 az containerapp secret set -g "$RG" -n "$APP" \
-  --secrets db-url="postgresql://$PG_ADMIN:PASSWORD@$PG.postgres.database.azure.com:5432/facewoof?sslmode=require"
+  --secrets db-url="postgresql://$PG_ADMIN:$PG_PASSWORD@$PG.postgres.database.azure.com:5432/facewoof?sslmode=require"
 
 az containerapp update -g "$RG" -n "$APP" \
   --set-env-vars DATABASE_URL=secretref:db-url PGSSL=true NODE_ENV=production
