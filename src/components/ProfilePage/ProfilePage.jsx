@@ -1,5 +1,5 @@
 /* eslint-disable */
-import {react, useState, useEffect} from 'react';
+import { react, useState, useEffect } from 'react';
 import axios from 'axios';
 import useUserContext from '../../hooks/useUserContext.js';
 import UploadFileWidget from '../FileUploader/UploadFileWidget';
@@ -106,7 +106,7 @@ const ProfilePage = () => {
     } else {
       // console.log('success!!');
       axios
-        .put('http://localhost:3001/editUser', sendObj)
+        .put('/api/edituser', sendObj)
         .then((results) => {
           // console.log('succ post', results);
         })
@@ -117,70 +117,138 @@ const ProfilePage = () => {
   };
   const handleBackButton = () => {
     setFirstLogin(false);
-  }
+  };
   // card w-96 bg-base-100 shadow-xl top-15 mx-auto overflow-auto scroll-auto
   // flex card card-compact w-[700px] bg-base-100 shadow-xl ml-[500px] mt-44 max-w-3xl w-max
   return (
     <div className="card w-10/12 max-w-7xl bg-base-10 bg-[#fefcfc] mt-2.5 shadow-xl mx-auto">
       <div className="card-body">
-        <h2 className="card-title">{firstLogin ?  'Create Your Profile' : 'Edit Your Profile'}</h2>
-        <form >
+        <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
+        <form>
           <div className="columns-3">
             <div>
-              <label className="label">
-              Owner First Name:
+              <label className="label">Owner First Name:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  changeOwnerName(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label">Owner Last Name:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  changeOwnerLastname(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label">Owner Email:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  changeEmail(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label">Location</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Zip code"
+                onChange={(e) => {
+                  changeLocation(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label break-after-column">
+                {' '}
+                Make Profile Discoverable
+                <input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox" />
               </label>
-              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeOwnerName(e.target.value)}} type="text" name="name" />
-              <label className="label">
-                Owner Last Name:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeOwnerLastname(e.target.value)}} type="text" name="name" />
-              <label className="label">
-                Owner Email:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeEmail(e.target.value)}} type="text" name="name" />
-              <label className="label">
-                Location
-              </label>
-              <input className="input input-bordered w-full max-w-xs" placeholder='Zip code' onChange={(e) => {changeLocation(e.target.value)}} type="text" name="name" />
-              <label className="label break-after-column"> Make Profile Discoverable<input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox"/></label>
             </div>
             <div>
-              <label className="label">
-                Dog Name:
+              <label className="label">Dog Name:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  changeDogName(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label">Age:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  changeAge(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label">Breed:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                onChange={(e) => {
+                  changeBreed(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
+              <label className="label break-after-column">
+                {' '}
+                Fully Vaccinated
+                <input className="checkbox" onClick={() => changeVaccinated()} type="checkbox" />
               </label>
-              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeDogName(e.target.value)}}  type="text" name="name" />
-              <label className="label">
-                Age:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeAge(e.target.value)}} type="text" name="name" />
-              <label className="label">
-                Breed:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" onChange={(e) => {changeBreed(e.target.value)}}   type="text" name="name" />
-              <label className="label break-after-column"> Fully Vaccinated<input className="checkbox" onClick={() => changeVaccinated()} type="checkbox"/></label>
             </div>
             <div>
-              <label className="label">
-                Likes 1:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" placeholder='Chasing Squirrels' onChange={(e) => {changeLikes1(e.target.value)}} type="text" name="name" />
+              <label className="label">Likes 1:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Chasing Squirrels"
+                onChange={(e) => {
+                  changeLikes1(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
               <br />
-              <label className="label">
-                Likes 2:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" placeholder='Playing Fetch'  onChange={(e) => {changeLikes2(e.target.value)}} type="text" name="name" />
+              <label className="label">Likes 2:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Playing Fetch"
+                onChange={(e) => {
+                  changeLikes2(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
               <br />
-              <label className="label">
-                Likes 3:
-              </label>
-              <input className="input input-bordered w-full max-w-xs" placeholder='Eating Sticks' onChange={(e) => {changeLikes3(e.target.value)}} type="text" name="name" />
+              <label className="label">Likes 3:</label>
+              <input
+                className="input input-bordered w-full max-w-xs"
+                placeholder="Eating Sticks"
+                onChange={(e) => {
+                  changeLikes3(e.target.value);
+                }}
+                type="text"
+                name="name"
+              />
             </div>
           </div>
           <UploadFileWidget />
           <div className="card-actions justify-end">
-            <button className="btn" onClick={handleBackButton}>Back</button>
-            <input className="btn btn-active btn-primary max-w-min" onClick={(e) => handleSubmit(e)} type="submit" />
+            <button className="btn" onClick={handleBackButton}>
+              Back
+            </button>
+            <input
+              className="btn btn-active btn-primary max-w-min"
+              onClick={(e) => handleSubmit(e)}
+              type="submit"
+            />
           </div>
         </form>
       </div>

@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import useUserContext from '../../../hooks/useUserContext';
 
-axios.defaults.baseURL = 'http://localhost:3001';
-
 const PostMaker = ({ viewing, viewingName, pfp }) => {
   const { userId } = useUserContext();
   // console.log('user_id', userId);
@@ -81,7 +79,7 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
       <div style={styles.button}>
         <button
           className="btn btn-block"
-            onClick={() => {
+          onClick={() => {
             body.length > 50 ? makePost() : null;
           }}
         >

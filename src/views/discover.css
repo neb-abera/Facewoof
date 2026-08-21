@@ -7,66 +7,64 @@
 } */
 
 @media screen and (min-width: 0px) {
-
-.discover-parent {
-  width: 100vw;
-}
-
-@keyframes run {
-  0% {
-    opacity: 0;
+  .discover-parent {
+    /* 100vw counts the scrollbar gutter, so this was always slightly wider than
+     the page it sat in. */
+    width: 100%;
   }
-  50% {
-    opacity: 1;
+
+  @keyframes run {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
-  100% {
-    opacity: 0;
+
+  .loading-discover {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    width: 100px;
+    margin: auto;
+    justify-content: center;
+    height: 100px;
+    scale: 3;
+    margin-top: 35vh;
+    animation-name: run;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    gap: 7px;
+    z-index: 2;
   }
-}
 
-.loading-discover {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  width: 100px;
-  margin: auto;
-  justify-content: center;
-  height: 100px;
-  scale: 3;
-  margin-top: 35vh;
-  animation-name: run;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
-  gap: 7px;
-  z-index: 2;
-}
-
-.loading-dog1 {
-  scale: 1.2;
-  color: #5C7F67;
-}
-
-.loading-dog2 {
-  transform: scaleX(-1);
-  color: #5D5656;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
+  .loading-dog1 {
+    scale: 1.2;
+    color: #5c7f67;
   }
-  100% {
-    opacity: 1;
+
+  .loading-dog2 {
+    transform: scaleX(-1);
+    color: #5d5656;
   }
-}
 
-.discover-view {
-  overflow: hidden;
-  animation-name: fadeIn;
-  animation-duration: 2s;
-  animation-iteration-count: once;
-}
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 
-
-
+  .discover-view {
+    overflow: hidden;
+    animation-name: fadeIn;
+    animation-duration: 2s;
+    animation-iteration-count: once;
+  }
 }

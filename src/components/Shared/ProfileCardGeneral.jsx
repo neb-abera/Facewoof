@@ -49,9 +49,9 @@ export default function ProfileCardGeneral({ user }) {
             <div className="carousel w-full">
               {user.photos.map((url, index) => (
                 <div
-                    key={`photo${index}`}
-                    id={`item${user.user_id}${index}`}
-                    className="carousel-item w-full"
+                  key={`photo${index}`}
+                  id={`item${user.user_id}${index}`}
+                  className="carousel-item w-full"
                 >
                   <img className="w-full" src={url} alt="Doggy" />
                 </div>

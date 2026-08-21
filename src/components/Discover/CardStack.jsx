@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-shadow */
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
@@ -30,33 +29,12 @@ const CardStack = ({ users, distances, userData, photos }) => {
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
 
-  const [currentUser, setCurrentUser] = useState();
+  // The signed-in user, straight from context. This was a useState seeded with
+  // a hard coded profile ("Putnam", user_id 7) inside a mount-only effect, so
+  // every swipe was recorded against that person rather than the real one.
+  const currentUser = userData;
 
   useEffect(() => {
-    if (userData === null || userData === undefined) {
-      setCurrentUser({
-        user_id: '7',
-        dog_name: 'Putnam',
-        owner_name: 'Abdel Dandie',
-        dog_breed: 'Grey mouse lemur',
-        age: 10,
-        vaccination: true,
-        discoverable: true,
-        owner_email: 'pyekel6@marketwatch.com',
-        location: '10017',
-        user1_choice: null,
-        photos: [
-          'https://i.ibb.co/VCX4GWs/KOA-Nassau-2697x1517.jpg',
-          'https://i.ibb.co/GTs9Lc8/124800859-gettyimages-817514614.jpg',
-          'https://i.ibb.co/GTs9Lc8/124800859-gettyimages-817514614.jpg'
-        ]
-      });
-    }
-    setCurrentUser(userData);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflowX = 'hidden';
     setData(users);
   }, [users]);
 
@@ -83,7 +61,7 @@ const CardStack = ({ users, distances, userData, photos }) => {
 
   function setRelationship(user1, user2, choice) {
     axios
-      .post('http://localhost:3001/api/response', {
+      .post('/api/response', {
         currentUserId: user1.user_id,
         otherUserId: user2.user_id,
         currentUserChoice: choice,
@@ -95,6 +73,7 @@ const CardStack = ({ users, distances, userData, photos }) => {
   }
 
   function handleVote(e) {
+    if (!user || !currentUser) return;
     setChoice(user);
     if (e.target.id === 'digg') {
       setOut(user.user_id);
@@ -203,12 +182,12 @@ const CardStack = ({ users, distances, userData, photos }) => {
             Pass
           </button>
           <button
-              id="digg"
-              type="button"
-              className="btn btn-active btn-primary vote-button digg"
-              onClick={handleVote}
+            id="digg"
+            type="button"
+            className="btn btn-active btn-primary vote-button digg"
+            onClick={handleVote}
           >
-            Digg &apos;em
+            Woof
           </button>
         </div>
       </div>

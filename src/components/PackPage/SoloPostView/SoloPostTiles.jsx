@@ -60,7 +60,7 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
           ? data.map((each, key) => (
               <SoloPostTile
                 // eslint-disable-next-line prettier/prettier
-                  key={`${key + 1}`}
+                key={`${key + 1}`}
                 img={each.photo_url}
                 content={each.body}
                 postedOn={each.date}

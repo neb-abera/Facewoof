@@ -1,73 +1,81 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import React from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { FaBars } from 'react-icons/fa';
 import useUserContext from '../../hooks/useUserContext';
-import Logo from '../../assets/diggrLogo3.png';
+import Logo from '../../assets/facewoofLogo.png';
 import './nav.css';
 
+const links = [
+  { to: '/discover', label: 'Discover' },
+  { to: '/packFeed', label: 'Pack Feed' },
+  { to: '/calendar', label: 'Calendar' },
+  { to: '/profile', label: 'Profile' }
+];
+
+// NavLink hands its className a match flag, which plain <Link> could not do,
+// so the current page was never marked.
+const navClass = ({ isActive }) => (isActive ? 'active' : undefined);
+
 const Navbar = () => {
-  const location = useLocation();
-  const [navBarStyle, setNavBarStyle] = useState(null);
-  const { loggedIn, setLoggedIn, userId } = useUserContext();
+  const { loggedIn, logout } = useUserContext();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log('check auth');
-  }, [loggedIn, userId]);
+  // The original rendered a logout button that only console.logged, and hid
+  // the whole bar by writing display:none into inline state from an effect.
+  // Signed out visitors get the landing page's own header instead.
+  if (!loggedIn) return null;
 
-  const logout = () => {
-    console.log('clicked logout');
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
-  useEffect(() => {
-    if ((location.pathname === '/' && !loggedIn) || (location.pathname === '/login' && !loggedIn)) {
-      setNavBarStyle({
-        display: 'none'
-      });
-    } else {
-      setNavBarStyle(null);
-    }
-  }, [location, loggedIn]);
+
   return (
-    <div className="navbar bg-base-100 px-10 navbar" style={navBarStyle}>
+    <div className="navbar bg-base-100 px-4 sm:px-10">
       <div className="navbar-start">
-        <img src={Logo} className="logo" />
-        <a className="btn btn-ghost normal-case text-xl text-[#BB7C7C]">Diggr</a>
-      </div>
-      {loggedIn && (
-        <div className="navbar-center lg:flex text-primary">
-          <ul className="menu menu-horizontal px-3">
-            <li>
-              <Link to="/discover">Discover</Link>
-            </li>
-            <li>
-              <Link to="/packFeed">Pack Feed</Link>
-            </li>
-            <li>
-              <Link to="/calendar">Calendar</Link>
-            </li>
-            <li>
-              <Link to="/profile">Profile</Link>
-            </li>
+        {/* Below lg the four links do not fit beside the brand and the logout
+            button: the bar used to overlap itself and spill off the screen.
+            They collapse into this menu instead. */}
+        <div className="dropdown lg:hidden">
+          <button type="button" tabIndex={0} className="btn btn-ghost px-2" aria-label="Menu">
+            <FaBars />
+          </button>
+          <ul className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            {links.map(({ to, label }) => (
+              <li key={to}>
+                <NavLink to={to} className={navClass}>
+                  {label}
+                </NavLink>
+              </li>
+            ))}
           </ul>
         </div>
-      )}
-      <div className="navbar-end space-x-5">
-        {!loggedIn ? (
-          <>
-            <Link to="/login" className="btn btn-secondary btn-sm">
-              Login
-            </Link>
-            <Link to="/" className="btn btn-primary btn-sm">
-              Sign Up
-            </Link>
-          </>
-        ) : (
-          <a className="btn btn-secondary btn-sm" onClick={logout}>
-            Logout
-          </a>
-        )}
+
+        <img src={Logo} className="logo" alt="" />
+        <Link to="/discover" className="btn btn-ghost normal-case text-xl text-[#BB7C7C] px-2">
+          Facewoof
+        </Link>
+      </div>
+
+      <div className="navbar-center hidden lg:flex text-primary">
+        <ul className="menu menu-horizontal px-3">
+          {links.map(({ to, label }) => (
+            <li key={to}>
+              <NavLink to={to} className={navClass}>
+                {label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="navbar-end">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={handleLogout}>
+          Log out
+        </button>
       </div>
     </div>
   );
 };
+
 export default Navbar;

@@ -26,8 +26,7 @@ const PackMenu = ({ viewing, setViewing, userIdentity, setViewingName }) => {
       top: '0px',
       bottom: '0px',
       alignItems: 'stretch',
-      backgroundColor: 'grey'
-      // borderRadius: '5%'
+      overflowY: 'auto'
     },
     yourPacks: {
       // paddingTop: '25px'
@@ -58,42 +57,39 @@ const PackMenu = ({ viewing, setViewing, userIdentity, setViewingName }) => {
       {/* <AllPacksModal /> */}
       <CreatePackModal userIdentity={{ user_id: userIdentity }} />
       {/* <FriendsListCopy currentUser={{ user_id: userIdentity }} /> */}
-      <div className="drawer " style={styles.parent}>
-        <div className="drawer-content"></div>
-        <div className="drawer-side">
-          <ul className="menu p-1 w-100 bg-base-100 text-base-content">
-            <div className="card shadow-xl">
-              <div style={styles.yourPacks}>Your Packs</div>
-            </div>
-            <div style={styles.packList}>
-              <PackList
-                setViewing={setViewing}
-                setViewingName={setViewingName}
-                userIdentity={userIdentity}
-              />
-            </div>
-            <div style={styles.menuButtons}>
-              <label htmlFor="create-pack-modal" className="btn">
-                Create Pack
-              </label>
-              {viewing !== '-1' ? (
-                <button
-                  className="btn"
-                  onClick={() => {
-                    setViewing('-1');
-                  }}
-                >
-                  View All
-                </button>
-              ) : null}
-            </div>
-            <div style={styles.calendar}>
-              Calendar
-              <Playdates userIdentity={userIdentity} />
-            </div>
-          </ul>
-        </div>
-      </div>
+      <aside className="bg-base-200" style={styles.parent}>
+        <ul className="menu p-1 w-full bg-base-100 text-base-content">
+          <div className="card shadow-xl">
+            <div style={styles.yourPacks}>Your Packs</div>
+          </div>
+          <div style={styles.packList}>
+            <PackList
+              setViewing={setViewing}
+              setViewingName={setViewingName}
+              userIdentity={userIdentity}
+            />
+          </div>
+          <div style={styles.menuButtons}>
+            <label htmlFor="create-pack-modal" className="btn">
+              Create Pack
+            </label>
+            {viewing !== '-1' ? (
+              <button
+                className="btn"
+                onClick={() => {
+                  setViewing('-1');
+                }}
+              >
+                View All
+              </button>
+            ) : null}
+          </div>
+          <div style={styles.calendar}>
+            Calendar
+            <Playdates userIdentity={userIdentity} />
+          </div>
+        </ul>
+      </aside>
     </>
   );
 };

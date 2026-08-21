@@ -6,8 +6,6 @@ import PackMenu from '../components/PackPage/AllPackView/PackMenu';
 import SoloPostTiles from '../components/PackPage/SoloPostView/SoloPostTiles';
 import useUserContext from '../hooks/useUserContext';
 
-axios.defaults.baseURL = 'http://localhost:3001';
-
 const PackFeed = () => {
   const styles = {
     PackLayout: {
@@ -30,10 +28,8 @@ const PackFeed = () => {
       .get('/api/getAllPacksPostsForUser', {
         params: { userId: userIdentity }
       })
-      .then((resp) => {
-        // console.log('responses', resp.data.rows);
-        setAllPosts(resp.data.rows[0].json_agg);
-      }, []);
+      .then((resp) => setAllPosts(resp.data || []))
+      .catch((err) => console.error('could not load the pack feed', err));
   }, [userId, loggedIn]);
 
   const [viewing, setViewing] = useState('-1');

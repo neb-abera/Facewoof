@@ -39,11 +39,11 @@ const AllPostTiles = ({ allPosts }) => {
         {allPosts
           ? allPosts.map((each, key) => (
               <PostTile
-                  key={key}
-                  img={each.photo_url}
-                  content={each.body}
+                key={key}
+                img={each.photo_url}
+                content={each.body}
                 postedOn={each.date}
-                  parentGroup={each.name}
+                parentGroup={each.name}
               />
             ))
           : null}

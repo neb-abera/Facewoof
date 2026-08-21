@@ -1,9 +1,30 @@
 .logo {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
 }
 
 .navbar {
   background-color: white;
-  width: 100vw;
+  /* 100vw includes the scrollbar gutter, so the bar was always a little wider
+     than the page and pushed a horizontal scrollbar onto every view. */
+  width: 100%;
+}
+
+/* daisyUI sizes .navbar-start and .navbar-end at 50% each, which left the
+   brand overlapped by the menu once the name grew from "Diggr" to "Facewoof".
+   Sizing each section to its content keeps them apart at any width. */
+.navbar > .navbar-start {
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.navbar > .navbar-end {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.navbar > .navbar-center {
+  flex: 0 1 auto;
 }

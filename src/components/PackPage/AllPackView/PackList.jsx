@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import PackName from './PackName.jsx';
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:3001';
 
 const PackList = ({ setViewing, userIdentity, setViewingName }) => {
   var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
@@ -14,12 +13,8 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
       .get('/api/getUserPacks', {
         params: { userId: userIdentity }
       })
-      .then((data) => {
-        // console.log('packlist data', data);
-        var input = data.data.rows[0].json_agg;
-
-        setPackList(input);
-      });
+      .then((data) => setPackList(data.data || []))
+      .catch((err) => console.error('could not load the pack list', err));
   }, []);
 
   var click = (packData) => {

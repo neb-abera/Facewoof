@@ -2,8 +2,6 @@ import React from 'react';
 import axios from 'axios';
 import FriendsListCopy from './FriendsListCopy.jsx';
 
-axios.defaults.baseURL = 'http://localhost:3001';
-
 const CreatePackModal = ({ userIdentity }) => {
   const styles = {
     buttonFormat: {
