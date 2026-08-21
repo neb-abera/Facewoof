@@ -38,6 +38,13 @@ const editProfilePromise = (
     [dogName, ownerName, dogBreed, age, vaccination, discoverable, ownerEmail, location, userId]
   );
 
+// Just the zip code, for disambiguating a city search. A primary key lookup
+// rather than the whole row.
+const getUserLocation = (userId) =>
+  db
+    .query('SELECT location FROM users WHERE user_id = $1', [userId])
+    .then(({ rows }) => rows[0]?.location ?? null);
+
 const getProfilePhotoPromise = (userId) =>
   db.query('SELECT url FROM profile_photos WHERE user_id = $1', [userId]);
 
@@ -47,5 +54,6 @@ module.exports = {
   createPackPromise,
   addPhoto,
   editProfilePromise,
-  getProfilePhotoPromise
+  getProfilePhotoPromise,
+  getUserLocation
 };

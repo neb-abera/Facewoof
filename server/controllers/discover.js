@@ -1,5 +1,10 @@
 const zipcodes = require('zipcodes');
-const { generateDiscoverFeed, setRelationship, checkForMatchAndCreate } = require('../db');
+const {
+  generateDiscoverFeed,
+  setRelationship,
+  checkForMatchAndCreate,
+  getUserLocation
+} = require('../db');
 
 /*
  * Resolve whatever the search box was given into a zip code.
@@ -9,12 +14,15 @@ const { generateDiscoverFeed, setRelationship, checkForMatchAndCreate } = requir
  * zipcodeapi.com, so running the app at all needed two paid API keys and
  * network round trips on every search. The `zipcodes` package carries the US
  * zip code table locally, which answers both questions offline.
+ *
+ * `nearZip` is where the person searching already is, used to settle a bare
+ * city name that exists in more than one state.
  */
-// Two letter codes only: the table is keyed both ways, by abbreviation and by
-// full state name.
-const STATES = Object.keys(zipcodes.states).filter((key) => key.length === 2);
+// zipcodes.states is { full, abbr, normalize }, not a map of codes: `abbr` is
+// the one keyed by the two letter abbreviations.
+const STATES = Object.keys(zipcodes.states.abbr);
 
-function resolveZip(location) {
+function resolveZip(location, nearZip) {
   const query = String(location || '').trim();
   if (!query) return null;
 
@@ -30,11 +38,31 @@ function resolveZip(location) {
   }
 
   // lookupByName throws without a state, so a bare city name has to be tried
-  // against each one. A scan of the table per state, only on a city search.
-  const hit = STATES.map((candidate) => zipcodes.lookupByName(city, candidate)).find(
+  // against each one.
+  const candidates = STATES.map((candidate) => zipcodes.lookupByName(city, candidate)).filter(
     (matches) => matches && matches.length
   );
-  return hit ? hit[0].zip : null;
+
+  if (!candidates.length) return null;
+
+  // The same city name turns up in several states, and taking the first
+  // alphabetically is how "Hoboken" becomes Hoboken, Georgia. Prefer whichever
+  // is nearest the person searching, and fall back to the one covering the
+  // most zip codes, which is a reasonable stand-in for the largest place.
+  const knowWhereTheyAre = Boolean(nearZip) && Boolean(zipcodes.lookup(nearZip));
+
+  const ranked = candidates.sort((a, b) => {
+    if (knowWhereTheyAre) {
+      const distanceA = zipcodes.distance(nearZip, a[0].zip);
+      const distanceB = zipcodes.distance(nearZip, b[0].zip);
+      if (distanceA !== null && distanceB !== null && distanceA !== distanceB) {
+        return distanceA - distanceB;
+      }
+    }
+    return b.length - a.length;
+  });
+
+  return ranked[0][0].zip;
 }
 
 const discoverUsers = async (req, res) => {
@@ -45,7 +73,10 @@ const discoverUsers = async (req, res) => {
       return res.status(400).send('id is required');
     }
 
-    const origin = resolveZip(zipcode);
+    // Only needed to settle an ambiguous city name, but it is a primary key
+    // lookup and the feed query that follows dwarfs it.
+    const nearZip = await getUserLocation(Number(id));
+    const origin = resolveZip(zipcode, nearZip);
     if (!origin) {
       return res.status(400).send(`could not resolve a location from "${zipcode}"`);
     }
