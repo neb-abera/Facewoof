@@ -15,9 +15,6 @@ services:
       - '127.0.0.1:5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Postgres runs everything in this directory, in name order, the first
-      # time it initialises the data volume. `make reset-db` replays them.
-      - ./server/db/sql:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U facewoof -d facewoof']
       interval: 5s
@@ -65,24 +62,22 @@ services:
     depends_on:
       - api
 
-  # One-shot: reload schema and seed into a database that already exists.
-  seed:
-    image: postgres:17-alpine
+  # One-shot: bring the database up to date. The same runner the production
+  # image uses at start-up, so dev and production apply the same migrations in
+  # the same order.
+  migrate:
+    build:
+      context: .
+      target: api
     profiles: ['tools']
     environment:
-      PGPASSWORD: facewoof
+      DATABASE_URL: postgres://facewoof:facewoof@db:5432/facewoof
     volumes:
-      - ./server/db/sql:/sql:ro
+      - ./server:/app/server
     depends_on:
       db:
         condition: service_healthy
-    entrypoint:
-      - sh
-      - -c
-      - |
-        psql -h db -U facewoof -d facewoof -v ON_ERROR_STOP=1 -f /sql/schema.sql &&
-        psql -h db -U facewoof -d facewoof -v ON_ERROR_STOP=1 -f /sql/seed.sql &&
-        echo "schema and seed loaded"
+    command: ['npm', 'run', 'migrate']
 
   lint:
     build:

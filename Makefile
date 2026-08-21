@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help dev seed reset-db psql lint fmt check image run logs down clean
+.PHONY: help dev migrate reset-db psql lint fmt check image run logs down clean
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -17,14 +17,13 @@ help: ## List the available targets
 dev: ## Database, API and hot reloading client on http://localhost:3000
 	$(COMPOSE) up --build db api web
 
-seed: ## Reload schema and seed data into the running database
-	$(COMPOSE) run --rm seed
+migrate: ## Apply any pending database migrations
+	$(COMPOSE) run --rm migrate
 
-reset-db: ## Throw the database away and rebuild it from schema.sql and seed.sql
-	$(COMPOSE) rm -sfv db
+reset-db: ## Throw the database away and rebuild it from the migrations
 	$(COMPOSE) down --volumes
 	$(COMPOSE) up -d db
-	$(COMPOSE) run --rm seed
+	$(COMPOSE) run --rm migrate
 
 psql: ## Open a psql shell against the development database
 	$(COMPOSE) exec db psql -U facewoof -d facewoof
