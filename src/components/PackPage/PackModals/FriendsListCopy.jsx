@@ -32,7 +32,7 @@ const FriendsListCopy = ({ currentUser }) => {
   useEffect(() => {
     if (!gotFriends) {
       axios
-        .get(`http://localhost:3001/getFriends?userId=${userId}`)
+        .get(`/api/friends?userId=${userId}`)
         .then((results) => {
           // console.log('results son from getfriends', results.data);
           let friendos = results.data;
@@ -58,7 +58,7 @@ const FriendsListCopy = ({ currentUser }) => {
   useEffect(() => {
     if (!gotPacks) {
       axios
-        .get(`http://localhost:3001/api/getpacks?userId=${userId}`)
+        .get(`/api/getpacks?userId=${userId}`)
         .then((results) => {
           console.log('packs son', results.data);
           setPacks(results.data);
@@ -74,7 +74,7 @@ const FriendsListCopy = ({ currentUser }) => {
   const addToPack = (packId, userId) => {
     // console.log('packId', packId, userId)
     axios
-      .put(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
+      .put(`/api/addtopack?pack_id=${packId}&user_id=${userId}`)
       .then(() => {
         console.log('added to pack');
       })

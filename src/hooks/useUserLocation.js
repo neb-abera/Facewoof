@@ -1,94 +1,65 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable object-shorthand */
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import useUserContext from './useUserContext';
 
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+// This file used to start with `require('dotenv').config({ path: ... })` and
+// `require('path')`. Neither exists in a browser, and vite has no shim for
+// them, so importing this hook broke the build. Client configuration comes
+// from import.meta.env, which vite substitutes at build time.
 
-const googleApiUrl = process.env.VITE_GOOGLE_API_URL;
-const googleApiKey = process.env.VITE_GOOGLE_API_KEY;
-const apiUrl = process.env.VITE_APP_API_URL;
-
-const getCoordinates = () => {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(resolve, reject);
+const getCoordinates = () =>
+  new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('this browser cannot report a location'));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
   });
-};
 
 const useUserLocation = (setUsers, setDistances) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { userId } = useUserContext();
 
-  const getUserLocation = useCallback(async (lat, lng) => {
-    // eslint-disable-next-line one-var
-    let latitude, longitude;
-    if (!lat && !lng) {
-      const coordinate = (await getCoordinates()).coords;
-      latitude = coordinate.latitude;
-      longitude = coordinate.longitude;
-    } else {
-      latitude = lat;
-      longitude = lng;
-    }
+  /* Ask the browser where we are and turn that into a zip code. */
+  const getUserLocation = useCallback(async () => {
+    const { coords } = await getCoordinates();
+    const { data } = await axios.get('/api/resolve-location', {
+      params: { lat: coords.latitude, lng: coords.longitude }
+    });
+    return data.zip;
+  }, []);
 
-    return axios
-      .get(`${googleApiUrl}/json?latlng=${latitude},${longitude}&key=${googleApiKey}`)
-      .then((res) => {
-        const filteredResult = res.data.results.filter(
-          (result) => result.types[0] === 'postal_code'
-        );
-        return filteredResult[0].address_components[0].long_name;
-      })
-      .catch((err) => console.log(err));
-  });
-
-  const fetchNearbyUsers = (zipcode, radius) => {
-    setLoading(true);
-    axios
-      .get(`${apiUrl}/api/discover`, {
-        params: {
-          id: userId,
-          zipcode,
-          radius,
-          count: 1000
-        }
-      })
-      .then(({ data }) => {
-        setUsers(data.users);
-        setDistances(data.distances);
-      })
-      .then(() => {
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
+  /*
+   * Fetch the discover feed. `location` may be a zip code or a place name:
+   * the server resolves either, so the client no longer needs a geocoding key.
+   */
   const getUsers = useCallback(
     (location, radius = 5) => {
-      if (!userId) return;
-      // eslint-disable-next-line no-param-reassign
-      location = location.trim();
-      if (!Number.isNaN(location)) {
-        axios
-          .get(`${googleApiUrl}/json?address=${location}&key=${googleApiKey}`)
-          .then(({ data }) => {
-            const { lat, lng } = data.results[0].geometry.location;
-            return getUserLocation(lat, lng);
-          })
-          .then((userLocation) => fetchNearbyUsers(userLocation, radius))
-          .catch((err) => console.log(err));
-      } else {
-        fetchNearbyUsers(location, radius);
-      }
+      if (!userId || !location) return Promise.resolve();
+
+      setLoading(true);
+      setError(null);
+      return axios
+        .get('/api/discover', {
+          params: { id: userId, zipcode: String(location).trim(), radius, count: 100 }
+        })
+        .then(({ data }) => {
+          setUsers(data.users);
+          setDistances(data.distances);
+        })
+        .catch((err) => {
+          console.error('could not load the discover feed', err);
+          setError('Could not load nearby dogs. Try a different location.');
+          setUsers([]);
+        })
+        .finally(() => setLoading(false));
     },
-    [userId, fetchNearbyUsers, getUserLocation]
+    [userId, setUsers, setDistances]
   );
 
-  return { loading, setLoading, getUserLocation, getUsers };
+  return { loading, setLoading, error, getUserLocation, getUsers };
 };
 
 export default useUserLocation;

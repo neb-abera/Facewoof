@@ -26,7 +26,7 @@ const AddPlaydate = ({ closeAddModal, playStartTime, setStartTime, playEndTime, 
 
   const handleSubmit = () => {
     return axios
-      .post('http://localhost:3001/api/addplaydate', {
+      .post('/api/addplaydate', {
         packId: packChoiceId,
         userId: 7, // change later to by whatever user is logged in
         playdateBody: playdateInfo,
