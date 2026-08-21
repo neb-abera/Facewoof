@@ -1,66 +1,73 @@
 module.exports = {
+  root: true,
+  // dist is generated and node_modules is not ours.
+  ignorePatterns: ['dist', 'node_modules', 'public'],
   env: {
     browser: true,
     es2021: true
   },
   extends: [
-    'plugin:react/recommended',
     'airbnb',
-    'prettier',
-    'plugin:prettier/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'plugin:jsx-a11y/recommended'
+    'plugin:jsx-a11y/recommended',
+    // Last, so it can switch off the stylistic rules prettier owns. Formatting
+    // is checked by `prettier --check` in its own step rather than reported as
+    // eslint errors, which is why eslint-plugin-prettier is gone.
+    'prettier'
   ],
-  overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true
-    }
+    ecmaFeatures: { jsx: true }
   },
-  plugins: ['react', 'prettier'],
+  plugins: ['react'],
+  settings: {
+    react: { version: 'detect' }
+  },
+  overrides: [
+    {
+      // vite.config.js is ESM, unlike the rest of the node-side files.
+      files: ['vite.config.js'],
+      env: { node: true },
+      parserOptions: { sourceType: 'module' },
+      rules: { 'import/no-extraneous-dependencies': 'off' }
+    },
+    {
+      // The server is CommonJS and runs on node, not in a browser.
+      files: ['server/**/*.js', 'tailwind.config.js', 'postcss.config.js', '.eslintrc.js'],
+      env: { node: true, browser: false },
+      parserOptions: { sourceType: 'script' },
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+        // tailwind.config.js loads its plugins with require(), which is how
+        // tailwind's own documented config works.
+        'global-require': 'off'
+      }
+    }
+  ],
   rules: {
-    indent: 'off',
-    // new from eslint-plugin-react
     'react/function-component-definition': [
       2,
-      {
-        namedComponents: 'arrow-function',
-        unnamedComponents: 'arrow-function'
-      }
+      { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' }
     ],
-    // stying
     'comma-dangle': [1, 'never'],
-    'no-console': 'error', // was 0
-    'object-shorthand': ['error', 'never'],
+    'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-unused-vars': 'warn',
-    // react rules
-    'prettier/prettier': ['error'],
     'react-hooks/exhaustive-deps': 'warn',
     'react-hooks/rules-of-hooks': 'error',
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
-    'react/jsx-indent-props': [2, 4],
-    'react/jsx-indent': 'off',
     'react/jsx-one-expression-per-line': [0],
-    'react/prefer-stateless-function': [1],
-    'react/static-property-placement': [1, 'property assignment'],
-    // rules for eslint-plugin-react
+    'react/jsx-props-no-spreading': [0],
     'react/jsx-uses-react': 'error',
     'react/jsx-uses-vars': 'error',
-    // removing import errors
+    // Vite resolves these; the eslint resolver does not know about its aliases
+    // or about importing an asset as a module.
+    'import/no-unresolved': [2, { ignore: ['\\.(png|jpe?g|svg|css)$'] }],
     'import/extensions': [
       'error',
       'ignorePackages',
-      {
-        js: 'never',
-        jsx: 'never',
-        ts: 'never',
-        tsx: 'never'
-      }
+      { js: 'never', jsx: 'never', ts: 'never', tsx: 'never' }
     ]
-    // Optional if you're using React 18 and have no dependencies that require React to be imported on every file. This suppress errors for missing 'import React' in files
-    // 'react/react-in-jsx-scope': 'off'
   }
 };
