@@ -20,10 +20,33 @@ const Login = () => {
 
   if (loggedIn) return <Navigate to="/discover" replace />;
 
+  /*
+   * Ask where the visitor is before creating the demo, so the roster can be
+   * put next to them.
+   *
+   * Asked here rather than on the discover page because this is the click that
+   * starts the demo, so a permission prompt is expected rather than a surprise.
+   * Declining is fine and costs a few seconds at most: the demo falls back to
+   * its default city.
+   */
+  const askWhereTheyAre = () =>
+    new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => resolve({ lat: coords.latitude, lng: coords.longitude }),
+        () => resolve(null),
+        { timeout: 8000, maximumAge: 600000 }
+      );
+    });
+
   const handleGuestSignIn = async () => {
     setError(null);
     try {
-      await signInAsGuest();
+      const where = await askWhereTheyAre();
+      await signInAsGuest(where);
       navigate('/discover');
     } catch (err) {
       console.error('guest sign in failed', err);
@@ -58,7 +81,8 @@ const Login = () => {
             </button>
             {error && <p className="text-error text-sm">{error}</p>}
             <p className="text-xs opacity-60">
-              Demo accounts and anything posted from them are deleted after 24 hours.
+              We&apos;ll ask for your location so the demo can show dogs near you. Declining is
+              fine. Demo accounts and anything posted from them are deleted after 24 hours.
             </p>
           </div>
         )}

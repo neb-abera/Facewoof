@@ -1,3 +1,5 @@
+const zipcodes = require('zipcodes');
+const { db, ensureNeighbours } = require('../db');
 const {
   getCurrentUserPromise,
   getFriendsPromise,
@@ -111,8 +113,49 @@ const getProfilePhoto = (req, res) => {
   );
 };
 
+/*
+ * Move a user to where their device says they are, and make sure there are
+ * dogs to see there.
+ *
+ * This is what turns the demo experience into a real one: someone who declined
+ * the location prompt at sign-in, or never got one, can grant it later without
+ * having to type an address into their profile. Their profile location follows
+ * from the device rather than the other way round.
+ */
+const updateLocation = async (req, res) => {
+  const { userId, zip, lat, lng } = req.body || {};
+
+  if (!userId) return res.status(400).send('userId is required');
+
+  let resolved = zip && zipcodes.lookup(zip) ? String(zip) : null;
+  if (!resolved && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+    const match = zipcodes.lookupByCoords(Number(lat), Number(lng));
+    if (match) resolved = match.zip;
+  }
+
+  if (!resolved) {
+    return res.status(400).send('a usable zip code or pair of coordinates is required');
+  }
+
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('UPDATE users SET location = $2 WHERE user_id = $1', [userId, resolved]);
+    const nearby = await ensureNeighbours(client, Number(userId), resolved);
+    await client.query('COMMIT');
+    return res.status(200).send({ location: resolved, nearby });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('unable to update location', err);
+    return res.status(500).send('unable to update location');
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   getCurrentUser,
+  updateLocation,
   getUserFriends,
   createPack,
   createPhotos,
