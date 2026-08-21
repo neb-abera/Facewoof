@@ -21,7 +21,7 @@ const Playdates = ({ setViewing, userIdentity }) => {
   const styles = {
     playdates: {
       width: '100%',
-      backgroundColor: 'pink'
+      backgroundColor: 'transparent'
       // flexGrow: 2
     }
   };

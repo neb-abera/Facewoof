@@ -5,7 +5,7 @@ import React from 'react';
 const SearchBar = ({ radius, onSetRadius, location, onSetLocation, onSearch }) => {
   return (
     <form
-      className="flex space-x-6 bg-primary py-3 px-14 items-center"
+      className="relative z-10 flex flex-wrap gap-4 bg-base-200 border-b border-base-300 py-3 px-6 sm:px-14 items-center"
       onSubmit={(event) => {
         event.preventDefault();
         onSearch();
@@ -14,12 +14,12 @@ const SearchBar = ({ radius, onSetRadius, location, onSetLocation, onSearch }) =
       <input
         type="text"
         placeholder="City or zip code"
-        className="input w-48 max-w-xs focus:outline-none h-7 rounded-xl placeholder:text-sm"
+        className="input input-sm input-bordered w-48 max-w-xs placeholder:text-sm"
         value={location}
         onChange={(e) => onSetLocation(e.target.value)}
       />
       <select
-        className="select max-w-xs select-sm w-24 focus:outline-none rounded-xl w-24 min-h-0 h-[1.7rem] leading-none"
+        className="select select-sm select-bordered w-28"
         onChange={(e) => onSetRadius(e.target.value)}
       >
         <option defaultValue={radius}>5 miles</option>
@@ -31,7 +31,7 @@ const SearchBar = ({ radius, onSetRadius, location, onSetLocation, onSearch }) =
       </select>
       {/* eslint-disable-next-line react/button-has-type */}
       <button
-        className="btn btn-sm btn-rounded"
+        className="btn btn-sm btn-primary"
         onClick={(event) => {
           event.preventDefault();
           onSearch();

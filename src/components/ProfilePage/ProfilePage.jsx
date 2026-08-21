@@ -121,7 +121,7 @@ const ProfilePage = () => {
   // card w-96 bg-base-100 shadow-xl top-15 mx-auto overflow-auto scroll-auto
   // flex card card-compact w-[700px] bg-base-100 shadow-xl ml-[500px] mt-44 max-w-3xl w-max
   return (
-    <div className="card w-10/12 max-w-7xl bg-base-10 bg-[#fefcfc] mt-2.5 shadow-xl mx-auto">
+    <div className="card w-10/12 max-w-7xl bg-base-10 bg-base-200 mt-2.5 shadow-xl mx-auto">
       <div className="card-body">
         <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
         <form>
