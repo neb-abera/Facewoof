@@ -27,8 +27,17 @@ CREATE TABLE users (
   -- one, so their swipes do not drain everyone else's discover feed. These
   -- two columns are what lets the server clean them up later.
   is_guest      boolean NOT NULL DEFAULT false,
-  created_at    timestamptz NOT NULL DEFAULT now()
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  -- Demo dogs are cloned per visitor and belong only to that visitor's feed.
+  -- Without this, two people running the demo in the same city see each
+  -- other's copies of the same roster and the feed fills with duplicates.
+  demo_of       integer REFERENCES users(user_id) ON DELETE CASCADE,
+  -- Which roster profile this was copied from, so the copy's photos can be
+  -- inserted in one set based statement rather than a query per dog.
+  cloned_from   integer REFERENCES users(user_id) ON DELETE SET NULL
 );
+
+CREATE INDEX users_demo_of_idx ON users(demo_of) WHERE demo_of IS NOT NULL;
 
 CREATE INDEX users_guest_cleanup_idx ON users(created_at) WHERE is_guest;
 

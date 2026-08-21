@@ -2,11 +2,13 @@
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const db = require('./db/database');
 const { purgeExpiredGuests } = require('./db/auth');
+const { apiLimiter } = require('./limits');
 const router = require('./routes');
 
 const app = express();
@@ -35,10 +37,31 @@ if (process.env.CORS_ORIGIN) {
   app.use(cors({ origin: process.env.CORS_ORIGIN.split(',') }));
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+/*
+ * Trust exactly one proxy hop.
+ *
+ * Container Apps terminates TLS and forwards, so without this every request
+ * appears to come from the ingress and the rate limits below would be shared
+ * by everyone at once. `true` would be worse than nothing: it makes express
+ * believe whatever X-Forwarded-For a caller sends, which hands anyone a way to
+ * forge a fresh identity per request and walk straight through the limits.
+ */
+app.set('trust proxy', 1);
+
+app.use(helmet());
+
+// Nothing this API accepts is large. The default is 100kb, which is a lot of
+// room for an endpoint whose biggest legitimate body is a short post.
+app.use(express.json({ limit: '32kb' }));
+app.use(express.urlencoded({ extended: true, limit: '32kb' }));
+
+// A backstop across the whole API. The per-endpoint limits in routes.js are
+// what actually matter; this catches anything added later without one.
+app.use('/api', apiLimiter);
 
 // Container Apps polls this to decide whether the revision is healthy.
+// Deliberately outside the /api limiter: the platform polls this on a schedule
+// and must never be throttled into reporting a healthy revision as sick.
 app.get('/healthz', async (req, res) => {
   try {
     await db.query('SELECT 1');

@@ -1,6 +1,14 @@
 import json, random
 
-users = json.load(open('server/controllers/users.json'))
+# The roster every visitor's neighbours are copied from. Held ready in the
+# database rather than generated per request: signing in copies it, and copying
+# is two statements.
+#
+# A hundred is enough that the discover feed does not run dry mid-demo, and
+# enough to fill a sparse area for a real account.
+ROSTER_SIZE = 100
+
+fixture = json.load(open('server/controllers/users.json'))
 random.seed(1337)  # deterministic: regenerating must not churn the file
 
 # The fixture's dog_breed column came from a generic animal-name list, so the
@@ -17,6 +25,32 @@ INTERESTS = ['fetch','long walks','dog parks','swimming','tug of war','naps',
              'squeaky toys','car rides','agility','frisbee','belly rubs',
              'chasing squirrels','hiking','snow','beach days','tennis balls']
 
+DOG_NAMES = [
+    'Maple', 'Cooper', 'Luna', 'Ziggy', 'Nala', 'Rufus', 'Olive', 'Barkley',
+    'Pepper', 'Moose', 'Juniper', 'Waffles', 'Sadie', 'Gus', 'Willow',
+    'Tucker', 'Nova', 'Bandit', 'Clementine', 'Rocco', 'Hazel', 'Finn',
+    'Poppy', 'Bruno', 'Millie', 'Scout', 'Daisy', 'Otis', 'Freya', 'Chico',
+    'Winnie', 'Duke', 'Roxie', 'Miso', 'Peanut', 'Archie', 'Stella', 'Bear',
+    'Lola', 'Jasper', 'Ruby', 'Enzo', 'Pickle', 'Cash', 'Suki', 'Bodhi',
+    'Marlow', 'Tofu', 'Sunny', 'Nori', 'Bramble', 'Fig', 'Rooney', 'Wren',
+    'Copper', 'Muffin', 'Zeke', 'Ivy', 'Dash', 'Cleo', 'Boone', 'Sesame',
+    'Rye', 'Opal', 'Tilly', 'Ozzy', 'Fern', 'Comet', 'Basil', 'Mabel']
+
+OWNER_FIRST = [
+    'Amara', 'Diego', 'Priya', 'Nate', 'Yusuf', 'Lena', 'Marcus', 'Sofia',
+    'Tobias', 'Imani', 'Ravi', 'Clara', 'Emeka', 'Nadia', 'Owen', 'Beatriz',
+    'Hassan', 'Greta', 'Kwame', 'Elena', 'Silas', 'Rina', 'Mateo', 'Ingrid',
+    'Dev', 'Camille', 'Anders', 'Zara', 'Bram', 'Noor', 'Julian', 'Thandi',
+    'Casper', 'Meera', 'Lucas']
+
+OWNER_LAST = [
+    'Okafor', 'Nguyen', 'Alvarez', 'Brennan', 'Haddad', 'Kowalski', 'Ferreira',
+    'Osei', 'Lindqvist', 'Iyer', 'Moreau', 'Castellanos', 'Bakker', 'Rahman',
+    'Whitfield', 'Kimura', 'Delgado', 'Novak', 'Abebe', 'Sandoval', 'Kaur',
+    'Petrov', 'Yamada', 'Duarte', 'Fitzgerald', 'Mwangi', 'Serrano',
+    'Halvorsen', 'Chaudhry', 'Reyes']
+
+
 def breed_for(original):
     # Stable hash so the same fixture row always gets the same breed.
     return BREEDS[sum(ord(c) for c in original) % len(BREEDS)]
@@ -27,11 +61,33 @@ def q(v):
     if isinstance(v, int): return str(v)
     return "'" + str(v).replace("'", "''") + "'"
 
+# The fixture supplies 31; the rest are generated to reach ROSTER_SIZE.
+users = list(fixture)
+while len(users) < ROSTER_SIZE:
+    n = len(users)
+    users.append({
+        'user_id': 1000 + n,
+        'dog_name': DOG_NAMES[n % len(DOG_NAMES)],
+        'owner_name': '{} {}'.format(OWNER_FIRST[n % len(OWNER_FIRST)],
+                                     OWNER_LAST[(n * 7) % len(OWNER_LAST)]),
+        'dog_breed': BREEDS[n % len(BREEDS)],
+        'age': (n % 13) + 1,
+        'vaccination': n % 4 != 0,
+        'discoverable': True,
+        'owner_email': 'roster{}@facewoof.example'.format(1000 + n),
+        'location': '10011',
+        'photos': [None, None, None],
+    })
+
 out = ["-- Facewoof seed data.",
        "--",
        "-- Rebuilt from server/controllers/users.json, the fixture the original",
        "-- team left behind, plus generated packs, posts and playdates so the",
        "-- demo account has something to look at. Regenerating is deterministic.",
+       "--",
+       "-- These profiles are a template, not the population the demo shows.",
+       "-- createGuestUser clones them next to whoever is signing in, so the",
+       "-- discover feed has dogs nearby wherever that happens to be.",
        "",
        "BEGIN;", ""]
 
@@ -43,7 +99,7 @@ out.append("-- guests get their own row, and inherit this one's photos, packs an
 out.append(
     "INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, "
     "discoverable, owner_email, location, likes_one, likes_two, likes_three) VALUES\n"
-    "  (1, 'Biscuit', 'Sam Rivera', 'Golden Retriever', 4, true, true, "
+    "  (1, 'Biscuit', 'Sam Rivera', 'Golden Retriever', 4, true, false, "
     "'biscuit@facewoof.app', '10011', 'fetch', 'dog parks', 'belly rubs');")
 out.append("")
 
@@ -51,10 +107,13 @@ rows = []
 for u in users:
     likes = random.sample(INTERESTS, 3)
     rows.append("  ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(
-        q(int(u['user_id'])), q(u['dog_name']), q(u['owner_name']), q(breed_for(u['dog_breed'])),
-        q(u['age']), q(u['vaccination']), q(u['discoverable']), q(u['owner_email']),
+        q(int(u['user_id'])), q(u['dog_name']), q(u['owner_name']), q(u['dog_breed'] if int(u['user_id']) >= 1000 else breed_for(u['dog_breed'])),
+        # discoverable is forced false: these rows exist to be cloned per
+        # visitor, and showing the originals as well would double every dog
+        # for anyone whose demo happens to be near New York.
+        q(u['age']), q(u['vaccination']), 'false', q(u['owner_email']),
         q(u['location']), q(likes[0]), q(likes[1]), q(likes[2])))
-out.append("-- The 31 profiles from the original fixture.")
+out.append("-- The demo roster, from the original fixture. Cloned per visitor.")
 out.append(
     "INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, "
     "discoverable, owner_email, location, likes_one, likes_two, likes_three) VALUES\n"

@@ -1,5 +1,10 @@
 const db = require('./database');
-const { setRelationship, checkForMatchAndCreate, generateDiscoverFeed } = require('./discover');
+const {
+  setRelationship,
+  checkForMatchAndCreate,
+  generateDiscoverFeed,
+  countRemainingFeed
+} = require('./discover');
 const { getAllPlaydates, createPlaydate } = require('./calendar');
 const { addToPack, getPacks, createPackAndAdd } = require('./pack');
 const {
@@ -18,12 +23,14 @@ const {
   addPhoto,
   editProfilePromise,
   getProfilePhotoPromise,
-  getUserLocation
+  getUserLocation,
+  setUserLocation
 } = require('./profile');
 const {
   checkOrCreateUser,
   createGuestUser,
   purgeExpiredGuests,
+  ensureNeighbours,
   TEMPLATE_USER_ID
 } = require('./auth');
 
@@ -32,6 +39,7 @@ module.exports = {
   setRelationship,
   checkForMatchAndCreate,
   generateDiscoverFeed,
+  countRemainingFeed,
   getPacks,
   getAllPlaydates,
   createPlaydate,
@@ -43,11 +51,13 @@ module.exports = {
   checkOrCreateUser,
   createGuestUser,
   purgeExpiredGuests,
+  ensureNeighbours,
   TEMPLATE_USER_ID,
   addPhoto,
   editProfilePromise,
   getProfilePhotoPromise,
   getUserLocation,
+  setUserLocation,
   getUserPacksId,
   getPackPosts,
   getAllPostsFromAllPacks,

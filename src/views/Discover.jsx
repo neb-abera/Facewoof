@@ -4,6 +4,7 @@ import CardStack from '../components/Discover/CardStack';
 import useUserContext from '../hooks/useUserContext';
 import useUserLocation from '../hooks/useUserLocation';
 import SearchBar from '../components/Discover/SearchBar';
+import LocationNotice from '../components/Discover/LocationNotice';
 import './discover.css';
 
 // Where to look when the browser will not say and the profile has no zip
@@ -17,8 +18,9 @@ export default function Discover() {
   const [distances, setDistances] = useState({});
   const [resolving, setResolving] = useState(true);
 
-  const { userId, userData, photos } = useUserContext();
-  const { loading, error, getUserLocation, getUsers } = useUserLocation(setUsers, setDistances);
+  const { userId, userData, photos, locationSource, provideLocation } = useUserContext();
+  const { loading, error, getUserLocation, getUsers, loadMore, hasMore, searchKey } =
+    useUserLocation(setUsers, setDistances);
 
   /*
    * Work out where to search, once, when the user is known.
@@ -34,7 +36,11 @@ export default function Discover() {
     let cancelled = false;
     setResolving(true);
 
-    getUserLocation()
+    // The account already carries the location the demo was built around, so
+    // prefer it: re-deriving from the browser can land on a different zip than
+    // the one the roster was scattered near.
+    Promise.resolve(userData?.location)
+      .then((known) => known || getUserLocation())
       .catch(() => userData?.location || FALLBACK_ZIP)
       .then((zip) => {
         if (cancelled) return undefined;
@@ -60,8 +66,21 @@ export default function Discover() {
 
   const handleSearch = () => getUsers(searchLocation, radius);
 
+  // Granting location moves the account and generates dogs there, so the feed
+  // has to be reloaded from the new zip rather than the old one.
+  const handleProvideLocation = async (where) => {
+    const zip = await provideLocation(where);
+    if (zip) {
+      setSearchLocation(zip);
+      await getUsers(zip, radius);
+    }
+  };
+
   return (
     <div className="discover-parent">
+      {locationSource !== 'device' && (
+        <LocationNotice onProvide={handleProvideLocation} searchingFrom={userData?.location} />
+      )}
       <SearchBar
         radius={radius}
         location={searchLocation}
@@ -77,7 +96,15 @@ export default function Discover() {
       ) : (
         <div className="discover-view">
           {error && <p className="text-error text-center py-2">{error}</p>}
-          <CardStack users={users} distances={distances} userData={userData} photos={photos} />
+          <CardStack
+            users={users}
+            distances={distances}
+            userData={userData}
+            photos={photos}
+            onRunningLow={loadMore}
+            hasMore={hasMore}
+            searchKey={searchKey}
+          />
         </div>
       )}
     </div>

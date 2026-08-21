@@ -3,6 +3,7 @@ const { getPlaydates, AddPlaydate } = require('./calendar');
 const { addUserToPack, getUserPacks, createNewPackAndAdd } = require('./packs');
 const {
   getCurrentUser,
+  updateLocation,
   getUserFriends,
   createPack,
   editProfile,
@@ -30,6 +31,7 @@ module.exports = {
   getUserPacks,
   createNewPackAndAdd,
   getCurrentUser,
+  updateLocation,
   getUserFriends,
   createPack,
   authUser,

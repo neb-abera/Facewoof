@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help dev seed reset-db psql lint fmt image run logs down clean
+.PHONY: help dev seed reset-db psql lint fmt check image run logs down clean
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -34,6 +34,10 @@ lint: ## eslint and prettier, against the working tree
 
 fmt: ## Rewrite files to match prettier
 	$(COMPOSE) run --rm lint npx prettier --write .
+
+check: ## The gate CI runs: lint, format and the production image
+	$(COMPOSE) run --rm lint
+	$(DOCKER) build --target final -t facewoof .
 
 image: ## Build the production image the deploy pipeline builds
 	$(DOCKER) build --target final -t facewoof .

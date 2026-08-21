@@ -1,10 +1,27 @@
 const zipcodes = require('zipcodes');
 const {
   generateDiscoverFeed,
+  countRemainingFeed,
   setRelationship,
   checkForMatchAndCreate,
   getUserLocation
 } = require('../db');
+
+// The feed is served a page at a time. Ten is enough that the client always
+// has cards in hand while the next page is in flight, and small enough that
+// nobody downloads ninety profiles to look at four.
+const DEFAULT_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 30;
+
+// `seen` is supplied by the client and bounds a query, so it needs a ceiling.
+const MAX_SEEN = 500;
+
+const parseSeen = (raw) =>
+  String(raw || '')
+    .split(',')
+    .map((part) => Number(part.trim()))
+    .filter((n) => Number.isInteger(n) && n > 0)
+    .slice(0, MAX_SEEN);
 
 /*
  * Resolve whatever the search box was given into a zip code.
@@ -67,7 +84,9 @@ function resolveZip(location, nearZip) {
 
 const discoverUsers = async (req, res) => {
   try {
-    const { id, zipcode, radius, count } = req.query;
+    const { id, zipcode, radius, limit } = req.query;
+    const seen = parseSeen(req.query.seen);
+    const pageSize = Math.min(Number(limit) || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
 
     if (!id) {
       return res.status(400).send('id is required');
@@ -89,8 +108,15 @@ const discoverUsers = async (req, res) => {
       distances[zip] = zipcodes.distance(origin, zip);
     });
 
-    const nearbyUsers = await generateDiscoverFeed(Number(id), nearbyZips, Number(count) || 100);
-    return res.status(200).send({ users: nearbyUsers, distances, origin });
+    const nearbyUsers = await generateDiscoverFeed(Number(id), nearbyZips, pageSize, seen);
+
+    // What is left after this page, so the client knows whether to keep
+    // asking. Counted rather than inferred from a short page: a full page can
+    // still be the last one.
+    const delivered = seen.concat(nearbyUsers.map((u) => u.user_id));
+    const remaining = await countRemainingFeed(Number(id), nearbyZips, delivered);
+
+    return res.status(200).send({ users: nearbyUsers, distances, origin, remaining });
   } catch (err) {
     console.error('unable to retrieve matched users', err);
     return res.status(500).send('Unable to retrieve matched users');

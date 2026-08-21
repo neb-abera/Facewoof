@@ -1,3 +1,4 @@
+const zipcodes = require('zipcodes');
 const { checkOrCreateUser, createGuestUser } = require('../db');
 
 const authUser = (req, res) => {
@@ -15,13 +16,29 @@ const authUser = (req, res) => {
     });
 };
 
-/* Hand a demo visitor their own throwaway account. */
-const guestLogin = (req, res) =>
-  createGuestUser()
+/*
+ * Hand a demo visitor their own throwaway account, and the demo roster placed
+ * next to them.
+ *
+ * Takes a zip code, or coordinates from the browser, so the dogs are near the
+ * person looking. Neither is required: without them the demo lands on its
+ * default city rather than failing.
+ */
+const guestLogin = (req, res) => {
+  const { zip, lat, lng } = req.body || {};
+  let originZip = zip;
+
+  if (!originZip && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+    const match = zipcodes.lookupByCoords(Number(lat), Number(lng));
+    if (match) originZip = match.zip;
+  }
+
+  return createGuestUser(originZip)
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.error('unable to create guest account', err);
       res.status(500).send('unable to create guest account');
     });
+};
 
 module.exports = { authUser, guestLogin };
