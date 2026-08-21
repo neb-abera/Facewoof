@@ -14,7 +14,8 @@
     "server:dev": "nodemon server/index.js",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "migrate": "node server/db/migrate.js"
   },
   "dependencies": {
     "axios": "^1.7.9",

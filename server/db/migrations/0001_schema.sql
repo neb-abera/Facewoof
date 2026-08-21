@@ -3,9 +3,10 @@
 -- The original database was never committed: this file is reconstructed from
 -- the queries in server/db/*.js, which are the only surviving description of
 -- it. Column names and types follow what those queries read and write.
-
-DROP TABLE IF EXISTS posts, playdates, pack_users, packs,
-  pending_relationships, friends, profile_photos, users CASCADE;
+--
+-- Applied once, by server/db/migrate.js. It previously opened with a DROP of
+-- every table, which is correct for rebuilding a scratch database and would
+-- have emptied production on each deploy.
 
 CREATE TABLE users (
   user_id       serial PRIMARY KEY,

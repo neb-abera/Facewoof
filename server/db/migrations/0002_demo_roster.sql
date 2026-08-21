@@ -1,4 +1,4 @@
--- Facewoof seed data.
+-- Facewoof demo roster and demo content.
 --
 -- Rebuilt from server/controllers/users.json, the fixture the original
 -- team left behind, plus generated packs, posts and playdates so the
@@ -8,12 +8,12 @@
 -- createGuestUser clones them next to whoever is signing in, so the
 -- discover feed has dogs nearby wherever that happens to be.
 
-BEGIN;
 
 -- The template the demo accounts are cloned from. A normal profile:
 -- guests get their own row, and inherit this one's photos, packs and matches.
 INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, discoverable, owner_email, location, likes_one, likes_two, likes_three) VALUES
-  (1, 'Biscuit', 'Sam Rivera', 'Golden Retriever', 4, true, false, 'biscuit@facewoof.app', '10011', 'fetch', 'dog parks', 'belly rubs');
+  (1, 'Biscuit', 'Sam Rivera', 'Golden Retriever', 4, true, false, 'biscuit@facewoof.app', '10011', 'fetch', 'dog parks', 'belly rubs')
+ON CONFLICT (owner_email) DO NOTHING;
 
 -- The demo roster, from the original fixture. Cloned per visitor.
 INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, discoverable, owner_email, location, likes_one, likes_two, likes_three) VALUES
@@ -116,7 +116,8 @@ INSERT INTO users (user_id, dog_name, owner_name, dog_breed, age, vaccination, d
   (1096, 'Daisy', 'Anders Bakker', 'Doberman', 6, false, false, 'roster1096@facewoof.example', '10011', 'swimming', 'snow', 'belly rubs'),
   (1097, 'Otis', 'Zara Sandoval', 'Whippet', 7, true, false, 'roster1097@facewoof.example', '10011', 'hiking', 'tug of war', 'agility'),
   (1098, 'Freya', 'Bram Serrano', 'Basset Hound', 8, true, false, 'roster1098@facewoof.example', '10011', 'frisbee', 'dog parks', 'chasing squirrels'),
-  (1099, 'Chico', 'Noor Brennan', 'Newfoundland', 9, true, false, 'roster1099@facewoof.example', '10011', 'fetch', 'snow', 'beach days');
+  (1099, 'Chico', 'Noor Brennan', 'Newfoundland', 9, true, false, 'roster1099@facewoof.example', '10011', 'fetch', 'snow', 'beach days')
+ON CONFLICT (owner_email) DO NOTHING;
 
 -- Profile photos.
 INSERT INTO profile_photos (user_id, url) VALUES
@@ -492,4 +493,3 @@ INSERT INTO playdates (pack_id, user_id, body, start_date, end_date) VALUES
 SELECT setval('users_user_id_seq', (SELECT max(user_id) FROM users));
 SELECT setval('packs_pack_id_seq', (SELECT max(pack_id) FROM packs));
 
-COMMIT;
