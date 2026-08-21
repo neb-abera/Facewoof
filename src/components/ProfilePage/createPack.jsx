@@ -6,7 +6,6 @@ import '../Discover/profileCard.css';
 import axios from 'axios';
 
 const CreatePackCard = ({ currentUser, friend }) => {
-
   const userId = currentUser.user_id;
   const friendId = friend.user_id;
   const [packName, setPackName] = useState('');
@@ -19,8 +18,8 @@ const CreatePackCard = ({ currentUser, friend }) => {
   //  const { user_id, pack_id } = req.params;
   const createPack = () => {
     axios
-      // .post(`http://localhost:3001/createPack?packName=${packName}`)
-      .put('http://localhost:3001/api/createpack', {
+      // .post(`/api/pack?packName=${packName}`)
+      .put('/api/createpack', {
         pack_name: packName,
         users: JSON.stringify([Number(userId), Number(friendId)])
       })
@@ -31,8 +30,8 @@ const CreatePackCard = ({ currentUser, friend }) => {
         //   const packId = results.data[0].pack_id;
         // console.log('friend, userid', packId, friendId);
         //   axios
-        //     // .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${friendId}`)
-        //     .post(`http://localhost:3001/api/addtopack`, {
+        //     // .post(`/api/addtopack?pack_id=${packId}&user_id=${friendId}`)
+        //     .post(`/api/addtopack`, {
         //       params: {
         //         pack_id: packId,
         //         user_id: userId
@@ -41,7 +40,7 @@ const CreatePackCard = ({ currentUser, friend }) => {
         //     .then((res) => {
         //       console.log('success adding user to pack', res);
         // axios
-        //   .post(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
+        //   .post(`/api/addtopack?pack_id=${packId}&user_id=${userId}`)
         //   .then((reesults) => {
         //     console.log('success final', reesults);
         //     alert('successfully made pack and all that');

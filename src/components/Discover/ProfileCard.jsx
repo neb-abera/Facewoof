@@ -51,11 +51,15 @@ export default function ProfileCard({ user, distance }) {
             <div className="carousel w-full">
               {user.photos.map((url, index) => (
                 <div
-                    key={`photo${index}`}
-                    id={`item${user.user_id}${index}`}
-                    className="carousel-item w-full"
+                  key={`photo${index}`}
+                  id={`item${user.user_id}${index}`}
+                  className="carousel-item w-full"
                 >
-                  <img className="w-full no-image-drag" src={url} alt={`photo of a dog named ${user.dog_name}`} />
+                  <img
+                    className="w-full no-image-drag"
+                    src={url}
+                    alt={`photo of a dog named ${user.dog_name}`}
+                  />
                 </div>
               ))}
             </div>

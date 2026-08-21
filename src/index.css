@@ -2,10 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
 body {
-  height: 100vh;
   margin: 0;
   line-height: 1.5;
+  /* Cards animate off the sides of the screen as they are swiped away. Without
+     this the page grows a horizontal scrollbar mid-animation. */
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
 }
 
 /* :root {

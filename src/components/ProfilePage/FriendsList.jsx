@@ -17,7 +17,7 @@ const FriendsList = ({ currentUser }) => {
   useEffect(() => {
     if (!gotFriends) {
       axios
-        .get(`http://localhost:3001/getFriends?userId=${userId}`)
+        .get(`/api/friends?userId=${userId}`)
         .then((results) => {
           const friendos = results.data;
           const friendsArray = [];
@@ -42,7 +42,7 @@ const FriendsList = ({ currentUser }) => {
   useEffect(() => {
     if (!gotPacks) {
       axios
-        .get(`http://localhost:3001/api/getpacks?userId=${userId}`)
+        .get(`/api/getpacks?userId=${userId}`)
         .then((results) => {
           setPacks(results.data);
           setGotPacks(true);
@@ -55,7 +55,7 @@ const FriendsList = ({ currentUser }) => {
 
   const addToPack = (packId) => {
     axios
-      .put(`http://localhost:3001/api/addtopack?pack_id=${packId}&user_id=${userId}`)
+      .put(`/api/addtopack?pack_id=${packId}&user_id=${userId}`)
       .then(() => {
         console.log('added to pack');
       })
@@ -106,7 +106,12 @@ const FriendsList = ({ currentUser }) => {
                       {packs.map((pack, k) => {
                         const userId = user.user_id;
                         return (
-                          <li key={k} onClick={() => {addToPack(pack.pack_id, userId)}}>
+                          <li
+                            key={k}
+                            onClick={() => {
+                              addToPack(pack.pack_id, userId);
+                            }}
+                          >
                             <a>{pack.name}</a>
                           </li>
                         );
@@ -121,7 +126,10 @@ const FriendsList = ({ currentUser }) => {
                   <input type="checkbox" id={hrefString2} className="modal-toggle" />
                   <span className="modal">
                     <span className="modal-box relative">
-                      <label htmlFor={hrefString2} className="btn btn-sm btn-circle absolute right-2 top-2">
+                      <label
+                        htmlFor={hrefString2}
+                        className="btn btn-sm btn-circle absolute right-2 top-2"
+                      >
                         ✕
                       </label>
                       <CreatePackCard currentUser={currentUser} friend={user} />

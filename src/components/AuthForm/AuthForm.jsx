@@ -14,10 +14,10 @@ const AuthForm = ({ action }) => {
               Name
             </label>
             <input
-                className="rounded-lg py-2 px-3 mb-2 mt-1 focus:outline-none"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+              className="rounded-lg py-2 px-3 mb-2 mt-1 focus:outline-none"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </>
         )}
@@ -25,19 +25,19 @@ const AuthForm = ({ action }) => {
           Email
         </label>
         <input
-            className="rounded-lg py-2 px-3 mb-2 mt-1 focus:outline-none"
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+          className="rounded-lg py-2 px-3 mb-2 mt-1 focus:outline-none"
+          type="text"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <label htmlFor="password" className="text-gray-200">
           Password
         </label>
         <input
-            className="rounded-lg py-2 px-3 mb-2 mt-1 focus:outline-none"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+          className="rounded-lg py-2 px-3 mb-2 mt-1 focus:outline-none"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
       </div>
       <div className="flex flex-col mt-10 space-y-4">
