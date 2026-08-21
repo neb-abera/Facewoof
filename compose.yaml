@@ -1,0 +1,98 @@
+# Everything needed to work on Facewoof, in containers. See the Makefile for
+# the entry points; `make dev` is the one to start with.
+name: facewoof
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: facewoof
+      POSTGRES_PASSWORD: facewoof
+      POSTGRES_DB: facewoof
+    ports:
+      # Loopback only. A published port defaults to 0.0.0.0, which would put a
+      # database with a guessable password on every interface this machine has.
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Postgres runs everything in this directory, in name order, the first
+      # time it initialises the data volume. `make reset-db` replays them.
+      - ./server/db/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U facewoof -d facewoof']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      target: api
+    environment:
+      DATABASE_URL: postgres://facewoof:facewoof@db:5432/facewoof
+      PORT: '3001'
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - '127.0.0.1:3001:3001'
+    volumes:
+      - ./server:/app/server
+      - ./package.json:/app/package.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      target: dev
+    environment:
+      VITE_API_PROXY_TARGET: http://api:3001
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - '127.0.0.1:3000:5173'
+    volumes:
+      # Edits on the host reload in the container.
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - ./vite.config.js:/app/vite.config.js
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./postcss.config.js:/app/postcss.config.js
+    depends_on:
+      - api
+
+  # One-shot: reload schema and seed into a database that already exists.
+  seed:
+    image: postgres:17-alpine
+    profiles: ['tools']
+    environment:
+      PGPASSWORD: facewoof
+    volumes:
+      - ./server/db/sql:/sql:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - |
+        psql -h db -U facewoof -d facewoof -v ON_ERROR_STOP=1 -f /sql/schema.sql &&
+        psql -h db -U facewoof -d facewoof -v ON_ERROR_STOP=1 -f /sql/seed.sql &&
+        echo "schema and seed loaded"
+
+  lint:
+    build:
+      context: .
+      target: dev
+    profiles: ['tools']
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: ['sh', '-c', 'npx eslint . && npx prettier --check .']
+
+volumes:
+  pgdata:
