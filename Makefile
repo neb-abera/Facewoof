@@ -36,7 +36,7 @@ fmt: ## Rewrite files to match prettier
 	$(COMPOSE) run --rm lint npx prettier --write .
 
 check: ## The gate CI runs: lint, format and the production image
-	$(COMPOSE) run --rm lint
+	$(DOCKER) build --target lint .
 	$(DOCKER) build --target final -t facewoof .
 
 image: ## Build the production image the deploy pipeline builds

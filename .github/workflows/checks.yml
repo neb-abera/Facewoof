@@ -18,22 +18,17 @@ jobs:
     name: eslint and prettier
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Lint and format check
-        # Built from the Dockerfile so it runs on the same node as everything
-        # else. `make lint` needs compose and a working tree mount; this is the
-        # hermetic equivalent.
-        run: |
-          docker build --target deps -t facewoof-deps .
-          docker run --rm -v "$PWD":/repo -w /repo \
-            --entrypoint sh facewoof-deps -c \
-            'cp -r /app/node_modules /tmp/nm && ln -s /tmp/nm node_modules && npx eslint . && npx prettier --check .'
+        # The check is a build step, so it runs on the same node as everything
+        # else and against a copy of the tree rather than a mount.
+        run: docker build --target lint .
 
   build:
     name: production image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build the image the deploy pipeline builds
         run: docker build --target final -t facewoof .
 
@@ -53,7 +48,7 @@ jobs:
           --health-cmd "pg_isready -U facewoof -d facewoof"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Load schema and seed
         run: |

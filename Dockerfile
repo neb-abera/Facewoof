@@ -29,6 +29,14 @@ ENV NODE_ENV=development
 EXPOSE 3001
 CMD ["npm", "run", "server:dev"]
 
+# ---- lint -------------------------------------------------------------------
+# A leaf stage, so the production build never pays for it. Copies the tree in
+# rather than mounting it, which is what makes it hermetic: what CI checks is
+# what a reviewer would get from a fresh clone.
+FROM deps AS lint
+COPY . .
+RUN npx eslint . && npx prettier --check .
+
 # ---- build ------------------------------------------------------------------
 FROM deps AS build
 COPY . .
