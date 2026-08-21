@@ -16,7 +16,8 @@ const getUserFriends = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      res.status(404).send('unable to get user friends');
+      console.error('unable to get user friends', err);
+      res.status(500).send('unable to get user friends');
     });
 };
 
@@ -29,13 +30,14 @@ const getCurrentUser = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      res.status(404).send('unable to get current user');
+      console.error('unable to get current user', err);
+      res.status(500).send('unable to get current user');
     });
 };
 
 // post request to create a pack
 const createPack = (req, res) => {
-  const { packName } = req.query;
+  const { packName } = req.body;
 
   return createPackPromise(packName)
     .then((data) => {
@@ -43,7 +45,8 @@ const createPack = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      res.status(404).send('unable to get pack posts');
+      console.error('unable to create pack', err);
+      res.status(500).send('unable to create pack');
     });
 };
 
@@ -54,7 +57,8 @@ const createPhotos = async (req, res) => {
     await addPhoto(userId, photoUrl);
     res.status(201).send('Successfully added new photo');
   } catch (err) {
-    res.status(404).send('Unable to add new photo');
+    console.error('unable to add new photo', err);
+    res.status(500).send('Unable to add new photo');
   }
 };
 
@@ -87,7 +91,7 @@ const editProfile = (req, res) => {
       res.send(results);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       res.status(404).send('unable to update profile');
     });
 };
@@ -95,22 +99,23 @@ const editProfile = (req, res) => {
 const getProfilePhoto = (req, res) => {
   // console.log('getprofilePhoto request', req);
   const { userId } = req.query;
-  return getProfilePhotoPromise(userId)
-    .then((data) => {
-      // console.log('successfully got profilephoto', data);
-      res.send(data);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(404).send('unable to get profile photo');
-    });
+  return (
+    getProfilePhotoPromise(userId)
+      // Sent the entire pg result object before, leaving the client to reach
+      // through .rows for it.
+      .then((data) => res.send(data.rows))
+      .catch((err) => {
+        console.error(err);
+        res.status(404).send('unable to get profile photo');
+      })
+  );
 };
 
 module.exports = {
-  getCurrentUser: getCurrentUser,
-  getUserFriends: getUserFriends,
-  createPack: createPack,
-  createPhotos: createPhotos,
-  editProfile: editProfile,
-  getProfilePhoto: getProfilePhoto
+  getCurrentUser,
+  getUserFriends,
+  createPack,
+  createPhotos,
+  editProfile,
+  getProfilePhoto
 };
