@@ -5,7 +5,7 @@
 .profileCard {
   /* height: 100%; */
   left: 50%;
-  transform: translate(-50%,0);
+  transform: translate(-50%, 0);
   position: relative;
 }
 
@@ -25,23 +25,23 @@
   .profile-card-details {
     margin: 0px;
     padding: 0px;
-    font-size: .5em;
+    font-size: 0.5em;
   }
 
   .profile-card-details {
-    font-size: .5em;
+    font-size: 0.5em;
   }
 
   .badge-secondary {
-    font-size: .2em;
+    font-size: 0.2em;
   }
 
   .card-title-text {
-    font-size: .8em;
+    font-size: 0.8em;
   }
 
   .badge-outline {
-    font-size: .4em;
+    font-size: 0.4em;
   }
 
   .badge-secondary {
@@ -65,7 +65,7 @@
   }
 
   .card-p {
-    font-size: .7em;
+    font-size: 0.7em;
   }
 }
 
@@ -90,7 +90,7 @@
   }
 
   .badge-secondary {
-    font-size: .5em;
+    font-size: 0.5em;
   }
 
   .card-title-text {
@@ -99,11 +99,11 @@
 
   .badge-outline {
     padding: 10px;
-    font-size: .7em;
+    font-size: 0.7em;
   }
 
   .badge-secondary {
-    font-size: .5em;
+    font-size: 0.5em;
   }
 
   .card-header {
@@ -120,7 +120,7 @@
 
   .carousel-item {
     height: 40vh;
-    min-height: 200px;;
+    min-height: 200px;
   }
 }
 
@@ -134,7 +134,7 @@
   margin-left: 10px;
   background-color: #3d4451;
   color: white;
-  font-size: .7em;
+  font-size: 0.7em;
 }
 
 .card-header {
@@ -172,7 +172,6 @@
   padding-bottom: 5px;
 }
 
-
 .carousel-container {
   position: relative;
 }
@@ -185,7 +184,6 @@
   object-fit: fill;
   position: relative;
 }
-
 
 .card-title-text {
   margin: 0px;

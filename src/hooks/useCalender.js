@@ -6,7 +6,7 @@ const useCalendar = () => {
   const { userId, setPlaydates, setPacks } = useUserContext();
   const getPacks = useCallback(() => {
     axios
-      .get(`http://localhost:3001/api/playdates?userId=${userId}`)
+      .get(`/api/playdates?userId=${userId}`)
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];
@@ -22,11 +22,11 @@ const useCalendar = () => {
         });
         setPlaydates(playdateArr);
       })
-      .then(() => axios.get(`http://localhost:3001/api/getpacks?userId=${userId}`))
+      .then(() => axios.get(`/api/getpacks?userId=${userId}`))
       .then((packData) => {
         setPacks(packData.data);
       });
-  }, [userId]);
+  }, [userId, setPlaydates, setPacks]);
   // eslint-disable-next-line object-shorthand
   return { getPacks };
 };
