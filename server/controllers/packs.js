@@ -8,10 +8,11 @@ const { addToPack, getPacks, createPackAndAdd } = require('../db');
  * silently wrote a row of nulls. They come from the body.
  */
 const addUserToPack = (req, res) => {
-  const { user_id: userId, pack_id: packId } = req.body;
+  const { pack_id: packId } = req.body;
+  const { userId } = req;
 
-  if (!userId || !packId) {
-    return res.status(400).send('user_id and pack_id are required');
+  if (!packId) {
+    return res.status(400).send('pack_id is required');
   }
 
   return addToPack(userId, packId)
@@ -40,7 +41,10 @@ const createNewPackAndAdd = (req, res) => {
     return res.status(400).send('pack_name and a non-empty users array are required');
   }
 
-  return createPackAndAdd(packName, users.map(Number))
+  // The creator is always in their own pack, whatever the client sent.
+  const members = Array.from(new Set([req.userId, ...users.map(Number)]));
+
+  return createPackAndAdd(packName, members)
     .then(() => res.status(201).send('Pack created'))
     .catch((err) => {
       console.error('error creating pack', err);
@@ -49,7 +53,7 @@ const createNewPackAndAdd = (req, res) => {
 };
 
 const getUserPacks = (req, res) =>
-  getPacks(req.query.userId)
+  getPacks(req.userId)
     .then((data) => res.send(data.rows[0]?.json_agg ?? []))
     .catch((err) => {
       console.error('unable to get packs', err);

@@ -17,7 +17,7 @@ const FriendsList = ({ currentUser }) => {
   useEffect(() => {
     if (!gotFriends) {
       axios
-        .get(`/api/friends?userId=${userId}`)
+        .get('/api/friends')
         .then((results) => {
           const friendos = results.data;
           const friendsArray = [];
@@ -42,7 +42,7 @@ const FriendsList = ({ currentUser }) => {
   useEffect(() => {
     if (!gotPacks) {
       axios
-        .get(`/api/getpacks?userId=${userId}`)
+        .get('/api/getpacks')
         .then((results) => {
           setPacks(results.data);
           setGotPacks(true);
@@ -55,7 +55,7 @@ const FriendsList = ({ currentUser }) => {
 
   const addToPack = (packId) => {
     axios
-      .put(`/api/addtopack?pack_id=${packId}&user_id=${userId}`)
+      .put('/api/addtopack', { pack_id: packId })
       .then(() => {
         console.log('added to pack');
       })

@@ -19,7 +19,7 @@ const {
   ctrlMakePost,
   ctrlUserPacksId
 } = require('./packfeed');
-const { authUser, guestLogin } = require('./auth');
+const { authUser, guestLogin, me, logout } = require('./auth');
 
 module.exports = {
   discoverUsers,
@@ -36,6 +36,8 @@ module.exports = {
   createPack,
   authUser,
   guestLogin,
+  me,
+  logout,
   editProfile,
   getProfilePhoto,
   ctrlPackPosts,

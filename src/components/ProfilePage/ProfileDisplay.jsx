@@ -16,7 +16,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .get(`/api/currentuser?userId=${userId}`)
+      .get('/api/auth/me')
       .then((results) => {
         // Falls back to {} so a profile that no longer exists (an expired guest,
         // say) renders empty rather than crashing the whole app on .dog_name.
@@ -29,7 +29,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .get(`/api/profilephoto?userId=${userId}`)
+      .get('/api/profilephoto')
       .then((results) => {
         const rows = results.data || [];
         if (rows.length) setProfilePhoto(rows[0].url);

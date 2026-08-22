@@ -10,7 +10,7 @@ const {
 } = require('../db');
 
 const getUserFriends = (req, res) => {
-  const { userId } = req.query;
+  const { userId } = req;
 
   return getFriendsPromise(userId)
     .then((data) => {
@@ -24,7 +24,7 @@ const getUserFriends = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.query;
+  const { userId } = req;
 
   return getCurrentUserPromise(userId)
     .then((data) => {
@@ -53,7 +53,9 @@ const createPack = (req, res) => {
 };
 
 const createPhotos = async (req, res) => {
-  const { userId } = req.params;
+  // Was /api/photos/:userId/new, so anyone could add a photo to anyone's
+  // profile by editing the path. Photos go on the caller's own profile.
+  const { userId } = req;
   const { photoUrl } = req.body;
   try {
     await addPhoto(userId, photoUrl);
@@ -65,17 +67,9 @@ const createPhotos = async (req, res) => {
 };
 
 const editProfile = (req, res) => {
-  const {
-    dogName,
-    ownerName,
-    dogBreed,
-    age,
-    vaccination,
-    discoverable,
-    ownerEmail,
-    location,
-    userId
-  } = req.body;
+  const { dogName, ownerName, dogBreed, age, vaccination, discoverable, ownerEmail, location } =
+    req.body;
+  const { userId } = req;
   // console.log('req body edit profile', req.body);
   return editProfilePromise(
     dogName,
@@ -99,8 +93,7 @@ const editProfile = (req, res) => {
 };
 
 const getProfilePhoto = (req, res) => {
-  // console.log('getprofilePhoto request', req);
-  const { userId } = req.query;
+  const { userId } = req;
   return (
     getProfilePhotoPromise(userId)
       // Sent the entire pg result object before, leaving the client to reach
@@ -123,9 +116,8 @@ const getProfilePhoto = (req, res) => {
  * from the device rather than the other way round.
  */
 const updateLocation = async (req, res) => {
-  const { userId, zip, lat, lng } = req.body || {};
-
-  if (!userId) return res.status(400).send('userId is required');
+  const { zip, lat, lng } = req.body || {};
+  const { userId } = req;
 
   let resolved = zip && zipcodes.lookup(zip) ? String(zip) : null;
   if (!resolved && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
@@ -141,7 +133,7 @@ const updateLocation = async (req, res) => {
   try {
     await client.query('BEGIN');
     await client.query('UPDATE users SET location = $2 WHERE user_id = $1', [userId, resolved]);
-    const nearby = await ensureNeighbours(client, Number(userId), resolved);
+    const nearby = await ensureNeighbours(client, userId, resolved);
     await client.query('COMMIT');
     return res.status(200).send({ location: resolved, nearby });
   } catch (err) {
