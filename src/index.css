@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Theme colours are read as oklch(var(--x)), never hsl(var(--x)).
+ *
+ * daisyUI 4 stores each theme colour as bare oklch components — --b3 is
+ * `24.863% 0.019467 264.128`, not an HSL triple. Wrapping those in hsl()
+ * produces invalid CSS, so the browser drops the declaration silently and the
+ * property falls back to its inherited value, usually currentColor. That is
+ * how the calendar ended up with white grid lines and several surfaces became
+ * "barely visible" rather than obviously broken.
+ */
+
 html,
 body {
   margin: 0;
@@ -16,8 +27,8 @@ body {
   /* Painted explicitly. daisyUI puts these on elements it styles, but the page
      behind them would otherwise be the browser's default white, which shows
      through anywhere a component does not reach. */
-  background-color: hsl(var(--b1));
-  color: hsl(var(--bc));
+  background-color: oklch(var(--b1));
+  color: oklch(var(--bc));
   font-family:
     Inter,
     -apple-system,
@@ -33,6 +44,6 @@ body {
 /* The whole app sits inside this, so it has to carry the page colour too. */
 .App,
 .App-header {
-  background-color: hsl(var(--b1));
-  color: hsl(var(--bc));
+  background-color: oklch(var(--b1));
+  color: oklch(var(--bc));
 }

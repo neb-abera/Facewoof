@@ -87,11 +87,18 @@ export const UserProvider = ({ children }) => {
 
     axios
       .get('/api/auth/me')
-      .then(({ data }) => {
-        if (data && data.length) setUserData(data[0]);
-        else setUserId(null);
-      })
-      .catch(() => setUserId(null));
+      .then(({ data }) => setUserData(data))
+      .catch((err) => {
+        /*
+         * Only 401 means the account is actually gone — an expired guest swept
+         * up by the cleanup. Anything else is transient: a rate limit, a
+         * restart mid-deploy, a dropped connection. Clearing the session on
+         * those signed people out permanently for a blip, which is how a
+         * single 429 during testing looked like the whole app forgetting you.
+         */
+        if (err.response?.status === 401) setUserId(null);
+        else console.error('could not load the current user; keeping the session', err);
+      });
   }, [userId, userData]);
 
   // `where` is an optional { lat, lng } or { zip }: the demo roster is created
@@ -104,7 +111,10 @@ export const UserProvider = ({ children }) => {
       setUserData(data);
       setUserId(data.user_id);
       setLocationSource(where ? 'device' : 'fallback');
-      setFirstLogin(true);
+      // Not firstLogin: that renders the edit form, so every demo visitor met
+      // a form instead of the profile they came to look at. Editing is a thing
+      // they choose from the profile page.
+      setFirstLogin(false);
       return data;
     } finally {
       setAuthenticating(false);

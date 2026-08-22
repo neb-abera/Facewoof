@@ -99,8 +99,10 @@ const FriendsListCopy = ({ currentUser }) => {
           {/* <div className='text-xs'>{sampleFriendsList.map((item, index)=> { */}
           <div className="text-xs">
             {friends.map((item, index) => {
-              let hrefString = `#my-modal-${index}`;
-              let hrefString2 = `#my-modal-${index + 10}`;
+              // Ids, not CSS selectors: a label's htmlFor matches an element
+              // id literally, so the leading # made these buttons no-ops.
+              let hrefString = `pack-modal-${index}`;
+              let hrefString2 = `pack-modal-${index + 10}`;
               let user = friendsData[index];
               return (
                 <div>
