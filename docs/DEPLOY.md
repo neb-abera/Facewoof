@@ -17,7 +17,35 @@ PG_ADMIN=facewoofadmin
 SUBSCRIPTION=$(az account show --query id -o tsv)
 ```
 
-## 1. Database
+## 1. Register the database provider
+
+A subscription only registers a resource provider the first time it uses that
+service, and the failure is `MissingSubscriptionRegistration` partway through
+the create. `Microsoft.App`, `Microsoft.ContainerRegistry` and
+`Microsoft.OperationalInsights` are already registered if aberaTech runs on this
+subscription; Postgres will not be until something asks for it.
+
+```bash
+az provider register --namespace Microsoft.DBforPostgreSQL --wait
+```
+
+It prints nothing on success and takes a minute or two. Confirm:
+
+```bash
+az provider show --namespace Microsoft.DBforPostgreSQL --query registrationState -o tsv
+```
+
+To check the rest in one go:
+
+```bash
+for ns in Microsoft.DBforPostgreSQL Microsoft.App Microsoft.OperationalInsights \
+          Microsoft.ContainerRegistry Microsoft.ManagedIdentity; do
+  printf '%-34s ' "$ns"
+  az provider show --namespace "$ns" --query registrationState -o tsv
+done
+```
+
+## 2. Database
 
 **Check the region first.** Postgres Flexible Server is not offered in every
 region to every subscription, and the failure is an unhelpful "The location is
@@ -84,7 +112,7 @@ before moving on. If you lose it, reset it with
 The application applies its own migrations at start-up, so there is nothing to
 load by hand. The first revision creates the schema and the demo roster.
 
-## 2. Container app
+## 3. Container app
 
 ```bash
 az containerapp env create -g "$RG" -n "$ENVIRONMENT" --location "$LOCATION"
@@ -117,7 +145,7 @@ az containerapp update -g "$RG" -n "$APP" \
 Azure Database for PostgreSQL requires TLS, which is what `PGSSL=true` turns on
 in `server/db/database.js`.
 
-## 3. Let the container app pull from the registry
+## 4. Let the container app pull from the registry
 
 ```bash
 PRINCIPAL=$(az containerapp show -g "$RG" -n "$APP" \
@@ -127,7 +155,7 @@ az role assignment create --assignee "$PRINCIPAL" --role AcrPull \
   --scope "$(az acr show -n "$ACR" --query id -o tsv)"
 ```
 
-## 4. Give GitHub Actions permission, without a stored secret
+## 5. Give GitHub Actions permission, without a stored secret
 
 Federated credentials rather than a client secret: GitHub presents a short
 lived OIDC token, Azure trusts it because it came from this repository's `main`
@@ -159,7 +187,7 @@ tighten it later, the workflow only calls `az containerapp update` and
 The `subject` line is what restricts this to `main`. A branch cannot deploy by
 adding a workflow file, because its subject would not match.
 
-## 5. GitHub configuration
+## 6. GitHub configuration
 
 Repository **secrets**:
 
@@ -191,7 +219,7 @@ The workflow targets a `production` environment, so you can add a required
 reviewer to it in the repository settings if you want deploys to pause for
 approval.
 
-## 6. facewoof.abera.tech
+## 7. facewoof.abera.tech
 
 ```bash
 FQDN=$(az containerapp show -g "$RG" -n "$APP" \
