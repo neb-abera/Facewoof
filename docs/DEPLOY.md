@@ -90,8 +90,8 @@ az postgres flexible-server create \
   --admin-user "$PG_ADMIN" --admin-password "$PG_PASSWORD" \
   --public-access 0.0.0.0
 
-az postgres flexible-server db create -g "$RG" -s "$PG" -d facewoof
-az postgres flexible-server db create -g "$RG" -s "$PG" -d scheduling
+az postgres flexible-server db create -g "$RG" -s "$PG" -n facewoof
+az postgres flexible-server db create -g "$RG" -s "$PG" -n scheduling
 ```
 
 `--public-access 0.0.0.0` is the "allow Azure services" rule, not "allow the
