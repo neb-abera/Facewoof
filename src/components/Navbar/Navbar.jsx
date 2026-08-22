@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import useUserContext from '../../hooks/useUserContext';
-import Logo from '../../assets/logo.svg';
+import Logo from '../../assets/facewoofLogo.png';
 import './nav.css';
 
 const links = [

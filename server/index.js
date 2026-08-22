@@ -11,6 +11,7 @@ const { purgeExpiredGuests } = require('./db/auth');
 const { migrate } = require('./db/migrate');
 const { apiLimiter } = require('./limits');
 const session = require('./session');
+const { insecureTransport } = require('./insecure-transport');
 const router = require('./routes');
 
 const app = express();
@@ -65,7 +66,11 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        'img-src': ["'self'", 'data:', 'https://placedog.net', 'https://res.cloudinary.com']
+        'img-src': ["'self'", 'data:', 'https://placedog.net', 'https://res.cloudinary.com'],
+        // Dropped only when the instance is deliberately on plain HTTP: it
+        // rewrites every asset URL to https://, which over HTTP fails the
+        // bundle outright and renders a blank page.
+        ...(insecureTransport ? { 'upgrade-insecure-requests': null } : {})
       }
     }
   })
