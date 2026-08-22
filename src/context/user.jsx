@@ -61,6 +61,25 @@ export const UserProvider = ({ children }) => {
     }
   }, [locationSource]);
 
+  /*
+   * Load the signed-in user's own photos.
+   *
+   * Nothing populated this, so anything rendering the current user's picture —
+   * the match screen most visibly — got undefined for a src and fell back to
+   * showing the alt text, which is why a dog's name appeared floating where
+   * its photo should be.
+   */
+  useEffect(() => {
+    if (userId === null) {
+      setPhotos([]);
+      return;
+    }
+    axios
+      .get('/api/profilephoto')
+      .then(({ data }) => setPhotos((data || []).map((row) => row.url)))
+      .catch(() => setPhotos([]));
+  }, [userId]);
+
   // Rehydrate the profile behind a stored id, and drop the id if the account
   // has since been swept up by the guest cleanup.
   useEffect(() => {
