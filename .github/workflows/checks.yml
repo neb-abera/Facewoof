@@ -67,6 +67,7 @@ jobs:
           # And again on start-up, which must be a no-op.
           docker run -d --name app --network host \
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
+            -e SESSION_SECRET=ci-only-not-a-real-secret \
             -e PORT=8080 facewoof
           for i in $(seq 1 30); do
             curl -sf http://localhost:8080/healthz && break || sleep 2
@@ -76,13 +77,24 @@ jobs:
         run: |
           set -euo pipefail
           curl -sf http://localhost:8080/healthz
-          UID_=$(curl -sf -X POST http://localhost:8080/api/auth/guest \
-            -H 'content-type: application/json' -d '{"zip":"60601"}' \
-            | python3 -c 'import sys,json; print(json.load(sys.stdin)["user_id"])')
-          N=$(curl -sf "http://localhost:8080/api/discover?id=$UID_&zipcode=60601&radius=25&limit=10" \
+
+          # Signing in sets the session cookie, and every /api route needs it.
+          curl -sf -c /tmp/jar -X POST http://localhost:8080/api/auth/guest \
+            -H 'content-type: application/json' -d '{"zip":"60601"}' > /dev/null
+
+          N=$(curl -sf -b /tmp/jar \
+            "http://localhost:8080/api/discover?zipcode=60601&radius=25&limit=10" \
             | python3 -c 'import sys,json; print(len(json.load(sys.stdin)["users"]))')
           echo "discover returned $N dogs"
           test "$N" -gt 0
+
+      - name: An unauthenticated caller is refused
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            "http://localhost:8080/api/discover?zipcode=60601")
+          echo "no cookie -> $code"
+          test "$code" = "401"
 
       - name: Server logs
         if: always()
