@@ -52,15 +52,23 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Build and push the image
-        # Built by ACR rather than here: the image never travels over the
-        # runner's network, and ACR keeps the layer cache between builds.
+        # Built here and pushed, rather than with `az acr build`.
+        #
+        # `az acr build` schedules a task inside the registry, which needs
+        # Microsoft.ContainerRegistry/registries/scheduleRun/action and ARM read
+        # on the registry — in practice, Contributor on it. That registry
+        # belongs to aberaTech, and a deploy identity for this app has no
+        # business being able to delete another app's images. Building on the
+        # runner keeps the grant to AcrPush plus Reader.
         run: |
-          az acr build \
-            --registry "${REGISTRY%%.*}" \
-            --image "$IMAGE:${{ github.sha }}" \
-            --image "$IMAGE:latest" \
-            --target final \
+          set -euo pipefail
+          az acr login --name "${REGISTRY%%.*}"
+          docker build --target final \
+            --tag "$REGISTRY/$IMAGE:${{ github.sha }}" \
+            --tag "$REGISTRY/$IMAGE:latest" \
             --file Dockerfile .
+          docker push "$REGISTRY/$IMAGE:${{ github.sha }}"
+          docker push "$REGISTRY/$IMAGE:latest"
 
       - name: Deploy the revision
         run: |
