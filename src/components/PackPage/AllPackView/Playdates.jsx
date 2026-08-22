@@ -8,14 +8,10 @@ const Playdates = ({ setViewing, userIdentity }) => {
   const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
-    axios
-      .get('/api/getUserPlaydates', {
-        params: { userId: userIdentity }
-      })
-      .then((data) => {
-        const input = data.data;
-        setPlaydates(input);
-      });
+    axios.get('/api/getUserPlaydates').then((data) => {
+      const input = data.data;
+      setPlaydates(input);
+    });
   }, []);
 
   const styles = {
