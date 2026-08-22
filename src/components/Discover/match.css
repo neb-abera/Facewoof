@@ -8,11 +8,15 @@
 }
 
 .match-parent {
-  z-index: 5;
-  position: absolute;
-  width: 100%;
-  height: 100vh;
-  padding-bottom: 20vh;
+  /* Fixed and above everything. It was absolute at z-index 5, positioned
+     inside the discover view, so the navbar and the search bar sat on top of
+     it and cut off the "It's a match!" heading. */
+  z-index: 50;
+  position: fixed;
+  inset: 0;
+  /* Scrolls rather than clipping the heading on a short window. */
+  overflow-y: auto;
+  padding: 2rem 1rem;
   background-color: hsl(var(--b1) / 0.8);
   backdrop-filter: blur(4px);
   display: flex;
@@ -42,14 +46,16 @@
 }
 
 .match-title {
-  font-size: 10vh;
+  font-size: min(10vh, 3.5rem);
   font-weight: bold;
   margin-top: 0;
 }
 
 .match-subtitle {
   margin-bottom: 40px;
-  font-size: 4vh;
+  font-size: min(4vh, 1.5rem);
+  text-align: center;
+  padding: 0 1rem;
 }
 
 @keyframes img1 {

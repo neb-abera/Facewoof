@@ -50,7 +50,26 @@ if (process.env.CORS_ORIGIN) {
  */
 app.set('trust proxy', 1);
 
-app.use(helmet());
+/*
+ * helmet's default Content-Security-Policy is img-src 'self' data:, which
+ * blocks every dog photo: the demo roster's images come from placedog.net and
+ * uploads come back from Cloudinary. The page rendered with broken image icons
+ * in production and looked fine locally, because nothing here was exercised in
+ * a browser against the built image until it was deployed.
+ *
+ * Everything else stays at helmet's defaults. Only the image sources the app
+ * actually uses are added, rather than relaxing img-src to https:.
+ */
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'img-src': ["'self'", 'data:', 'https://placedog.net', 'https://res.cloudinary.com']
+      }
+    }
+  })
+);
 
 // Before the routes, so every handler can see req.session.
 app.use(session);
