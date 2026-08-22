@@ -45,17 +45,16 @@ const UploadFileWidget = () => {
     if (file) uploadImage(file);
   };
 
-  // Cloudinary is optional. Without it the rest of the profile page still
-  // works, rather than the upload silently posting to an undefined cloud.
-  if (!isConfigured) {
-    return (
-      <div className="widget-container space-y-4">
-        <p className="text-sm opacity-70">
-          Photo uploads are turned off. Set VITE_CLOUD_NAME and VITE_UPLOAD_PRESET to enable them.
-        </p>
-      </div>
-    );
-  }
+  /*
+   * Cloudinary is optional, and when it is not configured this renders nothing
+   * at all.
+   *
+   * It used to tell the visitor to "set VITE_CLOUD_NAME and VITE_UPLOAD_PRESET",
+   * which is an instruction to whoever deploys the app, shown to whoever is
+   * using it. Someone trying the demo cannot act on it and should not be asked
+   * to read it.
+   */
+  if (!isConfigured) return null;
 
   return (
     <div className="widget-container space-y-4">
