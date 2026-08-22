@@ -10,6 +10,7 @@ const db = require('./db/database');
 const { purgeExpiredGuests } = require('./db/auth');
 const { migrate } = require('./db/migrate');
 const { apiLimiter } = require('./limits');
+const session = require('./session');
 const router = require('./routes');
 
 const app = express();
@@ -50,6 +51,9 @@ if (process.env.CORS_ORIGIN) {
 app.set('trust proxy', 1);
 
 app.use(helmet());
+
+// Before the routes, so every handler can see req.session.
+app.use(session);
 
 // Nothing this API accepts is large. The default is 100kb, which is a lot of
 // room for an endpoint whose biggest legitimate body is a short post.

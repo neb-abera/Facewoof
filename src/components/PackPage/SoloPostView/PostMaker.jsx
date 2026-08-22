@@ -35,19 +35,13 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
     setBody('');
     // $('#inputTextField')[0].reset();
 
-    axios
-      .get('/api/getPfp', {
-        params: {
-          userId: userId
-        }
-      })
-      .then((resp) => {
-        // console.log('received pfp', resp.data[0].url);
-        packet.photo_url = resp.data[0].url;
-        axios.post('/api/makePost', { packet: packet }).then(() => {
-          // console.log('sent');
-        });
+    axios.get('/api/getPfp').then((resp) => {
+      // console.log('received pfp', resp.data[0].url);
+      packet.photo_url = resp.data[0].url;
+      axios.post('/api/makePost', { packet: packet }).then(() => {
+        // console.log('sent');
       });
+    });
   };
 
   return (

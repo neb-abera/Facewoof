@@ -1,5 +1,5 @@
 const zipcodes = require('zipcodes');
-const { checkOrCreateUser, createGuestUser } = require('../db');
+const { checkOrCreateUser, createGuestUser, getCurrentUserPromise } = require('../db');
 
 const authUser = (req, res) => {
   const { email, name } = req.body;
@@ -34,11 +34,38 @@ const guestLogin = (req, res) => {
   }
 
   return createGuestUser(originZip)
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      // Signing in is what establishes the session. Everything after this
+      // takes the caller's identity from the cookie rather than the request.
+      req.session.userId = user.user_id;
+      return res.status(201).send(user);
+    })
     .catch((err) => {
       console.error('unable to create guest account', err);
       res.status(500).send('unable to create guest account');
     });
 };
 
-module.exports = { authUser, guestLogin };
+/* Who the caller is, according to their session. */
+const me = (req, res) =>
+  getCurrentUserPromise(req.userId)
+    .then(({ rows }) => {
+      if (!rows.length) {
+        // The account is gone: an expired guest swept up by the cleanup. Clear
+        // the cookie rather than leaving them signed in to nothing.
+        req.session = null;
+        return res.status(401).send('sign in first');
+      }
+      return res.status(200).send(rows[0]);
+    })
+    .catch((err) => {
+      console.error('unable to load the current user', err);
+      res.status(500).send('unable to load the current user');
+    });
+
+const logout = (req, res) => {
+  req.session = null;
+  res.status(204).end();
+};
+
+module.exports = { authUser, guestLogin, me, logout };

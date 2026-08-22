@@ -9,20 +9,16 @@ const SoloPlaydates = ({ setViewing, userIdentity }) => {
   const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
-    axios
-      .get('/api/getUserPlaydates', {
-        params: { userId: userIdentity }
-      })
-      .then((data) => {
-        // console.log('data', data.data);
-        const input = data.data;
-        // var packs = [];
-        // for (var i = 0; i < input.length; i++) {
-        //   packs.push({input[i], });
-        // }
-        setPlaydates(input);
-        // console.log('playdates state', playdates);
-      });
+    axios.get('/api/getUserPlaydates').then((data) => {
+      // console.log('data', data.data);
+      const input = data.data;
+      // var packs = [];
+      // for (var i = 0; i < input.length; i++) {
+      //   packs.push({input[i], });
+      // }
+      setPlaydates(input);
+      // console.log('playdates state', playdates);
+    });
   }, []);
 
   const styles = {

@@ -7,21 +7,17 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
   const [packList, setPackList] = useState([]);
 
   useEffect(() => {
-    axios
-      .get('/api/getUserPacks', {
-        params: { userId: userIdentity }
-      })
-      .then((data) => {
-        // console.log('data', data.data);
-        const input = data.data;
-        const packs = [];
-        // eslint-disable-next-line no-plusplus
-        for (let i = 0; i < input.length; i++) {
-          packs.push(input[i].name);
-        }
-        setPackList(packs);
-        // console.log(packList);
-      });
+    axios.get('/api/getUserPacks').then((data) => {
+      // console.log('data', data.data);
+      const input = data.data;
+      const packs = [];
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < input.length; i++) {
+        packs.push(input[i].name);
+      }
+      setPackList(packs);
+      // console.log(packList);
+    });
   }, []);
 
   const click = (packName) => {

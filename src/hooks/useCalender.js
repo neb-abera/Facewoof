@@ -6,7 +6,7 @@ const useCalendar = () => {
   const { userId, setPlaydates, setPacks } = useUserContext();
   const getPacks = useCallback(() => {
     axios
-      .get(`/api/playdates?userId=${userId}`)
+      .get('/api/playdates')
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];
@@ -22,7 +22,7 @@ const useCalendar = () => {
         });
         setPlaydates(playdateArr);
       })
-      .then(() => axios.get(`/api/getpacks?userId=${userId}`))
+      .then(() => axios.get('/api/getpacks'))
       .then((packData) => {
         setPacks(packData.data);
       });

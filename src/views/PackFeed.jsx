@@ -25,9 +25,7 @@ const PackFeed = () => {
 
   useEffect(() => {
     axios
-      .get('/api/getAllPacksPostsForUser', {
-        params: { userId: userIdentity }
-      })
+      .get('/api/getAllPacksPostsForUser')
       .then((resp) => setAllPosts(resp.data || []))
       .catch((err) => console.error('could not load the pack feed', err));
   }, [userId, loggedIn]);

@@ -24,19 +24,19 @@ const ctrlPackPosts = (req, res) => {
 };
 
 const ctrlUserPacksId = (req, res) => {
-  getUserPacksId(req.query.userId)
+  getUserPacksId(req.userId)
     .then((resp) => res.status(200).send(aggregated(resp)))
     .catch(fail(res, 500, 'unable to get user packs'));
 };
 
 const ctrlAllPostsFromAllPacks = (req, res) => {
-  getAllPostsFromAllPacks(req.query.userId)
+  getAllPostsFromAllPacks(req.userId)
     .then((resp) => res.status(200).send(aggregated(resp)))
     .catch(fail(res, 500, 'unable to get all pack posts'));
 };
 
 const ctrlUserPlaydatesAllPacks = (req, res) => {
-  getUserPlaydatesAllPacks(req.query.userId)
+  getUserPlaydatesAllPacks(req.userId)
     .then((resp) => res.status(200).send(resp.rows))
     .catch(fail(res, 500, 'unable to get all playdates'));
 };
@@ -48,13 +48,14 @@ const ctrlSoloPosts = (req, res) => {
 };
 
 const ctrlPfp = (req, res) => {
-  getPfp(req.query.userId)
+  getPfp(req.userId)
     .then((resp) => res.status(200).send(resp.rows))
     .catch(fail(res, 500, 'unable to get profile photos'));
 };
 
 const ctrlMakePost = (req, res) => {
-  makePost(req.body.packet || {})
+  // The author is the session, not whatever user_id the packet claimed.
+  makePost({ ...(req.body.packet || {}), user_id: req.userId })
     .then(() => res.status(201).send('post created'))
     .catch(fail(res, 500, 'unable to make post'));
 };

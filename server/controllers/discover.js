@@ -84,17 +84,14 @@ function resolveZip(location, nearZip) {
 
 const discoverUsers = async (req, res) => {
   try {
-    const { id, zipcode, radius, limit } = req.query;
+    const { zipcode, radius, limit } = req.query;
+    const { userId: id } = req;
     const seen = parseSeen(req.query.seen);
     const pageSize = Math.min(Number(limit) || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
 
-    if (!id) {
-      return res.status(400).send('id is required');
-    }
-
     // Only needed to settle an ambiguous city name, but it is a primary key
     // lookup and the feed query that follows dwarfs it.
-    const nearZip = await getUserLocation(Number(id));
+    const nearZip = await getUserLocation(id);
     const origin = resolveZip(zipcode, nearZip);
     if (!origin) {
       return res.status(400).send(`could not resolve a location from "${zipcode}"`);
@@ -108,13 +105,13 @@ const discoverUsers = async (req, res) => {
       distances[zip] = zipcodes.distance(origin, zip);
     });
 
-    const nearbyUsers = await generateDiscoverFeed(Number(id), nearbyZips, pageSize, seen);
+    const nearbyUsers = await generateDiscoverFeed(id, nearbyZips, pageSize, seen);
 
     // What is left after this page, so the client knows whether to keep
     // asking. Counted rather than inferred from a short page: a full page can
     // still be the last one.
     const delivered = seen.concat(nearbyUsers.map((u) => u.user_id));
-    const remaining = await countRemainingFeed(Number(id), nearbyZips, delivered);
+    const remaining = await countRemainingFeed(id, nearbyZips, delivered);
 
     return res.status(200).send({ users: nearbyUsers, distances, origin, remaining });
   } catch (err) {
@@ -124,7 +121,15 @@ const discoverUsers = async (req, res) => {
 };
 
 const userResponse = async (req, res) => {
-  const { currentUserId, otherUserId, currentUserChoice, otherUserChoice } = req.body;
+  // The swiper is whoever holds the session. Only the dog being swiped on
+  // comes from the request, and swiping on yourself is not a thing.
+  const { userId: currentUserId } = req;
+  const { otherUserId, currentUserChoice, otherUserChoice } = req.body;
+
+  if (!otherUserId || Number(otherUserId) === currentUserId) {
+    return res.status(400).send('otherUserId is required and must be someone else');
+  }
+
   try {
     if (currentUserChoice !== otherUserChoice) {
       await setRelationship(currentUserId, otherUserId, currentUserChoice);
