@@ -7,7 +7,7 @@ on, and it needs your Azure credentials, so you run it rather than CI.
 Commands are written to be pasted in order. Set these first:
 
 ```bash
-LOCATION=eastus
+LOCATION=eastus2                  # see the note below before changing this
 RG=facewoof-rg                    # or reuse aberatechserver-app-202412211749ResourceGroup
 ACR=aberatechserver20241221175455 # the registry aberaTech already pushes to
 ENVIRONMENT=facewoof-env          # or reuse aberaTech's Container Apps environment
@@ -18,6 +18,28 @@ SUBSCRIPTION=$(az account show --query id -o tsv)
 ```
 
 ## 1. Database
+
+**Check the region first.** Postgres Flexible Server is not offered in every
+region to every subscription, and the failure is an unhelpful "The location is
+restricted from performing this operation" *after* the resource group has been
+created. `eastus` is restricted on this subscription even though aberaTech runs
+there, which is why `LOCATION` above is `eastus2` — adjacent, so latency to the
+registry and the rest of the account stays negligible.
+
+To confirm a region before committing to it, this lists the tiers actually
+available to you. An empty list means the region is restricted:
+
+```bash
+az postgres flexible-server list-skus -l "$LOCATION" \
+  --query "[0].supportedServerEditions[].name" -o tsv
+```
+
+Expect `Burstable`, `GeneralPurpose` and `MemoryOptimized`. If it prints
+nothing, pick another region and re-check.
+
+A resource group's own location is only where its metadata lives, so a group
+created in one region can hold resources in another. Getting `LOCATION` wrong
+before creating the group is not worth undoing.
 
 One Flexible Server holding a database per application. You mentioned the
 scheduling app will also need Postgres: a single burstable server with two
