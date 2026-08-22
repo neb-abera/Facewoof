@@ -74,8 +74,11 @@ const FriendsList = ({ currentUser }) => {
         </thead>
         <tbody>
           {friendsName.map((item, index) => {
-            const hrefString = `#my-modal-${index}`;
-            const hrefString2 = `#my-modal-${index + 10}`;
+            // Ids, not CSS selectors. These were `#my-modal-N`, and a label's
+            // htmlFor matches an element id literally, so the leading # made
+            // every one of these buttons a no-op.
+            const hrefString = `my-modal-${index}`;
+            const hrefString2 = `my-modal-${index + 10}`;
             const user = friendsData[index];
             return (
               <tr key={index} className="flex">

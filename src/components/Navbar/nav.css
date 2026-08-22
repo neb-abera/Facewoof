@@ -5,7 +5,15 @@
 }
 
 .navbar {
-  background-color: hsl(var(--b2));
+  background-color: oklch(var(--b2));
+  /* Sticky, and above the page.
+     It was position:static with z-index:auto, so it created no stacking
+     context at all: the collapsed menu (absolutely positioned, z-index 1)
+     painted underneath the profile card, which is position:relative and later
+     in the DOM. The links were visible and simply could not be clicked. */
+  position: sticky;
+  top: 0;
+  z-index: 40;
   /* 100vw includes the scrollbar gutter, so the bar was always a little wider
      than the page and pushed a horizontal scrollbar onto every view. */
   width: 100%;
@@ -27,4 +35,9 @@
 
 .navbar > .navbar-center {
   flex: 0 1 auto;
+}
+
+/* Above the navbar itself, so the collapsed menu is never behind page content. */
+.navbar .dropdown-content {
+  z-index: 50;
 }
