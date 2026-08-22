@@ -168,7 +168,7 @@ az ad sp create --id "$APP_ID"
 az ad app federated-credential create --id "$APP_ID" --parameters '{
   "name": "github-env-production",
   "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:neb-abera/Diggr:environment:production",
+  "subject": "repo:neb-abera/Facewoof:environment:production",
   "audiences": ["api://AzureADTokenExchange"]
 }'
 
@@ -215,13 +215,13 @@ Repository **variables**:
 | `AZURE_RESOURCE_GROUP` | your `$RG`         |
 
 ```bash
-gh secret set AZURE_CLIENT_ID --repo neb-abera/Diggr --body "$APP_ID"
-gh secret set AZURE_TENANT_ID --repo neb-abera/Diggr --body "$(az account show --query tenantId -o tsv)"
-gh secret set AZURE_SUBSCRIPTION_ID --repo neb-abera/Diggr --body "$SUBSCRIPTION"
+gh secret set AZURE_CLIENT_ID --repo neb-abera/Facewoof --body "$APP_ID"
+gh secret set AZURE_TENANT_ID --repo neb-abera/Facewoof --body "$(az account show --query tenantId -o tsv)"
+gh secret set AZURE_SUBSCRIPTION_ID --repo neb-abera/Facewoof --body "$SUBSCRIPTION"
 
-gh variable set ACR_LOGIN_SERVER --repo neb-abera/Diggr --body "$ACR.azurecr.io"
-gh variable set CONTAINER_APP_NAME --repo neb-abera/Diggr --body "$APP"
-gh variable set AZURE_RESOURCE_GROUP --repo neb-abera/Diggr --body "$RG"
+gh variable set ACR_LOGIN_SERVER --repo neb-abera/Facewoof --body "$ACR.azurecr.io"
+gh variable set CONTAINER_APP_NAME --repo neb-abera/Facewoof --body "$APP"
+gh variable set AZURE_RESOURCE_GROUP --repo neb-abera/Facewoof --body "$RG"
 ```
 
 The workflow targets a `production` environment, so you can add a required
