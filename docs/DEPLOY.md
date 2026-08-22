@@ -49,7 +49,7 @@ done
 
 **Check the region first.** Postgres Flexible Server is not offered in every
 region to every subscription, and the failure is an unhelpful "The location is
-restricted from performing this operation" *after* the resource group has been
+restricted from performing this operation" _after_ the resource group has been
 created. `eastus` is restricted on this subscription even though aberaTech runs
 there, which is why `LOCATION` above is `eastus2` — adjacent, so latency to the
 registry and the rest of the account stays negligible.
