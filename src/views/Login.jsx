@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import dogImage from '../assets/dog.jpg';
 import '../components/Login/Login.css';
 import useUserContext from '../hooks/useUserContext';
+import useGuestSignIn from '../hooks/useGuestSignIn';
 
 /*
  * Sign-in.
@@ -14,45 +15,10 @@ import useUserContext from '../hooks/useUserContext';
  * for, and each one gets their own throwaway account.
  */
 const Login = () => {
-  const { loggedIn, authenticating, signInAsGuest } = useUserContext();
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const { loggedIn, authenticating } = useUserContext();
+  const { start: handleGuestSignIn, error } = useGuestSignIn();
 
   if (loggedIn) return <Navigate to="/discover" replace />;
-
-  /*
-   * Ask where the visitor is before creating the demo, so the roster can be
-   * put next to them.
-   *
-   * Asked here rather than on the discover page because this is the click that
-   * starts the demo, so a permission prompt is expected rather than a surprise.
-   * Declining is fine and costs a few seconds at most: the demo falls back to
-   * its default city.
-   */
-  const askWhereTheyAre = () =>
-    new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        resolve(null);
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) => resolve({ lat: coords.latitude, lng: coords.longitude }),
-        () => resolve(null),
-        { timeout: 8000, maximumAge: 600000 }
-      );
-    });
-
-  const handleGuestSignIn = async () => {
-    setError(null);
-    try {
-      const where = await askWhereTheyAre();
-      await signInAsGuest(where);
-      navigate('/discover');
-    } catch (err) {
-      console.error('guest sign in failed', err);
-      setError('Could not start a demo session. Please try again.');
-    }
-  };
 
   return (
     <div className="flex h-screen w-screen">
