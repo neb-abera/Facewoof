@@ -1,7 +1,7 @@
 const { getAllPlaydates, createPlaydate } = require('../db');
 
 const getPlaydates = (req, res) =>
-  getAllPlaydates(req.query.userId)
+  getAllPlaydates(req.userId)
     // json_agg gives back one row holding NULL when the user is in no packs.
     .then((data) => res.send(data.rows[0]?.pack_playdates ?? []))
     .catch((err) => {
@@ -10,10 +10,11 @@ const getPlaydates = (req, res) =>
     });
 
 const AddPlaydate = (req, res) => {
-  const { packId, userId, playdateBody, startTime, endTime } = req.body;
+  const { packId, playdateBody, startTime, endTime } = req.body;
+  const { userId } = req;
 
-  if (!packId || !userId || !startTime || !endTime) {
-    return res.status(400).send('packId, userId, startTime and endTime are required');
+  if (!packId || !startTime || !endTime) {
+    return res.status(400).send('packId, startTime and endTime are required');
   }
 
   return createPlaydate({ packId, userId, playdateBody, startTime, endTime })

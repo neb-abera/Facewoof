@@ -67,7 +67,7 @@ export const UserProvider = ({ children }) => {
     if (userId === null || userData !== null) return;
 
     axios
-      .get('/api/currentuser', { params: { userId } })
+      .get('/api/auth/me')
       .then(({ data }) => {
         if (data && data.length) setUserData(data[0]);
         else setUserId(null);
@@ -80,6 +80,7 @@ export const UserProvider = ({ children }) => {
   const signInAsGuest = useCallback(async (where) => {
     setAuthenticating(true);
     try {
+      // The response sets the session cookie; the body is the new profile.
       const { data } = await axios.post('/api/auth/guest', where || {});
       setUserData(data);
       setUserId(data.user_id);
@@ -101,7 +102,7 @@ export const UserProvider = ({ children }) => {
   const provideLocation = useCallback(
     async (where) => {
       if (!userId || !where) return null;
-      const { data } = await axios.put('/api/location', { userId, ...where });
+      const { data } = await axios.put('/api/location', where);
       setUserData((prev) => (prev ? { ...prev, location: data.location } : prev));
       setLocationSource('device');
       return data.location;
@@ -110,6 +111,9 @@ export const UserProvider = ({ children }) => {
   );
 
   const logout = useCallback(() => {
+    // Tell the server to drop the cookie as well; clearing local state alone
+    // would leave a valid session behind.
+    axios.post('/api/auth/logout').catch(() => {});
     setUserId(null);
     setUserData(null);
     setPhotos([]);

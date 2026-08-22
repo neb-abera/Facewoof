@@ -16,4 +16,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 axios.defaults.baseURL = base;
 
+// The session lives in a signed, httpOnly cookie. Same-origin requests send it
+// anyway, but being explicit means a future split-origin deployment does not
+// silently stop authenticating.
+axios.defaults.withCredentials = true;
+
 export default axios;

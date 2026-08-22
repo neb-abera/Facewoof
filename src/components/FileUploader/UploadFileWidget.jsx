@@ -32,7 +32,7 @@ const UploadFileWidget = () => {
         // The original spread a stale `urls` into a functional update, so it
         // read the same snapshot twice and dropped uploads that overlapped.
         setUrls((prev) => [...prev, res.data.secure_url]);
-        return axios.post(`/api/photos/${userId}/new`, { photoUrl: res.data.secure_url });
+        return axios.post('/api/photos', { photoUrl: res.data.secure_url });
       })
       .catch((err) => {
         console.error('photo upload failed', err);

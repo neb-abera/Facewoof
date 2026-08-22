@@ -1,4 +1,6 @@
 const express = require('express');
+
+const { requireUser } = require('./middleware/requireUser');
 const {
   discoverUsers,
   userResponse,
@@ -10,6 +12,8 @@ const {
   createNewPackAndAdd,
   authUser,
   guestLogin,
+  me,
+  logout,
   getCurrentUser,
   updateLocation,
   getUserFriends,
@@ -40,9 +44,17 @@ const router = express.Router();
 
 // Sign a demo visitor in to their own throwaway account.
 router.post('/api/auth/guest', guestLimiter, guestLogin);
+router.get('/api/auth/me', requireUser, me);
+router.post('/api/auth/logout', logout);
 
 // Check whether a user exists, creating them if not.
 router.put('/api/authuser', authUser);
+
+// Everything past this point acts on behalf of a signed-in user, and takes
+// that user from the session. Before this, each endpoint accepted the acting
+// user's id as a parameter, so changing a number in a URL was enough to act as
+// somebody else.
+router.use('/api', requireUser);
 
 // --- discover ---
 
@@ -60,7 +72,7 @@ router.put('/api/location', writeLimiter, updateLocation);
 router.get('/api/friends', getUserFriends);
 router.put('/api/edituser', writeLimiter, editProfile);
 router.get('/api/profilephoto', getProfilePhoto);
-router.post('/api/photos/:userId/new', writeLimiter, createPhotos);
+router.post('/api/photos', writeLimiter, createPhotos);
 router.get('/api/getPfp', ctrlPfp);
 
 // --- packs ---

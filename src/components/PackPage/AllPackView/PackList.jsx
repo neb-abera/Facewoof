@@ -10,9 +10,7 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
 
   useEffect(() => {
     axios
-      .get('/api/getUserPacks', {
-        params: { userId: userIdentity }
-      })
+      .get('/api/getUserPacks')
       .then((data) => setPackList(data.data || []))
       .catch((err) => console.error('could not load the pack list', err));
   }, []);
