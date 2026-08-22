@@ -27,6 +27,17 @@ module.exports = {
   },
   overrides: [
     {
+      // The browser tests are node, ESM-ish CommonJS, and legitimately import
+      // a devDependency: they are never bundled into anything that ships.
+      files: ['tests/**/*.js', 'playwright.config.js'],
+      env: { node: true, browser: true },
+      parserOptions: { sourceType: 'script' },
+      rules: {
+        'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+        'no-console': 'off'
+      }
+    },
+    {
       // vite.config.js is ESM, unlike the rest of the node-side files.
       files: ['vite.config.js'],
       env: { node: true },
