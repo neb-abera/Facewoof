@@ -166,9 +166,9 @@ APP_ID=$(az ad app create --display-name facewoof-deploy --query appId -o tsv)
 az ad sp create --id "$APP_ID"
 
 az ad app federated-credential create --id "$APP_ID" --parameters '{
-  "name": "github-main",
+  "name": "github-env-production",
   "issuer": "https://token.actions.githubusercontent.com",
-  "subject": "repo:neb-abera/Diggr:ref:refs/heads/main",
+  "subject": "repo:neb-abera/Diggr:environment:production",
   "audiences": ["api://AzureADTokenExchange"]
 }'
 
@@ -177,6 +177,9 @@ az role assignment create --assignee "$APP_ID" --role Contributor \
   --scope "/subscriptions/$SUBSCRIPTION/resourceGroups/$RG"
 az role assignment create --assignee "$APP_ID" --role AcrPush \
   --scope "$(az acr show -n "$ACR" --query id -o tsv)"
+# Pushing needs ARM read on the registry as well as the push data action.
+az role assignment create --assignee "$APP_ID" --role Reader \
+  --scope "$(az acr show -n "$ACR" --query id -o tsv)"
 ```
 
 `Contributor` on the resource group is broader than this needs. If you want to
@@ -184,8 +187,14 @@ tighten it later, the workflow only calls `az containerapp update` and
 `az containerapp show`, so a custom role with
 `Microsoft.App/containerApps/read` and `.../write` is enough.
 
-The `subject` line is what restricts this to `main`. A branch cannot deploy by
-adding a workflow file, because its subject would not match.
+The `subject` must match what GitHub actually puts in the token, and that
+depends on the workflow. `deploy.yml` declares `environment: production`, so the
+subject is `repo:...:environment:production` — **not** `ref:refs/heads/main`. Get
+this wrong and the deploy fails at login with AADSTS700213 and a message naming
+the subject it presented, which is the value to use.
+
+Deploying is then restricted to the `production` environment, which is also
+where a required reviewer would be configured.
 
 ## 6. GitHub configuration
 
