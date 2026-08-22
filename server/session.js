@@ -25,11 +25,28 @@ if (isProduction && !process.env.SESSION_SECRET) {
 
 const secret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
+/*
+ * The cookie is Secure in production, so it only ever travels over HTTPS.
+ *
+ * That makes it untestable over plain HTTP, which is what a smoke test against
+ * a container on localhost has. INSECURE_COOKIES exists for exactly that, is
+ * named so nobody reaches for it casually, and says so in the log when it is
+ * on. Azure terminates TLS in front of the app, so production never sets it.
+ */
+const insecureCookies = process.env.INSECURE_COOKIES === 'true';
+
+if (insecureCookies) {
+  console.warn(
+    'INSECURE_COOKIES is set: the session cookie will be sent over plain HTTP. ' +
+      'This must not be set in production.'
+  );
+}
+
 module.exports = cookieSession({
   name: 'facewoof.sid',
   keys: [secret],
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true, // not readable from JavaScript, so XSS cannot lift it
   sameSite: 'lax', // sent on normal navigation, not on cross-site form posts
-  secure: isProduction // HTTPS only once deployed
+  secure: isProduction && !insecureCookies // HTTPS only once deployed
 });

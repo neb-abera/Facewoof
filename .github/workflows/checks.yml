@@ -68,6 +68,7 @@ jobs:
           docker run -d --name app --network host \
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
             -e SESSION_SECRET=ci-only-not-a-real-secret \
+            -e INSECURE_COOKIES=true \
             -e PORT=8080 facewoof
           for i in $(seq 1 30); do
             curl -sf http://localhost:8080/healthz && break || sleep 2
