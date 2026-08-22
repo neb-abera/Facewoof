@@ -1,0 +1,123 @@
+/*
+ * react-big-calendar on a dark theme.
+ *
+ * Its stylesheet is written for a light page: near-white backgrounds and dark
+ * grey text, both hardcoded. On this theme that produced light grey headers on
+ * near-white and dark grey toolbar buttons on near-black — legible only if you
+ * already knew what it said.
+ *
+ * Everything below maps its surfaces onto the same theme tokens the rest of
+ * the app uses, so changing the theme changes the calendar with it.
+ */
+
+.rbc-calendar {
+  background-color: oklch(var(--b1));
+  color: oklch(var(--bc));
+}
+
+/*
+ * Every border at once.
+ *
+ * The library sets borders on a couple of dozen selectors, and naming them
+ * individually left bright white grid lines wherever one was missed. A blanket
+ * rule scoped to the calendar is both shorter and complete.
+ */
+.rbc-calendar,
+.rbc-calendar * {
+  /* !important because the library's own rules are compound selectors like
+     `.rbc-day-bg + .rbc-day-bg`, which outrank anything reasonable here, and
+     because they set colour through the `border` shorthand rather than
+     `border-color`. Scoped to the calendar, and only touching the border
+     colour, so it cannot leak into the rest of the app. */
+  border-color: oklch(var(--b3)) !important;
+}
+
+.rbc-toolbar {
+  color: oklch(var(--bc));
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rbc-toolbar button {
+  color: oklch(var(--bc));
+  background-color: oklch(var(--b2));
+  border-color: oklch(var(--b3));
+}
+
+.rbc-toolbar button:hover,
+.rbc-toolbar button:focus {
+  color: oklch(var(--bc));
+  background-color: oklch(var(--b3));
+}
+
+.rbc-toolbar button.rbc-active,
+.rbc-toolbar button.rbc-active:hover {
+  color: oklch(var(--pc));
+  background-color: oklch(var(--p));
+  border-color: oklch(var(--p));
+}
+
+/* Day and time labels: these are the "I can barely see the times" ones. */
+.rbc-header,
+.rbc-label,
+.rbc-time-gutter,
+.rbc-timeslot-group,
+.rbc-agenda-view table.rbc-agenda-table thead > tr > th {
+  color: oklch(var(--bc));
+  background-color: oklch(var(--b1));
+}
+
+.rbc-header,
+.rbc-time-header-content,
+.rbc-time-content,
+.rbc-time-view,
+.rbc-month-view,
+.rbc-day-bg + .rbc-day-bg,
+.rbc-header + .rbc-header,
+.rbc-timeslot-group,
+.rbc-agenda-view table.rbc-agenda-table {
+  border-color: oklch(var(--b3));
+}
+
+.rbc-time-content > * + * > * {
+  border-left-color: oklch(var(--b3));
+}
+
+.rbc-day-bg,
+.rbc-month-row + .rbc-month-row {
+  background-color: oklch(var(--b1));
+  border-color: oklch(var(--b3));
+}
+
+.rbc-off-range-bg {
+  background-color: oklch(var(--b2));
+}
+
+/* Today. The default is a pale yellow wash that vanishes on a dark page. */
+.rbc-today {
+  background-color: oklch(var(--p) / 0.14);
+}
+
+.rbc-off-range {
+  color: oklch(var(--bc) / 0.4);
+}
+
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
+  background-color: oklch(var(--p));
+  color: oklch(var(--pc));
+  border: none;
+}
+
+.rbc-event.rbc-selected {
+  background-color: oklch(var(--pf, var(--p)));
+}
+
+.rbc-show-more {
+  background-color: transparent;
+  color: oklch(var(--p));
+}
+
+.rbc-current-time-indicator {
+  background-color: oklch(var(--er));
+}

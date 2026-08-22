@@ -65,6 +65,7 @@ const Calendar = () => {
       </Modal>
       <Modal isOpen={addPlaydateModal} onRequestClose={closeAddModal} className="playdate-modal">
         <AddPlaydate
+          onAdded={getPacks}
           closeAddModal={closeAddModal}
           playStartTime={playStartTime}
           setStartTime={setStartTime}

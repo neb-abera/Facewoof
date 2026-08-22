@@ -34,7 +34,13 @@ module.exports = {
       parserOptions: { sourceType: 'script' },
       rules: {
         'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-        'no-console': 'off'
+        'no-console': 'off',
+        // A test that walks a list of pages has to visit them one at a time,
+        // and awaiting in a loop is the point rather than an oversight.
+        'no-restricted-syntax': 'off',
+        'no-await-in-loop': 'off',
+        'prefer-template': 'off',
+        'no-continue': 'off'
       }
     },
     {

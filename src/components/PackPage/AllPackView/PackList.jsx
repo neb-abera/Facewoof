@@ -40,7 +40,7 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
                 }}
               >
                 <a>
-                  <PackName name={packName.name} setViewing={setViewing} />
+                  <PackName name={packName.name} />
                 </a>
               </li>
             ))

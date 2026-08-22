@@ -7,6 +7,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+// After the library's own stylesheet, so these overrides win.
+import './calendar-theme.css';
 import useUserContext from '../../hooks/useUserContext';
 
 moment.locale('en-US');
