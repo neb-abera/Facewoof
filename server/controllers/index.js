@@ -22,8 +22,10 @@ const {
 const { authUser, guestLogin, me, logout } = require('./auth');
 
 const { providers: oidcProviders, start: oidcStart, callback: oidcCallback } = require('./oidc');
+const { finish: finishOnboarding } = require('./onboarding');
 
 module.exports = {
+  finishOnboarding,
   oidcProviders,
   oidcStart,
   oidcCallback,
