@@ -3,9 +3,10 @@
 A place for dog owners to meet the dogs around them: swipe through nearby
 profiles, turn matches into a pack, and put a playdate on a shared calendar.
 
-Facewoof started as a team project. It was renamed Diggr partway through the
-course; this is the original name, restored, along with everything needed to
-run and deploy it.
+Facewoof started as a team project, and was renamed Diggr partway through the
+course. This is the original name restored, along with everything needed to run
+and deploy it: a reconstructed schema, real migrations, session authentication,
+rate limiting, browser tests and a pipeline to Azure.
 
 **[Try the demo](https://facewoof.abera.tech)** — one click, no sign-up.
 

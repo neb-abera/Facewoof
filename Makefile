@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help dev migrate reset-db psql lint fmt check image run logs down clean
+.PHONY: help dev migrate reset-db psql lint fmt e2e check image run logs down clean
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -33,6 +33,9 @@ lint: ## eslint and prettier, against the working tree
 
 fmt: ## Rewrite files to match prettier
 	$(COMPOSE) run --rm lint npx prettier --write .
+
+e2e: ## Browser tests against a running instance (BASE_URL to override)
+	$(COMPOSE) run --rm e2e
 
 check: ## The gate CI runs: lint, format and the production image
 	$(DOCKER) build --target lint .
