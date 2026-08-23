@@ -2,7 +2,14 @@
 <html lang="en" data-theme="facewoof">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!--
+      Versioned on purpose. A browser caches a favicon far more stubbornly than
+      it caches a page, and keeps showing the old one long after the file has
+      changed — a 404 on /favicon.ico does not clear it either. Bumping ?v=
+      makes it a new URL, so the new icon actually appears. Bump it whenever
+      the artwork changes.
+    -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"

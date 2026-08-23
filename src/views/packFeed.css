@@ -1,0 +1,30 @@
+/*
+ * Sidebar beside the feed, wrapping to a stack on a narrow screen.
+ *
+ * The layout was an inline flex row with box-sizing: content-box, which meant
+ * the sidebar's padding pushed the feed off the right of the page.
+ */
+.pack-feed {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0;
+}
+
+.pack-feed > *:not(.pack-menu) {
+  flex: 1 1 0;
+  min-width: 0; /* let the feed shrink rather than overflow */
+  padding: 1rem;
+}
+
+@media (max-width: 48rem) {
+  .pack-feed {
+    flex-direction: column;
+  }
+}
+
+/* Wrappers that exist only to host a dialog take no space in the row. */
+.modal-host {
+  display: contents;
+}
