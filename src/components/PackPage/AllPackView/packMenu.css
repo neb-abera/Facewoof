@@ -1,0 +1,95 @@
+/*
+ * The pack feed sidebar.
+ *
+ * It was a stack of inline styles: a hardcoded 25vw column, two scroll panes
+ * pinned to 40vh and 50vh, and "Your Packs" as a bare div with no weight,
+ * padding or contrast. On a narrow window the column squeezed the pack names
+ * into one word per line and pushed the buttons out of reach.
+ */
+
+.pack-menu {
+  flex: 0 0 16rem;
+  width: 16rem;
+  max-height: 100vh;
+  position: sticky;
+  top: 4rem; /* below the navbar */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 0.75rem;
+  background-color: oklch(var(--b2));
+  border-right: 1px solid oklch(var(--b3));
+  overflow-y: auto;
+}
+
+.pack-menu__heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(var(--bc) / 0.65);
+  padding: 0 0.25rem;
+}
+
+.pack-menu__section + .pack-menu__section {
+  border-top: 1px solid oklch(var(--b3));
+  padding-top: 0.75rem;
+}
+
+/* The list grows with its content and the sidebar scrolls as a whole, rather
+   than each pane having its own stub of a scrollbar at a fixed height. */
+.pack-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pack-menu__list li {
+  border-radius: 0.5rem;
+}
+
+.pack-menu__list li > a,
+.pack-menu__list li > div {
+  display: block;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.5rem;
+  color: oklch(var(--bc));
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.pack-menu__list li:hover > a,
+.pack-menu__list li:hover > div {
+  background-color: oklch(var(--b3));
+}
+
+.pack-menu__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pack-menu__actions .btn {
+  width: 100%;
+}
+
+.pack-menu__empty {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  color: oklch(var(--bc) / 0.6);
+}
+
+/* On a phone the sidebar stops being a column and sits above the feed. */
+@media (max-width: 48rem) {
+  .pack-menu {
+    flex: 1 1 100%;
+    width: 100%;
+    position: static;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid oklch(var(--b3));
+  }
+}

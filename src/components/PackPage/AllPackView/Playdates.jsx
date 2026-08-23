@@ -8,10 +8,10 @@ const Playdates = ({ setViewing, userIdentity }) => {
   const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/getUserPlaydates').then((data) => {
-      const input = data.data;
-      setPlaydates(input);
-    });
+    axios
+      .get('/api/getUserPlaydates')
+      .then((data) => setPlaydates(data.data || []))
+      .catch((err) => console.error('could not load your playdates', err));
   }, []);
 
   const styles = {
@@ -22,26 +22,22 @@ const Playdates = ({ setViewing, userIdentity }) => {
     }
   };
 
-  return (
-    <div>
-      {playdates
-        ? playdates.map((packName, key) => (
-            <li key={`packName-${key + 1}`}>
-              {/*  eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-              <a>
-                <Playdate dataPoint={packName} setViewing={setViewing} />
-              </a>
-            </li>
-          ))
-        : null}
+  // An empty list said nothing at all, which reads as a broken panel rather
+  // than as having nothing scheduled.
+  if (!playdates.length) {
+    return <p className="pack-menu__empty">No playdates scheduled yet.</p>;
+  }
 
-      {/* <li>
-          <PackName name={listNames[1]} setViewing={setViewing} />
+  return (
+    <ul className="pack-menu__list">
+      {playdates.map((playdate, key) => (
+        <li key={`playdate-${key + 1}`}>
+          <div>
+            <Playdate dataPoint={playdate} setViewing={setViewing} />
+          </div>
         </li>
-        <li>
-          <PackName name={listNames[2]} setViewing={setViewing} />
-        </li> */}
-    </div>
+      ))}
+    </ul>
   );
 };
 
