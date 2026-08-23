@@ -49,7 +49,7 @@ test.describe('with a provider configured', () => {
   }) => {
     await signInAs(request, `arrival-${Date.now()}`);
     await page.goto('/login');
-    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.getByRole('link', { name: /continue with email/i }).click();
 
     await page.waitForURL('**/discover', { timeout: 30_000 });
 
@@ -105,14 +105,14 @@ test.describe('with a provider configured', () => {
 
     await signInAs(request, subject);
     await page.goto('/login');
-    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.getByRole('link', { name: /continue with email/i }).click();
     await page.waitForURL('**/discover', { timeout: 30_000 });
     const first = await (await page.request.get('/api/auth/me')).json();
 
     await page.request.post('/api/auth/logout');
     await signInAs(request, subject);
     await page.goto('/login');
-    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.getByRole('link', { name: /continue with email/i }).click();
     await page.waitForURL('**/discover', { timeout: 30_000 });
     const second = await (await page.request.get('/api/auth/me')).json();
 
@@ -135,7 +135,7 @@ test.describe('with a provider configured', () => {
     await signInAs(request, `cold-${Date.now()}`);
 
     await page.goto('/login');
-    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.getByRole('link', { name: /continue with email/i }).click();
 
     // Onboarding, not an empty feed.
     await page.waitForURL('**/welcome', { timeout: 30_000 });
@@ -163,7 +163,7 @@ test.describe('with a provider configured', () => {
     const subject = `settled-${Date.now()}`;
     await signInAs(request, subject);
     await page.goto('/login');
-    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.getByRole('link', { name: /continue with email/i }).click();
     await page.waitForURL('**/welcome', { timeout: 30_000 });
 
     await page.getByLabel(/your dog's name/i).fill('Hazel');
@@ -175,7 +175,7 @@ test.describe('with a provider configured', () => {
     await page.request.post('/api/auth/logout');
     await signInAs(request, subject);
     await page.goto('/login');
-    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.getByRole('link', { name: /continue with email/i }).click();
     await page.waitForURL('**/discover', { timeout: 30_000 });
     await expect(page).not.toHaveURL(/\/welcome/);
   });
@@ -203,5 +203,24 @@ test.describe('with a provider configured', () => {
 
     // They already have a dog and a feed; onboarding would be busywork.
     await expect(page).toHaveURL(/\/discover/);
+  });
+
+  /*
+   * The buttons come from configuration, not from a list baked into the code.
+   *
+   * They were hardcoded to Microsoft and Google. Neither was a provider the
+   * tenant had been set up with — and a personal Microsoft account is not
+   * something External ID federates at all — so both led nowhere.
+   */
+  test('only configured providers are offered', async ({ page, request }) => {
+    const { providers } = await (await request.get('/api/auth/providers')).json();
+    const offered = providers.map((p) => p.id);
+
+    await page.goto('/login');
+    const buttons = await page.getByRole('link', { name: /continue with/i }).count();
+    expect(buttons, 'a button for each configured provider and no more').toBe(offered.length);
+
+    // Nothing External ID cannot actually do.
+    expect(offered).not.toContain('microsoft');
   });
 });
