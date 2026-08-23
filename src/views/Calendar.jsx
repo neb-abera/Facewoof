@@ -10,6 +10,7 @@ import PlaydateCalendar from '../components/Calendar/PlaydateCalendar';
 import ViewPlaydate from '../components/Calendar/ViewPlaydate';
 import AddPlaydate from '../components/Calendar/AddPlaydate';
 import '../components/Calendar/Playdate.css';
+import '../components/Shared/modal.css';
 
 const Calendar = () => {
   const [editPlaydateModal, setEditPlaydateModal] = useState(false);
@@ -22,8 +23,6 @@ const Calendar = () => {
 
   const { userId, setPlaydates, loggedIn } = useUserContext();
   const { getPacks } = useCalendar();
-
-  Modal.setAppElement('#root');
 
   const openEditModal = () => {
     setEditPlaydateModal(true);
@@ -77,10 +76,20 @@ const Calendar = () => {
         setEndTime={setEndTime}
         setSelectedPlaydate={setSelectedPlaydate}
       />
-      <Modal isOpen={editPlaydateModal} onRequestClose={closeEditModal} className="playdate-modal">
+      <Modal
+        isOpen={editPlaydateModal}
+        onRequestClose={closeEditModal}
+        className="app-modal"
+        overlayClassName="app-modal__overlay"
+      >
         <ViewPlaydate closeEditModal={closeEditModal} selectedPlaydate={selectedPlaydate} />
       </Modal>
-      <Modal isOpen={addPlaydateModal} onRequestClose={closeAddModal} className="playdate-modal">
+      <Modal
+        isOpen={addPlaydateModal}
+        onRequestClose={closeAddModal}
+        className="app-modal"
+        overlayClassName="app-modal__overlay"
+      >
         <AddPlaydate
           onAdded={getPacks}
           closeAddModal={closeAddModal}
