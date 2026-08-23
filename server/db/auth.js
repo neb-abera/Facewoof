@@ -130,11 +130,13 @@ async function ensureNeighbours(client, userId, originZip) {
        INSERT INTO users (dog_name, owner_name, dog_breed, age, vaccination,
                           discoverable, owner_email, location,
                           likes_one, likes_two, likes_three,
-                          is_guest, demo_of, cloned_from)
+                          is_guest, demo_of, cloned_from, onboarded_at)
        SELECT r.dog_name, r.owner_name, r.dog_breed, r.age, r.vaccination,
               true, 'demo-' || gen_random_uuid() || '@facewoof.example', p.zip,
               r.likes_one, r.likes_two, r.likes_three,
-              true, $1, r.user_id
+              -- Roster dogs are nobody's account, but leaving them unfinished
+              -- would make "accounts still to set up" meaningless.
+              true, $1, r.user_id, now()
        FROM roster r JOIN placed p ON p.rn = r.rn
        RETURNING user_id, cloned_from
      ),
@@ -190,12 +192,18 @@ async function createGuestUser(requestedZip) {
     await client.query('BEGIN');
 
     const { rows } = await client.query(
+      // onboarded_at is set here because a demo account arrives complete: it
+      // is cloned from the template, so it already has a dog, photos and a
+      // roster around it. Leaving it null sent every demo visitor through the
+      // setup screen that exists for accounts which have none of that.
       `INSERT INTO users (dog_name, owner_name, dog_breed, age, vaccination,
                           discoverable, owner_email, location,
-                          likes_one, likes_two, likes_three, is_guest)
+                          likes_one, likes_two, likes_three, is_guest,
+                          onboarded_at)
        SELECT dog_name, 'Guest', dog_breed, age, vaccination,
               false, $2, $3,
-              likes_one, likes_two, likes_three, true
+              likes_one, likes_two, likes_three, true,
+              now()
        FROM users WHERE user_id = $1
        RETURNING *`,
       [TEMPLATE_USER_ID, `guest-${crypto.randomUUID()}@facewoof.app`, originZip]
@@ -249,3 +257,120 @@ module.exports = {
   ensureNeighbours,
   TEMPLATE_USER_ID
 };
+
+/*
+ * Find the account behind an external identity, creating one the first time.
+ *
+ * Matched on (issuer, subject) — the pair the provider guarantees is stable —
+ * rather than on email, which people change and providers reassign.
+ *
+ * If the visitor was already using a guest account, that same account is
+ * claimed rather than abandoned: they keep the swipes, packs and playdates
+ * they built up during the demo, and it stops being a guest so the cleanup
+ * leaves it alone. Signing in should feel like keeping your work.
+ */
+async function findOrCreateExternalUser({ issuer, subject, provider, email, name, guestUserId }) {
+  const existing = await db.query(
+    `SELECT user_id FROM external_identities WHERE issuer = $1 AND subject = $2`,
+    [issuer, subject]
+  );
+
+  if (existing.rows.length) {
+    return { userId: existing.rows[0].user_id, created: false };
+  }
+
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+
+    let userId = null;
+
+    if (guestUserId) {
+      // Claim the guest account they are already sitting in.
+      const claimed = await client.query(
+        `UPDATE users
+            SET is_guest = false,
+                owner_email = COALESCE($2, owner_email),
+                -- The provider's name wins. Guest accounts are created called
+                -- 'Guest', so keeping the existing value left someone who had
+                -- just signed in still labelled a guest on their own profile.
+                owner_name = COALESCE($3, owner_name)
+          WHERE user_id = $1 AND is_guest
+          RETURNING user_id`,
+        [guestUserId, email || null, name || null]
+      );
+      if (claimed.rows.length) userId = claimed.rows[0].user_id;
+    }
+
+    if (!userId) {
+      // owner_email is NOT NULL UNIQUE, and a provider need not return one, so
+      // fall back to a value derived from the identity itself.
+      const address = email || `${subject}@${new URL(issuer).hostname}`;
+      const inserted = await client.query(
+        `INSERT INTO users (owner_email, owner_name, is_guest)
+              VALUES ($1, $2, false)
+         ON CONFLICT (owner_email) DO UPDATE SET owner_email = EXCLUDED.owner_email
+           RETURNING user_id`,
+        [address, name || null]
+      );
+      userId = inserted.rows[0].user_id;
+    }
+
+    await client.query(
+      `INSERT INTO external_identities (user_id, issuer, subject, provider)
+            VALUES ($1, $2, $3, $4)
+       ON CONFLICT (issuer, subject) DO NOTHING`,
+      [userId, issuer, subject, provider || null]
+    );
+
+    await client.query('COMMIT');
+    return { userId, created: true };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+module.exports.findOrCreateExternalUser = findOrCreateExternalUser;
+
+/*
+ * Finish setting up an account created by signing in.
+ *
+ * One transaction on purpose. It writes the profile, moves the person to where
+ * they said they are, and seeds a roster of neighbours around them; a partial
+ * result would leave someone half-onboarded with an empty feed, which is the
+ * exact state this exists to prevent.
+ */
+async function completeOnboarding({ userId, dogName, dogBreed, age, vaccination, zip }) {
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+
+    await client.query(
+      `UPDATE users
+          SET dog_name = COALESCE($2, dog_name),
+              dog_breed = COALESCE($3, dog_breed),
+              age = COALESCE($4, age),
+              vaccination = COALESCE($5, vaccination),
+              location = COALESCE($6, location),
+              onboarded_at = now()
+        WHERE user_id = $1`,
+      [userId, dogName || null, dogBreed || null, age ?? null, vaccination ?? null, zip || null]
+    );
+
+    // The whole point: somebody to see when they arrive.
+    const nearby = await ensureNeighbours(client, userId, zip || DEFAULT_ZIP);
+
+    await client.query('COMMIT');
+    return { nearby };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+module.exports.completeOnboarding = completeOnboarding;

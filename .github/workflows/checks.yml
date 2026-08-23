@@ -108,6 +108,43 @@ jobs:
           docker run --rm --network host -e CI=true \
             -e BASE_URL=http://localhost:8080 facewoof-e2e
 
+      - name: Sign-in, against a mock provider
+        # Entra sign-in is only reachable with a tenant configured, so without
+        # this the sign-in tests would skip in CI and the flow would be covered
+        # by nothing. The mock speaks real OIDC — discovery, PKCE, a signed
+        # id_token and a published JWKS — so signature verification, state and
+        # nonce are genuinely exercised. No Azure credentials involved.
+        run: |
+          set -euo pipefail
+          docker run -d --name oidc-mock --network host \
+            -e PORT=9000 -e ISSUER=http://localhost:9000 -e CLIENT_ID=facewoof-ci \
+            -v "$PWD/tests/oidc-mock/server.js:/app/server.js:ro" \
+            -w /app facewoof node /app/server.js
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:9000/.well-known/openid-configuration >/dev/null && break || sleep 2
+          done
+
+          docker rm -f app
+          docker run -d --name app --network host \
+            -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
+            -e SESSION_SECRET=ci-only-not-a-real-secret \
+            -e INSECURE_TRANSPORT=true \
+            -e GUEST_LIMIT_PER_HOUR=200 \
+            -e PORT=8080 \
+            -e ENTRA_ISSUER=http://localhost:9000 \
+            -e ENTRA_CLIENT_ID=facewoof-ci \
+            -e ENTRA_CLIENT_SECRET=ci-only-not-a-real-secret \
+            -e ENTRA_REDIRECT_URI=http://localhost:8080/api/auth/oidc/callback \
+            facewoof
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080/healthz && break || sleep 2
+          done
+
+          docker run --rm --network host -e CI=true \
+            -e BASE_URL=http://localhost:8080 \
+            -e ENTRA_ISSUER=http://localhost:9000 \
+            facewoof-e2e npx playwright test sign-in --workers=1
+
       - name: Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
