@@ -80,6 +80,33 @@ export const UserProvider = ({ children }) => {
       .catch(() => setPhotos([]));
   }, [userId]);
 
+  /*
+   * Adopt a session the server already has, once, on first load.
+   *
+   * The session lives in an httpOnly cookie, so the client cannot read it and
+   * has to ask. Signing in through a provider establishes that cookie during a
+   * redirect and never touches localStorage, so without this the app came back
+   * from a successful sign-in, found no stored id, decided it was signed out,
+   * and bounced to /login — while /api/auth/me was answering 200 the whole
+   * time. It also covers a browser that dropped localStorage but kept cookies.
+   */
+  useEffect(() => {
+    if (userId !== null) return;
+
+    axios
+      .get('/api/auth/me')
+      .then(({ data }) => {
+        if (!data?.user_id) return;
+        setUserId(data.user_id);
+        setUserData(data);
+      })
+      // 401 is the ordinary answer for a visitor who has not signed in.
+      .catch(() => {});
+    // Deliberately once, on mount: after this, sign-in and sign-out drive the
+    // id, and re-running on every change to it would undo signing out.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Rehydrate the profile behind a stored id, and drop the id if the account
   // has since been swept up by the guest cleanup.
   useEffect(() => {
