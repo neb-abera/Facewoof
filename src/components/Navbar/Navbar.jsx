@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <div className="navbar bg-base-100 px-4 sm:px-10">
-      <div className="navbar-start">
+      <div className="navbar-start min-w-0">
         {/* Below lg the four links do not fit beside the brand and the logout
             button: the bar used to overlap itself and spill off the screen.
             They collapse into this menu instead. */}
@@ -54,7 +54,14 @@ const Navbar = () => {
         </div>
 
         <img src={Logo} className="logo" alt="" />
-        <Link to="/discover" className="btn btn-ghost normal-case text-xl text-primary px-2">
+        {/* The wordmark is the first thing to go when the bar runs out of
+            room. A guest carries two buttons on the right rather than one, and
+            below sm those plus the brand overlapped — the same spilling the
+            links were collapsed to avoid. The logo still marks the way home. */}
+        <Link
+          to="/discover"
+          className="btn btn-ghost normal-case text-xl text-primary px-2 hidden sm:inline-flex"
+        >
           Facewoof
         </Link>
       </div>
@@ -71,7 +78,7 @@ const Navbar = () => {
         </ul>
       </div>
 
-      <div className="navbar-end gap-2">
+      <div className="navbar-end flex-none gap-2">
         {/*
           A demo visitor's only route to a real account.
           /login sends anyone already signed in to /discover, so without this a
