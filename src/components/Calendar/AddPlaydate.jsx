@@ -8,10 +8,19 @@ import useUserContext from '../../hooks/useUserContext';
 import axios from 'axios';
 import './Playdate.css';
 
-const AddPlaydate = ({ closeAddModal, playStartTime, setStartTime, playEndTime, setEndTime }) => {
+const AddPlaydate = ({
+  closeAddModal,
+  playStartTime,
+  setStartTime,
+  playEndTime,
+  setEndTime,
+  onAdded
+}) => {
   const [packChoiceId, setPackChoiceID] = useState();
   const [packChoiceName, setPackChoiceName] = useState();
   const [playdateInfo, setPlaydateInfo] = useState('');
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
   const { packs } = useUserContext();
 
   const handlePackChoice = (e) => {
@@ -24,20 +33,39 @@ const AddPlaydate = ({ closeAddModal, playStartTime, setStartTime, playEndTime, 
     setPlaydateInfo(e.target.value);
   };
 
-  const handleSubmit = () => {
-    return axios
-      .post('/api/addplaydate', {
+  const handleSubmit = async () => {
+    // Every one of these was silently optional. Submitting without a pack or a
+    // time posted an incomplete body, the server answered 400, and nothing
+    // caught it: the modal stayed open with no explanation.
+    if (!packChoiceId) return setError('Choose a pack first.');
+    if (!playStartTime || !playEndTime) return setError('Pick a start and an end time.');
+    if (new Date(playEndTime) <= new Date(playStartTime)) {
+      return setError('The end time has to be after the start time.');
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      // No userId: it used to send a hardcoded 7 with a note to fix it later.
+      // The server takes the acting user from the session and ignores anything
+      // the client claims.
+      await axios.post('/api/addplaydate', {
         packId: packChoiceId,
-        userId: 7, // change later to by whatever user is logged in
         playdateBody: playdateInfo,
         startTime: playStartTime,
         endTime: playEndTime
-      })
-      .then(() => {
-        console.log('playdate added!');
-        closeAddModal();
       });
-    console.log('playdate added');
+      // The calendar only loaded on mount, so a saved playdate never appeared
+      // and the whole feature looked broken.
+      if (onAdded) await onAdded();
+      closeAddModal();
+    } catch (err) {
+      console.error('could not add the playdate', err);
+      setError('That playdate could not be saved. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+    return undefined;
   };
 
   return (
@@ -70,8 +98,14 @@ const AddPlaydate = ({ closeAddModal, playStartTime, setStartTime, playEndTime, 
           value={playdateInfo}
         />
       </div>
-      <button type="submit" className="btn btn-active btn-ghost" onClick={handleSubmit}>
-        Add Playdate! 🐾
+      {error && <p className="text-error text-sm mt-2">{error}</p>}
+      <button
+        type="submit"
+        className="btn btn-active btn-primary"
+        onClick={handleSubmit}
+        disabled={saving}
+      >
+        {saving ? 'Adding…' : 'Add Playdate! 🐾'}
       </button>
     </div>
   );
