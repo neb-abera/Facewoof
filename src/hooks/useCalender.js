@@ -3,7 +3,7 @@ import axios from 'axios';
 import useUserContext from './useUserContext';
 
 const useCalendar = () => {
-  const { userId, setPlaydates, setPacks } = useUserContext();
+  const { setPlaydates, setPacks } = useUserContext();
   const getPacks = useCallback(() => {
     axios
       .get('/api/playdates')
@@ -26,7 +26,10 @@ const useCalendar = () => {
       .then((packData) => {
         setPacks(packData.data);
       });
-  }, [userId, setPlaydates, setPacks]);
+    // No userId dependency: these requests identify the caller by session
+    // cookie now, so the callback does not close over it. Signing in or out
+    // remounts the view that uses this.
+  }, [setPlaydates, setPacks]);
   // eslint-disable-next-line object-shorthand
   return { getPacks };
 };

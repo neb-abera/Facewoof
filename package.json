@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "migrate": "node server/db/migrate.js"
+    "migrate": "node server/db/migrate.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -39,6 +40,7 @@
     "zipcodes": "^8.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "daisyui": "^4.12.23",
