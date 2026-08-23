@@ -249,3 +249,77 @@ module.exports = {
   ensureNeighbours,
   TEMPLATE_USER_ID
 };
+
+/*
+ * Find the account behind an external identity, creating one the first time.
+ *
+ * Matched on (issuer, subject) — the pair the provider guarantees is stable —
+ * rather than on email, which people change and providers reassign.
+ *
+ * If the visitor was already using a guest account, that same account is
+ * claimed rather than abandoned: they keep the swipes, packs and playdates
+ * they built up during the demo, and it stops being a guest so the cleanup
+ * leaves it alone. Signing in should feel like keeping your work.
+ */
+async function findOrCreateExternalUser({ issuer, subject, provider, email, name, guestUserId }) {
+  const existing = await db.query(
+    `SELECT user_id FROM external_identities WHERE issuer = $1 AND subject = $2`,
+    [issuer, subject]
+  );
+
+  if (existing.rows.length) {
+    return { userId: existing.rows[0].user_id, created: false };
+  }
+
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+
+    let userId = null;
+
+    if (guestUserId) {
+      // Claim the guest account they are already sitting in.
+      const claimed = await client.query(
+        `UPDATE users
+            SET is_guest = false,
+                owner_email = COALESCE($2, owner_email),
+                owner_name = COALESCE(owner_name, $3)
+          WHERE user_id = $1 AND is_guest
+          RETURNING user_id`,
+        [guestUserId, email || null, name || null]
+      );
+      if (claimed.rows.length) userId = claimed.rows[0].user_id;
+    }
+
+    if (!userId) {
+      // owner_email is NOT NULL UNIQUE, and a provider need not return one, so
+      // fall back to a value derived from the identity itself.
+      const address = email || `${subject}@${new URL(issuer).hostname}`;
+      const inserted = await client.query(
+        `INSERT INTO users (owner_email, owner_name, is_guest)
+              VALUES ($1, $2, false)
+         ON CONFLICT (owner_email) DO UPDATE SET owner_email = EXCLUDED.owner_email
+           RETURNING user_id`,
+        [address, name || null]
+      );
+      userId = inserted.rows[0].user_id;
+    }
+
+    await client.query(
+      `INSERT INTO external_identities (user_id, issuer, subject, provider)
+            VALUES ($1, $2, $3, $4)
+       ON CONFLICT (issuer, subject) DO NOTHING`,
+      [userId, issuer, subject, provider || null]
+    );
+
+    await client.query('COMMIT');
+    return { userId, created: true };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+module.exports.findOrCreateExternalUser = findOrCreateExternalUser;

@@ -21,7 +21,12 @@ const {
 } = require('./packfeed');
 const { authUser, guestLogin, me, logout } = require('./auth');
 
+const { providers: oidcProviders, start: oidcStart, callback: oidcCallback } = require('./oidc');
+
 module.exports = {
+  oidcProviders,
+  oidcStart,
+  oidcCallback,
   discoverUsers,
   userResponse,
   resolveLocation,
