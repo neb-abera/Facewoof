@@ -79,6 +79,20 @@ services:
         condition: service_healthy
     command: ['npm', 'run', 'migrate']
 
+  # Browser tests against whatever BASE_URL points at. `make e2e` runs them
+  # against the production image, which is the thing that actually ships.
+  e2e:
+    build:
+      context: .
+      target: e2e
+    profiles: ['tools']
+    environment:
+      BASE_URL: ${BASE_URL:-http://app:8080}
+    volumes:
+      - ./tests:/app/tests
+      - ./playwright.config.js:/app/playwright.config.js:ro
+    network_mode: ${E2E_NETWORK:-facewoof_default}
+
   lint:
     build:
       context: .

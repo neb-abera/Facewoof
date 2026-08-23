@@ -37,6 +37,22 @@ FROM deps AS lint
 COPY . .
 RUN npx eslint . && npx prettier --check .
 
+# ---- e2e --------------------------------------------------------------------
+# The browser tests. Playwright's own image so the browser and its system
+# libraries match exactly; a leaf, so the production build never pays for it.
+#
+# This tag and @playwright/test in package.json are pinned to the same exact
+# version deliberately. A caret range on the package lets npm resolve a newer
+# Playwright than the image's browsers, and it refuses to run rather than
+# silently testing against the wrong browser.
+FROM mcr.microsoft.com/playwright:v1.62.1-noble AS e2e
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY playwright.config.js ./
+COPY tests ./tests
+CMD ["npx", "playwright", "test"]
+
 # ---- build ------------------------------------------------------------------
 FROM deps AS build
 COPY . .

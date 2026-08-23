@@ -26,10 +26,16 @@ const shared = {
  * rows. It is by far the most expensive thing an anonymous caller can ask for,
  * so it is the tightest limit here.
  */
+// Configurable because the browser tests all arrive from one address: five
+// tests that each sign in, times a retry, is already at the default. A suite
+// tripping a rate limit looks like a broken app rather than a working control.
+// Production leaves it at the default.
+const GUEST_LIMIT_PER_HOUR = Number(process.env.GUEST_LIMIT_PER_HOUR) || 10;
+
 const guestLimiter = rateLimit({
   ...shared,
   windowMs: minutes(60),
-  limit: 10,
+  limit: GUEST_LIMIT_PER_HOUR,
   message: 'Too many demo sessions started from this address. Try again in an hour.'
 });
 
