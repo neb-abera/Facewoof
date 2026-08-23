@@ -67,7 +67,7 @@ test('every page is reachable from every other page', async ({ page }) => {
   const pages = ['/profile', '/calendar', '/packFeed', '/discover'];
 
   for (const target of pages) {
-    const link = page.locator(`a[href="${target}"]`).filter({ hasText: /\w/ }).first();
+    const link = page.locator(`a[href="${target}"]:visible`).first();
     await link.click();
     await expect(page).toHaveURL(new RegExp(target.replace('/', '\\/')), { timeout: 15_000 });
   }
@@ -75,7 +75,7 @@ test('every page is reachable from every other page', async ({ page }) => {
 
 test('nothing covers the navigation links', async ({ page }) => {
   await signIn(page);
-  await page.locator('a[href="/profile"]').filter({ hasText: /\w/ }).first().click();
+  await page.locator('a[href="/profile"]:visible').first().click();
   await expect(page).toHaveURL(/\/profile/);
 
   // Whatever sits at the centre of the Discover link must be the link itself.
@@ -96,7 +96,7 @@ test('nothing covers the navigation links', async ({ page }) => {
 
 test('the calendar is legible', async ({ page }) => {
   await signIn(page);
-  await page.locator('a[href="/calendar"]').filter({ hasText: /\w/ }).first().click();
+  await page.locator('a[href="/calendar"]:visible').first().click();
   await expect(page.locator('.rbc-calendar')).toBeVisible({ timeout: 20_000 });
 
   // Regression: react-big-calendar ships a light stylesheet, so on the dark
@@ -113,14 +113,16 @@ test('the calendar is legible', async ({ page }) => {
 
 test('a playdate appears on the calendar after it is added', async ({ page }) => {
   await signIn(page);
-  await page.locator('a[href="/calendar"]').filter({ hasText: /\w/ }).first().click();
+  await page.locator('a[href="/calendar"]:visible').first().click();
   await expect(page.locator('.rbc-calendar')).toBeVisible({ timeout: 20_000 });
 
   await page.getByRole('button', { name: /add playdate/i }).click();
   const modal = page.locator('.modal-box');
   await expect(modal).toBeVisible();
 
-  // Pick the first real pack, fill the body, and submit.
+  // Pick the first real pack and submit. The form opens with the next whole
+  // hour already filled in, so a playdate takes one choice rather than typing
+  // two full dates.
   await modal.locator('select').first().selectOption({ index: 1 });
   await modal.locator('textarea').fill('Playwright walk');
   await modal.getByRole('button', { name: /add playdate/i }).click();
@@ -145,7 +147,7 @@ test('a transient API error does not sign the visitor out', async ({ page }) => 
 
 test('a demo visitor lands on their profile, not an edit form', async ({ page }) => {
   await signIn(page);
-  await page.locator('a[href="/profile"]').filter({ hasText: /\w/ }).first().click();
+  await page.locator('a[href="/profile"]:visible').first().click();
 
   // Regression: signing in set firstLogin, which renders the edit form, so
   // every demo visitor met a form instead of the profile they came to see.
