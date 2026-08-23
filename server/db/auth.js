@@ -283,7 +283,10 @@ async function findOrCreateExternalUser({ issuer, subject, provider, email, name
         `UPDATE users
             SET is_guest = false,
                 owner_email = COALESCE($2, owner_email),
-                owner_name = COALESCE(owner_name, $3)
+                -- The provider's name wins. Guest accounts are created called
+                -- 'Guest', so keeping the existing value left someone who had
+                -- just signed in still labelled a guest on their own profile.
+                owner_name = COALESCE($3, owner_name)
           WHERE user_id = $1 AND is_guest
           RETURNING user_id`,
         [guestUserId, email || null, name || null]

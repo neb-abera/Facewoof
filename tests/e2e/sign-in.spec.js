@@ -94,6 +94,10 @@ test.describe('with a provider configured', () => {
     // The swipes, packs and playdates from the demo belong to this id. Making
     // a second account here would quietly throw all of it away.
     expect(after.user_id).toBe(before.user_id);
+    // And it stops being a guest, so the cleanup leaves it alone.
+    expect(after.is_guest).toBe(false);
+    // Guests are created called 'Guest'; the provider's name should win.
+    expect(after.owner_name).not.toBe('Guest');
   });
 
   test('coming back a second time lands on the same account', async ({ page, request }) => {
