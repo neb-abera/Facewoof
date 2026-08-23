@@ -119,21 +119,33 @@ the default. Configuring the four variables below adds Google and Microsoft
 sign-in on top; with any of them missing the buttons do not appear and nothing
 else changes.
 
-| Variable              | What it does                                                          |
-| --------------------- | --------------------------------------------------------------------- |
-| `ENTRA_ISSUER`        | `https://<tenant>.ciamlogin.com/<tenant-id>/v2.0`                     |
-| `ENTRA_CLIENT_ID`     | the app registration's application (client) ID                        |
-| `ENTRA_CLIENT_SECRET` | a client secret from that registration                                |
-| `ENTRA_REDIRECT_URI`  | `https://<host>/api/auth/oidc/callback`, registered as a redirect URI |
+| Variable              | What it does                                                            |
+| --------------------- | ----------------------------------------------------------------------- |
+| `ENTRA_ISSUER`        | `https://<tenant>.ciamlogin.com/<tenant-id>/v2.0`                       |
+| `ENTRA_CLIENT_ID`     | the app registration's application (client) ID                          |
+| `ENTRA_CLIENT_SECRET` | a client secret from that registration                                  |
+| `ENTRA_REDIRECT_URI`  | `https://<host>/api/auth/oidc/callback`, registered as a redirect URI   |
+| `ENTRA_PROVIDERS`     | which sign-in buttons to show, e.g. `email,google`. Defaults to `email` |
 
-Entra External ID is the front door, and Google and Microsoft are identity
-providers configured inside that tenant. The app talks OIDC to one issuer and
-never holds Google's credentials itself, so adding a third provider later is a
-change in the tenant rather than in this repository.
+Entra External ID is the front door, and the social providers are configured
+inside that tenant. The app talks OIDC to one issuer and never holds Google's
+credentials itself, so adding a provider is a change in the tenant plus one
+name in `ENTRA_PROVIDERS`, rather than a change to this code.
+
+`ENTRA_PROVIDERS` exists so the page only ever offers what the tenant can
+actually do. Email needs no federation and works as soon as a tenant exists;
+`google`, `facebook` and `apple` each need setting up at the provider first,
+and listing one before that is done gives you a button that dead-ends.
+
+Note that a personal Microsoft account is **not** one of External ID's
+providers — it federates Facebook, Google, Apple, custom OIDC and SAML. An
+organisation's own Entra tenant can be added as a custom OIDC provider, but
+that is organisational sign-in, not consumer "sign in with Microsoft".
 
 To set it up: create an External ID tenant, register an application with the
-redirect URI above, add Google as an identity provider (Entra's own accounts
-work with no extra configuration), and include both in the user flow. The
+redirect URI above, create a sign-up and sign-in user flow and attach the app
+to it. That alone gives you email sign-in. For Google, add it as an identity
+provider and add it to the same user flow. The
 [Microsoft walkthrough](https://learn.microsoft.com/entra/external-id/customers/how-to-google-federation-customers)
 covers the Google side.
 

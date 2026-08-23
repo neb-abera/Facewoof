@@ -78,6 +78,7 @@ e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
 	  -e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
 	  -e SESSION_SECRET=local-only -e INSECURE_TRANSPORT=true -e PORT=8080 \
 	  -e GUEST_LIMIT_PER_HOUR=200 \
+	  -e ENTRA_PROVIDERS=email,google \
 	  -e ENTRA_ISSUER=http://facewoof-oidc-mock:9000 \
 	  -e ENTRA_CLIENT_ID=facewoof-test \
 	  -e ENTRA_CLIENT_SECRET=local-only \
