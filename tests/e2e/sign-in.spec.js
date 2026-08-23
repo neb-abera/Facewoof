@@ -223,4 +223,30 @@ test.describe('with a provider configured', () => {
     // Nothing External ID cannot actually do.
     expect(offered).not.toContain('microsoft');
   });
+
+  /*
+   * The hint that jumps straight to a provider.
+   *
+   * Getting this wrong is not a worse experience, it is a dead stop: the
+   * tenant answers AADSTS90023 and sign-in fails. It shipped wrong twice —
+   * first as a guess, then "corrected" to the value Microsoft documents for
+   * its built-in providers, which is not what a provider created through the
+   * Graph API answers to.
+   */
+  test('each provider carries a domain hint that its tenant accepts', async ({ request }) => {
+    const { providers } = await (await request.get('/api/auth/providers')).json();
+
+    for (const { id } of providers) {
+      const started = await request.get(`/api/auth/oidc/start?provider=${id}`, {
+        maxRedirects: 0
+      });
+      const { location } = started.headers();
+      expect(location, `${id} should redirect to the tenant`).toBeTruthy();
+
+      // Following it must reach a usable page, not a rejected hint.
+      const landed = await request.get(location);
+      const body = await landed.text();
+      expect(body, `${id}: the tenant rejected its domain_hint`).not.toContain('AADSTS90023');
+    }
+  });
 });
