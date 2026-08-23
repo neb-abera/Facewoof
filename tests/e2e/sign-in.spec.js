@@ -120,4 +120,88 @@ test.describe('with a provider configured', () => {
     // not a new one each visit.
     expect(second.user_id).toBe(first.user_id);
   });
+
+  /*
+   * A cold sign-in — nobody who was already using the demo.
+   *
+   * A demo account is cloned from the template and arrives with a dog and a
+   * roster of neighbours. An account created by signing in has neither, and
+   * used to land on an empty discover feed with no explanation.
+   */
+  test('a cold sign-in is asked to set up, and lands on a feed with dogs in it', async ({
+    page,
+    request
+  }) => {
+    await signInAs(request, `cold-${Date.now()}`);
+
+    await page.goto('/login');
+    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+
+    // Onboarding, not an empty feed.
+    await page.waitForURL('**/welcome', { timeout: 30_000 });
+
+    await page.getByLabel(/your dog's name/i).fill('Biscuit');
+    await page.getByLabel(/^breed$/i).fill('Golden Retriever');
+    await page.getByLabel(/^age$/i).fill('4');
+    await page.getByLabel(/zip code/i).fill('10011');
+    await page.getByRole('button', { name: /start meeting dogs/i }).click();
+
+    await page.waitForURL('**/discover', { timeout: 30_000 });
+
+    const me = await (await page.request.get('/api/auth/me')).json();
+    expect(me.dog_name).toBe('Biscuit');
+    expect(me.onboarded_at, 'onboarding should be recorded').toBeTruthy();
+
+    // The point of the whole exercise: somebody to see.
+    const feed = await (
+      await page.request.get('/api/discover?zipcode=10011&radius=25&limit=10')
+    ).json();
+    expect(feed.users.length, 'the feed should not be empty after signing up').toBeGreaterThan(0);
+  });
+
+  test('onboarding is not shown twice', async ({ page, request }) => {
+    const subject = `settled-${Date.now()}`;
+    await signInAs(request, subject);
+    await page.goto('/login');
+    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.waitForURL('**/welcome', { timeout: 30_000 });
+
+    await page.getByLabel(/your dog's name/i).fill('Hazel');
+    await page.getByLabel(/zip code/i).fill('10011');
+    await page.getByRole('button', { name: /start meeting dogs/i }).click();
+    await page.waitForURL('**/discover', { timeout: 30_000 });
+
+    // Coming back later goes straight to the app.
+    await page.request.post('/api/auth/logout');
+    await signInAs(request, subject);
+    await page.goto('/login');
+    await page.getByRole('link', { name: /continue with microsoft/i }).click();
+    await page.waitForURL('**/discover', { timeout: 30_000 });
+    await expect(page).not.toHaveURL(/\/welcome/);
+  });
+
+  test('a demo visitor who signs in is never asked to set up', async ({ page, request }) => {
+    await signInAs(request, `demo-then-signin-${Date.now()}`);
+
+    await page.goto('/');
+    await page.getByRole('button', { name: /try the demo/i }).click();
+    await page.waitForURL('**/discover', { timeout: 30_000 });
+
+    await page.getByRole('link', { name: /save your account/i }).click();
+
+    /*
+     * Polled on the account rather than waited on as a navigation. Signing in
+     * from /discover ends back on /discover, and waiting for a navigation to a
+     * URL the page is already on is a race: it can be satisfied by the page
+     * you started from and time out on the one you meant.
+     */
+    await expect
+      .poll(async () => (await (await page.request.get('/api/auth/me')).json()).is_guest, {
+        timeout: 30_000
+      })
+      .toBe(false);
+
+    // They already have a dog and a feed; onboarding would be busywork.
+    await expect(page).toHaveURL(/\/discover/);
+  });
 });

@@ -12,6 +12,7 @@ const {
   createNewPackAndAdd,
   authUser,
   guestLogin,
+  finishOnboarding,
   oidcProviders,
   oidcStart,
   oidcCallback,
@@ -55,6 +56,9 @@ router.post('/api/auth/logout', logout);
 router.get('/api/auth/providers', oidcProviders);
 router.get('/api/auth/oidc/start', guestLimiter, oidcStart);
 router.get('/api/auth/oidc/callback', oidcCallback);
+
+// Finishing setup after signing in: profile, location and a roster to see.
+router.put('/api/onboarding', writeLimiter, requireUser, finishOnboarding);
 
 // Check whether a user exists, creating them if not.
 router.put('/api/authuser', authUser);
