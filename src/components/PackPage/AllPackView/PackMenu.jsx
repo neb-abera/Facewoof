@@ -1,97 +1,75 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 import PackList from './PackList.jsx';
 import Playdates from './Playdates.jsx';
-// import AllPacksModal from '../PackModals/AllPacksModal.jsx';
 import CreatePackModal from '../PackModals/CreatePackModal.jsx';
-import FriendsListCopy from '../PackModals/FriendsListCopy.jsx';
+import './packMenu.css';
 
+/*
+ * The pack feed sidebar: which packs you are in, and what is coming up.
+ *
+ * Previously a stack of inline styles with a hardcoded 25vw column and two
+ * panes pinned to 40vh and 50vh, each with its own scrollbar. The headings
+ * carried no weight or contrast, so "Your Packs" read as stray text rather
+ * than a label, and on a narrow window the buttons were pushed out of reach.
+ * The layout lives in packMenu.css now and the sidebar scrolls as one piece.
+ */
 const PackMenu = ({ viewing, setViewing, userIdentity, setViewingName }) => {
-  const buttonModal = useRef();
-
-  // var dummyFunc =
-  var styles = {
-    packList: {
-      display: 'flex',
-      flexDirection: 'column',
-      height: '40vh',
-      overflowY: 'scroll'
-    },
-    parent: {
-      // border: '1px solid grey',
-      width: '25vw',
-      height: '100vh',
-      // paddingTop: '50px',
-      position: 'sticky',
-      top: '0px',
-      bottom: '0px',
-      alignItems: 'stretch',
-      overflowY: 'auto'
-    },
-    yourPacks: {
-      // paddingTop: '25px'
-      // border: '1px solid black',
-      // height: '25px',
-      display: 'flex',
-      justifyContent: 'center'
-    },
-    // packList: {
-    //   // border: '2px solid grey',
-    // },
-    calendar: {
-      height: '50vh',
-      overflowY: 'scroll',
-      padding: '15px'
-    },
-    menuButtons: {
-      // border: '2px solid grey',
-      display: 'flex',
-      justifyContent: 'space-between'
-    }
-  };
-
-  const [showModal, setShowModal] = useState(false);
+  const [creatingPack, setCreatingPack] = useState(false);
 
   return (
     <>
-      {/* <AllPacksModal /> */}
-      <CreatePackModal userIdentity={{ user_id: userIdentity }} />
-      {/* <FriendsListCopy currentUser={{ user_id: userIdentity }} /> */}
-      <aside className="bg-base-200" style={styles.parent}>
-        <ul className="menu p-1 w-full bg-base-100 text-base-content">
-          <div className="card shadow-xl">
-            <div style={styles.yourPacks}>Your Packs</div>
-          </div>
-          <div style={styles.packList}>
+      <CreatePackModal
+        userIdentity={userIdentity}
+        isOpen={creatingPack}
+        onClose={() => setCreatingPack(false)}
+      />
+      <aside className="pack-menu">
+        <div className="pack-menu__section">
+          <p className="pack-menu__heading">Your packs</p>
+          <ul className="pack-menu__list">
             <PackList
               setViewing={setViewing}
               setViewingName={setViewingName}
               userIdentity={userIdentity}
             />
-          </div>
-          <div style={styles.menuButtons}>
-            <label htmlFor="create-pack-modal" className="btn">
-              Create Pack
-            </label>
-            {viewing !== '-1' ? (
-              <button
-                className="btn"
-                onClick={() => {
-                  setViewing('-1');
-                }}
-              >
-                View All
-              </button>
-            ) : null}
-          </div>
-          <div style={styles.calendar}>
-            Calendar
-            <Playdates userIdentity={userIdentity} />
-          </div>
-        </ul>
+          </ul>
+        </div>
+
+        <div className="pack-menu__section pack-menu__actions">
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => setCreatingPack(true)}
+          >
+            Create pack
+          </button>
+          {viewing !== '-1' ? (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setViewing('-1')}>
+              View all posts
+            </button>
+          ) : null}
+        </div>
+
+        <div className="pack-menu__section">
+          <p className="pack-menu__heading">Coming up</p>
+          <Playdates userIdentity={userIdentity} />
+        </div>
       </aside>
     </>
   );
+};
+
+PackMenu.propTypes = {
+  viewing: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  setViewing: PropTypes.func.isRequired,
+  setViewingName: PropTypes.func.isRequired,
+  userIdentity: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+};
+
+PackMenu.defaultProps = {
+  userIdentity: undefined
 };
 
 export default PackMenu;

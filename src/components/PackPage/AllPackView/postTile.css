@@ -1,0 +1,51 @@
+/*
+ * A post reads as a card: photo, then the message, then a quiet caption.
+ */
+.post-tile {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: oklch(var(--b2));
+  border: 1px solid oklch(var(--b3));
+  border-radius: 0.875rem;
+}
+
+.post-tile__photo {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+.post-tile__body {
+  min-width: 0; /* so long words wrap rather than stretch the card */
+  flex: 1 1 auto;
+}
+
+.post-tile__content {
+  color: oklch(var(--bc));
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.post-tile__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: oklch(var(--bc) / 0.6);
+}
+
+.post-tile__pack {
+  color: oklch(var(--p));
+  font-weight: 600;
+}
+
+.post-tile__pack::after {
+  content: '·';
+  margin-left: 0.5rem;
+  color: oklch(var(--bc) / 0.4);
+}
