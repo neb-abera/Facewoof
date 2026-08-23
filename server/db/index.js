@@ -29,6 +29,7 @@ const {
 const {
   checkOrCreateUser,
   findOrCreateExternalUser,
+  completeOnboarding,
   createGuestUser,
   purgeExpiredGuests,
   ensureNeighbours,
@@ -51,6 +52,7 @@ module.exports = {
   createPackPromise,
   checkOrCreateUser,
   findOrCreateExternalUser,
+  completeOnboarding,
   createGuestUser,
   purgeExpiredGuests,
   ensureNeighbours,

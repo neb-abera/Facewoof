@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import useUserContext from '../../hooks/useUserContext';
 import PropTypes from 'prop-types';
 
 /*
@@ -10,6 +11,14 @@ import PropTypes from 'prop-types';
  * looking at rather than believing these are dogs down the road.
  */
 const LocationNotice = ({ onProvide, searchingFrom }) => {
+  const { userData } = useUserContext();
+  /*
+   * The dogs are seeded samples either way, and saying so matters. But
+   * "you're seeing a demo" is only true of a demo account: someone who has
+   * just signed in and set themselves up is not on a demo, and telling them
+   * they are reads as though their sign-in did not take.
+   */
+  const onDemo = Boolean(userData?.is_guest);
   const [asking, setAsking] = useState(false);
   const [blocked, setBlocked] = useState(false);
 
@@ -38,7 +47,7 @@ const LocationNotice = ({ onProvide, searchingFrom }) => {
   return (
     <div className="alert bg-base-200 rounded-none flex-wrap gap-3 py-3 px-6 text-sm">
       <div className="flex-1">
-        <strong>You&apos;re seeing a demo.</strong>{' '}
+        <strong>{onDemo ? "You're seeing a demo." : 'Sample dogs for now.'}</strong>{' '}
         {searchingFrom ? (
           <>
             These dogs are samples around {searchingFrom}, not dogs near you. Share your location to
