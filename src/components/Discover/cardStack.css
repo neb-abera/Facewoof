@@ -48,7 +48,7 @@
     flex-flow: column nowrap;
     align-items: start;
     justify-content: start;
-    background-color: hsl(var(--b2));
+    background-color: oklch(var(--b2));
     padding: 40px;
     border-radius: 16px;
     box-shadow: 0 0 15px 2px rgb(0 0 0 / 0.5);
@@ -232,7 +232,7 @@
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 20px 5px hsl(var(--su) / 0.55);
+      box-shadow: 0 0 20px 5px oklch(var(--su) / 0.55);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;
@@ -244,7 +244,7 @@
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 15px 2px hsl(var(--er) / 0.55);
+      box-shadow: 0 0 15px 2px oklch(var(--er) / 0.55);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;

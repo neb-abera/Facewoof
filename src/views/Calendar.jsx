@@ -32,7 +32,24 @@ const Calendar = () => {
   const closeEditModal = () => {
     setEditPlaydateModal(false);
   };
+  /*
+   * Open the add form with sensible times already in it.
+   *
+   * It opened with every date field blank, so the first thing anyone had to do
+   * was type a full date and time twice before they could do anything. The
+   * next whole hour, running an hour, is right far more often than not, and
+   * both are still editable.
+   */
   const openAddModal = () => {
+    if (!playStartTime) {
+      const start = new Date();
+      start.setMinutes(0, 0, 0);
+      start.setHours(start.getHours() + 1);
+      const end = new Date(start);
+      end.setHours(end.getHours() + 1);
+      setStartTime(start);
+      setEndTime(end);
+    }
     setAddPlaydateModal(true);
   };
 
@@ -65,6 +82,7 @@ const Calendar = () => {
       </Modal>
       <Modal isOpen={addPlaydateModal} onRequestClose={closeAddModal} className="playdate-modal">
         <AddPlaydate
+          onAdded={getPacks}
           closeAddModal={closeAddModal}
           playStartTime={playStartTime}
           setStartTime={setStartTime}

@@ -6,7 +6,7 @@ import '../Discover/profileCard.css';
 import axios from 'axios';
 
 const CreatePackCard = ({ currentUser, friend }) => {
-  const userId = currentUser.user_id;
+  const userId = currentUser?.user_id;
   const friendId = friend.user_id;
   const [packName, setPackName] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -57,8 +57,12 @@ const CreatePackCard = ({ currentUser, friend }) => {
   };
   // console.log('users', currentUser, friend)
   // const submitText = `Create Pack with ${user.dog_name} and ${friend.dog_name}`
-  const submitText = `Create Pack with ${currentUser.dog_name} and ${friend.dog_name}`;
-  const successText = `${packName} with ${currentUser.dog_name} and ${friend.dog_name} has been created!!`;
+  // Named defensively: a missing profile should read as a generic label, never
+  // as the word "undefined" in the middle of a sentence shown to a visitor.
+  const mine = currentUser?.dog_name || 'your dog';
+  const theirs = friend?.dog_name || 'them';
+  const submitText = `Create Pack with ${mine} and ${theirs}`;
+  const successText = `${packName} with ${mine} and ${theirs} has been created!!`;
   return (
     <div>
       <div className="profile-card-parent">
