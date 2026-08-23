@@ -4,6 +4,15 @@
 /* eslint-disable react/no-array-index-key */
 import React, { useState } from 'react';
 import DateTimePicker from 'react-datetime-picker';
+/*
+ * The picker's own stylesheets, which were never imported. Without them the
+ * widget renders completely unstyled: a white strip across the dialog, the
+ * fields running together, and the clear and calendar buttons showing as a
+ * bare "✕ □". It looked broken because, visually, it was.
+ */
+import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-calendar/dist/Calendar.css';
+import 'react-clock/dist/Clock.css';
 import useUserContext from '../../hooks/useUserContext';
 import axios from 'axios';
 import './Playdate.css';
@@ -69,7 +78,7 @@ const AddPlaydate = ({
   };
 
   return (
-    <div className="modal-box">
+    <div className="playdate-form">
       <h2>Add a Playdate</h2>
       <select
         defaultValue="Pack Name"

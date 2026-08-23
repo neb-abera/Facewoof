@@ -1,0 +1,148 @@
+/*
+ * One treatment for every dialog in the app.
+ *
+ * react-modal drops its own default content class the moment you pass a
+ * className, so the add-playdate form inherited no positioning at all and
+ * opened against the top-left corner of the page. Its default overlay is
+ * rgba(255, 255, 255, 0.75) — a white wash over a dark app, which is why a
+ * dialog could be open and still read as part of the page behind it.
+ *
+ * These two classes are the pair to reach for: app-modal__overlay on
+ * overlayClassName, app-modal on className.
+ */
+
+.app-modal__overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
+  /* Dark, and dark enough to actually separate the dialog from the page. */
+  background-color: oklch(var(--n) / 0.72);
+  backdrop-filter: blur(2px);
+
+  /* Above the sticky navbar, which sits at 40. */
+  z-index: 100;
+}
+
+.app-modal {
+  width: 100%;
+  max-width: 32rem;
+
+  /* Never taller than the screen: the form runs to two date pickers and a
+     textarea, and on a laptop that used to run off the bottom with the submit
+     button below the fold. */
+  max-height: min(85vh, 44rem);
+  overflow-y: auto;
+
+  background-color: oklch(var(--b2));
+  color: oklch(var(--bc));
+  border: 1px solid oklch(var(--b3));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px oklch(0% 0 0 / 0.5);
+
+  /* react-modal puts the focus ring here; the border already frames it. */
+  outline: none;
+}
+
+/* The dialog's own content, laid out rather than stacked flush. */
+.app-modal h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.app-modal h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: oklch(var(--bc) / 0.7);
+  margin-bottom: 0.375rem;
+}
+
+.app-modal > *,
+.app-modal > div > * {
+  max-width: 100%;
+}
+
+/*
+ * The dialog's own controls, not the ones inside a widget. Without the
+ * :not(), this caught react-datetime-picker's internal AM/PM select and blew
+ * it to the full width of the dialog, so it dropped out of its field and sat
+ * across the label underneath.
+ */
+.app-modal select:not([class*='react-datetime-picker']),
+.app-modal textarea {
+  width: 100%;
+}
+
+.app-modal textarea {
+  min-height: 5rem;
+}
+
+.app-modal > div {
+  margin-bottom: 1.25rem;
+}
+
+.app-modal > button {
+  width: 100%;
+}
+
+/*
+ * react-datetime-picker renders its own bare inputs. Left alone they were
+ * transparent on a transparent field, which is most of why the times were hard
+ * to read even once the calendar itself was themed.
+ */
+.app-modal .react-datetime-picker {
+  width: 100%;
+}
+
+.app-modal .react-datetime-picker__wrapper {
+  background-color: oklch(var(--b1));
+  border: 1px solid oklch(var(--b3));
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: oklch(var(--bc));
+}
+
+.app-modal .react-datetime-picker__inputGroup__input {
+  color: oklch(var(--bc));
+}
+
+.app-modal .react-datetime-picker__inputGroup__input:focus {
+  outline: 2px solid oklch(var(--p));
+  outline-offset: 1px;
+}
+
+.app-modal .react-datetime-picker__button svg {
+  stroke: oklch(var(--bc));
+}
+
+.app-modal .react-calendar {
+  background-color: oklch(var(--b1));
+  color: oklch(var(--bc));
+  border: 1px solid oklch(var(--b3));
+  border-radius: 0.5rem;
+}
+
+.app-modal .react-calendar button {
+  color: oklch(var(--bc));
+  background-color: transparent;
+}
+
+.app-modal .react-calendar button:enabled:hover,
+.app-modal .react-calendar button:enabled:focus {
+  background-color: oklch(var(--b3));
+}
+
+.app-modal .react-calendar__tile--active,
+.app-modal .react-calendar__tile--hasActive {
+  background-color: oklch(var(--p)) !important;
+  color: oklch(var(--pc)) !important;
+}
+
+.app-modal .react-calendar__month-view__days__day--neighboringMonth {
+  color: oklch(var(--bc) / 0.4);
+}

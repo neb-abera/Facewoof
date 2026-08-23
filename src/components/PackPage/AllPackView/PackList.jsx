@@ -30,22 +30,20 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
 
   return (
     <>
-      <div>
-        {packList
-          ? packList.map((packName, key) => (
-              <li
-                key={key}
-                onClick={() => {
-                  click(packName);
-                }}
-              >
-                <a>
-                  <PackName name={packName.name} />
-                </a>
-              </li>
-            ))
-          : null}
-      </div>
+      {packList
+        ? packList.map((packName, key) => (
+            <li
+              key={key}
+              onClick={() => {
+                click(packName);
+              }}
+            >
+              <a>
+                <PackName name={packName.name} />
+              </a>
+            </li>
+          ))
+        : null}
     </>
   );
 };

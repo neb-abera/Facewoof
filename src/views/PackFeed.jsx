@@ -5,20 +5,9 @@ import AllPostTiles from '../components/PackPage/AllPackView/AllPostTiles';
 import PackMenu from '../components/PackPage/AllPackView/PackMenu';
 import SoloPostTiles from '../components/PackPage/SoloPostView/SoloPostTiles';
 import useUserContext from '../hooks/useUserContext';
+import './packFeed.css';
 
 const PackFeed = () => {
-  const styles = {
-    PackLayout: {
-      display: 'flex',
-      width: '100%',
-      flexDirection: 'row',
-      // border: '3px solid blue',
-      // marginLeft: '0px',
-      boxSizing: 'content-box'
-      // justifyContent: 'space-between'
-    }
-  };
-
   const [allPosts, setAllPosts] = useState([]);
   const { userId, loggedIn } = useUserContext();
   const userIdentity = userId;
@@ -33,7 +22,7 @@ const PackFeed = () => {
   const [viewing, setViewing] = useState('-1');
   const [viewingName, setViewingName] = useState('');
   return (
-    <div style={styles.PackLayout}>
+    <div className="pack-feed">
       <PackMenu
         viewing={viewing}
         setViewing={setViewing}
