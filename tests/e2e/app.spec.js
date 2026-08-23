@@ -238,3 +238,43 @@ test('a pack can be created from the pack feed', async ({ page }) => {
 
   await expect(dialog.getByText(/is ready/i)).toBeVisible({ timeout: 20_000 });
 });
+
+/*
+ * The navigation bar at phone width.
+ *
+ * A guest carries two controls on the right — "Save your account" as well as
+ * "Log out" — and below the small breakpoint those plus the wordmark ran into
+ * each other, the same spilling the links were collapsed into a menu to avoid.
+ */
+test('the navbar does not overlap itself on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await signIn(page);
+
+  const overlap = await page.evaluate(() => {
+    const box = (el) => el.getBoundingClientRect();
+    const visible = (el) => el && el.offsetParent !== null;
+
+    const controls = [...document.querySelectorAll('.navbar a, .navbar button')].filter(visible);
+    for (let i = 0; i < controls.length; i += 1) {
+      for (let j = i + 1; j < controls.length; j += 1) {
+        const a = box(controls[i]);
+        const b = box(controls[j]);
+        if (controls[i].contains(controls[j]) || controls[j].contains(controls[i])) continue;
+        const apart = a.right <= b.left + 1 || b.right <= a.left + 1;
+        const stacked = a.bottom <= b.top + 1 || b.bottom <= a.top + 1;
+        if (!apart && !stacked) {
+          return `${controls[i].textContent.trim().slice(0, 20) || 'icon'} overlaps ${
+            controls[j].textContent.trim().slice(0, 20) || 'icon'
+          }`;
+        }
+      }
+    }
+    return null;
+  });
+
+  expect(overlap, `navbar controls overlap: ${overlap}`).toBeNull();
+
+  // And nothing spills off the side.
+  const spill = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(spill, 'the page scrolls sideways on a phone').toBe(false);
+});
