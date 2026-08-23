@@ -119,18 +119,26 @@ the default. Configuring the four variables below adds Google and Microsoft
 sign-in on top; with any of them missing the buttons do not appear and nothing
 else changes.
 
-| Variable              | What it does                                                            |
-| --------------------- | ----------------------------------------------------------------------- |
-| `ENTRA_ISSUER`        | `https://<tenant>.ciamlogin.com/<tenant-id>/v2.0`                       |
-| `ENTRA_CLIENT_ID`     | the app registration's application (client) ID                          |
-| `ENTRA_CLIENT_SECRET` | a client secret from that registration                                  |
-| `ENTRA_REDIRECT_URI`  | `https://<host>/api/auth/oidc/callback`, registered as a redirect URI   |
-| `ENTRA_PROVIDERS`     | which sign-in buttons to show, e.g. `email,google`. Defaults to `email` |
+| Variable              | What it does                                                                                    |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `ENTRA_ISSUER`        | `https://<tenant>.ciamlogin.com/<tenant-id>/v2.0`                                               |
+| `ENTRA_CLIENT_ID`     | the app registration's application (client) ID                                                  |
+| `ENTRA_CLIENT_SECRET` | a client secret from that registration                                                          |
+| `ENTRA_REDIRECT_URI`  | `https://<host>/api/auth/oidc/callback`, registered as a redirect URI                           |
+| `ENTRA_PROVIDERS`     | which sign-in buttons to show, e.g. `email,google`. Each may carry `:hint`. Defaults to `email` |
 
 Entra External ID is the front door, and the social providers are configured
 inside that tenant. The app talks OIDC to one issuer and never holds Google's
 credentials itself, so adding a provider is a change in the tenant plus one
 name in `ENTRA_PROVIDERS`, rather than a change to this code.
+
+Each entry may carry a domain hint — `google:accounts.google.com` — which is
+what sends someone straight to that provider rather than to Entra's own
+chooser. The defaults suit a provider created through the Graph API, which is
+addressed by its issuer domain. Entra's _built-in_ providers answer to the bare
+words `google`, `facebook` and `apple` instead, so a tenant configured through
+the portal may need the override. Getting it wrong fails hard, with
+`AADSTS90023`, rather than merely showing an extra page.
 
 `ENTRA_PROVIDERS` exists so the page only ever offers what the tenant can
 actually do. Email needs no federation and works as soon as a tenant exists;
