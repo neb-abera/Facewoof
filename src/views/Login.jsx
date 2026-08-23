@@ -5,6 +5,7 @@ import dogImage from '../assets/dog.jpg';
 import '../components/Login/Login.css';
 import useUserContext from '../hooks/useUserContext';
 import useGuestSignIn from '../hooks/useGuestSignIn';
+import useAuthProviders from '../hooks/useAuthProviders';
 
 /*
  * Sign-in.
@@ -17,6 +18,11 @@ import useGuestSignIn from '../hooks/useGuestSignIn';
 const Login = () => {
   const { loggedIn, authenticating } = useUserContext();
   const { start: handleGuestSignIn, error } = useGuestSignIn();
+  const providers = useAuthProviders();
+
+  // The callback redirects here with a reason rather than rendering its own
+  // error page, because it is reached by a browser navigation.
+  const signInError = new URLSearchParams(window.location.search).get('error');
 
   if (loggedIn) return <Navigate to="/discover" replace />;
 
@@ -49,6 +55,36 @@ const Login = () => {
               Try the demo
             </button>
             {error && <p className="text-error text-sm">{error}</p>}
+            {signInError && (
+              <p className="text-error text-sm">
+                {signInError === 'refused'
+                  ? 'That sign-in was cancelled.'
+                  : 'Sign-in did not complete. Please try again.'}
+              </p>
+            )}
+
+            {providers.length > 0 && (
+              <>
+                <div className="flex items-center gap-3 w-full opacity-50">
+                  <span className="h-px flex-1 bg-base-content/30" />
+                  <span className="text-xs uppercase tracking-wider">or</span>
+                  <span className="h-px flex-1 bg-base-content/30" />
+                </div>
+                <div className="flex flex-col gap-2 w-full">
+                  {providers.map(({ id, label }) => (
+                    // A plain link, not a fetch: signing in is a navigation to
+                    // another origin and back.
+                    <a
+                      key={id}
+                      className="btn btn-outline"
+                      href={`/api/auth/oidc/start?provider=${id}`}
+                    >
+                      Continue with {label}
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
             <p className="text-xs opacity-60">
               We&apos;ll ask for your location so the demo can show dogs near you. Declining is
               fine. Demo accounts and anything posted from them are deleted after 24 hours.

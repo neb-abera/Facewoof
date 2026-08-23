@@ -110,6 +110,43 @@ needs no `.env` at all.
 | `CORS_ORIGIN`                           | comma separated. Unset means no cross-origin requests are allowed                                         |
 | `VITE_BASE_PATH`                        | build time. Must match `BASE_PATH`                                                                        |
 | `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` | Cloudinary, for photo uploads. Optional: without them the upload widget says so and everything else works |
+| `ENTRA_ISSUER` etc.                     | sign-in through Entra External ID. Optional: see below                                                    |
+
+### Sign-in
+
+Anyone can use Facewoof through a demo account without signing in, and that is
+the default. Configuring the four variables below adds Google and Microsoft
+sign-in on top; with any of them missing the buttons do not appear and nothing
+else changes.
+
+| Variable              | What it does                                                          |
+| --------------------- | --------------------------------------------------------------------- |
+| `ENTRA_ISSUER`        | `https://<tenant>.ciamlogin.com/<tenant-id>/v2.0`                     |
+| `ENTRA_CLIENT_ID`     | the app registration's application (client) ID                        |
+| `ENTRA_CLIENT_SECRET` | a client secret from that registration                                |
+| `ENTRA_REDIRECT_URI`  | `https://<host>/api/auth/oidc/callback`, registered as a redirect URI |
+
+Entra External ID is the front door, and Google and Microsoft are identity
+providers configured inside that tenant. The app talks OIDC to one issuer and
+never holds Google's credentials itself, so adding a third provider later is a
+change in the tenant rather than in this repository.
+
+To set it up: create an External ID tenant, register an application with the
+redirect URI above, add Google as an identity provider (Entra's own accounts
+work with no extra configuration), and include both in the user flow. The
+[Microsoft walkthrough](https://learn.microsoft.com/entra/external-id/customers/how-to-google-federation-customers)
+covers the Google side.
+
+Signing in from a demo account claims that account rather than making a second
+one, so the swipes, packs and playdates from the demo are kept and the account
+stops being swept up by the guest cleanup.
+
+The sign-in flow is covered by tests that run against a mock provider in
+`tests/oidc-mock`, so no Azure credentials are needed to work on it:
+
+```bash
+make e2e-signin
+```
 
 ## Deploying
 
