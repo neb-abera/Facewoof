@@ -29,10 +29,13 @@ const isConfigured = Boolean(
  * Everything External ID can federate with, and the domain_hint that jumps
  * straight to it rather than showing Microsoft's own chooser first.
  *
- * The hint values are exactly these words — 'google', not 'google.com'. The
- * first version of this used the domain name and would have landed on the
- * chooser instead, which is the kind of thing that only shows up once a real
- * tenant is on the other end.
+ * Which hint works depends on how the provider was configured, and getting it
+ * wrong is not a degraded experience but a hard failure: the tenant answers
+ * AADSTS90023 and sign-in stops. The bare words 'google', 'facebook', 'apple'
+ * address Entra's built-in providers. A provider created through the Graph
+ * identityProviders API instead gets its own id and is addressed by its issuer
+ * domain, which is what these defaults are. Override per deployment with
+ * `name:hint` in ENTRA_PROVIDERS if your tenant wants the other form.
  *
  * There is deliberately no Microsoft entry. External ID federates Facebook,
  * Google, Apple, custom OIDC and SAML; a personal Microsoft account is not one
@@ -42,9 +45,9 @@ const isConfigured = Boolean(
  */
 const KNOWN_PROVIDERS = {
   email: { label: 'Email', domainHint: null },
-  google: { label: 'Google', domainHint: 'google' },
-  facebook: { label: 'Facebook', domainHint: 'facebook' },
-  apple: { label: 'Apple', domainHint: 'apple' }
+  google: { label: 'Google', domainHint: 'accounts.google.com' },
+  facebook: { label: 'Facebook', domainHint: 'www.facebook.com' },
+  apple: { label: 'Apple', domainHint: 'appleid.apple.com' }
 };
 
 /*
@@ -56,22 +59,31 @@ const KNOWN_PROVIDERS = {
  * anything else is opt-in once it has been set up at the provider.
  */
 const configuredProviders = () => {
+  // Each entry is `name` or `name:domain-hint`, the second form overriding the
+  // default hint for a tenant that addresses its provider differently.
   const requested = (process.env.ENTRA_PROVIDERS || 'email')
     .split(',')
-    .map((name) => name.trim().toLowerCase())
-    .filter(Boolean);
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [name, ...rest] = entry.split(':');
+      return { name: name.trim().toLowerCase(), hint: rest.join(':').trim() || null };
+    });
 
-  const unknown = requested.filter((name) => !KNOWN_PROVIDERS[name]);
+  const unknown = requested.filter(({ name }) => !KNOWN_PROVIDERS[name]);
   if (unknown.length) {
-    console.warn(`ignoring unknown sign-in providers: ${unknown.join(', ')}`);
+    console.warn(`ignoring unknown sign-in providers: ${unknown.map((u) => u.name).join(', ')}`);
   }
 
-  const known = requested.filter((name) => KNOWN_PROVIDERS[name]);
-  return known.length ? known : ['email'];
+  const known = requested.filter(({ name }) => KNOWN_PROVIDERS[name]);
+  return known.length ? known : [{ name: 'email', hint: null }];
 };
 
 const PROVIDERS = Object.fromEntries(
-  configuredProviders().map((name) => [name, KNOWN_PROVIDERS[name]])
+  configuredProviders().map(({ name, hint }) => [
+    name,
+    hint ? { ...KNOWN_PROVIDERS[name], domainHint: hint } : KNOWN_PROVIDERS[name]
+  ])
 );
 
 let discoveryPromise = null;
