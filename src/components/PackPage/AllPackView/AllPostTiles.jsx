@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import PostTile from './PostTile.jsx';
+import './postTile.css';
 import PackMenu from './PackMenu.jsx';
 
 const AllPostTiles = ({ allPosts }) => {
@@ -16,16 +17,13 @@ const AllPostTiles = ({ allPosts }) => {
     posts: {
       display: 'flex',
       flexDirection: 'column',
-      maxWidth: '100vw',
-      minWidth: '80vw',
-      // maxHeight: '100vh',
-      // gapY: '25px',
-      // border: '3px solid black',
-      columnGap: '100px'
+      gap: '1rem',
+      width: '100%'
     },
     packHighest: {
       display: 'flex',
-      flexDirection: 'row'
+      flexDirection: 'row',
+      width: '100%'
     }
   };
   // console.log('all posts', allPosts);
