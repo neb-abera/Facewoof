@@ -26,15 +26,53 @@ const isConfigured = Boolean(
 );
 
 /*
- * The providers the sign-in page should offer.
+ * Everything External ID can federate with, and the domain_hint that jumps
+ * straight to it rather than showing Microsoft's own chooser first.
  *
- * Entra takes a domain_hint and sends the person straight to that provider
- * rather than showing its own chooser first, which turns two clicks into one.
+ * The hint values are exactly these words — 'google', not 'google.com'. The
+ * first version of this used the domain name and would have landed on the
+ * chooser instead, which is the kind of thing that only shows up once a real
+ * tenant is on the other end.
+ *
+ * There is deliberately no Microsoft entry. External ID federates Facebook,
+ * Google, Apple, custom OIDC and SAML; a personal Microsoft account is not one
+ * of its providers, so a "Continue with Microsoft" button had nowhere to go.
+ * An organisation's Entra tenant can be added as a custom OIDC provider, which
+ * is a different thing from consumer Microsoft sign-in.
  */
-const PROVIDERS = {
-  microsoft: { label: 'Microsoft', domainHint: null },
-  google: { label: 'Google', domainHint: 'google.com' }
+const KNOWN_PROVIDERS = {
+  email: { label: 'Email', domainHint: null },
+  google: { label: 'Google', domainHint: 'google' },
+  facebook: { label: 'Facebook', domainHint: 'facebook' },
+  apple: { label: 'Apple', domainHint: 'apple' }
 };
+
+/*
+ * Only what this tenant has actually been configured with.
+ *
+ * The list used to be hardcoded, so the sign-in page advertised providers the
+ * tenant knew nothing about and the button led to a dead end. Email needs no
+ * federation and works as soon as a tenant exists, so it is the default;
+ * anything else is opt-in once it has been set up at the provider.
+ */
+const configuredProviders = () => {
+  const requested = (process.env.ENTRA_PROVIDERS || 'email')
+    .split(',')
+    .map((name) => name.trim().toLowerCase())
+    .filter(Boolean);
+
+  const unknown = requested.filter((name) => !KNOWN_PROVIDERS[name]);
+  if (unknown.length) {
+    console.warn(`ignoring unknown sign-in providers: ${unknown.join(', ')}`);
+  }
+
+  const known = requested.filter((name) => KNOWN_PROVIDERS[name]);
+  return known.length ? known : ['email'];
+};
+
+const PROVIDERS = Object.fromEntries(
+  configuredProviders().map((name) => [name, KNOWN_PROVIDERS[name]])
+);
 
 let discoveryPromise = null;
 
@@ -83,7 +121,9 @@ const createAuthRequest = (provider) => {
     challenge,
     state: base64url(crypto.randomBytes(16)),
     nonce: base64url(crypto.randomBytes(16)),
-    provider: PROVIDERS[provider] ? provider : 'microsoft'
+    // An unrecognised provider falls back to the first configured one rather
+    // than to a name that may not be enabled here.
+    provider: PROVIDERS[provider] ? provider : Object.keys(PROVIDERS)[0]
   };
 };
 

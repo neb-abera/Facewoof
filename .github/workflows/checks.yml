@@ -131,6 +131,7 @@ jobs:
             -e INSECURE_TRANSPORT=true \
             -e GUEST_LIMIT_PER_HOUR=200 \
             -e PORT=8080 \
+            -e ENTRA_PROVIDERS=email,google \
             -e ENTRA_ISSUER=http://localhost:9000 \
             -e ENTRA_CLIENT_ID=facewoof-ci \
             -e ENTRA_CLIENT_SECRET=ci-only-not-a-real-secret \
@@ -142,6 +143,7 @@ jobs:
 
           docker run --rm --network host -e CI=true \
             -e BASE_URL=http://localhost:8080 \
+            -e ENTRA_PROVIDERS=email,google \
             -e ENTRA_ISSUER=http://localhost:9000 \
             facewoof-e2e npx playwright test sign-in --workers=1
 
