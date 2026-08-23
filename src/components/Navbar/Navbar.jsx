@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import useUserContext from '../../hooks/useUserContext';
+import useAuthProviders from '../../hooks/useAuthProviders';
 import Logo from '../../assets/facewoofLogo.png';
 import './nav.css';
 
@@ -17,7 +18,8 @@ const links = [
 const navClass = ({ isActive }) => (isActive ? 'active' : undefined);
 
 const Navbar = () => {
-  const { loggedIn, logout } = useUserContext();
+  const { loggedIn, logout, userData } = useUserContext();
+  const providers = useAuthProviders();
   const navigate = useNavigate();
 
   // The original rendered a logout button that only console.logged, and hid
@@ -69,7 +71,22 @@ const Navbar = () => {
         </ul>
       </div>
 
-      <div className="navbar-end">
+      <div className="navbar-end gap-2">
+        {/*
+          A demo visitor's only route to a real account.
+          /login sends anyone already signed in to /discover, so without this a
+          guest had no way to reach sign-in at all and their swipes, packs and
+          playdates were always going to be deleted after 24 hours. Signing in
+          from here claims the account they are already using.
+        */}
+        {userData?.is_guest && providers.length > 0 && (
+          <a
+            className="btn btn-primary btn-sm"
+            href={`/api/auth/oidc/start?provider=${providers[0].id}`}
+          >
+            Save your account
+          </a>
+        )}
         <button type="button" className="btn btn-secondary btn-sm" onClick={handleLogout}>
           Log out
         </button>

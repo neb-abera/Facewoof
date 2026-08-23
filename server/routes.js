@@ -12,6 +12,10 @@ const {
   createNewPackAndAdd,
   authUser,
   guestLogin,
+  finishOnboarding,
+  oidcProviders,
+  oidcStart,
+  oidcCallback,
   me,
   logout,
   getCurrentUser,
@@ -46,6 +50,15 @@ const router = express.Router();
 router.post('/api/auth/guest', guestLimiter, guestLogin);
 router.get('/api/auth/me', requireUser, me);
 router.post('/api/auth/logout', logout);
+
+// Sign-in through Entra External ID, which fronts Google and Microsoft.
+// These are browser navigations rather than fetches, so they redirect.
+router.get('/api/auth/providers', oidcProviders);
+router.get('/api/auth/oidc/start', guestLimiter, oidcStart);
+router.get('/api/auth/oidc/callback', oidcCallback);
+
+// Finishing setup after signing in: profile, location and a roster to see.
+router.put('/api/onboarding', writeLimiter, requireUser, finishOnboarding);
 
 // Check whether a user exists, creating them if not.
 router.put('/api/authuser', authUser);
