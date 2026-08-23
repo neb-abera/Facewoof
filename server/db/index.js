@@ -28,6 +28,7 @@ const {
 } = require('./profile');
 const {
   checkOrCreateUser,
+  findOrCreateExternalUser,
   createGuestUser,
   purgeExpiredGuests,
   ensureNeighbours,
@@ -49,6 +50,7 @@ module.exports = {
   getFriendsPromise,
   createPackPromise,
   checkOrCreateUser,
+  findOrCreateExternalUser,
   createGuestUser,
   purgeExpiredGuests,
   ensureNeighbours,

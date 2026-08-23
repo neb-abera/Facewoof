@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help dev migrate reset-db psql lint fmt e2e check image run logs down clean
+.PHONY: help dev migrate reset-db psql lint fmt e2e e2e-signin check image run logs down clean
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -62,3 +62,29 @@ down: ## Stop the containers, keeping the database volume
 
 clean: ## Stop the containers and delete the database volume
 	$(COMPOSE) down --volumes --remove-orphans
+
+# The sign-in flow, against a mock OIDC provider rather than a real tenant.
+# No Azure credentials involved: the mock speaks real OIDC, so PKCE, state,
+# nonce and signature verification are all genuinely exercised.
+e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
+	docker build --target final -t facewoof .
+	docker build --target e2e -t facewoof-e2e .
+	-docker rm -f facewoof-oidc-mock facewoof-signin
+	docker run -d --rm --name facewoof-oidc-mock --network facewoof_default \
+	  -e PORT=9000 -e ISSUER=http://facewoof-oidc-mock:9000 -e CLIENT_ID=facewoof-test \
+	  -v "$(PWD)/tests/oidc-mock/server.js:/app/server.js:ro" \
+	  -w /app facewoof node /app/server.js
+	docker run -d --rm --name facewoof-signin --network facewoof_default \
+	  -e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
+	  -e SESSION_SECRET=local-only -e INSECURE_TRANSPORT=true -e PORT=8080 \
+	  -e ENTRA_ISSUER=http://facewoof-oidc-mock:9000 \
+	  -e ENTRA_CLIENT_ID=facewoof-test \
+	  -e ENTRA_CLIENT_SECRET=local-only \
+	  -e ENTRA_REDIRECT_URI=http://facewoof-signin:8080/api/auth/oidc/callback \
+	  facewoof
+	sleep 12
+	docker run --rm --network facewoof_default -e CI=true \
+	  -e BASE_URL=http://facewoof-signin:8080 \
+	  -e ENTRA_ISSUER=http://facewoof-oidc-mock:9000 \
+	  facewoof-e2e npx playwright test sign-in --workers=1
+	docker rm -f facewoof-oidc-mock facewoof-signin
