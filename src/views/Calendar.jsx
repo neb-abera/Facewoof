@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-indent-props */
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable prefer-template */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
