@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind is imported once, in src/index.css. Importing it again here
+   duplicated every generated rule under tailwind 3 and is an error under 4. */
 
 .profilePhoto {
   float: left;
@@ -10,7 +9,9 @@
 }
 
 .btn {
-  @apply rounded-full;
+  /* rounded-full, written out: @apply outside the sheet tailwind is imported
+     into needs an @reference in tailwind 4, and one radius is not worth it. */
+  border-radius: calc(infinity * 1px);
 }
 
 /* body {

@@ -9,7 +9,7 @@
 #   build   the production client bundle
 #   final   express serving the API and the built bundle on one port
 
-ARG NODE_IMAGE=node:22-alpine
+ARG NODE_IMAGE=node:24-alpine
 
 # ---- deps -------------------------------------------------------------------
 FROM ${NODE_IMAGE} AS deps

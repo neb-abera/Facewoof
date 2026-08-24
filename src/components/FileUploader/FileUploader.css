@@ -7,7 +7,7 @@
   content: 'UPLOAD IMAGE';
   display: inline-block;
   border-radius: 7px;
-  background-color: oklch(var(--p));
+  background-color: var(--color-primary);
   color: rgb(155, 211, 185);
   padding: 7px 35px;
   outline: none;
