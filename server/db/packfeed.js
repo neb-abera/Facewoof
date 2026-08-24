@@ -39,6 +39,15 @@ const getSoloPosts = (packId) =>
 const getPfp = (userId) =>
   db.query('SELECT * FROM profile_photos WHERE profile_photos.user_id = $1', [userId]);
 
+/*
+ * Whether a user belongs to a pack. The feed and the post endpoints gate on
+ * this: a pack's posts are for its members, not for anyone holding its id.
+ */
+const isPackMember = (userId, packId) =>
+  db
+    .query('SELECT 1 FROM pack_users WHERE user_id = $1 AND pack_id = $2', [userId, packId])
+    .then(({ rowCount }) => rowCount > 0);
+
 /* eslint-disable camelcase -- these are column names */
 const makePost = ({ user_id, pack_id, body, photo_url }) =>
   db.query(
@@ -55,5 +64,6 @@ module.exports = {
   getUserPlaydatesAllPacks,
   getSoloPosts,
   getPfp,
-  makePost
+  makePost,
+  isPackMember
 };
