@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/jsx-indent-props */
 /* eslint-disable react/no-array-index-key */
 import React, { useState } from 'react';

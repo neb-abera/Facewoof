@@ -32,11 +32,21 @@ async function contrastRatio(locator) {
     };
     // Walks up for the first non-transparent background, the way paint does.
     const parse = (str) => {
-      const m = str.match(/-?[\d.]+/g);
-      if (!m) return null;
-      if (str.startsWith('oklch') || str.startsWith('lab') || str.startsWith('color(')) return null;
-      if (m.length >= 4 && Number(m[3]) === 0) return null;
-      return [Number(m[0]), Number(m[1]), Number(m[2])];
+      // Painting one pixel resolves any colour syntax to sRGB bytes. Computed
+      // colours are not reliably rgb(): color-mix(), which the stylesheets use
+      // for translucent theme colours, computes to oklab(...), and reading
+      // that with a number regex silently produced near-black. fillStyle
+      // cannot be read back either — Chromium serialises it in the colour
+      // space it was written in.
+      const canvas = document.createElement('canvas');
+      canvas.width = 1;
+      canvas.height = 1;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.fillStyle = str;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+      if (a === 0) return null; // transparent: keep walking up for a background
+      return [r, g, b];
     };
     const probe = document.createElement('span');
     probe.textContent = 'x';

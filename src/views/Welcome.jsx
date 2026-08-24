@@ -34,7 +34,7 @@ const Welcome = () => {
   if (userData && userData.onboarded_at) return <Navigate to="/discover" replace />;
 
   /* Ask the browser where they are, so they need not know their own zip code. */
-  const useMyLocation = () =>
+  const askForLocation = () =>
     new Promise((resolve) => {
       if (!navigator.geolocation) {
         resolve(null);
@@ -159,7 +159,7 @@ const Welcome = () => {
             type="button"
             className="btn btn-ghost btn-sm"
             disabled={saving || locating}
-            onClick={async () => finish(await useMyLocation())}
+            onClick={async () => finish(await askForLocation())}
           >
             {locating ? 'Finding you…' : 'Use my location instead'}
           </button>

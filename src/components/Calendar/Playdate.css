@@ -3,14 +3,14 @@
   height: 100vh;
   position: absolute;
   top: 0;
-  background-color: oklch(var(--b1) / 0.7);
+  background-color: color-mix(in oklab, var(--color-base-100) 70%, transparent);
   display: flex;
   justify-content: center;
   align-items: center;
   /* z-index: 10 */
 }
 .playdateModal {
-  background-color: oklch(var(--b2));
+  background-color: var(--color-base-200);
   border-radius: 5px;
   z-index: 1;
 }

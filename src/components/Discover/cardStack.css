@@ -48,7 +48,7 @@
     flex-flow: column nowrap;
     align-items: start;
     justify-content: start;
-    background-color: oklch(var(--b2));
+    background-color: var(--color-base-200);
     padding: 40px;
     border-radius: 16px;
     box-shadow: 0 0 15px 2px rgb(0 0 0 / 0.5);
@@ -232,7 +232,7 @@
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 20px 5px oklch(var(--su) / 0.55);
+      box-shadow: 0 0 20px 5px color-mix(in oklab, var(--color-success) 55%, transparent);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;
@@ -244,7 +244,7 @@
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 15px 2px oklch(var(--er) / 0.55);
+      box-shadow: 0 0 15px 2px color-mix(in oklab, var(--color-error) 55%, transparent);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;

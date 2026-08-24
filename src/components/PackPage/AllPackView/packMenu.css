@@ -17,8 +17,8 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem 0.75rem;
-  background-color: oklch(var(--b2));
-  border-right: 1px solid oklch(var(--b3));
+  background-color: var(--color-base-200);
+  border-right: 1px solid var(--color-base-300);
   overflow-y: auto;
 }
 
@@ -27,12 +27,12 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: oklch(var(--bc) / 0.65);
+  color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
   padding: 0 0.25rem;
 }
 
 .pack-menu__section + .pack-menu__section {
-  border-top: 1px solid oklch(var(--b3));
+  border-top: 1px solid var(--color-base-300);
   padding-top: 0.75rem;
 }
 
@@ -56,14 +56,14 @@
   display: block;
   padding: 0.5rem 0.625rem;
   border-radius: 0.5rem;
-  color: oklch(var(--bc));
+  color: var(--color-base-content);
   cursor: pointer;
   transition: background-color 0.12s ease;
 }
 
 .pack-menu__list li:hover > a,
 .pack-menu__list li:hover > div {
-  background-color: oklch(var(--b3));
+  background-color: var(--color-base-300);
 }
 
 .pack-menu__actions {
@@ -79,7 +79,7 @@
 .pack-menu__empty {
   padding: 0.5rem 0.625rem;
   font-size: 0.875rem;
-  color: oklch(var(--bc) / 0.6);
+  color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
 }
 
 /* On a phone the sidebar stops being a column and sits above the feed. */
@@ -90,6 +90,6 @@
     position: static;
     max-height: none;
     border-right: none;
-    border-bottom: 1px solid oklch(var(--b3));
+    border-bottom: 1px solid var(--color-base-300);
   }
 }

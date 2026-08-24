@@ -10,9 +10,9 @@
 .create-pack__friend {
   padding: 0.5rem 0.875rem;
   border-radius: 999px;
-  border: 1px solid oklch(var(--b3));
-  background-color: oklch(var(--b1));
-  color: oklch(var(--bc));
+  border: 1px solid var(--color-base-300);
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
   cursor: pointer;
   transition:
     background-color 0.12s ease,
@@ -20,18 +20,18 @@
 }
 
 .create-pack__friend:hover {
-  background-color: oklch(var(--b3));
+  background-color: var(--color-base-300);
 }
 
 .create-pack__friend--on {
-  background-color: oklch(var(--p));
-  border-color: oklch(var(--p));
-  color: oklch(var(--pc));
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-content);
 }
 
 .create-pack__empty {
   font-size: 0.875rem;
-  color: oklch(var(--bc) / 0.6);
+  color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
 }
 
 .create-pack__done {
