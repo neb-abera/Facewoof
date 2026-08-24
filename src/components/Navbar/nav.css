@@ -5,7 +5,7 @@
 }
 
 .navbar {
-  background-color: oklch(var(--b2));
+  background-color: var(--color-base-200);
   /* Sticky, and above the page.
      It was position:static with z-index:auto, so it created no stacking
      context at all: the collapsed menu (absolutely positioned, z-index 1)

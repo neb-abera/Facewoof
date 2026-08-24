@@ -1,17 +1,52 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
 /*
- * Theme colours are read as oklch(var(--x)), never hsl(var(--x)).
+ * daisyUI 5 is configured here in CSS rather than in tailwind.config.js,
+ * which tailwind 4 no longer uses. The theme below is the same palette as
+ * before: abera.tech's, taken from its themePrimitives.ts — blue at hue 210,
+ * near-black greys at hue 220. Written as hsl() rather than converted to hex
+ * so the two stay legibly the same colours.
  *
- * daisyUI 4 stores each theme colour as bare oklch components — --b3 is
- * `24.863% 0.019467 264.128`, not an HSL triple. Wrapping those in hsl()
- * produces invalid CSS, so the browser drops the declaration silently and the
- * property falls back to its inherited value, usually currentColor. That is
- * how the calendar ended up with white grid lines and several surfaces became
- * "barely visible" rather than obviously broken.
+ * Theme colours are read as var(--color-x). daisyUI 5 stores each theme
+ * colour as a complete colour value, unlike daisyUI 4's bare oklch components
+ * that had to be wrapped in oklch(); translucent uses go through color-mix().
  */
+@plugin 'daisyui' {
+  themes: false;
+  logs: false;
+}
+
+@plugin 'daisyui/theme' {
+  name: 'facewoof';
+  default: true;
+  --color-primary: hsl(210 98% 48%);
+  --color-primary-content: hsl(0 0% 100%);
+
+  --color-secondary: hsl(220 20% 25%);
+  --color-secondary-content: hsl(220 20% 92%);
+
+  --color-accent: hsl(210 100% 65%);
+  --color-accent-content: hsl(220 35% 6%);
+
+  --color-neutral: hsl(220 20% 18%);
+  --color-neutral-content: hsl(220 20% 88%);
+
+  /* Page, raised surface, and borders. */
+  --color-base-100: hsl(220 35% 4%);
+  --color-base-200: hsl(220 30% 7%);
+  --color-base-300: hsl(220 20% 14%);
+  --color-base-content: hsl(220 20% 88%);
+
+  --color-info: hsl(210 100% 65%);
+  --color-success: hsl(120 44% 53%);
+  --color-warning: hsl(38 92% 50%);
+  --color-error: hsl(0 72% 58%);
+
+  --radius-box: 0.75rem;
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+  --border: 1px;
+}
 
 html,
 body {
@@ -27,8 +62,8 @@ body {
   /* Painted explicitly. daisyUI puts these on elements it styles, but the page
      behind them would otherwise be the browser's default white, which shows
      through anywhere a component does not reach. */
-  background-color: oklch(var(--b1));
-  color: oklch(var(--bc));
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
   font-family:
     Inter,
     -apple-system,
@@ -44,6 +79,6 @@ body {
 /* The whole app sits inside this, so it has to carry the page colour too. */
 .App,
 .App-header {
-  background-color: oklch(var(--b1));
-  color: oklch(var(--bc));
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
 }
