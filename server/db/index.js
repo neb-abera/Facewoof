@@ -14,7 +14,8 @@ const {
   getUserPlaydatesAllPacks,
   getSoloPosts,
   getPfp,
-  makePost
+  makePost,
+  isPackMember
 } = require('./packfeed');
 const {
   getCurrentUserPromise,
@@ -27,7 +28,6 @@ const {
   setUserLocation
 } = require('./profile');
 const {
-  checkOrCreateUser,
   findOrCreateExternalUser,
   completeOnboarding,
   createGuestUser,
@@ -50,7 +50,6 @@ module.exports = {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
-  checkOrCreateUser,
   findOrCreateExternalUser,
   completeOnboarding,
   createGuestUser,
@@ -68,5 +67,6 @@ module.exports = {
   getUserPlaydatesAllPacks,
   getSoloPosts,
   getPfp,
-  makePost
+  makePost,
+  isPackMember
 };

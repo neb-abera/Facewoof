@@ -288,3 +288,57 @@ test('the navbar does not overlap itself on a phone', async ({ page }) => {
   const spill = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(spill, 'the page scrolls sideways on a phone').toBe(false);
 });
+
+/*
+ * The authorisation boundary around packs.
+ *
+ * Every demo visitor is cloned into the shared template packs, so those prove
+ * nothing about access control. A pack the first visitor creates fresh is
+ * theirs alone — and a second, unrelated visitor must be refused it. The
+ * refusal must be a 403, not an empty list, so a regression here fails loudly
+ * rather than looking like a quiet feed.
+ */
+test('a pack feed is only readable and writable by its members', async ({ page, browser }) => {
+  await signIn(page);
+
+  // A pack of one, made through the same endpoint the UI uses. The endpoint
+  // requires a non-empty users array; the caller's own id satisfies it.
+  const me = await page.request.get('/api/auth/me').then((r) => r.json());
+  const created = await page.request.put('/api/createpack', {
+    data: { pack_name: 'Members Only', users: [me.user_id] }
+  });
+  expect(created.status(), 'the member can create a pack').toBe(201);
+
+  const packs = await page.request.get('/api/getpacks').then((r) => r.json());
+  const packId = packs.find((packRow) => packRow.name === 'Members Only')?.pack_id;
+  expect(packId, "the new pack is in the creator's list").toBeTruthy();
+
+  // The member reads and writes their own feed.
+  const mine = await page.request.get(`/api/getAllPostsFromSpecificPack?packId=${packId}`);
+  expect(mine.status(), 'a member can read the feed').toBe(200);
+
+  // An unrelated visitor gets refused: reading, posting and joining.
+  const strangerContext = await browser.newContext();
+  const stranger = await strangerContext.newPage();
+  await signIn(stranger);
+
+  const read = await stranger.request.get(`/api/getAllPostsFromSpecificPack?packId=${packId}`);
+  expect(read.status(), 'a non-member is refused the feed').toBe(403);
+
+  const write = await stranger.request.post('/api/makePost', {
+    data: { packet: { pack_id: packId, body: 'should never land' } }
+  });
+  expect(write.status(), 'a non-member cannot post').toBe(403);
+
+  const join = await stranger.request.put('/api/addtopack', { data: { pack_id: packId } });
+  expect(join.status(), 'a stranger cannot join a pack no friend of theirs is in').toBe(403);
+
+  await strangerContext.close();
+});
+
+test('there is no unauthenticated account endpoint', async ({ page }) => {
+  const res = await page.request.put('/api/authuser', {
+    data: { email: 'nobody@example.com', name: 'nobody' }
+  });
+  expect([401, 404]).toContain(res.status());
+});

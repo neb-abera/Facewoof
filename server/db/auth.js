@@ -37,29 +37,6 @@ function scatterZips(originZip, count) {
 }
 
 /*
- * Look up a user by email, creating the row on first sight.
- *
- * Returns { user, created }. The original ran two statements in one string and
- * made the caller pick apart a multi-result array to work out which happened.
- */
-async function checkOrCreateUser(email, name) {
-  const inserted = await db.query(
-    `INSERT INTO users (owner_email, owner_name)
-     VALUES ($1, $2)
-     ON CONFLICT (owner_email) DO NOTHING
-     RETURNING *`,
-    [email, name]
-  );
-
-  if (inserted.rowCount === 1) {
-    return { user: inserted.rows[0], created: true };
-  }
-
-  const existing = await db.query('SELECT * FROM users WHERE owner_email = $1', [email]);
-  return { user: existing.rows[0], created: false };
-}
-
-/*
  * Create a throwaway account for a demo visitor.
  *
  * Every visitor gets their own row rather than sharing one. Sharing would mean
@@ -251,7 +228,6 @@ function purgeExpiredGuests(maxAgeHours = 24) {
 }
 
 module.exports = {
-  checkOrCreateUser,
   createGuestUser,
   purgeExpiredGuests,
   ensureNeighbours,
