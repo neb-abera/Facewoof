@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import PackName from '../AllPackView/PackName.jsx';
 
 const SoloPackList = ({ setViewing, userIdentity }) => {
   const listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];

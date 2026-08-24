@@ -11,8 +11,8 @@
  */
 
 .rbc-calendar {
-  background-color: oklch(var(--b1));
-  color: oklch(var(--bc));
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
 }
 
 /*
@@ -29,32 +29,32 @@
      because they set colour through the `border` shorthand rather than
      `border-color`. Scoped to the calendar, and only touching the border
      colour, so it cannot leak into the rest of the app. */
-  border-color: oklch(var(--b3)) !important;
+  border-color: var(--color-base-300) !important;
 }
 
 .rbc-toolbar {
-  color: oklch(var(--bc));
+  color: var(--color-base-content);
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .rbc-toolbar button {
-  color: oklch(var(--bc));
-  background-color: oklch(var(--b2));
-  border-color: oklch(var(--b3));
+  color: var(--color-base-content);
+  background-color: var(--color-base-200);
+  border-color: var(--color-base-300);
 }
 
 .rbc-toolbar button:hover,
 .rbc-toolbar button:focus {
-  color: oklch(var(--bc));
-  background-color: oklch(var(--b3));
+  color: var(--color-base-content);
+  background-color: var(--color-base-300);
 }
 
 .rbc-toolbar button.rbc-active,
 .rbc-toolbar button.rbc-active:hover {
-  color: oklch(var(--pc));
-  background-color: oklch(var(--p));
-  border-color: oklch(var(--p));
+  color: var(--color-primary-content);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 /* Day and time labels: these are the "I can barely see the times" ones. */
@@ -63,8 +63,8 @@
 .rbc-time-gutter,
 .rbc-timeslot-group,
 .rbc-agenda-view table.rbc-agenda-table thead > tr > th {
-  color: oklch(var(--bc));
-  background-color: oklch(var(--b1));
+  color: var(--color-base-content);
+  background-color: var(--color-base-100);
 }
 
 .rbc-header,
@@ -76,48 +76,48 @@
 .rbc-header + .rbc-header,
 .rbc-timeslot-group,
 .rbc-agenda-view table.rbc-agenda-table {
-  border-color: oklch(var(--b3));
+  border-color: var(--color-base-300);
 }
 
 .rbc-time-content > * + * > * {
-  border-left-color: oklch(var(--b3));
+  border-left-color: var(--color-base-300);
 }
 
 .rbc-day-bg,
 .rbc-month-row + .rbc-month-row {
-  background-color: oklch(var(--b1));
-  border-color: oklch(var(--b3));
+  background-color: var(--color-base-100);
+  border-color: var(--color-base-300);
 }
 
 .rbc-off-range-bg {
-  background-color: oklch(var(--b2));
+  background-color: var(--color-base-200);
 }
 
 /* Today. The default is a pale yellow wash that vanishes on a dark page. */
 .rbc-today {
-  background-color: oklch(var(--p) / 0.14);
+  background-color: color-mix(in oklab, var(--color-primary) 14%, transparent);
 }
 
 .rbc-off-range {
-  color: oklch(var(--bc) / 0.4);
+  color: color-mix(in oklab, var(--color-base-content) 40%, transparent);
 }
 
 .rbc-event,
 .rbc-day-slot .rbc-background-event {
-  background-color: oklch(var(--p));
-  color: oklch(var(--pc));
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
   border: none;
 }
 
 .rbc-event.rbc-selected {
-  background-color: oklch(var(--pf, var(--p)));
+  background-color: var(--color-primary);
 }
 
 .rbc-show-more {
   background-color: transparent;
-  color: oklch(var(--p));
+  color: var(--color-primary);
 }
 
 .rbc-current-time-indicator {
-  background-color: oklch(var(--er));
+  background-color: var(--color-error);
 }
