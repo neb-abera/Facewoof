@@ -19,7 +19,7 @@ const {
   ctrlMakePost,
   ctrlUserPacksId
 } = require('./packfeed');
-const { authUser, guestLogin, me, logout } = require('./auth');
+const { guestLogin, me, logout } = require('./auth');
 
 const { providers: oidcProviders, start: oidcStart, callback: oidcCallback } = require('./oidc');
 const { finish: finishOnboarding } = require('./onboarding');
@@ -41,7 +41,6 @@ module.exports = {
   updateLocation,
   getUserFriends,
   createPack,
-  authUser,
   guestLogin,
   me,
   logout,
