@@ -16,7 +16,15 @@ const addUserToPack = (req, res) => {
   }
 
   return addToPack(userId, packId)
-    .then(() => res.status(201).send('Added to pack'))
+    .then(({ rowCount }) => {
+      if (rowCount === 0) {
+        // Either no friend of the caller is in that pack, or they are already
+        // a member. The first is a refusal; the second is a no-op that the
+        // client treats the same way.
+        return res.status(403).send('you can only join a pack a friend is in');
+      }
+      return res.status(201).send('Added to pack');
+    })
     .catch((err) => {
       console.error('error adding to pack', err);
       res.status(500).send('Error adding to pack');

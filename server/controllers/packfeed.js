@@ -5,7 +5,8 @@ const {
   getUserPacksId,
   getSoloPosts,
   getPfp,
-  makePost
+  makePost,
+  isPackMember
 } = require('../db');
 
 // json_agg returns a single row holding NULL when nothing matched, so every
@@ -18,8 +19,17 @@ const fail = (res, status, message) => (err) => {
 };
 
 const ctrlPackPosts = (req, res) => {
-  getPackPosts(req.query.packId)
-    .then((resp) => res.status(200).send(resp.rows))
+  const packId = Number(req.query.packId);
+  if (!Number.isInteger(packId)) return res.status(400).send('packId is required');
+
+  // A pack's feed is for its members. Without this, any signed-in visitor —
+  // including a throwaway demo account — could read any pack's posts by
+  // walking pack ids.
+  return isPackMember(req.userId, packId)
+    .then((member) => {
+      if (!member) return res.status(403).send('not a member of this pack');
+      return getPackPosts(packId).then((resp) => res.status(200).send(resp.rows));
+    })
     .catch(fail(res, 500, 'unable to get pack posts'));
 };
 
@@ -54,9 +64,19 @@ const ctrlPfp = (req, res) => {
 };
 
 const ctrlMakePost = (req, res) => {
-  // The author is the session, not whatever user_id the packet claimed.
-  makePost({ ...(req.body.packet || {}), user_id: req.userId })
-    .then(() => res.status(201).send('post created'))
+  const packet = req.body.packet || {};
+  const packId = Number(packet.pack_id);
+  if (!Number.isInteger(packId)) return res.status(400).send('pack_id is required');
+
+  // Posting requires membership, for the same reason reading does.
+  return isPackMember(req.userId, packId)
+    .then((member) => {
+      if (!member) return res.status(403).send('not a member of this pack');
+      // The author is the session, not whatever user_id the packet claimed.
+      return makePost({ ...packet, pack_id: packId, user_id: req.userId }).then(() =>
+        res.status(201).send('post created')
+      );
+    })
     .catch(fail(res, 500, 'unable to make post'));
 };
 
