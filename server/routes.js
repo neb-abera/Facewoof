@@ -10,7 +10,6 @@ const {
   getUserPacks,
   addUserToPack,
   createNewPackAndAdd,
-  authUser,
   guestLogin,
   finishOnboarding,
   oidcProviders,
@@ -59,9 +58,6 @@ router.get('/api/auth/oidc/callback', oidcCallback);
 
 // Finishing setup after signing in: profile, location and a roster to see.
 router.put('/api/onboarding', writeLimiter, requireUser, finishOnboarding);
-
-// Check whether a user exists, creating them if not.
-router.put('/api/authuser', authUser);
 
 // Everything past this point acts on behalf of a signed-in user, and takes
 // that user from the session. Before this, each endpoint accepted the acting
