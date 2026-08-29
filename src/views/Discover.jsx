@@ -1,26 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { FaDog } from 'react-icons/fa';
-import CardStack from '../components/Discover/CardStack';
-import useUserContext from '../hooks/useUserContext';
-import useUserLocation from '../hooks/useUserLocation';
-import SearchBar from '../components/Discover/SearchBar';
-import LocationNotice from '../components/Discover/LocationNotice';
-import './discover.css';
+import { useEffect, useState } from "react";
+import { FaDog } from "react-icons/fa";
+import CardStack from "../components/Discover/CardStack";
+import LocationNotice from "../components/Discover/LocationNotice";
+import SearchBar from "../components/Discover/SearchBar";
+import useUserContext from "../hooks/useUserContext";
+import useUserLocation from "../hooks/useUserLocation";
+import "./discover.css";
 
 // Where to look when the browser will not say and the profile has no zip
 // code either. The seed data is clustered around lower Manhattan.
-const FALLBACK_ZIP = '10011';
+const FALLBACK_ZIP = "10011";
 
 export default function Discover() {
   const [users, setUsers] = useState([]);
-  const [searchLocation, setSearchLocation] = useState('');
+  const [searchLocation, setSearchLocation] = useState("");
   const [radius, setRadius] = useState(5);
   const [distances, setDistances] = useState({});
   const [resolving, setResolving] = useState(true);
 
-  const { userId, userData, photos, locationSource, provideLocation } = useUserContext();
-  const { loading, error, getUserLocation, getUsers, loadMore, hasMore, searchKey } =
-    useUserLocation(setUsers, setDistances);
+  const { userId, userData, photos, locationSource, provideLocation } =
+    useUserContext();
+  const {
+    loading,
+    error,
+    getUserLocation,
+    getUsers,
+    loadMore,
+    hasMore,
+    searchKey,
+  } = useUserLocation(setUsers, setDistances);
 
   /*
    * Work out where to search, once, when the user is known.
@@ -55,13 +63,11 @@ export default function Discover() {
     };
     // Deliberately mount-only: re-running would overwrite whatever the visitor
     // has since typed into the search box.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   // Re-search when the radius changes, but not before a location is known.
   useEffect(() => {
     if (!resolving && searchLocation) getUsers(searchLocation, radius);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [radius]);
 
   const handleSearch = () => getUsers(searchLocation, radius);
@@ -78,8 +84,11 @@ export default function Discover() {
 
   return (
     <div className="discover-parent">
-      {locationSource !== 'device' && (
-        <LocationNotice onProvide={handleProvideLocation} searchingFrom={userData?.location} />
+      {locationSource !== "device" && (
+        <LocationNotice
+          onProvide={handleProvideLocation}
+          searchingFrom={userData?.location}
+        />
       )}
       <SearchBar
         radius={radius}

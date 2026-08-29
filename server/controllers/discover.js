@@ -1,11 +1,11 @@
-const zipcodes = require('zipcodes');
+const zipcodes = require("zipcodes");
 const {
   generateDiscoverFeed,
   countRemainingFeed,
   setRelationship,
   checkForMatchAndCreate,
-  getUserLocation
-} = require('../db');
+  getUserLocation,
+} = require("../db");
 
 // The feed is served a page at a time. Ten is enough that the client always
 // has cards in hand while the next page is in flight, and small enough that
@@ -17,8 +17,8 @@ const MAX_PAGE_SIZE = 30;
 const MAX_SEEN = 500;
 
 const parseSeen = (raw) =>
-  String(raw || '')
-    .split(',')
+  String(raw || "")
+    .split(",")
     .map((part) => Number(part.trim()))
     .filter((n) => Number.isInteger(n) && n > 0)
     .slice(0, MAX_SEEN);
@@ -40,25 +40,25 @@ const parseSeen = (raw) =>
 const STATES = Object.keys(zipcodes.states.abbr);
 
 function resolveZip(location, nearZip) {
-  const query = String(location || '').trim();
+  const query = String(location || "").trim();
   if (!query) return null;
 
   if (/^\d{5}$/.test(query)) {
     return zipcodes.lookup(query) ? query : null;
   }
 
-  const [city, state] = query.split(',').map((part) => part.trim());
+  const [city, state] = query.split(",").map((part) => part.trim());
 
   if (state) {
     const matches = zipcodes.lookupByName(city, state);
-    return matches && matches.length ? matches[0].zip : null;
+    return matches?.length ? matches[0].zip : null;
   }
 
   // lookupByName throws without a state, so a bare city name has to be tried
   // against each one.
-  const candidates = STATES.map((candidate) => zipcodes.lookupByName(city, candidate)).filter(
-    (matches) => matches && matches.length
-  );
+  const candidates = STATES.map((candidate) =>
+    zipcodes.lookupByName(city, candidate),
+  ).filter((matches) => matches?.length);
 
   if (!candidates.length) return null;
 
@@ -66,7 +66,8 @@ function resolveZip(location, nearZip) {
   // alphabetically is how "Hoboken" becomes Hoboken, Georgia. Prefer whichever
   // is nearest the person searching, and fall back to the one covering the
   // most zip codes, which is a reasonable stand-in for the largest place.
-  const knowWhereTheyAre = Boolean(nearZip) && Boolean(zipcodes.lookup(nearZip));
+  const knowWhereTheyAre =
+    Boolean(nearZip) && Boolean(zipcodes.lookup(nearZip));
 
   const ranked = candidates.sort((a, b) => {
     if (knowWhereTheyAre) {
@@ -87,14 +88,19 @@ const discoverUsers = async (req, res) => {
     const { zipcode, radius, limit } = req.query;
     const { userId: id } = req;
     const seen = parseSeen(req.query.seen);
-    const pageSize = Math.min(Number(limit) || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+    const pageSize = Math.min(
+      Number(limit) || DEFAULT_PAGE_SIZE,
+      MAX_PAGE_SIZE,
+    );
 
     // Only needed to settle an ambiguous city name, but it is a primary key
     // lookup and the feed query that follows dwarfs it.
     const nearZip = await getUserLocation(id);
     const origin = resolveZip(zipcode, nearZip);
     if (!origin) {
-      return res.status(400).send(`could not resolve a location from "${zipcode}"`);
+      return res
+        .status(400)
+        .send(`could not resolve a location from "${zipcode}"`);
     }
 
     const miles = Number(radius) || 5;
@@ -105,7 +111,12 @@ const discoverUsers = async (req, res) => {
       distances[zip] = zipcodes.distance(origin, zip);
     });
 
-    const nearbyUsers = await generateDiscoverFeed(id, nearbyZips, pageSize, seen);
+    const nearbyUsers = await generateDiscoverFeed(
+      id,
+      nearbyZips,
+      pageSize,
+      seen,
+    );
 
     // What is left after this page, so the client knows whether to keep
     // asking. Counted rather than inferred from a short page: a full page can
@@ -113,10 +124,12 @@ const discoverUsers = async (req, res) => {
     const delivered = seen.concat(nearbyUsers.map((u) => u.user_id));
     const remaining = await countRemainingFeed(id, nearbyZips, delivered);
 
-    return res.status(200).send({ users: nearbyUsers, distances, origin, remaining });
+    return res
+      .status(200)
+      .send({ users: nearbyUsers, distances, origin, remaining });
   } catch (err) {
-    console.error('unable to retrieve matched users', err);
-    return res.status(500).send('Unable to retrieve matched users');
+    console.error("unable to retrieve matched users", err);
+    return res.status(500).send("Unable to retrieve matched users");
   }
 };
 
@@ -127,19 +140,23 @@ const userResponse = async (req, res) => {
   const { otherUserId, currentUserChoice, otherUserChoice } = req.body;
 
   if (!otherUserId || Number(otherUserId) === currentUserId) {
-    return res.status(400).send('otherUserId is required and must be someone else');
+    return res
+      .status(400)
+      .send("otherUserId is required and must be someone else");
   }
 
   try {
     if (currentUserChoice !== otherUserChoice) {
       await setRelationship(currentUserId, otherUserId, currentUserChoice);
-      return res.status(201).send('Response updated');
+      return res.status(201).send("Response updated");
     }
     await checkForMatchAndCreate(currentUserId, otherUserId);
-    return res.status(200).send({ message: 'Match found', matchedUserId: otherUserId });
+    return res
+      .status(200)
+      .send({ message: "Match found", matchedUserId: otherUserId });
   } catch (err) {
-    console.error('unable to update response', err);
-    return res.status(500).send('Unable to update response');
+    console.error("unable to update response", err);
+    return res.status(500).send("Unable to update response");
   }
 };
 
@@ -155,14 +172,16 @@ const resolveLocation = (req, res) => {
   const lng = Number(req.query.lng);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return res.status(400).send('lat and lng are required');
+    return res.status(400).send("lat and lng are required");
   }
 
   const match = zipcodes.lookupByCoords(lat, lng);
   if (!match) {
-    return res.status(404).send('no US zip code near those coordinates');
+    return res.status(404).send("no US zip code near those coordinates");
   }
-  return res.status(200).send({ zip: match.zip, city: match.city, state: match.state });
+  return res
+    .status(200)
+    .send({ zip: match.zip, city: match.city, state: match.state });
 };
 
 module.exports = { discoverUsers, userResponse, resolveLocation };

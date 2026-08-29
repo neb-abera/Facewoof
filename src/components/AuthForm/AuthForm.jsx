@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 
 const AuthForm = ({ action }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <form className="w-[350px] flex flex-col justify-center border border-base-300 bg-base-200 h-fit py-10 px-8 rounded-lg">
       <div className="flex flex-col">
-        {action === 'signup' && (
+        {action === "signup" && (
           <>
             <label htmlFor="name" className="text-base-content">
               Name
@@ -41,11 +41,17 @@ const AuthForm = ({ action }) => {
         />
       </div>
       <div className="flex flex-col mt-10 space-y-4">
-        <button className="btn btn-primary normal-case text-base font-medium">
-          {action === 'signup' ? 'Create Account' : 'Sign In'}
+        <button
+          type="submit"
+          className="btn btn-primary normal-case text-base font-medium"
+        >
+          {action === "signup" ? "Create Account" : "Sign In"}
         </button>
-        <button className="btn btn-secondary normal-case text-base font-medium ">
-          {action === 'signup' ? 'Sign Up' : 'Sign In'} With Google
+        <button
+          type="submit"
+          className="btn btn-secondary normal-case text-base font-medium "
+        >
+          {action === "signup" ? "Sign Up" : "Sign In"} With Google
         </button>
       </div>
     </form>

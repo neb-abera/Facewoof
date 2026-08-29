@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 /*
  * The one place a photo leaves the browser.
@@ -13,7 +13,7 @@ import axios from 'axios';
  */
 const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
 const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-const FOLDER_NAME = 'Facewoof';
+const FOLDER_NAME = "Facewoof";
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
 export const uploadsConfigured = Boolean(UPLOAD_PRESET && CLOUD_NAME);
@@ -21,10 +21,10 @@ export const uploadsConfigured = Boolean(UPLOAD_PRESET && CLOUD_NAME);
 /* Upload one image file; resolves to its https URL. */
 export const uploadToCloudinary = (file) => {
   const data = new FormData();
-  data.append('file', file);
-  data.append('upload_preset', UPLOAD_PRESET);
-  data.append('cloud_name', CLOUD_NAME);
-  data.append('folder', FOLDER_NAME);
+  data.append("file", file);
+  data.append("upload_preset", UPLOAD_PRESET);
+  data.append("cloud_name", CLOUD_NAME);
+  data.append("folder", FOLDER_NAME);
   // api.js sets axios.defaults.withCredentials for the app's own API, and a
   // credentialed cross-origin request is one Cloudinary's CORS policy must
   // refuse (Access-Control-Allow-Credentials cannot be true for a wildcard

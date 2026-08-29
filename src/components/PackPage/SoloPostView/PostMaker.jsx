@@ -1,44 +1,44 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import useUserContext from '../../../hooks/useUserContext';
+import axios from "axios";
+import { useState } from "react";
+import useUserContext from "../../../hooks/useUserContext";
 
 const PostMaker = ({ viewing, viewingName, pfp }) => {
   const { userId } = useUserContext();
   // console.log('user_id', userId);
   const styles = {
     postMakerImg: {
-      display: 'flex',
-      flexDirection: 'row'
+      display: "flex",
+      flexDirection: "row",
     },
     poster: {
-      width: '100%',
-      padding: '10px'
+      width: "100%",
+      padding: "10px",
     },
     parent: {
-      alignItems: 'stretch',
-      padding: '10px',
-      backgroundColor: 'var(--color-base-300)'
+      alignItems: "stretch",
+      padding: "10px",
+      backgroundColor: "var(--color-base-300)",
     },
     button: {},
     textArea: {
       // borderRadius: '2.5%'
       // padding: '5px'
-    }
+    },
   };
-  const [body, setBody] = useState('');
+  const [body, setBody] = useState("");
 
   const makePost = () => {
     const packet = {};
     packet.body = body;
     packet.user_id = userId;
     packet.pack_id = viewing;
-    setBody('');
+    setBody("");
     // $('#inputTextField')[0].reset();
 
-    axios.get('/api/getPfp').then((resp) => {
+    axios.get("/api/getPfp").then((resp) => {
       // console.log('received pfp', resp.data[0].url);
       packet.photo_url = resp.data[0].url;
-      axios.post('/api/makePost', { packet: packet }).then(() => {
+      axios.post("/api/makePost", { packet: packet }).then(() => {
         // console.log('sent');
       });
     });
@@ -49,7 +49,7 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
       <div style={styles.postMakerImg}>
         <div className="avatar">
           <div className="w-24 rounded-full">
-            <img src={pfp} />
+            <img src={pfp} alt="Your avatar" />
           </div>
         </div>
         <div className="card" style={styles.poster}>
@@ -72,6 +72,7 @@ const PostMaker = ({ viewing, viewingName, pfp }) => {
       </div>
       <div style={styles.button}>
         <button
+          type="button"
           className="btn btn-block"
           onClick={() => {
             body.length > 50 ? makePost() : null;

@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 /*
  * A pack's name in the sidebar.
@@ -14,7 +13,7 @@ import PropTypes from 'prop-types';
 const PackName = ({ name }) => <div>{name}</div>;
 
 PackName.propTypes = {
-  name: PropTypes.string.isRequired
+  name: PropTypes.string.isRequired,
 };
 
 export default PackName;

@@ -4,7 +4,7 @@
 }
 
 .custom-file-input::before {
-  content: 'UPLOAD IMAGE';
+  content: "UPLOAD IMAGE";
   display: inline-block;
   border-radius: 7px;
   background-color: var(--color-primary);

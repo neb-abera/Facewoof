@@ -1,37 +1,36 @@
-import React from 'react';
-import SoloPackList from './SoloPackList';
-import SoloPlaydates from './SoloPlaydates';
+import SoloPackList from "./SoloPackList";
+import SoloPlaydates from "./SoloPlaydates";
 
 const SoloPackMenu = ({ setViewing, userIdentity }) => {
   const styles = {
     packList: {
-      display: 'flex',
-      flexDirection: 'column',
-      height: '50vh'
+      display: "flex",
+      flexDirection: "column",
+      height: "50vh",
     },
     parent: {
       // border: '3px solid grey',
-      width: '30%',
-      height: '100%',
+      width: "30%",
+      height: "100%",
       // paddingTop: '50px',
-      position: 'sticky',
-      top: '0px',
-      bottom: '0px',
-      alignItems: 'stretch'
+      position: "sticky",
+      top: "0px",
+      bottom: "0px",
+      alignItems: "stretch",
       // borderRadius: '5%'
     },
     yourPacks: {
-      paddingTop: '25px',
+      paddingTop: "25px",
       // border: '1px solid black',
-      height: '25px'
+      height: "25px",
     },
     // packList: {
     //   // border: '2px solid grey',
 
     // },
     calendar: {
-      height: '50vh'
-    }
+      height: "50vh",
+    },
   };
 
   return (

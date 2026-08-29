@@ -1,15 +1,12 @@
-/* eslint-disable react/jsx-indent-props */
-/* eslint-disable prefer-template */
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Modal from 'react-modal';
-import useUserContext from '../hooks/useUserContext';
-import useCalendar from '../hooks/useCalender';
-import PlaydateCalendar from '../components/Calendar/PlaydateCalendar';
-import ViewPlaydate from '../components/Calendar/ViewPlaydate';
-import AddPlaydate from '../components/Calendar/AddPlaydate';
-import '../components/Calendar/Playdate.css';
-import '../components/Shared/modal.css';
+import { useEffect, useState } from "react";
+import Modal from "react-modal";
+import AddPlaydate from "../components/Calendar/AddPlaydate";
+import PlaydateCalendar from "../components/Calendar/PlaydateCalendar";
+import ViewPlaydate from "../components/Calendar/ViewPlaydate";
+import useCalendar from "../hooks/useCalender";
+import useUserContext from "../hooks/useUserContext";
+import "../components/Calendar/Playdate.css";
+import "../components/Shared/modal.css";
 
 const Calendar = () => {
   const [editPlaydateModal, setEditPlaydateModal] = useState(false);
@@ -18,9 +15,9 @@ const Calendar = () => {
   const [playStartTime, setStartTime] = useState();
   const [playEndTime, setEndTime] = useState();
   // View Selected Playdate states
-  const [selectedPlaydate, setSelectedPlaydate] = useState();
+  const [, setSelectedPlaydate] = useState();
 
-  const { userId, setPlaydates, loggedIn } = useUserContext();
+  const { userId, loggedIn } = useUserContext();
   const { getPacks } = useCalendar();
 
   const openEditModal = () => {
@@ -81,7 +78,10 @@ const Calendar = () => {
         className="app-modal"
         overlayClassName="app-modal__overlay"
       >
-        <ViewPlaydate closeEditModal={closeEditModal} selectedPlaydate={selectedPlaydate} />
+        <ViewPlaydate
+          closeEditModal={closeEditModal}
+          selectedPlaydate={selectedPlaydate}
+        />
       </Modal>
       <Modal
         isOpen={addPlaydateModal}
