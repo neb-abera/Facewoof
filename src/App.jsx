@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Home from './views/Home';
-import Login from './views/Login';
-import Discover from './views/Discover';
-import PackFeed from './views/PackFeed';
-import PlaydateCalendar from './views/Calendar';
-import Profile from './views/Profile';
-import Welcome from './views/Welcome';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import useUserContext from './hooks/useUserContext';
+
+/*
+ * Every view except the landing page loads on demand.
+ *
+ * Statically imported, the calendar pulled moment, react-big-calendar and the
+ * datetime picker into the one bundle every visitor downloads before anything
+ * paints — libraries only reachable behind sign-in. Split by route, the
+ * landing page ships what the landing page renders, and each view's chunk
+ * arrives when the visitor first navigates to it.
+ */
+const Login = lazy(() => import('./views/Login'));
+const Discover = lazy(() => import('./views/Discover'));
+const PackFeed = lazy(() => import('./views/PackFeed'));
+const PlaydateCalendar = lazy(() => import('./views/Calendar'));
+const Profile = lazy(() => import('./views/Profile'));
+const Welcome = lazy(() => import('./views/Welcome'));
 
 /*
  * Send anyone without a session to the sign-in page, and anyone who has not
@@ -44,46 +54,52 @@ const App = () => (
       {/* react-router 5's <Route path> matched by prefix and rendered every
           match. v7 matches one route, so `exact` is gone and each route names
           its element. */}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        {/* Deliberately outside RequireUser's onboarding check, which would
+      {/* The fallback renders for the moment a view's chunk is in flight on
+          its first visit. Deliberately blank rather than a spinner: the wait
+          is a chunk fetch, and flashing a loader for it would look slower
+          than it is. */}
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          {/* Deliberately outside RequireUser's onboarding check, which would
             otherwise redirect this route to itself. */}
-        <Route path="/welcome" element={<Welcome />} />
-        <Route
-          path="/discover"
-          element={
-            <RequireUser>
-              <Discover />
-            </RequireUser>
-          }
-        />
-        <Route
-          path="/packFeed"
-          element={
-            <RequireUser>
-              <PackFeed />
-            </RequireUser>
-          }
-        />
-        <Route
-          path="/calendar"
-          element={
-            <RequireUser>
-              <PlaydateCalendar />
-            </RequireUser>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <RequireUser>
-              <Profile />
-            </RequireUser>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="/welcome" element={<Welcome />} />
+          <Route
+            path="/discover"
+            element={
+              <RequireUser>
+                <Discover />
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/packFeed"
+            element={
+              <RequireUser>
+                <PackFeed />
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <RequireUser>
+                <PlaydateCalendar />
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <RequireUser>
+                <Profile />
+              </RequireUser>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </header>
   </div>
 );
