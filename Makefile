@@ -48,10 +48,20 @@ run: image ## Build and run the production image on http://localhost:8080
 	# The image needs a database, and the compose network has to exist before
 	# --network can join it. Without this the target only worked if `make dev`
 	# happened to be running in another terminal.
+	#
+	# SESSION_SECRET: the image runs with NODE_ENV=production, and the server
+	# refuses to start without one rather than generating a key per replica.
+	# The target used to omit it and die on that check before serving a page.
+	# INSECURE_TRANSPORT: without it the session cookie is Secure-only, so
+	# over plain-HTTP localhost the browser never sends it back and every
+	# sign-in silently fails. Both values are for this target only; real
+	# deployments set their own.
 	$(COMPOSE) up -d db
 	$(DOCKER) run --rm --name facewoof-app -p 127.0.0.1:8080:8080 \
 		--network facewoof_default \
 		-e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
+		-e SESSION_SECRET=local-only \
+		-e INSECURE_TRANSPORT=true \
 		facewoof
 
 logs: ## Follow the logs of every running service
