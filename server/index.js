@@ -85,7 +85,14 @@ app.use(
         // bundle outright and renders a blank page.
         ...(insecureTransport ? { 'upgrade-insecure-requests': null } : {})
       }
-    }
+    },
+    // Dropped only then, and for coherence rather than effect: RFC 6797 has
+    // browsers ignore an HSTS header that arrives over plain HTTP, so on an
+    // insecure instance the header does nothing except mislead whoever is
+    // debugging a forced-https failure into blaming it. (The real cause of
+    // that failure was the test hostname: `app` is a gTLD on Chromium's HSTS
+    // preload list — see compose.yaml.)
+    ...(insecureTransport ? { strictTransportSecurity: false } : {})
   })
 );
 
