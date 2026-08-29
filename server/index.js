@@ -80,6 +80,11 @@ app.use(
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'img-src': ["'self'", 'data:', 'https://placedog.net', 'https://res.cloudinary.com'],
+        // Photo uploads POST from the browser straight to Cloudinary. The
+        // default connect-src 'self' silently blocked that request, so even a
+        // correctly configured uploader could never have worked in
+        // production.
+        'connect-src': ["'self'", 'https://api.cloudinary.com'],
         // Dropped only when the instance is deliberately on plain HTTP: it
         // rewrites every asset URL to https://, which over HTTP fails the
         // bundle outright and renders a blank page.
