@@ -1,11 +1,7 @@
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable react/prop-types */
-/* eslint-disable jsx-a11y/alt-text */
-import React from 'react';
-import './profileCard.css';
+import "./profileCard.css";
 
 export default function ProfileCard({ user, distance }) {
-  distance = distance === 0 ? '< .5' : distance;
+  distance = distance === 0 ? "< .5" : distance;
 
   return (
     <div className="profile-card-parent drop-shadow-lg">
@@ -19,7 +15,7 @@ export default function ProfileCard({ user, distance }) {
                 <img
                   src={user.photos[0]}
                   draggable={false}
-                  alt={`photo of a dog named ${user.dog_name}`}
+                  alt={`A dog named ${user.dog_name}`}
                 />
               </div>
             </div>
@@ -37,7 +33,9 @@ export default function ProfileCard({ user, distance }) {
                   {user.age} • {user.dog_breed} • {distance} miles
                 </p>
                 {user.vaccination ? (
-                  <div className="badge badge-secondary">&#10004; Vaccinated</div>
+                  <div className="badge badge-secondary">
+                    &#10004; Vaccinated
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -45,8 +43,8 @@ export default function ProfileCard({ user, distance }) {
           <div className="card-actions justify-start">
             {user.interests === undefined
               ? null
-              : user.interests.map((interest, index) => (
-                  <div key={`interest${index}`} className="badge badge-outline">
+              : user.interests.map((interest, _index) => (
+                  <div key={interest} className="badge badge-outline">
                     {interest}
                   </div>
                 ))}
@@ -57,7 +55,7 @@ export default function ProfileCard({ user, distance }) {
             <div className="carousel w-full">
               {user.photos.map((url, index) => (
                 <div
-                  key={`photo${index}`}
+                  key={url}
                   id={`item${user.user_id}${index}`}
                   className="carousel-item w-full"
                 >
@@ -65,7 +63,7 @@ export default function ProfileCard({ user, distance }) {
                     className="w-full no-image-drag"
                     src={url}
                     draggable={false}
-                    alt={`photo of a dog named ${user.dog_name}`}
+                    alt={`A dog named ${user.dog_name}`}
                   />
                 </div>
               ))}
@@ -74,7 +72,7 @@ export default function ProfileCard({ user, distance }) {
           <div className="flex justify-center w-full py-2 gap-2 carousel-buttons">
             {user.photos.map((url, index) => (
               <a
-                key={`button${index}`}
+                key={url}
                 href={`#item${user.user_id}${index}`}
                 className="btn btn-xs"
               >

@@ -1,13 +1,15 @@
-import React from 'react';
-
 const SoloPackName = ({ name, setViewing }) => {
-  const styles = {};
+  const _styles = {};
   // console.log(name);
   const click = () => {
     setViewing(name);
     // console.log('clicked', name);
   };
-  return <div onClick={click}>{name}</div>;
+  return (
+    <button type="button" onClick={click}>
+      {name}
+    </button>
+  );
 };
 
 export default SoloPackName;

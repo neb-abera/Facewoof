@@ -28,11 +28,11 @@ reset-db: ## Throw the database away and rebuild it from the migrations
 psql: ## Open a psql shell against the development database
 	$(COMPOSE) exec db psql -U facewoof -d facewoof
 
-lint: ## eslint and prettier, against the working tree
+lint: ## biome lint and format check, against the working tree
 	$(COMPOSE) run --rm lint
 
-fmt: ## Rewrite files to match prettier
-	$(COMPOSE) run --rm lint npx prettier --write .
+fmt: ## Rewrite files to match biome
+	$(COMPOSE) run --rm lint npx biome check --write .
 
 e2e: ## Browser tests against a running instance (BASE_URL to override)
 	$(COMPOSE) run --rm e2e

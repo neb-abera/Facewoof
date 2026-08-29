@@ -1,7 +1,5 @@
-import React from 'react';
-import './FileUploader.css';
+import "./FileUploader.css";
 
-// eslint-disable-next-line react/prop-types
 const FileUploader = ({ onChange }) => {
   return (
     <div className="uploader">

@@ -1,16 +1,22 @@
-import React, { useState, useEffect, useCallback, useMemo, createContext } from 'react';
-import PropTypes from 'prop-types';
-import axios from 'axios';
+import axios from "axios";
+import PropTypes from "prop-types";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const UserContext = createContext();
 
 // A signed-in guest survives a page refresh: without this every reload would
 // mint a new throwaway account and lose whatever the visitor had swiped.
-const STORAGE_KEY = 'facewoof.userId';
+const STORAGE_KEY = "facewoof.userId";
 // Whether the location we are searching from came from the device or is a
 // stand-in. Persisted so a refresh does not silently forget that the feed is
 // only a sample.
-const SOURCE_KEY = 'facewoof.locationSource';
+const SOURCE_KEY = "facewoof.locationSource";
 
 const readStoredUserId = () => {
   try {
@@ -33,9 +39,9 @@ export const UserProvider = ({ children }) => {
   const [authenticating, setAuthenticating] = useState(false);
   const [locationSource, setLocationSource] = useState(() => {
     try {
-      return window.localStorage.getItem(SOURCE_KEY) || 'fallback';
+      return window.localStorage.getItem(SOURCE_KEY) || "fallback";
     } catch {
-      return 'fallback';
+      return "fallback";
     }
   });
 
@@ -75,7 +81,7 @@ export const UserProvider = ({ children }) => {
       return;
     }
     axios
-      .get('/api/profilephoto')
+      .get("/api/profilephoto")
       .then(({ data }) => setPhotos((data || []).map((row) => row.url)))
       .catch(() => setPhotos([]));
   }, [userId]);
@@ -94,7 +100,7 @@ export const UserProvider = ({ children }) => {
     if (userId !== null) return;
 
     axios
-      .get('/api/auth/me')
+      .get("/api/auth/me")
       .then(({ data }) => {
         if (!data?.user_id) return;
         setUserId(data.user_id);
@@ -104,7 +110,6 @@ export const UserProvider = ({ children }) => {
       .catch(() => {});
     // Deliberately once, on mount: after this, sign-in and sign-out drive the
     // id, and re-running on every change to it would undo signing out.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Rehydrate the profile behind a stored id, and drop the id if the account
@@ -113,7 +118,7 @@ export const UserProvider = ({ children }) => {
     if (userId === null || userData !== null) return;
 
     axios
-      .get('/api/auth/me')
+      .get("/api/auth/me")
       .then(({ data }) => setUserData(data))
       .catch((err) => {
         /*
@@ -124,7 +129,11 @@ export const UserProvider = ({ children }) => {
          * single 429 during testing looked like the whole app forgetting you.
          */
         if (err.response?.status === 401) setUserId(null);
-        else console.error('could not load the current user; keeping the session', err);
+        else
+          console.error(
+            "could not load the current user; keeping the session",
+            err,
+          );
       });
   }, [userId, userData]);
 
@@ -134,10 +143,10 @@ export const UserProvider = ({ children }) => {
     setAuthenticating(true);
     try {
       // The response sets the session cookie; the body is the new profile.
-      const { data } = await axios.post('/api/auth/guest', where || {});
+      const { data } = await axios.post("/api/auth/guest", where || {});
       setUserData(data);
       setUserId(data.user_id);
-      setLocationSource(where ? 'device' : 'fallback');
+      setLocationSource(where ? "device" : "fallback");
       // Not firstLogin: that renders the edit form, so every demo visitor met
       // a form instead of the profile they came to look at. Editing is a thing
       // they choose from the profile page.
@@ -158,18 +167,20 @@ export const UserProvider = ({ children }) => {
   const provideLocation = useCallback(
     async (where) => {
       if (!userId || !where) return null;
-      const { data } = await axios.put('/api/location', where);
-      setUserData((prev) => (prev ? { ...prev, location: data.location } : prev));
-      setLocationSource('device');
+      const { data } = await axios.put("/api/location", where);
+      setUserData((prev) =>
+        prev ? { ...prev, location: data.location } : prev,
+      );
+      setLocationSource("device");
       return data.location;
     },
-    [userId]
+    [userId],
   );
 
   const logout = useCallback(() => {
     // Tell the server to drop the cookie as well; clearing local state alone
     // would leave a valid session behind.
-    axios.post('/api/auth/logout').catch(() => {});
+    axios.post("/api/auth/logout").catch(() => {});
     setUserId(null);
     setUserData(null);
     setPhotos([]);
@@ -205,7 +216,7 @@ export const UserProvider = ({ children }) => {
       signInAsGuest,
       locationSource,
       provideLocation,
-      logout
+      logout,
     }),
     [
       userId,
@@ -221,15 +232,17 @@ export const UserProvider = ({ children }) => {
       signInAsGuest,
       locationSource,
       provideLocation,
-      logout
-    ]
+      logout,
+    ],
   );
 
-  return <UserContext.Provider value={valueToShare}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={valueToShare}>{children}</UserContext.Provider>
+  );
 };
 
 UserProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 export default UserContext;

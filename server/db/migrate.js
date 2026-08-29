@@ -1,10 +1,9 @@
-/* eslint-disable no-console */
-const fs = require('fs');
-const path = require('path');
+const fs = require("node:fs");
+const path = require("node:path");
 
-const db = require('./database');
+const db = require("./database");
 
-const MIGRATIONS_DIR = path.join(__dirname, 'migrations');
+const MIGRATIONS_DIR = path.join(__dirname, "migrations");
 
 // An arbitrary but fixed key. Container Apps runs more than one replica, and
 // they all start at once on a deploy: without a lock they would race to apply
@@ -14,10 +13,13 @@ const LOCK_KEY = 8071975;
 const readMigrations = () =>
   fs
     .readdirSync(MIGRATIONS_DIR)
-    .filter((name) => name.endsWith('.sql'))
+    .filter((name) => name.endsWith(".sql"))
     // Numeric prefixes, so lexical order is apply order.
     .sort()
-    .map((name) => ({ name, sql: fs.readFileSync(path.join(MIGRATIONS_DIR, name), 'utf8') }));
+    .map((name) => ({
+      name,
+      sql: fs.readFileSync(path.join(MIGRATIONS_DIR, name), "utf8"),
+    }));
 
 /*
  * Apply any migrations this database has not seen.
@@ -37,15 +39,15 @@ async function migrate() {
 
     // Blocks rather than failing, so a replica that loses the race waits and
     // then finds there is nothing left to do.
-    await client.query('SELECT pg_advisory_lock($1)', [LOCK_KEY]);
+    await client.query("SELECT pg_advisory_lock($1)", [LOCK_KEY]);
 
     try {
-      const { rows } = await client.query('SELECT name FROM schema_migrations');
+      const { rows } = await client.query("SELECT name FROM schema_migrations");
       const applied = new Set(rows.map((row) => row.name));
       const pending = readMigrations().filter((m) => !applied.has(m.name));
 
       if (!pending.length) {
-        console.log('database is up to date');
+        console.log("database is up to date");
         return 0;
       }
 
@@ -56,14 +58,16 @@ async function migrate() {
         const migration = pending[i];
         console.log(`applying ${migration.name}`);
 
-        /* eslint-disable no-await-in-loop */
-        await client.query('BEGIN');
+        await client.query("BEGIN");
         try {
           await client.query(migration.sql);
-          await client.query('INSERT INTO schema_migrations (name) VALUES ($1)', [migration.name]);
-          await client.query('COMMIT');
+          await client.query(
+            "INSERT INTO schema_migrations (name) VALUES ($1)",
+            [migration.name],
+          );
+          await client.query("COMMIT");
         } catch (err) {
-          await client.query('ROLLBACK');
+          await client.query("ROLLBACK");
           throw new Error(`migration ${migration.name} failed: ${err.message}`);
         }
         /* eslint-enable no-await-in-loop */
@@ -72,7 +76,7 @@ async function migrate() {
       console.log(`applied ${pending.length} migration(s)`);
       return pending.length;
     } finally {
-      await client.query('SELECT pg_advisory_unlock($1)', [LOCK_KEY]);
+      await client.query("SELECT pg_advisory_unlock($1)", [LOCK_KEY]);
     }
   } finally {
     client.release();

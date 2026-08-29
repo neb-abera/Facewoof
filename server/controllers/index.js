@@ -1,6 +1,6 @@
-const { discoverUsers, userResponse, resolveLocation } = require('./discover');
-const { getPlaydates, AddPlaydate } = require('./calendar');
-const { addUserToPack, getUserPacks, createNewPackAndAdd } = require('./packs');
+const { discoverUsers, userResponse, resolveLocation } = require("./discover");
+const { getPlaydates, AddPlaydate } = require("./calendar");
+const { addUserToPack, getUserPacks, createNewPackAndAdd } = require("./packs");
 const {
   getCurrentUser,
   updateLocation,
@@ -8,8 +8,8 @@ const {
   createPack,
   editProfile,
   createPhotos,
-  getProfilePhoto
-} = require('./profile');
+  getProfilePhoto,
+} = require("./profile");
 const {
   ctrlPackPosts,
   ctrlAllPostsFromAllPacks,
@@ -17,12 +17,16 @@ const {
   ctrlSoloPosts,
   ctrlPfp,
   ctrlMakePost,
-  ctrlUserPacksId
-} = require('./packfeed');
-const { guestLogin, me, logout } = require('./auth');
+  ctrlUserPacksId,
+} = require("./packfeed");
+const { guestLogin, me, logout } = require("./auth");
 
-const { providers: oidcProviders, start: oidcStart, callback: oidcCallback } = require('./oidc');
-const { finish: finishOnboarding } = require('./onboarding');
+const {
+  providers: oidcProviders,
+  start: oidcStart,
+  callback: oidcCallback,
+} = require("./oidc");
+const { finish: finishOnboarding } = require("./onboarding");
 
 module.exports = {
   finishOnboarding,
@@ -53,5 +57,5 @@ module.exports = {
   ctrlPfp,
   ctrlMakePost,
   ctrlUserPacksId,
-  createPhotos
+  createPhotos,
 };
