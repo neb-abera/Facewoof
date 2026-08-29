@@ -1,16 +1,10 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
-/* eslint-disable react/jsx-indent-props */
-import React from 'react';
-import './Playdate.css';
+import "./Playdate.css";
 
 const ViewPlaydate = ({ selectedPlaydate, closeEditModal }) => {
   // const [input, setInput] = useState({});
   // className="playdateModal"
-  const packName = selectedPlaydate.title.split(':')[0];
-  const description = selectedPlaydate.title.split(':')[1];
+  const packName = selectedPlaydate.title.split(":")[0];
+  const description = selectedPlaydate.title.split(":")[1];
   const startTime = selectedPlaydate.start.toLocaleString();
   const endTime = selectedPlaydate.end.toLocaleString();
   return (

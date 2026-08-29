@@ -1,8 +1,10 @@
-/* eslint-disable react/jsx-indent-props */
-/* eslint-disable react/prop-types */
-import React from 'react';
-
-const SearchBar = ({ radius, onSetRadius, location, onSetLocation, onSearch }) => {
+const SearchBar = ({
+  radius,
+  onSetRadius,
+  location,
+  onSetLocation,
+  onSearch,
+}) => {
   return (
     <form
       className="relative z-10 flex flex-wrap gap-4 bg-base-200 border-b border-base-300 py-3 px-6 sm:px-14 items-center"
@@ -29,8 +31,8 @@ const SearchBar = ({ radius, onSetRadius, location, onSetLocation, onSearch }) =
         <option value={25}>25 miles</option>
         <option value={50}>50 miles</option>
       </select>
-      {/* eslint-disable-next-line react/button-has-type */}
       <button
+        type="submit"
         className="btn btn-sm btn-primary"
         onClick={(event) => {
           event.preventDefault();

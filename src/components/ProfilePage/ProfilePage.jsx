@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
-import useUserContext from '../../hooks/useUserContext';
-import UploadFileWidget from '../FileUploader/UploadFileWidget';
+import axios from "axios";
+import PropTypes from "prop-types";
+import { useState } from "react";
+import useUserContext from "../../hooks/useUserContext";
+import UploadFileWidget from "../FileUploader/UploadFileWidget";
 
 /*
  * Editing the profile.
@@ -18,20 +18,20 @@ import UploadFileWidget from '../FileUploader/UploadFileWidget';
  */
 
 const SIZES = [
-  ['small', 'Small (under 25 lb)'],
-  ['medium', 'Medium (25–60 lb)'],
-  ['large', 'Large (over 60 lb)']
+  ["small", "Small (under 25 lb)"],
+  ["medium", "Medium (25–60 lb)"],
+  ["large", "Large (over 60 lb)"],
 ];
 const ENERGY = [
-  ['low', 'Easy-going'],
-  ['medium', 'Playful'],
-  ['high', 'High energy']
+  ["low", "Easy-going"],
+  ["medium", "Playful"],
+  ["high", "High energy"],
 ];
 const BEST_TIMES = [
-  ['mornings', 'Mornings'],
-  ['afternoons', 'Afternoons'],
-  ['evenings', 'Evenings'],
-  ['weekends', 'Weekends']
+  ["mornings", "Mornings"],
+  ["afternoons", "Afternoons"],
+  ["evenings", "Evenings"],
+  ["weekends", "Weekends"],
 ];
 
 // htmlFor rather than a wrapping label: a label that wraps a <select> counts
@@ -59,6 +59,7 @@ const Select = ({ id, label, value, onChange, options }) => (
 );
 
 const Field = ({ label, children }) => (
+  // biome-ignore lint/a11y/noLabelWithoutControl: the control is nested inside via children - daisyUI form-control pattern
   <label className="form-control w-full">
     <span className="label label-text">{label}</span>
     {children}
@@ -70,53 +71,54 @@ Select.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
-  options: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired
+  options: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
 };
 
 Field.propTypes = {
   label: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 const ProfilePage = () => {
   const { userData, setUserData, setFirstLogin } = useUserContext();
 
   const [form, setForm] = useState(() => ({
-    dogName: userData?.dog_name || '',
-    ownerName: userData?.owner_name || '',
-    dogBreed: userData?.dog_breed || '',
-    age: userData?.age ?? '',
+    dogName: userData?.dog_name || "",
+    ownerName: userData?.owner_name || "",
+    dogBreed: userData?.dog_breed || "",
+    age: userData?.age ?? "",
     vaccination: Boolean(userData?.vaccination),
     discoverable: userData?.discoverable !== false,
-    likesOne: userData?.likes_one || '',
-    likesTwo: userData?.likes_two || '',
-    likesThree: userData?.likes_three || '',
-    size: userData?.size || '',
-    energy: userData?.energy || '',
-    bestTime: userData?.best_time || '',
-    bio: userData?.bio || '',
-    zip: userData?.location || ''
+    likesOne: userData?.likes_one || "",
+    likesTwo: userData?.likes_two || "",
+    likesThree: userData?.likes_three || "",
+    size: userData?.size || "",
+    energy: userData?.energy || "",
+    bestTime: userData?.best_time || "",
+    bio: userData?.bio || "",
+    zip: userData?.location || "",
   }));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  const set = (key) => (value) => setForm((prev) => ({ ...prev, [key]: value }));
+  const set = (key) => (value) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.dogName.trim()) {
-      setError('What is your dog called?');
+      setError("What is your dog called?");
       return;
     }
 
     setSaving(true);
     setError(null);
     try {
-      await axios.put('/api/edituser', {
+      await axios.put("/api/edituser", {
         dogName: form.dogName,
         ownerName: form.ownerName,
         dogBreed: form.dogBreed,
-        age: form.age === '' ? null : Number(form.age),
+        age: form.age === "" ? null : Number(form.age),
         vaccination: form.vaccination,
         discoverable: form.discoverable,
         likesOne: form.likesOne,
@@ -125,24 +127,26 @@ const ProfilePage = () => {
         size: form.size || null,
         energy: form.energy || null,
         bestTime: form.bestTime || null,
-        bio: form.bio
+        bio: form.bio,
       });
 
       // Moving is its own endpoint: it validates the zip and generates
       // neighbours there, which a column update could not.
       const zip = form.zip.trim();
-      if (zip && zip !== (userData?.location || '')) {
-        await axios.put('/api/location', { zip });
+      if (zip && zip !== (userData?.location || "")) {
+        await axios.put("/api/location", { zip });
       }
 
       // Re-read rather than patching locally: the server decides what the
       // profile now is, including what it refused.
-      const { data } = await axios.get('/api/auth/me');
+      const { data } = await axios.get("/api/auth/me");
       setUserData(data);
       setFirstLogin(false);
     } catch (err) {
-      console.error('could not save the profile', err);
-      setError('That could not be saved. Please check the zip code and try again.');
+      console.error("could not save the profile", err);
+      setError(
+        "That could not be saved. Please check the zip code and try again.",
+      );
       setSaving(false);
     }
   };
@@ -158,14 +162,14 @@ const ProfilePage = () => {
               <input
                 className="input input-bordered w-full"
                 value={form.dogName}
-                onChange={(e) => set('dogName')(e.target.value)}
+                onChange={(e) => set("dogName")(e.target.value)}
               />
             </Field>
             <Field label="Breed">
               <input
                 className="input input-bordered w-full"
                 value={form.dogBreed}
-                onChange={(e) => set('dogBreed')(e.target.value)}
+                onChange={(e) => set("dogBreed")(e.target.value)}
               />
             </Field>
             <Field label="Age (years)">
@@ -175,21 +179,21 @@ const ProfilePage = () => {
                 min="0"
                 max="30"
                 value={form.age}
-                onChange={(e) => set('age')(e.target.value)}
+                onChange={(e) => set("age")(e.target.value)}
               />
             </Field>
             <Field label="Owner's name">
               <input
                 className="input input-bordered w-full"
                 value={form.ownerName}
-                onChange={(e) => set('ownerName')(e.target.value)}
+                onChange={(e) => set("ownerName")(e.target.value)}
               />
             </Field>
             <Field label="Zip code">
               <input
                 className="input input-bordered w-full"
                 value={form.zip}
-                onChange={(e) => set('zip')(e.target.value)}
+                onChange={(e) => set("zip")(e.target.value)}
               />
             </Field>
           </div>
@@ -201,30 +205,30 @@ const ProfilePage = () => {
               id="profile-size"
               label="Size"
               value={form.size}
-              onChange={set('size')}
+              onChange={set("size")}
               options={SIZES}
             />
             <Select
               id="profile-energy"
               label="Energy"
               value={form.energy}
-              onChange={set('energy')}
+              onChange={set("energy")}
               options={ENERGY}
             />
             <Select
               id="profile-best-time"
               label="Best time to play"
               value={form.bestTime}
-              onChange={set('bestTime')}
+              onChange={set("bestTime")}
               options={BEST_TIMES}
             />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              ['likesOne', 'Chasing squirrels'],
-              ['likesTwo', 'Playing fetch'],
-              ['likesThree', 'Long walks']
+              ["likesOne", "Chasing squirrels"],
+              ["likesTwo", "Playing fetch"],
+              ["likesThree", "Long walks"],
             ].map(([key, placeholder], index) => (
               <Field key={key} label={`Loves ${index + 1}`}>
                 <input
@@ -244,7 +248,7 @@ const ProfilePage = () => {
               maxLength={400}
               placeholder="Great with small dogs, still learning recall, brings her own ball…"
               value={form.bio}
-              onChange={(e) => set('bio')(e.target.value)}
+              onChange={(e) => set("bio")(e.target.value)}
             />
           </Field>
 
@@ -254,7 +258,7 @@ const ProfilePage = () => {
                 type="checkbox"
                 className="checkbox"
                 checked={form.vaccination}
-                onChange={(e) => set('vaccination')(e.target.checked)}
+                onChange={(e) => set("vaccination")(e.target.checked)}
               />
               <span>Vaccinated</span>
             </label>
@@ -263,7 +267,7 @@ const ProfilePage = () => {
                 type="checkbox"
                 className="toggle"
                 checked={form.discoverable}
-                onChange={(e) => set('discoverable')(e.target.checked)}
+                onChange={(e) => set("discoverable")(e.target.checked)}
               />
               <span>Show my profile in discover</span>
             </label>
@@ -286,7 +290,7 @@ const ProfilePage = () => {
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? 'Saving…' : 'Save profile'}
+              {saving ? "Saving…" : "Save profile"}
             </button>
           </div>
         </div>

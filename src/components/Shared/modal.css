@@ -73,7 +73,7 @@
  * it to the full width of the dialog, so it dropped out of its field and sat
  * across the label underneath.
  */
-.app-modal select:not([class*='react-datetime-picker']),
+.app-modal select:not([class*="react-datetime-picker"]),
 .app-modal textarea {
   width: 100%;
 }
@@ -139,7 +139,9 @@
 
 .app-modal .react-calendar__tile--active,
 .app-modal .react-calendar__tile--hasActive {
+  /* biome-ignore lint/complexity/noImportantStyles: react-calendar styles tiles with higher specificity; scoped override */
   background-color: var(--color-primary) !important;
+  /* biome-ignore lint/complexity/noImportantStyles: react-calendar styles tiles with higher specificity; scoped override */
   color: var(--color-primary-content) !important;
 }
 

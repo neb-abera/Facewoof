@@ -1,10 +1,9 @@
-/* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import ProfileCardGeneral from '../Shared/ProfileCardGeneral';
-import CreatePackCard from './createPack';
-import useUserContext from '../../hooks/useUserContext';
-import './profile.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import useUserContext from "../../hooks/useUserContext";
+import ProfileCardGeneral from "../Shared/ProfileCardGeneral";
+import CreatePackCard from "./createPack";
+import "./profile.css";
 
 const FriendsList = ({ currentUser }) => {
   const [friendsName, setFriendsName] = useState([]);
@@ -12,12 +11,12 @@ const FriendsList = ({ currentUser }) => {
   const [gotFriends, setGotFriends] = useState(false);
   const [gotPacks, setGotPacks] = useState(false);
   // const [packs, setPacks] = useState([]);
-  const { userId, packs, setPacks, userData, /*friends, setFriends,*/ photos } = useUserContext();
+  const { packs } = useUserContext();
 
   useEffect(() => {
     if (!gotFriends) {
       axios
-        .get('/api/friends')
+        .get("/api/friends")
         .then((results) => {
           const friendos = results.data;
           const friendsArray = [];
@@ -34,7 +33,7 @@ const FriendsList = ({ currentUser }) => {
           setGotFriends(true);
         })
         .catch((err) => {
-          console.log('err', err);
+          console.log("err", err);
         });
     }
   }, []);
@@ -42,25 +41,25 @@ const FriendsList = ({ currentUser }) => {
   useEffect(() => {
     if (!gotPacks) {
       axios
-        .get('/api/getpacks')
+        .get("/api/getpacks")
         .then((results) => {
           setPacks(results.data);
           setGotPacks(true);
         })
         .catch((err) => {
-          console.log('err in getpacks', err);
+          console.log("err in getpacks", err);
         });
     }
   }, []);
 
   const addToPack = (packId) => {
     axios
-      .put('/api/addtopack', { pack_id: packId })
+      .put("/api/addtopack", { pack_id: packId })
       .then(() => {
-        console.log('added to pack');
+        console.log("added to pack");
       })
       .catch(() => {
-        alert('That user is already a part of that pack');
+        alert("That user is already a part of that pack");
       });
   };
 
@@ -83,14 +82,24 @@ const FriendsList = ({ currentUser }) => {
             return (
               <tr key={index} className="flex">
                 <td className="bg-base-200">
-                  <label htmlFor={hrefString} className="btn btn-primary w-40 self-center">
+                  <label
+                    htmlFor={hrefString}
+                    className="btn btn-primary w-40 self-center"
+                  >
                     {item}
                   </label>
                   {/* Put this part before </body> tag */}
-                  <input type="checkbox" id={hrefString} className="modal-toggle" />
+                  <input
+                    type="checkbox"
+                    id={hrefString}
+                    className="modal-toggle"
+                  />
                   <span className="modal">
                     <span className="modal-box relative">
-                      <label htmlFor={hrefString} className="btn btn-secondary mt-2.5 mr-3.5">
+                      <label
+                        htmlFor={hrefString}
+                        className="btn btn-secondary mt-2.5 mr-3.5"
+                      >
                         ✕
                       </label>
                       <ProfileCardGeneral user={user} />
@@ -99,23 +108,28 @@ const FriendsList = ({ currentUser }) => {
 
                   {/* <a className="btn btn-outline btn-primary w-24 rounded-full mr-6 text-xs self-center">Add To Pack</a> */}
                   <span className="dropdown">
+                    {/* biome-ignore lint/a11y/noLabelWithoutControl: daisyUI dropdown trigger - focus on this label opens the menu */}
+                    {/* biome-ignore lint/a11y/noNoninteractiveTabindex: daisyUI dropdowns are focus-driven; both tabindexes are functional */}
                     <label tabIndex={0} className="btn btn-secondary ml-2">
                       Add To Pack
                     </label>
                     <ul
+                      // biome-ignore lint/a11y/noNoninteractiveTabindex: daisyUI dropdowns are focus-driven
                       tabIndex={0}
                       className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
                     >
-                      {packs.map((pack, k) => {
+                      {packs.map((pack) => {
                         const userId = user.user_id;
                         return (
-                          <li
-                            key={k}
-                            onClick={() => {
-                              addToPack(pack.pack_id, userId);
-                            }}
-                          >
-                            <a>{pack.name}</a>
+                          <li key={pack.pack_id}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                addToPack(pack.pack_id, userId);
+                              }}
+                            >
+                              {pack.name}
+                            </button>
                           </li>
                         );
                       })}
@@ -126,7 +140,11 @@ const FriendsList = ({ currentUser }) => {
                   </label>
 
                   {/* Put this part before </body> tag */}
-                  <input type="checkbox" id={hrefString2} className="modal-toggle" />
+                  <input
+                    type="checkbox"
+                    id={hrefString2}
+                    className="modal-toggle"
+                  />
                   <span className="modal">
                     <span className="modal-box relative">
                       <label

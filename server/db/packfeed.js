@@ -1,4 +1,4 @@
-const db = require('./database');
+const db = require("./database");
 
 // These took (req, res) and pulled values off req.query themselves, which put
 // knowledge of the HTTP layer in the database layer. They take plain arguments
@@ -11,11 +11,13 @@ const getUserPacksId = (userId) =>
        INNER JOIN packs ON packs.pack_id = pack_users.pack_id
        WHERE pack_users.user_id = $1
      ) AS packobj;`,
-    [userId]
+    [userId],
   );
 
 const getPackPosts = (packId) =>
-  db.query('SELECT * FROM posts WHERE posts.pack_id = $1 ORDER BY date DESC', [packId]);
+  db.query("SELECT * FROM posts WHERE posts.pack_id = $1 ORDER BY date DESC", [
+    packId,
+  ]);
 
 const getAllPostsFromAllPacks = (userId) =>
   db.query(
@@ -27,17 +29,24 @@ const getAllPostsFromAllPacks = (userId) =>
        WHERE pack_users.user_id = $1
        ORDER BY posts.date DESC
      ) AS postobj;`,
-    [userId]
+    [userId],
   );
 
 const getUserPlaydatesAllPacks = (userId) =>
-  db.query('SELECT * FROM playdates WHERE playdates.user_id = $1 ORDER BY start_date', [userId]);
+  db.query(
+    "SELECT * FROM playdates WHERE playdates.user_id = $1 ORDER BY start_date",
+    [userId],
+  );
 
 const getSoloPosts = (packId) =>
-  db.query('SELECT * FROM posts WHERE posts.pack_id = $1 ORDER BY date DESC', [packId]);
+  db.query("SELECT * FROM posts WHERE posts.pack_id = $1 ORDER BY date DESC", [
+    packId,
+  ]);
 
 const getPfp = (userId) =>
-  db.query('SELECT * FROM profile_photos WHERE profile_photos.user_id = $1', [userId]);
+  db.query("SELECT * FROM profile_photos WHERE profile_photos.user_id = $1", [
+    userId,
+  ]);
 
 /*
  * Whether a user belongs to a pack. The feed and the post endpoints gate on
@@ -45,15 +54,17 @@ const getPfp = (userId) =>
  */
 const isPackMember = (userId, packId) =>
   db
-    .query('SELECT 1 FROM pack_users WHERE user_id = $1 AND pack_id = $2', [userId, packId])
+    .query("SELECT 1 FROM pack_users WHERE user_id = $1 AND pack_id = $2", [
+      userId,
+      packId,
+    ])
     .then(({ rowCount }) => rowCount > 0);
 
-/* eslint-disable camelcase -- these are column names */
 const makePost = ({ user_id, pack_id, body, photo_url }) =>
   db.query(
     `INSERT INTO posts (user_id, pack_id, body, date, photo_url)
      VALUES ($1, $2, $3, now(), $4)`,
-    [user_id, pack_id, body, photo_url || null]
+    [user_id, pack_id, body, photo_url || null],
   );
 /* eslint-enable camelcase */
 
@@ -65,5 +76,5 @@ module.exports = {
   getSoloPosts,
   getPfp,
   makePost,
-  isPackMember
+  isPackMember,
 };

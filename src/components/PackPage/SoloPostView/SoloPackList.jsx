@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import PackName from '../AllPackView/PackName.jsx';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import PackName from "../AllPackView/PackName.jsx";
 
-const SoloPackList = ({ setViewing, userIdentity }) => {
-  const listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
+const SoloPackList = ({ setViewing }) => {
+  const _listNames = ["Woofram Alpha", "Barkalona", "Bark Simpson"];
 
   const [packList, setPackList] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/getUserPacks').then((data) => {
+    axios.get("/api/getUserPacks").then((data) => {
       // console.log('data', data.data);
       const input = data.data;
       const packs = [];
-      // eslint-disable-next-line no-plusplus
       for (let i = 0; i < input.length; i++) {
         packs.push(input[i].name);
       }
@@ -23,30 +22,30 @@ const SoloPackList = ({ setViewing, userIdentity }) => {
 
   const click = (packName) => {
     setViewing(packName);
-    console.log('clicked', packName);
+    console.log("clicked", packName);
   };
 
-  const styles = {
+  const _styles = {
     packList: {
-      width: '100vw',
-      backgroundColor: 'transparent'
+      width: "100vw",
+      backgroundColor: "transparent",
       // flexGrow: 2
-    }
+    },
   };
 
   return (
     <div>
       {packList
-        ? packList.map((packName, key) => (
-            <li
-              key={key}
-              onClick={() => {
-                click(packName);
-              }}
-            >
-              <a>
+        ? packList.map((packName) => (
+            <li key={packName}>
+              <button
+                type="button"
+                onClick={() => {
+                  click(packName);
+                }}
+              >
                 <PackName name={packName} setViewing={setViewing} />
-              </a>
+              </button>
             </li>
           ))
         : null}

@@ -77,7 +77,6 @@
     width: min(800px, 100%);
     max-width: 100%;
     height: min(800px, 90vh);
-    overflow: none;
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
@@ -123,8 +122,6 @@
 
   .profile-card {
     position: absolute;
-    top: 0px;
-    left: 0px;
     margin-top: 10px;
     align-self: center;
     left: 50%;
@@ -149,8 +146,6 @@
   }
 
   @keyframes back-mount {
-    0% {
-    }
     100% {
       transform: translate(-5%, 0);
       scale: 0.9;
@@ -175,8 +170,6 @@
   }
 
   @keyframes mount {
-    0% {
-    }
     100% {
       transform: translate(0, 0);
       scale: 1;
@@ -236,7 +229,8 @@
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 20px 5px color-mix(in oklab, var(--color-primary) 60%, transparent);
+      box-shadow: 0 0 20px 5px
+        color-mix(in oklab, var(--color-primary) 60%, transparent);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;
@@ -248,7 +242,8 @@
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 15px 2px color-mix(in oklab, var(--color-base-content) 40%, transparent);
+      box-shadow: 0 0 15px 2px
+        color-mix(in oklab, var(--color-base-content) 40%, transparent);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;

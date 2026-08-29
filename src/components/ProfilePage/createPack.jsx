@@ -1,14 +1,11 @@
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable react/prop-types */
-/* eslint-disable jsx-a11y/alt-text */
-import { react, useState, useEffect } from 'react';
-import '../Discover/profileCard.css';
-import axios from 'axios';
+import { useState } from "react";
+import "../Discover/profileCard.css";
+import axios from "axios";
 
 const CreatePackCard = ({ currentUser, friend }) => {
   const userId = currentUser?.user_id;
   const friendId = friend.user_id;
-  const [packName, setPackName] = useState('');
+  const [packName, setPackName] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
   const changePackName = (e) => {
@@ -19,12 +16,12 @@ const CreatePackCard = ({ currentUser, friend }) => {
   const createPack = () => {
     axios
       // .post(`/api/pack?packName=${packName}`)
-      .put('/api/createpack', {
+      .put("/api/createpack", {
         pack_name: packName,
-        users: JSON.stringify([Number(userId), Number(friendId)])
+        users: JSON.stringify([Number(userId), Number(friendId)]),
       })
       // const users
-      .then((results) => {
+      .then((_results) => {
         // console.log('sucessfully created pack', results);
         setShowSuccess(true);
         //   const packId = results.data[0].pack_id;
@@ -49,7 +46,7 @@ const CreatePackCard = ({ currentUser, friend }) => {
       })
       // })
       .catch((err) => {
-        console.log('err in creating pack', err);
+        console.log("err in creating pack", err);
       });
     // create pack axios
 
@@ -59,8 +56,8 @@ const CreatePackCard = ({ currentUser, friend }) => {
   // const submitText = `Create Pack with ${user.dog_name} and ${friend.dog_name}`
   // Named defensively: a missing profile should read as a generic label, never
   // as the word "undefined" in the middle of a sentence shown to a visitor.
-  const mine = currentUser?.dog_name || 'your dog';
-  const theirs = friend?.dog_name || 'them';
+  const mine = currentUser?.dog_name || "your dog";
+  const theirs = friend?.dog_name || "them";
   const submitText = `Create Pack with ${mine} and ${theirs}`;
   const successText = `${packName} with ${mine} and ${theirs} has been created!!`;
   return (
@@ -68,11 +65,12 @@ const CreatePackCard = ({ currentUser, friend }) => {
       <div className="profile-card-parent">
         <div className="card">
           <div>
-            {' '}
+            {" "}
             {showSuccess ? (
               <div className="alert alert-success shadow-lg">
                 <div>
                   <svg
+                    aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     className="stroke-current flex-shrink-0 h-6 w-6"
                     fill="none"
@@ -89,7 +87,7 @@ const CreatePackCard = ({ currentUser, friend }) => {
                 </div>
               </div>
             ) : (
-              ''
+              ""
             )}
           </div>
           <label className="" htmlFor="fname">

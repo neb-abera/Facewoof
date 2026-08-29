@@ -29,6 +29,7 @@
      because they set colour through the `border` shorthand rather than
      `border-color`. Scoped to the calendar, and only touching the border
      colour, so it cannot leak into the rest of the app. */
+  /* biome-ignore lint/complexity/noImportantStyles: see comment above - rbc sets border-color inline-strength; scoped override */
   border-color: var(--color-base-300) !important;
 }
 
@@ -83,6 +84,7 @@
   border-left-color: var(--color-base-300);
 }
 
+/* biome-ignore lint/style/noDescendingSpecificity: theme overrides mirror react-big-calendar's own selector order */
 .rbc-day-bg,
 .rbc-month-row + .rbc-month-row {
   background-color: var(--color-base-100);

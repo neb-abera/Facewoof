@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { FaPen } from 'react-icons/fa';
-import './profile.css';
-import FriendsList from './FriendsList';
-import useUserContext from '../../hooks/useUserContext';
-import defaultDog from '../../assets/default-dog.svg';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { FaPen } from "react-icons/fa";
+import "./profile.css";
+import defaultDog from "../../assets/default-dog.svg";
+import useUserContext from "../../hooks/useUserContext";
+import FriendsList from "./FriendsList";
 
 /*
  * The profile as others would want to read it.
@@ -19,14 +19,14 @@ import defaultDog from '../../assets/default-dog.svg';
  */
 
 const LABELS = {
-  size: { small: 'Small', medium: 'Medium', large: 'Large' },
-  energy: { low: 'Easy-going', medium: 'Playful', high: 'High energy' },
+  size: { small: "Small", medium: "Medium", large: "Large" },
+  energy: { low: "Easy-going", medium: "Playful", high: "High energy" },
   best_time: {
-    mornings: 'Mornings',
-    afternoons: 'Afternoons',
-    evenings: 'Evenings',
-    weekends: 'Weekends'
-  }
+    mornings: "Mornings",
+    afternoons: "Afternoons",
+    evenings: "Evenings",
+    weekends: "Weekends",
+  },
 };
 
 const ProfileDisplay = () => {
@@ -35,21 +35,26 @@ const ProfileDisplay = () => {
 
   useEffect(() => {
     axios
-      .get('/api/profilephoto')
+      .get("/api/profilephoto")
       .then(({ data }) => setPhotos((data || []).map((row) => row.url)))
-      .catch((err) => console.error('could not load photos', err));
+      .catch((err) => console.error("could not load photos", err));
   }, []);
 
   // Context is still loading the account; there is nothing truthful to show.
   if (!userData) return null;
 
-  const likes = [userData.likes_one, userData.likes_two, userData.likes_three].filter(Boolean);
+  const likes = [
+    userData.likes_one,
+    userData.likes_two,
+    userData.likes_three,
+  ].filter(Boolean);
   const playdateFacts = [
-    { label: 'Size', value: LABELS.size[userData.size] },
-    { label: 'Energy', value: LABELS.energy[userData.energy] },
-    { label: 'Best time to play', value: LABELS.best_time[userData.best_time] }
+    { label: "Size", value: LABELS.size[userData.size] },
+    { label: "Energy", value: LABELS.energy[userData.energy] },
+    { label: "Best time to play", value: LABELS.best_time[userData.best_time] },
   ].filter((fact) => fact.value);
-  const hasPlaydateInfo = playdateFacts.length > 0 || likes.length > 0 || userData.bio;
+  const hasPlaydateInfo =
+    playdateFacts.length > 0 || likes.length > 0 || userData.bio;
   const gallery = photos.slice(1);
 
   return (
@@ -61,20 +66,27 @@ const ProfileDisplay = () => {
               <img
                 className="profile__avatar"
                 src={photos[0] || defaultDog}
-                alt={photos[0] ? `${userData.dog_name || 'Your dog'}` : 'No photo yet'}
+                alt={
+                  photos[0]
+                    ? `${userData.dog_name || "Your dog"}`
+                    : "No photo yet"
+                }
               />
               <div className="min-w-0 flex-1">
-                <h1 className="card-title text-2xl">{userData.dog_name || 'Your dog'}</h1>
+                <h1 className="card-title text-2xl">
+                  {userData.dog_name || "Your dog"}
+                </h1>
                 <p className="opacity-70">
                   {[
                     userData.dog_breed,
-                    Number.isFinite(Number(userData.age)) && userData.age !== null
-                      ? `${userData.age} ${Number(userData.age) === 1 ? 'year' : 'years'} old`
+                    Number.isFinite(Number(userData.age)) &&
+                    userData.age !== null
+                      ? `${userData.age} ${Number(userData.age) === 1 ? "year" : "years"} old`
                       : null,
-                    userData.location
+                    userData.location,
                   ]
                     .filter(Boolean)
-                    .join(' · ')}
+                    .join(" · ")}
                 </p>
                 {userData.owner_name && (
                   <p className="opacity-70">Out with {userData.owner_name}</p>
@@ -88,7 +100,9 @@ const ProfileDisplay = () => {
                     </span>
                   )}
                   {userData.discoverable === false && (
-                    <span className="badge badge-outline opacity-70">Hidden from discover</span>
+                    <span className="badge badge-outline opacity-70">
+                      Hidden from discover
+                    </span>
                   )}
                 </div>
               </div>
@@ -127,12 +141,14 @@ const ProfileDisplay = () => {
                     ))}
                   </div>
                 )}
-                {userData.bio && <p className="max-w-prose opacity-80">{userData.bio}</p>}
+                {userData.bio && (
+                  <p className="max-w-prose opacity-80">{userData.bio}</p>
+                )}
               </>
             ) : (
               <p className="opacity-60">
-                Size, energy and when you&apos;re usually free help matches plan a playdate. Add
-                them with Edit profile.
+                Size, energy and when you&apos;re usually free help matches plan
+                a playdate. Add them with Edit profile.
               </p>
             )}
           </div>
@@ -145,7 +161,11 @@ const ProfileDisplay = () => {
               <div className="carousel carousel-center gap-3 rounded-box">
                 {gallery.map((url) => (
                   <div key={url} className="carousel-item">
-                    <img src={url} className="profile__gallery-photo" alt="A dog" />
+                    <img
+                      src={url}
+                      className="profile__gallery-photo"
+                      alt="A dog"
+                    />
                   </div>
                 ))}
               </div>

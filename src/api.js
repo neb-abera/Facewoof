@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 /*
  * One place that decides where the API lives.
@@ -12,7 +12,7 @@ import axios from 'axios';
  * BASE_URL is '/' normally and '/facewoof/' when the app is built to be served
  * under a path, which is exactly the prefix the API needs too.
  */
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 axios.defaults.baseURL = base;
 

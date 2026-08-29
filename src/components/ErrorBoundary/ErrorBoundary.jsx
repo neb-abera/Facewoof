@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import React from "react";
 
 /*
  * Catches a render error in one view instead of letting it unmount the whole
@@ -18,7 +18,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('view failed to render', error, info);
+    console.error("view failed to render", error, info);
   }
 
   render() {
@@ -29,7 +29,9 @@ class ErrorBoundary extends React.Component {
 
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-24 px-6 text-center">
-        <h2 className="text-2xl font-bold">Something went wrong on this page.</h2>
+        <h2 className="text-2xl font-bold">
+          Something went wrong on this page.
+        </h2>
         <p className="opacity-75">The rest of Facewoof is still working.</p>
         <button
           type="button"
@@ -44,7 +46,7 @@ class ErrorBoundary extends React.Component {
 }
 
 ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 export default ErrorBoundary;

@@ -1,4 +1,4 @@
-const db = require('./database');
+const db = require("./database");
 
 /* Create a pack and add the given users to it, in one statement. */
 function createPackAndAdd(packName, users) {
@@ -10,7 +10,7 @@ function createPackAndAdd(packName, users) {
     INSERT INTO pack_users (pack_id, user_id)
     SELECT ins.pack_id, u FROM ins, unnest($2::int[]) AS u;
   `,
-    [packName, users]
+    [packName, users],
   );
 }
 
@@ -37,7 +37,7 @@ function addToPack(userId, packId) {
        WHERE pu.pack_id = $1
      )
      ON CONFLICT (pack_id, user_id) DO NOTHING`,
-    [packId, userId]
+    [packId, userId],
   );
 }
 
@@ -48,7 +48,7 @@ function getPacks(userId) {
        INNER JOIN packs ON packs.pack_id = pack_users.pack_id
        WHERE pack_users.user_id = $1
      ) AS packobj;`,
-    [userId]
+    [userId],
   );
 }
 

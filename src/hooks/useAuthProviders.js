@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 /*
  * Which sign-in options this deployment actually offers.
@@ -15,13 +15,13 @@ const useAuthProviders = () => {
     let cancelled = false;
 
     axios
-      .get('/api/auth/providers')
+      .get("/api/auth/providers")
       .then(({ data }) => {
         if (!cancelled && data?.configured) setProviders(data.providers || []);
       })
       .catch((err) => {
         // Not being able to ask is the same as having none to offer.
-        console.error('could not load the sign-in options', err);
+        console.error("could not load the sign-in options", err);
       });
 
     return () => {

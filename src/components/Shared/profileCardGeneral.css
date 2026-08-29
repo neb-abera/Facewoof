@@ -165,7 +165,6 @@
 .profile-details {
   display: flex;
   flex-flow: column nowrap;
-  padding: 0px;
   margin: 0px;
   height: fit-content;
   padding: 0px;

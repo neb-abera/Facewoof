@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-
-import PackList from './PackList.jsx';
-import Playdates from './Playdates.jsx';
-import CreatePackModal from '../PackModals/CreatePackModal.jsx';
-import './packMenu.css';
+import PropTypes from "prop-types";
+import { useState } from "react";
+import CreatePackModal from "../PackModals/CreatePackModal.jsx";
+import PackList from "./PackList.jsx";
+import Playdates from "./Playdates.jsx";
+import "./packMenu.css";
 
 /*
  * The pack feed sidebar: which packs you are in, and what is coming up.
@@ -45,8 +44,12 @@ const PackMenu = ({ viewing, setViewing, userIdentity, setViewingName }) => {
           >
             Create pack
           </button>
-          {viewing !== '-1' ? (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setViewing('-1')}>
+          {viewing !== "-1" ? (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => setViewing("-1")}
+            >
               View all posts
             </button>
           ) : null}
@@ -65,11 +68,11 @@ PackMenu.propTypes = {
   viewing: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   setViewing: PropTypes.func.isRequired,
   setViewingName: PropTypes.func.isRequired,
-  userIdentity: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  userIdentity: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 PackMenu.defaultProps = {
-  userIdentity: undefined
+  userIdentity: undefined,
 };
 
 export default PackMenu;

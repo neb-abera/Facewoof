@@ -1,13 +1,13 @@
-const zipcodes = require('zipcodes');
-const { db, ensureNeighbours } = require('../db');
+const zipcodes = require("zipcodes");
+const { db, ensureNeighbours } = require("../db");
 const {
   getCurrentUserPromise,
   getFriendsPromise,
   createPackPromise,
   editProfilePromise,
   addPhoto,
-  getProfilePhotoPromise
-} = require('../db');
+  getProfilePhotoPromise,
+} = require("../db");
 
 const getUserFriends = (req, res) => {
   const { userId } = req;
@@ -18,8 +18,8 @@ const getUserFriends = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      console.error('unable to get user friends', err);
-      res.status(500).send('unable to get user friends');
+      console.error("unable to get user friends", err);
+      res.status(500).send("unable to get user friends");
     });
 };
 
@@ -32,8 +32,8 @@ const getCurrentUser = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      console.error('unable to get current user', err);
-      res.status(500).send('unable to get current user');
+      console.error("unable to get current user", err);
+      res.status(500).send("unable to get current user");
     });
 };
 
@@ -47,8 +47,8 @@ const createPack = (req, res) => {
       res.send(data.rows);
     })
     .catch((err) => {
-      console.error('unable to create pack', err);
-      res.status(500).send('unable to create pack');
+      console.error("unable to create pack", err);
+      res.status(500).send("unable to create pack");
     });
 };
 
@@ -59,23 +59,23 @@ const createPhotos = async (req, res) => {
   const { photoUrl } = req.body;
   try {
     await addPhoto(userId, photoUrl);
-    res.status(201).send('Successfully added new photo');
+    res.status(201).send("Successfully added new photo");
   } catch (err) {
-    console.error('unable to add new photo', err);
-    res.status(500).send('Unable to add new photo');
+    console.error("unable to add new photo", err);
+    res.status(500).send("Unable to add new photo");
   }
 };
 
 // The playdate fields come from fixed menus in the form. Anything else that
 // arrives in them — a fetch from the console, an old client — becomes null
 // rather than a stored string the page will happily render back to everyone.
-const SIZES = ['small', 'medium', 'large'];
-const ENERGY = ['low', 'medium', 'high'];
-const BEST_TIMES = ['mornings', 'afternoons', 'evenings', 'weekends'];
+const SIZES = ["small", "medium", "large"];
+const ENERGY = ["low", "medium", "high"];
+const BEST_TIMES = ["mornings", "afternoons", "evenings", "weekends"];
 
 const oneOf = (value, allowed) => (allowed.includes(value) ? value : null);
 const text = (value, max) => {
-  const trimmed = typeof value === 'string' ? value.trim() : '';
+  const trimmed = typeof value === "string" ? value.trim() : "";
   return trimmed ? trimmed.slice(0, max) : null;
 };
 
@@ -84,7 +84,7 @@ const editProfile = (req, res) => {
   const { userId } = req;
 
   const dogName = text(body.dogName, 60);
-  if (!dogName) return res.status(400).send('the dog needs a name');
+  if (!dogName) return res.status(400).send("the dog needs a name");
 
   const age = Number(body.age);
   return editProfilePromise(
@@ -101,14 +101,14 @@ const editProfile = (req, res) => {
       size: oneOf(body.size, SIZES),
       energy: oneOf(body.energy, ENERGY),
       bestTime: oneOf(body.bestTime, BEST_TIMES),
-      bio: text(body.bio, 400)
+      bio: text(body.bio, 400),
     },
-    userId
+    userId,
   )
     .then(() => res.status(204).end())
     .catch((err) => {
-      console.error('unable to update profile', err);
-      res.status(500).send('unable to update profile');
+      console.error("unable to update profile", err);
+      res.status(500).send("unable to update profile");
     });
 };
 
@@ -121,7 +121,7 @@ const getProfilePhoto = (req, res) => {
       .then((data) => res.send(data.rows))
       .catch((err) => {
         console.error(err);
-        res.status(404).send('unable to get profile photo');
+        res.status(404).send("unable to get profile photo");
       })
   );
 };
@@ -140,26 +140,35 @@ const updateLocation = async (req, res) => {
   const { userId } = req;
 
   let resolved = zip && zipcodes.lookup(zip) ? String(zip) : null;
-  if (!resolved && Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+  if (
+    !resolved &&
+    Number.isFinite(Number(lat)) &&
+    Number.isFinite(Number(lng))
+  ) {
     const match = zipcodes.lookupByCoords(Number(lat), Number(lng));
     if (match) resolved = match.zip;
   }
 
   if (!resolved) {
-    return res.status(400).send('a usable zip code or pair of coordinates is required');
+    return res
+      .status(400)
+      .send("a usable zip code or pair of coordinates is required");
   }
 
   const client = await db.connect();
   try {
-    await client.query('BEGIN');
-    await client.query('UPDATE users SET location = $2 WHERE user_id = $1', [userId, resolved]);
+    await client.query("BEGIN");
+    await client.query("UPDATE users SET location = $2 WHERE user_id = $1", [
+      userId,
+      resolved,
+    ]);
     const nearby = await ensureNeighbours(client, userId, resolved);
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return res.status(200).send({ location: resolved, nearby });
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('unable to update location', err);
-    return res.status(500).send('unable to update location');
+    await client.query("ROLLBACK");
+    console.error("unable to update location", err);
+    return res.status(500).send("unable to update location");
   } finally {
     client.release();
   }
@@ -172,5 +181,5 @@ module.exports = {
   createPack,
   createPhotos,
   editProfile,
-  getProfilePhoto
+  getProfilePhoto,
 };

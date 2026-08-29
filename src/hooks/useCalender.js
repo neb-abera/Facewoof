@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
-import axios from 'axios';
-import useUserContext from './useUserContext';
+import axios from "axios";
+import { useCallback } from "react";
+import useUserContext from "./useUserContext";
 
 const useCalendar = () => {
   const { setPlaydates, setPacks } = useUserContext();
   const getPacks = useCallback(() => {
     axios
-      .get('/api/playdates')
+      .get("/api/playdates")
       .then((data) => {
         const arr = data.data;
         const playdateArr = [];
@@ -22,7 +22,7 @@ const useCalendar = () => {
         });
         setPlaydates(playdateArr);
       })
-      .then(() => axios.get('/api/getpacks'))
+      .then(() => axios.get("/api/getpacks"))
       .then((packData) => {
         setPacks(packData.data);
       });
@@ -30,7 +30,6 @@ const useCalendar = () => {
     // cookie now, so the callback does not close over it. Signing in or out
     // remounts the view that uses this.
   }, [setPlaydates, setPacks]);
-  // eslint-disable-next-line object-shorthand
   return { getPacks };
 };
 export default useCalendar;

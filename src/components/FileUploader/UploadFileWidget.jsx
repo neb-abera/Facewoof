@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import FileUploader from './FileUploader';
-import './UploadFileWidget.css';
-import { uploadsConfigured, uploadToCloudinary } from './cloudinary';
+import axios from "axios";
+import { useState } from "react";
+import FileUploader from "./FileUploader";
+import "./UploadFileWidget.css";
+import { uploadsConfigured, uploadToCloudinary } from "./cloudinary";
 
 const UploadFileWidget = () => {
   const [urls, setUrls] = useState([]);
@@ -15,11 +15,11 @@ const UploadFileWidget = () => {
         // The original spread a stale `urls` into a functional update, so it
         // read the same snapshot twice and dropped uploads that overlapped.
         setUrls((prev) => [...prev, url]);
-        return axios.post('/api/photos', { photoUrl: url });
+        return axios.post("/api/photos", { photoUrl: url });
       })
       .catch((err) => {
-        console.error('photo upload failed', err);
-        setError('That photo could not be uploaded.');
+        console.error("photo upload failed", err);
+        setError("That photo could not be uploaded.");
       });
   };
 
@@ -50,7 +50,12 @@ const UploadFileWidget = () => {
       {urls.length > 0 && (
         <div className="flex space-x-3">
           {urls.map((url) => (
-            <img key={url} src={url} className="h-[80px]" alt="Newly uploaded" />
+            <img
+              key={url}
+              src={url}
+              className="h-[80px]"
+              alt="Newly uploaded"
+            />
           ))}
         </div>
       )}

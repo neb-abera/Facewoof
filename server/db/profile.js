@@ -1,7 +1,7 @@
-const db = require('./database');
+const db = require("./database");
 
 const getCurrentUserPromise = (userId) =>
-  db.query('SELECT * FROM users WHERE user_id = $1', [userId]);
+  db.query("SELECT * FROM users WHERE user_id = $1", [userId]);
 
 const getFriendsPromise = (userId) =>
   db.query(
@@ -11,14 +11,19 @@ const getFriendsPromise = (userId) =>
        LEFT JOIN (SELECT user_id, array_agg(url) AS photos FROM profile_photos GROUP BY user_id) b
        ON (a.user_id = b.user_id)
      )`,
-    [userId]
+    [userId],
   );
 
 const createPackPromise = (packName) =>
-  db.query('INSERT INTO packs (name) VALUES ($1) RETURNING pack_id', [packName]);
+  db.query("INSERT INTO packs (name) VALUES ($1) RETURNING pack_id", [
+    packName,
+  ]);
 
 const addPhoto = (userId, photo) =>
-  db.query('INSERT INTO profile_photos (user_id, url) VALUES ($1, $2)', [userId, photo]);
+  db.query("INSERT INTO profile_photos (user_id, url) VALUES ($1, $2)", [
+    userId,
+    photo,
+  ]);
 
 /*
  * Everything the profile form can change, in one statement.
@@ -53,25 +58,28 @@ const editProfilePromise = (fields, userId) =>
       fields.energy,
       fields.bestTime,
       fields.bio,
-      userId
-    ]
+      userId,
+    ],
   );
 
 // Just the zip code, for disambiguating a city search. A primary key lookup
 // rather than the whole row.
 const getUserLocation = (userId) =>
   db
-    .query('SELECT location FROM users WHERE user_id = $1', [userId])
+    .query("SELECT location FROM users WHERE user_id = $1", [userId])
     .then(({ rows }) => rows[0]?.location ?? null);
 
 const setUserLocation = (userId, zip) =>
-  db.query('UPDATE users SET location = $2 WHERE user_id = $1', [userId, zip]);
+  db.query("UPDATE users SET location = $2 WHERE user_id = $1", [userId, zip]);
 
 // Ordered, so "the first photo is the profile photo" means the same photo on
 // every request. Without ORDER BY postgres returns rows in whatever order it
 // likes, and the avatar could change between page loads.
 const getProfilePhotoPromise = (userId) =>
-  db.query('SELECT url FROM profile_photos WHERE user_id = $1 ORDER BY photo_id', [userId]);
+  db.query(
+    "SELECT url FROM profile_photos WHERE user_id = $1 ORDER BY photo_id",
+    [userId],
+  );
 
 module.exports = {
   getCurrentUserPromise,
@@ -81,5 +89,5 @@ module.exports = {
   editProfilePromise,
   getProfilePhotoPromise,
   getUserLocation,
-  setUserLocation
+  setUserLocation,
 };

@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Playdate from './Playdate';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import Playdate from "./Playdate";
 
-const Playdates = ({ setViewing, userIdentity }) => {
+const Playdates = ({ setViewing }) => {
   // var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
 
   const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
     axios
-      .get('/api/getUserPlaydates')
+      .get("/api/getUserPlaydates")
       .then((data) => setPlaydates(data.data || []))
-      .catch((err) => console.error('could not load your playdates', err));
+      .catch((err) => console.error("could not load your playdates", err));
   }, []);
 
-  const styles = {
+  const _styles = {
     playdates: {
-      width: '100%',
-      backgroundColor: 'transparent'
+      width: "100%",
+      backgroundColor: "transparent",
       // flexGrow: 2
-    }
+    },
   };
 
   // An empty list said nothing at all, which reads as a broken panel rather
@@ -30,8 +30,8 @@ const Playdates = ({ setViewing, userIdentity }) => {
 
   return (
     <ul className="pack-menu__list">
-      {playdates.map((playdate, key) => (
-        <li key={`playdate-${key + 1}`}>
+      {playdates.map((playdate) => (
+        <li key={playdate.playdate_id}>
           <div>
             <Playdate dataPoint={playdate} setViewing={setViewing} />
           </div>

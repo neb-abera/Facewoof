@@ -1,4 +1,4 @@
-const db = require('./database');
+const db = require("./database");
 
 /*
  * Build a page of the discover feed: users in the given zip codes that the
@@ -58,7 +58,7 @@ function generateDiscoverFeed(user1, zipcodes, limit, seen = []) {
   ORDER BY (user1_choice IS TRUE) DESC, user_id
   LIMIT $3;
   `,
-      [user1, zipcodes, limit, seen]
+      [user1, zipcodes, limit, seen],
     )
     .then((results) => results.rows);
 }
@@ -83,7 +83,7 @@ function countRemainingFeed(user1, zipcodes, seen = []) {
            SELECT user2_id FROM pending_relationships
            WHERE user1_id = $1 AND user1_choice = false
          )`,
-      [user1, zipcodes, seen]
+      [user1, zipcodes, seen],
     )
     .then(({ rows }) => rows[0].n);
 }
@@ -96,7 +96,7 @@ function setRelationship(user1, user2, choice) {
     VALUES ($1, $2, $3, now())
     ON CONFLICT (user1_id, user2_id) DO UPDATE SET user1_choice = EXCLUDED.user1_choice;
   `,
-    [user1, choice, user2]
+    [user1, choice, user2],
   );
 }
 
@@ -110,22 +110,22 @@ function setRelationship(user1, user2, choice) {
 async function checkForMatchAndCreate(user1, user2) {
   const client = await db.connect();
   try {
-    await client.query('BEGIN');
-    await client.query('DELETE FROM pending_relationships WHERE user1_id = $1 AND user2_id = $2', [
-      user2,
-      user1
-    ]);
+    await client.query("BEGIN");
+    await client.query(
+      "DELETE FROM pending_relationships WHERE user1_id = $1 AND user2_id = $2",
+      [user2, user1],
+    );
     await client.query(
       `INSERT INTO friends (user1_id, user2_id, date)
        VALUES ($1, $2, now()), ($2, $1, now())
        ON CONFLICT (user1_id, user2_id) DO NOTHING`,
-      [user1, user2]
+      [user1, user2],
     );
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return true;
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('failed to create match:', err);
+    await client.query("ROLLBACK");
+    console.error("failed to create match:", err);
     return false;
   } finally {
     client.release();
@@ -136,5 +136,5 @@ module.exports = {
   setRelationship,
   checkForMatchAndCreate,
   generateDiscoverFeed,
-  countRemainingFeed
+  countRemainingFeed,
 };

@@ -1,4 +1,4 @@
-const rateLimit = require('express-rate-limit');
+const rateLimit = require("express-rate-limit");
 
 /*
  * Rate limits.
@@ -17,8 +17,8 @@ const rateLimit = require('express-rate-limit');
 const minutes = (n) => n * 60 * 1000;
 
 const shared = {
-  standardHeaders: 'draft-7', // RateLimit-* response headers
-  legacyHeaders: false
+  standardHeaders: "draft-7", // RateLimit-* response headers
+  legacyHeaders: false,
 };
 
 /*
@@ -36,7 +36,8 @@ const guestLimiter = rateLimit({
   ...shared,
   windowMs: minutes(60),
   limit: GUEST_LIMIT_PER_HOUR,
-  message: 'Too many demo sessions started from this address. Try again in an hour.'
+  message:
+    "Too many demo sessions started from this address. Try again in an hour.",
 });
 
 /*
@@ -48,7 +49,7 @@ const swipeLimiter = rateLimit({
   ...shared,
   windowMs: minutes(1),
   limit: 120,
-  message: 'Slow down a moment.'
+  message: "Slow down a moment.",
 });
 
 /*
@@ -59,7 +60,7 @@ const feedLimiter = rateLimit({
   ...shared,
   windowMs: minutes(1),
   limit: 60,
-  message: 'Too many requests. Try again shortly.'
+  message: "Too many requests. Try again shortly.",
 });
 
 /* Anything that writes content: posts, playdates, photos, profile edits. */
@@ -67,7 +68,7 @@ const writeLimiter = rateLimit({
   ...shared,
   windowMs: minutes(10),
   limit: 100,
-  message: 'Too many changes from this address. Try again shortly.'
+  message: "Too many changes from this address. Try again shortly.",
 });
 
 /* A backstop over the whole API, generous enough never to catch normal use. */
@@ -75,7 +76,13 @@ const apiLimiter = rateLimit({
   ...shared,
   windowMs: minutes(5),
   limit: 600,
-  message: 'Too many requests. Try again shortly.'
+  message: "Too many requests. Try again shortly.",
 });
 
-module.exports = { guestLimiter, swipeLimiter, feedLimiter, writeLimiter, apiLimiter };
+module.exports = {
+  guestLimiter,
+  swipeLimiter,
+  feedLimiter,
+  writeLimiter,
+  apiLimiter,
+};

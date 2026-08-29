@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
-import axios from 'axios';
-import useUserContext from '../hooks/useUserContext';
-import { uploadsConfigured, uploadToCloudinary } from '../components/FileUploader/cloudinary';
-import defaultDog from '../assets/default-dog.svg';
-import './welcome.css';
+import axios from "axios";
+import { useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import defaultDog from "../assets/default-dog.svg";
+import {
+  uploadsConfigured,
+  uploadToCloudinary,
+} from "../components/FileUploader/cloudinary";
+import useUserContext from "../hooks/useUserContext";
+import "./welcome.css";
 
 /*
  * Setting up an account created by signing in.
@@ -22,11 +25,11 @@ const Welcome = () => {
   const { userData, setUserData, loggedIn } = useUserContext();
   const navigate = useNavigate();
 
-  const [dogName, setDogName] = useState('');
-  const [dogBreed, setDogBreed] = useState('');
-  const [age, setAge] = useState('');
+  const [dogName, setDogName] = useState("");
+  const [dogBreed, setDogBreed] = useState("");
+  const [age, setAge] = useState("");
   const [vaccination, setVaccination] = useState(false);
-  const [zip, setZip] = useState('');
+  const [zip, setZip] = useState("");
   const [photoUrl, setPhotoUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -35,7 +38,7 @@ const Welcome = () => {
 
   if (!loggedIn) return <Navigate to="/login" replace />;
   // Anyone who has already been through this belongs in the app.
-  if (userData && userData.onboarded_at) return <Navigate to="/discover" replace />;
+  if (userData?.onboarded_at) return <Navigate to="/discover" replace />;
 
   /* Ask the browser where they are, so they need not know their own zip code. */
   const askForLocation = () =>
@@ -54,42 +57,42 @@ const Welcome = () => {
           setLocating(false);
           resolve(null);
         },
-        { timeout: 8000, maximumAge: 600000 }
+        { timeout: 8000, maximumAge: 600000 },
       );
     });
 
   const finish = async (where) => {
-    if (!dogName.trim()) return setError('What is your dog called?');
+    if (!dogName.trim()) return setError("What is your dog called?");
 
     setSaving(true);
     setError(null);
     try {
-      await axios.put('/api/onboarding', {
+      await axios.put("/api/onboarding", {
         dogName: dogName.trim(),
         dogBreed: dogBreed.trim() || null,
-        age: age === '' ? null : Number(age),
+        age: age === "" ? null : Number(age),
         vaccination,
         zip: zip.trim() || null,
-        ...(where || {})
+        ...(where || {}),
       });
 
       // The chosen photo, now that setup is real. A failure here is not worth
       // stopping for: the account is set up, and the profile page can add a
       // photo any time.
       if (photoUrl) {
-        await axios.post('/api/photos', { photoUrl }).catch((err) => {
-          console.error('could not attach the photo', err);
+        await axios.post("/api/photos", { photoUrl }).catch((err) => {
+          console.error("could not attach the photo", err);
         });
       }
 
       // Re-read rather than patching it here: the server decides what the
       // profile now is, including the location it resolved.
-      const { data } = await axios.get('/api/auth/me');
+      const { data } = await axios.get("/api/auth/me");
       setUserData(data);
-      navigate('/discover');
+      navigate("/discover");
     } catch (err) {
-      console.error('could not finish setting up', err);
-      setError('That could not be saved. Please try again.');
+      console.error("could not finish setting up", err);
+      setError("That could not be saved. Please try again.");
       setSaving(false);
     }
     return undefined;
@@ -113,8 +116,10 @@ const Welcome = () => {
     try {
       setPhotoUrl(await uploadToCloudinary(file));
     } catch (err) {
-      console.error('photo upload failed', err);
-      setError('That photo could not be uploaded. You can add one later from your profile.');
+      console.error("photo upload failed", err);
+      setError(
+        "That photo could not be uploaded. You can add one later from your profile.",
+      );
     } finally {
       setUploading(false);
     }
@@ -125,7 +130,8 @@ const Welcome = () => {
       <div className="welcome__card">
         <h1 className="welcome__title">Welcome to Facewoof</h1>
         <p className="welcome__lead">
-          Tell us about your dog and where you walk, and we&apos;ll show you dogs nearby.
+          Tell us about your dog and where you walk, and we&apos;ll show you
+          dogs nearby.
         </p>
 
         {uploadsConfigured && (
@@ -133,10 +139,14 @@ const Welcome = () => {
             <img
               className="welcome__photo-preview"
               src={photoUrl || defaultDog}
-              alt={photoUrl ? 'Your dog' : 'No photo yet'}
+              alt={photoUrl ? "Your dog" : "No photo yet"}
             />
             <label className="btn btn-outline btn-sm">
-              {uploading ? 'Uploading…' : photoUrl ? 'Change photo' : 'Add a photo'}
+              {uploading
+                ? "Uploading…"
+                : photoUrl
+                  ? "Change photo"
+                  : "Add a photo"}
               <input
                 type="file"
                 accept="image/*"
@@ -145,7 +155,9 @@ const Welcome = () => {
                 disabled={uploading}
               />
             </label>
-            <span className="welcome__photo-hint">Optional — it becomes their profile photo.</span>
+            <span className="welcome__photo-hint">
+              Optional — it becomes their profile photo.
+            </span>
           </div>
         )}
 
@@ -212,7 +224,7 @@ const Welcome = () => {
             disabled={saving || locating}
             onClick={() => finish(null)}
           >
-            {saving ? 'Setting up…' : 'Start meeting dogs'}
+            {saving ? "Setting up…" : "Start meeting dogs"}
           </button>
           <button
             type="button"
@@ -220,13 +232,13 @@ const Welcome = () => {
             disabled={saving || locating}
             onClick={async () => finish(await askForLocation())}
           >
-            {locating ? 'Finding you…' : 'Use my location instead'}
+            {locating ? "Finding you…" : "Use my location instead"}
           </button>
         </div>
 
         <p className="welcome__note">
-          Without a location we&apos;ll show you a sample of dogs rather than nothing at all. You
-          can change any of this later from your profile.
+          Without a location we&apos;ll show you a sample of dogs rather than
+          nothing at all. You can change any of this later from your profile.
         </p>
       </div>
     </div>
