@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FaBone, FaDog, FaRegCalendarAlt } from 'react-icons/fa';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
@@ -54,14 +55,23 @@ const Home = () => {
         </ul>
 
         <div className="space-y-2">
-          <button
-            type="button"
-            className="btn btn-primary btn-wide"
-            onClick={start}
-            disabled={authenticating}
-          >
-            {authenticating ? 'Starting…' : 'Try the demo'}
-          </button>
+          {/* The navbar hides itself for signed-out visitors on the strength
+              of the landing page carrying its own way in — which, until these
+              two buttons, it did not: /login was only reachable by typing the
+              URL, with email and Google sign-in configured behind it. */}
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              className="btn btn-primary btn-wide"
+              onClick={start}
+              disabled={authenticating}
+            >
+              {authenticating ? 'Starting…' : 'Try the demo'}
+            </button>
+            <Link to="/login" className="btn btn-ghost">
+              Sign in
+            </Link>
+          </div>
           {error && <p className="text-error text-sm">{error}</p>}
           <p className="text-xs opacity-60 max-w-md">
             We&apos;ll ask for your location so the demo can show dogs near you. Declining is fine.

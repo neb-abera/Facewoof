@@ -217,8 +217,13 @@ test.describe('with a provider configured', () => {
     const offered = providers.map((p) => p.id);
 
     await page.goto('/login');
-    const buttons = await page.getByRole('link', { name: /continue with/i }).count();
-    expect(buttons, 'a button for each configured provider and no more').toBe(offered.length);
+    // toHaveCount retries rather than counting the instant the load event
+    // fires: with the views code-split, /login renders after its chunk
+    // arrives, and a bare count() raced it and saw an empty page.
+    await expect(
+      page.getByRole('link', { name: /continue with/i }),
+      'a button for each configured provider and no more'
+    ).toHaveCount(offered.length);
 
     // Nothing External ID cannot actually do.
     expect(offered).not.toContain('microsoft');
