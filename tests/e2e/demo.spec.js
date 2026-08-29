@@ -124,6 +124,35 @@ test('no developer instructions are shown to visitors', async ({ page }) => {
   await expect(page.locator('body')).not.toContainText(/undefined|NaN|\[object Object\]/);
 });
 
+test('a card can be dragged away to choose', async ({ page }) => {
+  await startDemo(page);
+  const card = page.locator('.card-stack .profile-card').last();
+  await expect(card).toBeVisible();
+
+  // Regression: under React 19 react-draggable's findDOMNode fallback threw
+  // "<DraggableCore> not mounted on DragStart!" on every mousedown, and
+  // dragging — the way the feed is meant to be used — silently did nothing.
+  // The swipe request is the proof the drag registered as a choice.
+  const responded = page.waitForRequest(
+    (req) => req.url().includes('/api/response') && req.method() === 'POST',
+    { timeout: 10_000 }
+  );
+
+  // Grip the middle of the card: its bounding box starts under the search
+  // bar, which sits above it in z-order, so a grab near the top lands on the
+  // bar instead and nothing moves.
+  const box = await card.boundingBox();
+  const gripX = box.x + box.width / 2;
+  const gripY = box.y + box.height / 2;
+  await page.mouse.move(gripX, gripY);
+  await page.mouse.down();
+  // In steps, so the handler sees a drag rather than a teleport.
+  await page.mouse.move(gripX + 250, gripY, { steps: 12 });
+  await page.mouse.up();
+
+  await responded;
+});
+
 test('the signed-out visitor cannot reach the app', async ({ page }) => {
   await page.context().clearCookies();
   await page.goto('/discover');

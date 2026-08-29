@@ -227,24 +227,28 @@
     z-index: 2;
   }
 
-  @keyframes floatGreen {
+  /* The glows used to be green and red — traffic-light colours that fought
+     the site's blue and black palette. Yes now glows the same blue as the
+     button it sits on, and no glows a quiet silver: an answer, not an alarm.
+     Each is one color-mix to retint. */
+  @keyframes floatYes {
     0% {
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 20px 5px color-mix(in oklab, var(--color-success) 55%, transparent);
+      box-shadow: 0 0 20px 5px color-mix(in oklab, var(--color-primary) 60%, transparent);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;
     }
   }
 
-  @keyframes floatRed {
+  @keyframes floatNo {
     0% {
       box-shadow: 0 0 15px 2px transparent;
     }
     50% {
-      box-shadow: 0 0 15px 2px color-mix(in oklab, var(--color-error) 55%, transparent);
+      box-shadow: 0 0 15px 2px color-mix(in oklab, var(--color-base-content) 40%, transparent);
     }
     100% {
       box-shadow: 0 0 15px 2px transparent;
@@ -258,11 +262,11 @@
   }
 
   .digg {
-    animation-name: floatGreen;
+    animation-name: floatYes;
   }
 
   .pass {
-    animation-name: floatRed;
+    animation-name: floatNo;
   }
 
   .no-image-drag {

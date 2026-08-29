@@ -1,124 +1,162 @@
-/* eslint-disable */
-import { react, useState, useEffect } from 'react';
-import './profile.css';
-import FriendsList from './FriendsList.jsx';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaPen } from 'react-icons/fa';
+import './profile.css';
+import FriendsList from './FriendsList';
 import useUserContext from '../../hooks/useUserContext';
-const Profile = () => {
-  // const userId = 1
-  const [dummyText, setDummyText] = useState({});
-  const { userId, loggedIn, packs, userData, friends, setFriends, photos, setFirstLogin } =
-    useUserContext();
-  const [profilePhoto, setProfilePhoto] = useState('https://i.redd.it/vg9bk4f19lp71.jpg');
-  const [photosArray, setPhotosArray] = useState([]);
+import defaultDog from '../../assets/default-dog.svg';
 
-  // console.log('userdata', userData);
+/*
+ * The profile as others would want to read it.
+ *
+ * The old version fetched /api/auth/me and read `data[0]` from what is an
+ * object, so every field rendered blank; the avatar defaulted to a hotlinked
+ * reddit image the CSP blocks, so the page opened on a broken picture with no
+ * name next to it. It also said nothing anyone plans a playdate with. This
+ * one leads with who the dog is, then the facts a playdate hangs on: size,
+ * energy, when they're usually free, what they like, and anything the owner
+ * wants to add.
+ */
 
-  useEffect(() => {
-    axios
-      .get('/api/auth/me')
-      .then((results) => {
-        // Falls back to {} so a profile that no longer exists (an expired guest,
-        // say) renders empty rather than crashing the whole app on .dog_name.
-        setDummyText(results.data[0] || {});
-      })
-      .catch((err) => {
-        console.log('er in get current user', err);
-      });
-  }, [userId, loggedIn]);
+const LABELS = {
+  size: { small: 'Small', medium: 'Medium', large: 'Large' },
+  energy: { low: 'Easy-going', medium: 'Playful', high: 'High energy' },
+  best_time: {
+    mornings: 'Mornings',
+    afternoons: 'Afternoons',
+    evenings: 'Evenings',
+    weekends: 'Weekends'
+  }
+};
+
+const ProfileDisplay = () => {
+  const { userData, setFirstLogin } = useUserContext();
+  const [photos, setPhotos] = useState([]);
 
   useEffect(() => {
     axios
       .get('/api/profilephoto')
-      .then((results) => {
-        const rows = results.data || [];
-        if (rows.length) setProfilePhoto(rows[0].url);
-        setPhotosArray(rows.slice(1));
-      })
-      .catch((err) => {
-        console.log('er in get current user', err);
-      });
-  }, [userId, loggedIn]);
+      .then(({ data }) => setPhotos((data || []).map((row) => row.url)))
+      .catch((err) => console.error('could not load photos', err));
+  }, []);
 
-  const describe = () => {
-    const { dog_name, age, dog_breed, owner_name, location } = dummyText;
-    if (!dog_name) return '';
-    const bits = [age && `${age} year old`, dog_breed].filter(Boolean).join(' ');
-    return `${dog_name} is a ${bits}${location ? ` around ${location}` : ''}${
-      owner_name ? `, out with ${owner_name}` : ''
-    }.`;
-  };
+  // Context is still loading the account; there is nothing truthful to show.
+  if (!userData) return null;
 
-  const handleButtonClick = () => {
-    setFirstLogin(true);
-  };
+  const likes = [userData.likes_one, userData.likes_two, userData.likes_three].filter(Boolean);
+  const playdateFacts = [
+    { label: 'Size', value: LABELS.size[userData.size] },
+    { label: 'Energy', value: LABELS.energy[userData.energy] },
+    { label: 'Best time to play', value: LABELS.best_time[userData.best_time] }
+  ].filter((fact) => fact.value);
+  const hasPlaydateInfo = playdateFacts.length > 0 || likes.length > 0 || userData.bio;
+  const gallery = photos.slice(1);
 
   return (
-    <div className="container mx-auto my-2 grid gap-4 grid-cols-1 lg:grid-cols-2 items-start min-h-fit">
-      <div className="card shadow-xl min-h-fit mx-auto bg-base-200">
-        <div className="avatar flex flex-wrap gap-3 mb-auto place-content-baseline">
-          <div className="justify-self-start ml-3.5 mt-1.5">
-            {/** this is profile photo */}
-            <img
-              className="profilePhoto max-h-32 rounded-full"
-              src={profilePhoto}
-              alt="Italian Trulli"
-            ></img>
-          </div>
-          <div className="ml-3.5 mt-2.5 flex-grow">
-            <div className="card-title">{dummyText.dog_name}</div>
-            <div className="flex flex-row justify-start items-center mt-1.5">
-              <div className="flex-auto justify-start max-w-fit">{dummyText.age}</div>
-              <div className="w-2 h-2 bg-base-content rounded-full mr-2 ml-2 "></div>
-              <div className="flex-auto max-w-fit justify-start">{dummyText.dog_breed}</div>
-              <div className="w-2 h-2 bg-base-content rounded-full mr-2 ml-2"></div>
-              <div className="flex-auto justify-start">{dummyText.location}</div>
-            </div>
-            <div className="flex grid-cols-2 items-center mt-1.5">
-              <div className="w-4 h-4 bg-rose-300 rounded-full mr-2"></div>
-              <div> {dummyText.vaccination ? 'Vaccinated' : 'Unvaccinated'}</div>
-            </div>
-          </div>
-          <div className="mt-2.5 mr-3.5">
-            <button onClick={handleButtonClick} className="btn">
-              Edit Profile
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-3 items-end rounded-full ml-3.5">
-          <div className="btn btn-outline btn-primary w-32 rounded-full">{dummyText.likes_one}</div>
-          <div className="btn btn-outline btn-primary w-32 rounded-full">{dummyText.likes_two}</div>
-          <div className="btn btn-outline btn-primary w-32 rounded-full">
-            {dummyText.likes_three}
-          </div>
-        </div>
-
-        <div className="carousel carousel-center mr-3.5 p-4 space-x-4 bg-base-300 rounded-box h-96 max-w-max overflow-x-scroll">
-          {photosArray.map((photo, index) => {
-            return (
-              <div id={String(index)} key={index} className="carousel-item max-w-max">
-                <img src={photo.url} className="rounded-box mx-auto" />
+    <div className="profile container mx-auto my-4 grid gap-4 grid-cols-1 lg:grid-cols-[2fr_1fr] items-start px-4">
+      <div className="space-y-4">
+        <div className="card bg-base-200 shadow-xl">
+          <div className="card-body">
+            <div className="profile__header">
+              <img
+                className="profile__avatar"
+                src={photos[0] || defaultDog}
+                alt={photos[0] ? `${userData.dog_name || 'Your dog'}` : 'No photo yet'}
+              />
+              <div className="min-w-0 flex-1">
+                <h1 className="card-title text-2xl">{userData.dog_name || 'Your dog'}</h1>
+                <p className="opacity-70">
+                  {[
+                    userData.dog_breed,
+                    Number.isFinite(Number(userData.age)) && userData.age !== null
+                      ? `${userData.age} ${Number(userData.age) === 1 ? 'year' : 'years'} old`
+                      : null,
+                    userData.location
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+                {userData.owner_name && (
+                  <p className="opacity-70">Out with {userData.owner_name}</p>
+                )}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {userData.vaccination ? (
+                    <span className="badge badge-primary">Vaccinated</span>
+                  ) : (
+                    <span className="badge badge-outline opacity-70">
+                      Vaccination not confirmed
+                    </span>
+                  )}
+                  {userData.discoverable === false && (
+                    <span className="badge badge-outline opacity-70">Hidden from discover</span>
+                  )}
+                </div>
               </div>
-            );
-          })}
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setFirstLogin(true)}
+              >
+                <FaPen aria-hidden="true" /> Edit profile
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-center max-w-min mx-auto py-2 gap-2">
-          {photosArray.map((photo, index) => {
-            return (
-              <a href={`#${index}`} key={index} className="btn btn-xs">
-                {index + 1}
-              </a>
-            );
-          })}
+
+        <div className="card bg-base-200 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title text-lg">Planning a playdate</h2>
+            {hasPlaydateInfo ? (
+              <>
+                {playdateFacts.length > 0 && (
+                  <dl className="profile__facts">
+                    {playdateFacts.map(({ label, value }) => (
+                      <div key={label} className="profile__fact">
+                        <dt>{label}</dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {likes.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {likes.map((like) => (
+                      <span key={like} className="badge badge-outline badge-lg">
+                        {like}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {userData.bio && <p className="max-w-prose opacity-80">{userData.bio}</p>}
+              </>
+            ) : (
+              <p className="opacity-60">
+                Size, energy and when you&apos;re usually free help matches plan a playdate. Add
+                them with Edit profile.
+              </p>
+            )}
+          </div>
         </div>
-        <div className="min-h-fit max-w-prose ml-3.5 mb-2.5">{describe()}</div>
+
+        {gallery.length > 0 && (
+          <div className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-lg">More photos</h2>
+              <div className="carousel carousel-center gap-3 rounded-box">
+                {gallery.map((url) => (
+                  <div key={url} className="carousel-item">
+                    <img src={url} className="profile__gallery-photo" alt="A dog" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      {/* <div> */}
-      <FriendsList currentUser={dummyText} />
-      {/* </div> */}
+
+      <FriendsList currentUser={userData} />
     </div>
   );
 };
 
-export default Profile;
+export default ProfileDisplay;
