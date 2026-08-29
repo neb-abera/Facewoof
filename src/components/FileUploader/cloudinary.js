@@ -25,5 +25,12 @@ export const uploadToCloudinary = (file) => {
   data.append('upload_preset', UPLOAD_PRESET);
   data.append('cloud_name', CLOUD_NAME);
   data.append('folder', FOLDER_NAME);
-  return axios.post(CLOUDINARY_URL, data).then((res) => res.data.secure_url);
+  // api.js sets axios.defaults.withCredentials for the app's own API, and a
+  // credentialed cross-origin request is one Cloudinary's CORS policy must
+  // refuse (Access-Control-Allow-Credentials cannot be true for a wildcard
+  // service). The browser blocked every upload with a CORS error. There is
+  // no cookie Cloudinary should ever see anyway.
+  return axios
+    .post(CLOUDINARY_URL, data, { withCredentials: false })
+    .then((res) => res.data.secure_url);
 };
