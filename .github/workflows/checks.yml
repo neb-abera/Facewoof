@@ -18,6 +18,11 @@ jobs:
     name: eslint and prettier
     runs-on: ubuntu-latest
     steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - name: Playwright versions in lockstep
         # The e2e image tag and @playwright/test must be the same exact
@@ -41,6 +46,11 @@ jobs:
     name: production image
     runs-on: ubuntu-latest
     steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - name: Build the image the deploy pipeline builds
         run: docker build --target final -t facewoof .
@@ -61,6 +71,11 @@ jobs:
           --health-cmd "pg_isready -U facewoof -d facewoof"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Roster is reproducible
