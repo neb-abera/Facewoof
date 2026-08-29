@@ -81,13 +81,21 @@ services:
 
   # Browser tests against whatever BASE_URL points at. `make e2e` runs them
   # against the production image, which is the thing that actually ships.
+  #
+  # The default matches the container `make run` starts. It must not be a bare
+  # `app`: .app is a real gTLD on Chromium's HSTS preload list (Google owns
+  # it), so the browser force-upgrades any host with that name to https before
+  # the first request leaves, and every test dies with ERR_SSL_PROTOCOL_ERROR
+  # against a plain-HTTP instance. Nothing the server sends can prevent it —
+  # the list ships inside the browser. The same goes for other preloaded TLDs
+  # (dev, page, new, day): container names here should not collide with them.
   e2e:
     build:
       context: .
       target: e2e
     profiles: ['tools']
     environment:
-      BASE_URL: ${BASE_URL:-http://app:8080}
+      BASE_URL: ${BASE_URL:-http://facewoof-app:8080}
     volumes:
       - ./tests:/app/tests
       - ./playwright.config.js:/app/playwright.config.js:ro
