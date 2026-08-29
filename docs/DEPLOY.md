@@ -288,6 +288,24 @@ certificate with a Cloudflare Origin CA certificate (15-year validity,
 SSL/TLS → Origin Server → Create Certificate, then
 `az containerapp ssl upload`), which ends the dance permanently.
 
+## Photo uploads (Cloudinary)
+
+Uploads go straight from the browser to Cloudinary with an unsigned preset;
+the app stores only the returned URL. The two identifiers are baked into the
+client bundle at build time, so they are passed to the deploy build as GitHub
+repository **variables** (Settings → Secrets and variables → Actions →
+Variables) — not secrets, since every browser receives them in the bundle
+anyway:
+
+- `VITE_CLOUD_NAME` — the Cloudinary cloud name
+- `VITE_UPLOAD_PRESET` — an **unsigned** upload preset (create it in the
+  Cloudinary console under Settings → Upload; restrict it to image files and
+  a folder)
+
+While they are unset the app simply hides photo upload, in onboarding and on
+the profile page alike. After setting them, re-run the deploy workflow (or
+merge anything) so a new bundle is built.
+
 ## Deploying
 
 Merging to `main` runs the checks; if they pass, the deploy workflow builds in
