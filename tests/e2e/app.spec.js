@@ -150,6 +150,13 @@ test("a playdate appears on the calendar after it is added", async ({
   // Regression: the calendar only fetched on mount, so a playdate saved but
   // never appeared and the feature looked broken.
   await expect(modal).toBeHidden({ timeout: 15_000 });
+
+  // The form defaults to the next whole hour, which crosses into the next
+  // rbc week (or month) when this runs near a boundary - the default week
+  // view then hides the new playdate and the test failed every Saturday
+  // night UTC. The agenda view always starts at "now", so it shows the
+  // playdate wherever the boundary put it.
+  await page.getByRole("button", { name: "Agenda" }).click();
   await expect(page.getByText("Playwright walk").first()).toBeVisible({
     timeout: 20_000,
   });
