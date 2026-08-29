@@ -9,10 +9,13 @@
 #   build   the production client bundle
 #   final   express serving the API and the built bundle on one port
 
-ARG NODE_IMAGE=node:24-alpine
+# A named stage rather than an ARG deliberately: Dependabot cannot see an
+# image behind ARG indirection, but it watches a literal FROM, and every
+# consumer derives from this one stage so a bump moves them all together.
+FROM node:24-alpine AS nodebase
 
 # ---- deps -------------------------------------------------------------------
-FROM ${NODE_IMAGE} AS deps
+FROM nodebase AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -67,7 +70,7 @@ ENV VITE_BASE_PATH=${VITE_BASE_PATH} \
 RUN npm run build
 
 # ---- final ------------------------------------------------------------------
-FROM ${NODE_IMAGE} AS final
+FROM nodebase AS final
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
