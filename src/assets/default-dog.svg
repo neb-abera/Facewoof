@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="No photo yet">
+  <!-- The stand-in for a profile with no photo. Bundled so img-src 'self'
+       always allows it; the old default was a hotlinked reddit image the CSP
+       blocked, which is why every new profile opened with a broken avatar. -->
+  <rect width="128" height="128" fill="#1e2733"/>
+  <g fill="#8ba3c7">
+    <!-- head -->
+    <circle cx="64" cy="56" r="24"/>
+    <!-- floppy ears, hanging beside the head -->
+    <path d="M44 38 C30 36 26 50 30 64 C33 74 40 78 46 74 C50 70 50 52 48 42 Z"/>
+    <path d="M84 38 C98 36 102 50 98 64 C95 74 88 78 82 74 C78 70 78 52 80 42 Z"/>
+    <!-- muzzle -->
+    <ellipse cx="64" cy="70" rx="13" ry="10"/>
+    <!-- shoulders -->
+    <path d="M26 114 C26 92 43 82 64 82 C85 82 102 92 102 114 Z"/>
+  </g>
+  <g fill="#1e2733">
+    <!-- eyes -->
+    <circle cx="55" cy="52" r="3.4"/>
+    <circle cx="73" cy="52" r="3.4"/>
+    <!-- nose -->
+    <ellipse cx="64" cy="66" rx="5" ry="3.8"/>
+  </g>
+</svg>
