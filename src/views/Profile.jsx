@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import ProfileDisplay from '../components/ProfilePage/ProfileDisplay';
-import ProfilePage from '../components/ProfilePage/ProfilePage';
-import useUserContext from '../hooks/useUserContext';
+import ProfileDisplay from "../components/ProfilePage/ProfileDisplay";
+import ProfilePage from "../components/ProfilePage/ProfilePage";
+import useUserContext from "../hooks/useUserContext";
 
 const Profile = () => {
   // if firstLogin then render editProfile page

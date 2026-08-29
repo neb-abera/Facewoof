@@ -45,7 +45,7 @@
 }
 
 .post-tile__pack::after {
-  content: '·';
+  content: "·";
   margin-left: 0.5rem;
   color: color-mix(in oklab, var(--color-base-content) 40%, transparent);
 }

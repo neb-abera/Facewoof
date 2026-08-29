@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 /*
  * One post in the pack feed.
@@ -19,7 +18,9 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
       <div className="post-tile__body">
         <p className="post-tile__content">{content}</p>
         <p className="post-tile__meta">
-          {parentGroup ? <span className="post-tile__pack">{parentGroup}</span> : null}
+          {parentGroup ? (
+            <span className="post-tile__pack">{parentGroup}</span>
+          ) : null}
           {when ? <span>{when}</span> : null}
         </p>
       </div>
@@ -30,15 +31,19 @@ const PostTile = ({ img, content, postedOn, parentGroup }) => {
 PostTile.propTypes = {
   img: PropTypes.string,
   content: PropTypes.string,
-  postedOn: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]),
-  parentGroup: PropTypes.string
+  postedOn: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.instanceOf(Date),
+  ]),
+  parentGroup: PropTypes.string,
 };
 
 PostTile.defaultProps = {
   img: undefined,
-  content: '',
+  content: "",
   postedOn: undefined,
-  parentGroup: undefined
+  parentGroup: undefined,
 };
 
 export default PostTile;

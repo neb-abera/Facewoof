@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Modal from 'react-modal';
-import axios from 'axios';
-import '../../Shared/modal.css';
-import './createPack.css';
+import axios from "axios";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import Modal from "react-modal";
+import "../../Shared/modal.css";
+import "./createPack.css";
 
 /*
  * Create a pack with one of your friends.
@@ -21,7 +21,7 @@ import './createPack.css';
 const CreatePackModal = ({ userIdentity, isOpen, onClose, onCreated }) => {
   const [friends, setFriends] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [packName, setPackName] = useState('');
+  const [packName, setPackName] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [created, setCreated] = useState(null);
@@ -29,11 +29,11 @@ const CreatePackModal = ({ userIdentity, isOpen, onClose, onCreated }) => {
   useEffect(() => {
     if (!isOpen) return;
     axios
-      .get('/api/friends')
+      .get("/api/friends")
       .then(({ data }) => setFriends(data || []))
       .catch((err) => {
-        console.error('could not load your friends', err);
-        setError('Your friends could not be loaded.');
+        console.error("could not load your friends", err);
+        setError("Your friends could not be loaded.");
       });
   }, [isOpen]);
 
@@ -42,27 +42,27 @@ const CreatePackModal = ({ userIdentity, isOpen, onClose, onCreated }) => {
   useEffect(() => {
     if (isOpen) return;
     setSelected(null);
-    setPackName('');
+    setPackName("");
     setError(null);
     setCreated(null);
   }, [isOpen]);
 
   const createPack = async () => {
-    if (!selected) return setError('Choose a friend to start the pack with.');
-    if (!packName.trim()) return setError('Give the pack a name.');
+    if (!selected) return setError("Choose a friend to start the pack with.");
+    if (!packName.trim()) return setError("Give the pack a name.");
 
     setSaving(true);
     setError(null);
     try {
-      await axios.put('/api/createpack', {
+      await axios.put("/api/createpack", {
         pack_name: packName.trim(),
-        users: JSON.stringify([Number(userIdentity), Number(selected.user_id)])
+        users: JSON.stringify([Number(userIdentity), Number(selected.user_id)]),
       });
       setCreated(packName.trim());
       if (onCreated) await onCreated();
     } catch (err) {
-      console.error('could not create the pack', err);
-      setError('That pack could not be created. Please try again.');
+      console.error("could not create the pack", err);
+      setError("That pack could not be created. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -100,8 +100,8 @@ const CreatePackModal = ({ userIdentity, isOpen, onClose, onCreated }) => {
                       type="button"
                       className={`create-pack__friend${
                         selected && selected.user_id === friend.user_id
-                          ? ' create-pack__friend--on'
-                          : ''
+                          ? " create-pack__friend--on"
+                          : ""
                       }`}
                       onClick={() => setSelected(friend)}
                     >
@@ -135,7 +135,7 @@ const CreatePackModal = ({ userIdentity, isOpen, onClose, onCreated }) => {
             onClick={createPack}
             disabled={saving || !friends.length}
           >
-            {saving ? 'Creating…' : 'Create pack'}
+            {saving ? "Creating…" : "Create pack"}
           </button>
         </>
       )}
@@ -147,12 +147,12 @@ CreatePackModal.propTypes = {
   userIdentity: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onCreated: PropTypes.func
+  onCreated: PropTypes.func,
 };
 
 CreatePackModal.defaultProps = {
   userIdentity: undefined,
-  onCreated: undefined
+  onCreated: undefined,
 };
 
 export default CreatePackModal;

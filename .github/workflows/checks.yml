@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   lint:
-    name: eslint and prettier
+    name: lint and format
     runs-on: ubuntu-latest
     steps:
       - name: Harden runner

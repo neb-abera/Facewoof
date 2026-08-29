@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import PostTile from './PostTile.jsx';
-import './postTile.css';
-import PackMenu from './PackMenu.jsx';
+import PostTile from "./PostTile.jsx";
+import "./postTile.css";
 
 const AllPostTiles = ({ allPosts }) => {
   // var img = data.photo_url;
@@ -15,16 +12,16 @@ const AllPostTiles = ({ allPosts }) => {
   // console.log('AllPostTiles received', data);
   const styles = {
     posts: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      width: '100%'
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",
+      width: "100%",
     },
     packHighest: {
-      display: 'flex',
-      flexDirection: 'row',
-      width: '100%'
-    }
+      display: "flex",
+      flexDirection: "row",
+      width: "100%",
+    },
   };
   // console.log('all posts', allPosts);
   allPosts = allPosts.sort((a, b) => {
@@ -35,9 +32,9 @@ const AllPostTiles = ({ allPosts }) => {
     <div className="card" style={styles.packHighest}>
       <div style={styles.posts}>
         {allPosts
-          ? allPosts.map((each, key) => (
+          ? allPosts.map((each) => (
               <PostTile
-                key={key}
+                key={each.post_id}
                 img={each.photo_url}
                 content={each.body}
                 postedOn={each.date}

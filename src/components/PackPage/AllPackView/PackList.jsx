@@ -1,18 +1,17 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import PackName from './PackName.jsx';
-import axios from 'axios';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import PackName from "./PackName.jsx";
 
-const PackList = ({ setViewing, userIdentity, setViewingName }) => {
-  var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
+const PackList = ({ setViewing, setViewingName }) => {
+  var _listNames = ["Woofram Alpha", "Barkalona", "Bark Simpson"];
 
   var [packList, setPackList] = useState([]);
 
   useEffect(() => {
     axios
-      .get('/api/getUserPacks')
+      .get("/api/getUserPacks")
       .then((data) => setPackList(data.data || []))
-      .catch((err) => console.error('could not load the pack list', err));
+      .catch((err) => console.error("could not load the pack list", err));
   }, []);
 
   var click = (packData) => {
@@ -21,26 +20,26 @@ const PackList = ({ setViewing, userIdentity, setViewingName }) => {
     setViewingName(packData.name);
   };
 
-  var styles = {
+  var _styles = {
     packList: {
-      width: '100%',
-      backgroundColor: 'transparent'
-    }
+      width: "100%",
+      backgroundColor: "transparent",
+    },
   };
 
   return (
     <>
       {packList
-        ? packList.map((packName, key) => (
-            <li
-              key={key}
-              onClick={() => {
-                click(packName);
-              }}
-            >
-              <a>
+        ? packList.map((packName) => (
+            <li key={packName.name}>
+              <button
+                type="button"
+                onClick={() => {
+                  click(packName);
+                }}
+              >
                 <PackName name={packName.name} />
-              </a>
+              </button>
             </li>
           ))
         : null}
