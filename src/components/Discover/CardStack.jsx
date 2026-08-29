@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaDog } from 'react-icons/fa';
 import axios from 'axios';
-import Draggable from 'react-draggable';
 
 import ProfileCard from './ProfileCard';
 import Match from './Match';
@@ -42,6 +41,10 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
   // grows as they land, so rebuilding straight from it would resurrect cards
   // that were already dealt with.
   const swiped = useRef(new Set());
+
+  // The drag in progress: where it started and whether it already voted.
+  // null between drags.
+  const drag = useRef(null);
 
   useEffect(() => {
     swiped.current = new Set();
@@ -110,21 +113,45 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
     setMatch(false);
   }
 
-  function dragHandler(e, data) {
-    setX(data.x);
-    setY(data.y);
-    if (data.x > 150) {
+  /*
+   * Dragging a card sideways to choose, on plain pointer events.
+   *
+   * This used react-draggable, which reaches for findDOMNode — removed in
+   * React 19 — so every drag died on mousedown and the gesture the feed is
+   * built around silently stopped working; only the buttons survived.
+   * Pointer events need no library, and unlike the mouse events the library
+   * listened for, they are also how a finger drags — swiping never worked on
+   * a touch screen before.
+   *
+   * Past 150px the drag becomes the vote, once: the old handler voted again
+   * on every pixel past the threshold, sending a duplicate POST per
+   * mousemove until the card left.
+   */
+  function dragStart(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    drag.current = { fromX: e.clientX, voted: false };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  }
+
+  function dragMove(e) {
+    if (!drag.current || drag.current.voted) return;
+    const dx = e.clientX - drag.current.fromX;
+    setX(dx);
+    if (dx > 150) {
+      drag.current.voted = true;
       handleVote({ target: { id: 'digg' } });
-    } else if (data.x < -150) {
+    } else if (dx < -150) {
+      drag.current.voted = true;
       handleVote({ target: { id: 'pass' } });
     }
   }
 
-  function upHandler(e, data) {
-    if (data.x < 150 && data.x > -150) {
+  function dragEnd() {
+    if (drag.current && !drag.current.voted) {
       setX(0);
       setY(0);
     }
+    drag.current = null;
   }
 
   return (
@@ -145,29 +172,25 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
             {stack.map((user, index) => {
               if (index === stack.length - 1) {
                 return (
-                  <Draggable
+                  <div
                     key={`user${user.user_id}`}
-                    position={{ x: x, y: y }}
-                    onDrag={dragHandler}
-                    onStop={upHandler}
-                    axis="x"
+                    onPointerDown={dragStart}
+                    onPointerMove={dragMove}
+                    onPointerUp={dragEnd}
+                    onPointerCancel={dragEnd}
+                    style={{ transform: `translate(${x}px, ${y}px)`, touchAction: 'pan-y' }}
+                    className={`profile-card
+                      ${out === user.user_id ? 'unmount' : ''}
+                      ${pass === user.user_id ? 'pass-unmount' : ''}
+                      ${front === user.user_id ? 'mount' : ''}
+                      ${back === user.user_id ? 'back-mount' : ''}
+                      ${index === 0 ? 'back' : ''}
+                    `}
                   >
-                    <div
-                      id="test"
-                      key={`user${user.user_id}`}
-                      className={`profile-card
-                        ${out === user.user_id ? 'unmount' : ''}
-                        ${pass === user.user_id ? 'pass-unmount' : ''}
-                        ${front === user.user_id ? 'mount' : ''}
-                        ${back === user.user_id ? 'back-mount' : ''}
-                        ${index === 0 ? 'back' : ''}
-                      `}
-                    >
-                      <div className="card-wrapper">
-                        <ProfileCard user={user} distance={distances[user.location]} />
-                      </div>
+                    <div className="card-wrapper">
+                      <ProfileCard user={user} distance={distances[user.location]} />
                     </div>
-                  </Draggable>
+                  </div>
                 );
               }
               return (

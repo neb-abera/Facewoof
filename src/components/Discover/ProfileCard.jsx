@@ -14,7 +14,13 @@ export default function ProfileCard({ user, distance }) {
           <div className="card-header-title">
             <div className="avatar">
               <div className="w-24 rounded-contain profile-image">
-                <img src={user.photos[0]} alt={`photo of a dog named ${user.dog_name}`} />
+                {/* draggable={false}: a native image drag would swallow the
+                    pointer events the card's swipe listens for. */}
+                <img
+                  src={user.photos[0]}
+                  draggable={false}
+                  alt={`photo of a dog named ${user.dog_name}`}
+                />
               </div>
             </div>
 
@@ -58,6 +64,7 @@ export default function ProfileCard({ user, distance }) {
                   <img
                     className="w-full no-image-drag"
                     src={url}
+                    draggable={false}
                     alt={`photo of a dog named ${user.dog_name}`}
                   />
                 </div>

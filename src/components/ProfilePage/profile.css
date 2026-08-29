@@ -1,22 +1,49 @@
 /* Tailwind is imported once, in src/index.css. Importing it again here
    duplicated every generated rule under tailwind 3 and is an error under 4. */
 
-.profilePhoto {
-  float: left;
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-}
-
 .btn {
   /* rounded-full, written out: @apply outside the sheet tailwind is imported
      into needs an @reference in tailwind 4, and one radius is not worth it. */
   border-radius: calc(infinity * 1px);
 }
 
-/* body {
-  background-color: aqua;
+.profile__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  flex-wrap: wrap;
 }
-head {
-  background-color: aqua;
-} */
+
+.profile__avatar {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 2px solid var(--color-base-300);
+  flex-shrink: 0;
+}
+
+/* Label-over-value pairs, side by side for as many as fit. */
+.profile__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.profile__fact dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: color-mix(in oklab, var(--color-base-content) 55%, transparent);
+}
+
+.profile__fact dd {
+  font-weight: 600;
+}
+
+.profile__gallery-photo {
+  height: 14rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
