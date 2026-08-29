@@ -60,10 +60,19 @@ jobs:
         # belongs to aberaTech, and a deploy identity for this app has no
         # business being able to delete another app's images. Building on the
         # runner keeps the grant to AcrPush plus Reader.
+        # The Cloudinary pair are vite build args: the client resolves
+        # import.meta.env when the bundle is built, so passing them to the
+        # running container does nothing. Repository *variables*, not secrets
+        # — both values ship in the bundle to every browser by design (the
+        # preset is unsigned). Left unset they arrive empty, and the app hides
+        # photo upload exactly as it does today, so the deploy stays safe
+        # before they are configured.
         run: |
           set -euo pipefail
           az acr login --name "${REGISTRY%%.*}"
           docker build --target final \
+            --build-arg VITE_CLOUD_NAME="${{ vars.VITE_CLOUD_NAME }}" \
+            --build-arg VITE_UPLOAD_PRESET="${{ vars.VITE_UPLOAD_PRESET }}" \
             --tag "$REGISTRY/$IMAGE:${{ github.sha }}" \
             --tag "$REGISTRY/$IMAGE:latest" \
             --file Dockerfile .
