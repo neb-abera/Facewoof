@@ -74,17 +74,26 @@ jobs:
             --build-arg VITE_CLOUD_NAME="${{ vars.VITE_CLOUD_NAME }}" \
             --build-arg VITE_UPLOAD_PRESET="${{ vars.VITE_UPLOAD_PRESET }}" \
             --tag "$REGISTRY/$IMAGE:${{ github.sha }}" \
+            --tag "$REGISTRY/$IMAGE:run-${{ github.run_id }}" \
             --tag "$REGISTRY/$IMAGE:latest" \
             --file Dockerfile .
           docker push "$REGISTRY/$IMAGE:${{ github.sha }}"
+          docker push "$REGISTRY/$IMAGE:run-${{ github.run_id }}"
           docker push "$REGISTRY/$IMAGE:latest"
 
       - name: Deploy the revision
+        # The per-run tag, not the commit tag. A workflow_dispatch of the same
+        # commit rebuilds and pushes the same :sha tag, and `az containerapp
+        # update` treats an unchanged image reference as nothing to do — the
+        # new build sat in the registry while production kept serving the old
+        # one, and the run still reported success because the old revision was
+        # healthy. A reference that is unique per run makes every run a real
+        # rollout, which is the entire point of the manual trigger.
         run: |
           az containerapp update \
             --name "$CONTAINER_APP" \
             --resource-group "$RESOURCE_GROUP" \
-            --image "$REGISTRY/$IMAGE:${{ github.sha }}"
+            --image "$REGISTRY/$IMAGE:run-${{ github.run_id }}"
 
       - name: Wait for the new revision to be healthy
         # `az containerapp update` returns once the revision is created, not
