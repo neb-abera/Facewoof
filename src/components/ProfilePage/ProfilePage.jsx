@@ -1,257 +1,296 @@
-/* eslint-disable */
-import { react, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import useUserContext from '../../hooks/useUserContext.js';
+import PropTypes from 'prop-types';
+import useUserContext from '../../hooks/useUserContext';
 import UploadFileWidget from '../FileUploader/UploadFileWidget';
 
-// to do later:
-// if profile logged in, render values in textinput as current values of profile
+/*
+ * Editing the profile.
+ *
+ * The old form opened blank — its own comment said "if profile logged in,
+ * render values in textinput as current values of profile // to do later" —
+ * so saving meant retyping everything or silently blanking it. It also sent
+ * `like2` where the server read nothing, posted the owner's email as an
+ * editable field (it is the account's identity), and swallowed its own
+ * validation into console.log. This one starts from what the profile says
+ * now, saves what the server actually stores, and asks for the playdate
+ * facts the display page leads with.
+ */
+
+const SIZES = [
+  ['small', 'Small (under 25 lb)'],
+  ['medium', 'Medium (25–60 lb)'],
+  ['large', 'Large (over 60 lb)']
+];
+const ENERGY = [
+  ['low', 'Easy-going'],
+  ['medium', 'Playful'],
+  ['high', 'High energy']
+];
+const BEST_TIMES = [
+  ['mornings', 'Mornings'],
+  ['afternoons', 'Afternoons'],
+  ['evenings', 'Evenings'],
+  ['weekends', 'Weekends']
+];
+
+// htmlFor rather than a wrapping label: a label that wraps a <select> counts
+// the option text as its own, so "Size" becomes "Size Not set Small…" to
+// assistive tech and to anything that looks a control up by its label.
+const Select = ({ id, label, value, onChange, options }) => (
+  <div className="form-control w-full">
+    <label className="label label-text" htmlFor={id}>
+      {label}
+    </label>
+    <select
+      id={id}
+      className="select select-bordered w-full"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="">Not set</option>
+      {options.map(([key, text]) => (
+        <option key={key} value={key}>
+          {text}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+const Field = ({ label, children }) => (
+  <label className="form-control w-full">
+    <span className="label label-text">{label}</span>
+    {children}
+  </label>
+);
+
+Select.propTypes = {
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired
+};
+
+Field.propTypes = {
+  label: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired
+};
 
 const ProfilePage = () => {
-  const [ownerName, setOwnerName] = useState(''); // should get pull from userData
-  const [email, setEmail] = useState(''); // should get pull from userData
-  const [ownerLastname, setOwnerLastname] = useState(''); // should get pull from userData
-  const [dogName, setDogName] = useState('');
-  const [breed, setBreed] = useState('');
-  const [age, setAge] = useState(0);
-  const [location, setLocation] = useState(0);
-  const [vaccinated, setVaccinated] = useState(false);
-  const [discoverable, setDiscoverable] = useState(false);
-  const [likes1, setLikes1] = useState('');
-  const [likes2, setLikes2] = useState('');
-  const [likes3, setLikes3] = useState('');
+  const { userData, setUserData, setFirstLogin } = useUserContext();
 
-  const { userData, firstLogin, setFirstLogin } = useUserContext();
+  const [form, setForm] = useState(() => ({
+    dogName: userData?.dog_name || '',
+    ownerName: userData?.owner_name || '',
+    dogBreed: userData?.dog_breed || '',
+    age: userData?.age ?? '',
+    vaccination: Boolean(userData?.vaccination),
+    discoverable: userData?.discoverable !== false,
+    likesOne: userData?.likes_one || '',
+    likesTwo: userData?.likes_two || '',
+    likesThree: userData?.likes_three || '',
+    size: userData?.size || '',
+    energy: userData?.energy || '',
+    bestTime: userData?.best_time || '',
+    bio: userData?.bio || '',
+    zip: userData?.location || ''
+  }));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-  const changeOwnerName = (e) => {
-    // console.log('firstname', e);
-    setOwnerName(e);
-  };
+  const set = (key) => (value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const changeEmail = (e) => {
-    // console.log('email', e);
-    setEmail(e);
-  };
-  const changeOwnerLastname = (e) => {
-    // console.log('lastname', e);
-    setOwnerLastname(e);
-  };
-  const changeDogName = (e) => {
-    // console.log('dogname', e);
-    setDogName(e);
-  };
-  const changeBreed = (e) => {
-    // console.log('breed', e);
-    setBreed(e);
-  };
-  const changeAge = (e) => {
-    // console.log('age', e);
-    setAge(Number(e));
-  };
-  const changeLocation = (e) => {
-    // console.log('loc', e);
-    setLocation(Number(e));
-  };
-  const changeVaccinated = () => {
-    // console.log('vacc', vaccinated);
-    setVaccinated(!vaccinated);
-  };
-  const changeDiscoverable = () => {
-    // console.log('discoverable', discoverable);
-    setDiscoverable(!discoverable);
-  };
-  const changeLikes1 = (e) => {
-    // console.log('likes1', e);
-    setLikes1(e);
-  };
-  const changeLikes2 = (e) => {
-    // console.log('likes2', e);
-    setLikes2(e);
-  };
-  const changeLikes3 = (e) => {
-    // console.log('likes3', e);
-    setLikes3(e);
-  };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const sendObj = {
-      ownerName: ` ${ownerName} ${ownerLastname}`,
-      dogName: dogName,
-      breed: breed,
-      age: age,
-      location: location,
-      vaccinated: vaccinated,
-      discoverable: discoverable,
-      likes1: likes1,
-      like2: likes2,
-      likes3: likes3,
-      email: email
-    };
+    if (!form.dogName.trim()) {
+      setError('What is your dog called?');
+      return;
+    }
 
-    if (
-      ownerName.length === 0 ||
-      ownerLastname.length === 0 ||
-      dogName.length === 0 ||
-      breed.length === 0 ||
-      email.length === 0
-    ) {
-      // eslint-disable-next-line no-alert
-      // console.log('Please make sure all required forms are filled out!!! Gosh!!!', sendObj);
-    } else if (typeof age !== 'number') {
-      // eslint-disable-next-line no-alert
-      alert('Please make sure age is a number');
-    } else if (typeof location !== 'number') {
-      // eslint-disable-next-line no-alert
-      alert('Please make sure location is your zip code');
-    } else {
-      // console.log('success!!');
-      axios
-        .put('/api/edituser', sendObj)
-        .then((results) => {
-          // console.log('succ post', results);
-        })
-        .catch((err) => {
-          console.log('err', err);
-        });
+    setSaving(true);
+    setError(null);
+    try {
+      await axios.put('/api/edituser', {
+        dogName: form.dogName,
+        ownerName: form.ownerName,
+        dogBreed: form.dogBreed,
+        age: form.age === '' ? null : Number(form.age),
+        vaccination: form.vaccination,
+        discoverable: form.discoverable,
+        likesOne: form.likesOne,
+        likesTwo: form.likesTwo,
+        likesThree: form.likesThree,
+        size: form.size || null,
+        energy: form.energy || null,
+        bestTime: form.bestTime || null,
+        bio: form.bio
+      });
+
+      // Moving is its own endpoint: it validates the zip and generates
+      // neighbours there, which a column update could not.
+      const zip = form.zip.trim();
+      if (zip && zip !== (userData?.location || '')) {
+        await axios.put('/api/location', { zip });
+      }
+
+      // Re-read rather than patching locally: the server decides what the
+      // profile now is, including what it refused.
+      const { data } = await axios.get('/api/auth/me');
+      setUserData(data);
+      setFirstLogin(false);
+    } catch (err) {
+      console.error('could not save the profile', err);
+      setError('That could not be saved. Please check the zip code and try again.');
+      setSaving(false);
     }
   };
-  const handleBackButton = () => {
-    setFirstLogin(false);
-  };
-  // card w-96 bg-base-100 shadow-xl top-15 mx-auto overflow-auto scroll-auto
-  // flex card card-compact w-[700px] bg-base-100 shadow-xl ml-[500px] mt-44 max-w-3xl w-max
+
   return (
-    <div className="card w-10/12 max-w-7xl bg-base-10 bg-base-200 mt-2.5 shadow-xl mx-auto">
-      <div className="card-body">
-        <h2 className="card-title">{firstLogin ? 'Create Your Profile' : 'Edit Your Profile'}</h2>
-        <form>
-          <div className="columns-3">
-            <div>
-              <label className="label">Owner First Name:</label>
+    <div className="container mx-auto my-4 max-w-3xl px-4">
+      <form className="card bg-base-200 shadow-xl" onSubmit={handleSubmit}>
+        <div className="card-body space-y-2">
+          <h1 className="card-title text-2xl">Edit profile</h1>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Dog's name">
               <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeOwnerName(e.target.value);
-                }}
-                type="text"
-                name="name"
+                className="input input-bordered w-full"
+                value={form.dogName}
+                onChange={(e) => set('dogName')(e.target.value)}
               />
-              <label className="label">Owner Last Name:</label>
+            </Field>
+            <Field label="Breed">
               <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeOwnerLastname(e.target.value);
-                }}
-                type="text"
-                name="name"
+                className="input input-bordered w-full"
+                value={form.dogBreed}
+                onChange={(e) => set('dogBreed')(e.target.value)}
               />
-              <label className="label">Owner Email:</label>
+            </Field>
+            <Field label="Age (years)">
               <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeEmail(e.target.value);
-                }}
-                type="text"
-                name="name"
+                className="input input-bordered w-full"
+                type="number"
+                min="0"
+                max="30"
+                value={form.age}
+                onChange={(e) => set('age')(e.target.value)}
               />
-              <label className="label">Location</label>
+            </Field>
+            <Field label="Owner's name">
               <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Zip code"
-                onChange={(e) => {
-                  changeLocation(e.target.value);
-                }}
-                type="text"
-                name="name"
+                className="input input-bordered w-full"
+                value={form.ownerName}
+                onChange={(e) => set('ownerName')(e.target.value)}
               />
-              <label className="label break-after-column">
-                {' '}
-                Make Profile Discoverable
-                <input className="checkbox" onClick={() => changeDiscoverable()} type="checkbox" />
-              </label>
-            </div>
-            <div>
-              <label className="label">Dog Name:</label>
+            </Field>
+            <Field label="Zip code">
               <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeDogName(e.target.value);
-                }}
-                type="text"
-                name="name"
+                className="input input-bordered w-full"
+                value={form.zip}
+                onChange={(e) => set('zip')(e.target.value)}
               />
-              <label className="label">Age:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeAge(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <label className="label">Breed:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => {
-                  changeBreed(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <label className="label break-after-column">
-                {' '}
-                Fully Vaccinated
-                <input className="checkbox" onClick={() => changeVaccinated()} type="checkbox" />
-              </label>
-            </div>
-            <div>
-              <label className="label">Likes 1:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Chasing Squirrels"
-                onChange={(e) => {
-                  changeLikes1(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <br />
-              <label className="label">Likes 2:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Playing Fetch"
-                onChange={(e) => {
-                  changeLikes2(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-              <br />
-              <label className="label">Likes 3:</label>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                placeholder="Eating Sticks"
-                onChange={(e) => {
-                  changeLikes3(e.target.value);
-                }}
-                type="text"
-                name="name"
-              />
-            </div>
+            </Field>
           </div>
-          <UploadFileWidget />
-          <div className="card-actions justify-end">
-            <button className="btn" onClick={handleBackButton}>
-              Back
-            </button>
-            <input
-              className="btn btn-active btn-primary max-w-min"
-              onClick={(e) => handleSubmit(e)}
-              type="submit"
+
+          <div className="divider my-1">For playdates</div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Select
+              id="profile-size"
+              label="Size"
+              value={form.size}
+              onChange={set('size')}
+              options={SIZES}
+            />
+            <Select
+              id="profile-energy"
+              label="Energy"
+              value={form.energy}
+              onChange={set('energy')}
+              options={ENERGY}
+            />
+            <Select
+              id="profile-best-time"
+              label="Best time to play"
+              value={form.bestTime}
+              onChange={set('bestTime')}
+              options={BEST_TIMES}
             />
           </div>
-        </form>
-      </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              ['likesOne', 'Chasing squirrels'],
+              ['likesTwo', 'Playing fetch'],
+              ['likesThree', 'Long walks']
+            ].map(([key, placeholder], index) => (
+              <Field key={key} label={`Loves ${index + 1}`}>
+                <input
+                  className="input input-bordered w-full"
+                  placeholder={placeholder}
+                  value={form[key]}
+                  onChange={(e) => set(key)(e.target.value)}
+                />
+              </Field>
+            ))}
+          </div>
+
+          <Field label="Anything a playdate should know">
+            <textarea
+              className="textarea textarea-bordered w-full"
+              rows={3}
+              maxLength={400}
+              placeholder="Great with small dogs, still learning recall, brings her own ball…"
+              value={form.bio}
+              onChange={(e) => set('bio')(e.target.value)}
+            />
+          </Field>
+
+          <div className="flex flex-wrap gap-6 py-1">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={form.vaccination}
+                onChange={(e) => set('vaccination')(e.target.checked)}
+              />
+              <span>Vaccinated</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                className="toggle"
+                checked={form.discoverable}
+                onChange={(e) => set('discoverable')(e.target.checked)}
+              />
+              <span>Show my profile in discover</span>
+            </label>
+          </div>
+
+          <div>
+            <span className="label label-text">Add photos</span>
+            <UploadFileWidget />
+          </div>
+
+          {error && <p className="text-error text-sm">{error}</p>}
+
+          <div className="card-actions justify-end">
+            <button
+              type="button"
+              className="btn btn-ghost"
+              disabled={saving}
+              onClick={() => setFirstLogin(false)}
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving…' : 'Save profile'}
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 };

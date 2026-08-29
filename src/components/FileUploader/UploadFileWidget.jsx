@@ -2,37 +2,20 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import FileUploader from './FileUploader';
 import './UploadFileWidget.css';
-import useUserContext from '../../hooks/useUserContext';
-
-// Was `require('dotenv').config()` plus `import path from 'path'`, neither of
-// which works in a browser. Vite substitutes these at build time.
-const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
-const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-const FOLDER_NAME = 'Facewoof';
-const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-
-const isConfigured = Boolean(UPLOAD_PRESET && CLOUD_NAME);
+import { uploadsConfigured, uploadToCloudinary } from './cloudinary';
 
 const UploadFileWidget = () => {
   const [urls, setUrls] = useState([]);
   const [error, setError] = useState(null);
-  const { userId } = useUserContext();
 
   const uploadImage = (img) => {
-    const data = new FormData();
-    data.append('file', img);
-    data.append('upload_preset', UPLOAD_PRESET);
-    data.append('cloud_name', CLOUD_NAME);
-    data.append('folder', FOLDER_NAME);
-
     setError(null);
-    axios
-      .post(CLOUDINARY_URL, data)
-      .then((res) => {
+    uploadToCloudinary(img)
+      .then((url) => {
         // The original spread a stale `urls` into a functional update, so it
         // read the same snapshot twice and dropped uploads that overlapped.
-        setUrls((prev) => [...prev, res.data.secure_url]);
-        return axios.post('/api/photos', { photoUrl: res.data.secure_url });
+        setUrls((prev) => [...prev, url]);
+        return axios.post('/api/photos', { photoUrl: url });
       })
       .catch((err) => {
         console.error('photo upload failed', err);
@@ -54,7 +37,7 @@ const UploadFileWidget = () => {
    * using it. Someone trying the demo cannot act on it and should not be asked
    * to read it.
    */
-  if (!isConfigured) return null;
+  if (!uploadsConfigured) return null;
 
   return (
     <div className="widget-container space-y-4">

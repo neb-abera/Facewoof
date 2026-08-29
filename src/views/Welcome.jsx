@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import useUserContext from '../hooks/useUserContext';
+import { uploadsConfigured, uploadToCloudinary } from '../components/FileUploader/cloudinary';
+import defaultDog from '../assets/default-dog.svg';
 import './welcome.css';
 
 /*
@@ -25,6 +27,8 @@ const Welcome = () => {
   const [age, setAge] = useState('');
   const [vaccination, setVaccination] = useState(false);
   const [zip, setZip] = useState('');
+  const [photoUrl, setPhotoUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [locating, setLocating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -69,6 +73,15 @@ const Welcome = () => {
         ...(where || {})
       });
 
+      // The chosen photo, now that setup is real. A failure here is not worth
+      // stopping for: the account is set up, and the profile page can add a
+      // photo any time.
+      if (photoUrl) {
+        await axios.post('/api/photos', { photoUrl }).catch((err) => {
+          console.error('could not attach the photo', err);
+        });
+      }
+
       // Re-read rather than patching it here: the server decides what the
       // profile now is, including the location it resolved.
       const { data } = await axios.get('/api/auth/me');
@@ -82,6 +95,31 @@ const Welcome = () => {
     return undefined;
   };
 
+  /*
+   * The photo, uploaded when chosen but attached when setup finishes.
+   *
+   * The first row in profile_photos is the profile photo, so posting every
+   * choice as it was made would pin the avatar to the first attempt and make
+   * "Change photo" a lie. Uploading immediately gives the preview; only the
+   * final choice is attached to the profile. Before this the flow never asked
+   * for a photo at all, and a provider account came out the other side
+   * faceless — the profile page opened on a broken image.
+   */
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+    try {
+      setPhotoUrl(await uploadToCloudinary(file));
+    } catch (err) {
+      console.error('photo upload failed', err);
+      setError('That photo could not be uploaded. You can add one later from your profile.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="welcome">
       <div className="welcome__card">
@@ -89,6 +127,27 @@ const Welcome = () => {
         <p className="welcome__lead">
           Tell us about your dog and where you walk, and we&apos;ll show you dogs nearby.
         </p>
+
+        {uploadsConfigured && (
+          <div className="welcome__photo">
+            <img
+              className="welcome__photo-preview"
+              src={photoUrl || defaultDog}
+              alt={photoUrl ? 'Your dog' : 'No photo yet'}
+            />
+            <label className="btn btn-outline btn-sm">
+              {uploading ? 'Uploading…' : photoUrl ? 'Change photo' : 'Add a photo'}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhoto}
+                disabled={uploading}
+              />
+            </label>
+            <span className="welcome__photo-hint">Optional — it becomes their profile photo.</span>
+          </div>
+        )}
 
         <label className="welcome__field">
           <span>Your dog&apos;s name</span>

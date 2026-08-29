@@ -66,29 +66,49 @@ const createPhotos = async (req, res) => {
   }
 };
 
+// The playdate fields come from fixed menus in the form. Anything else that
+// arrives in them — a fetch from the console, an old client — becomes null
+// rather than a stored string the page will happily render back to everyone.
+const SIZES = ['small', 'medium', 'large'];
+const ENERGY = ['low', 'medium', 'high'];
+const BEST_TIMES = ['mornings', 'afternoons', 'evenings', 'weekends'];
+
+const oneOf = (value, allowed) => (allowed.includes(value) ? value : null);
+const text = (value, max) => {
+  const trimmed = typeof value === 'string' ? value.trim() : '';
+  return trimmed ? trimmed.slice(0, max) : null;
+};
+
 const editProfile = (req, res) => {
-  const { dogName, ownerName, dogBreed, age, vaccination, discoverable, ownerEmail, location } =
-    req.body;
+  const body = req.body || {};
   const { userId } = req;
-  // console.log('req body edit profile', req.body);
+
+  const dogName = text(body.dogName, 60);
+  if (!dogName) return res.status(400).send('the dog needs a name');
+
+  const age = Number(body.age);
   return editProfilePromise(
-    dogName,
-    ownerName,
-    dogBreed,
-    age,
-    vaccination,
-    discoverable,
-    ownerEmail,
-    location,
+    {
+      dogName,
+      ownerName: text(body.ownerName, 80),
+      dogBreed: text(body.dogBreed, 60),
+      age: Number.isInteger(age) && age >= 0 && age <= 30 ? age : null,
+      vaccination: body.vaccination === true,
+      discoverable: body.discoverable !== false,
+      likesOne: text(body.likesOne, 40),
+      likesTwo: text(body.likesTwo, 40),
+      likesThree: text(body.likesThree, 40),
+      size: oneOf(body.size, SIZES),
+      energy: oneOf(body.energy, ENERGY),
+      bestTime: oneOf(body.bestTime, BEST_TIMES),
+      bio: text(body.bio, 400)
+    },
     userId
   )
-    .then((results) => {
-      // console.log('results from editprofile', results);
-      res.send(results);
-    })
+    .then(() => res.status(204).end())
     .catch((err) => {
-      console.error(err);
-      res.status(404).send('unable to update profile');
+      console.error('unable to update profile', err);
+      res.status(500).send('unable to update profile');
     });
 };
 
