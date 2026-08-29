@@ -12,7 +12,7 @@
 # A named stage rather than an ARG deliberately: Dependabot cannot see an
 # image behind ARG indirection, but it watches a literal FROM, and every
 # consumer derives from this one stage so a bump moves them all together.
-FROM node:24-alpine AS nodebase
+FROM node:26-alpine AS nodebase
 
 # ---- deps -------------------------------------------------------------------
 FROM nodebase AS deps
@@ -74,6 +74,12 @@ FROM nodebase AS final
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
+
+# The base image trails its own security fixes between releases: upgrade the
+# Alpine packages and npm's bundled dependencies so the image scan stays
+# clean without waiting for a new node tag.
+RUN apk --no-cache upgrade && npm install -g npm@latest
+
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
