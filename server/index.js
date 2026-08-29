@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const path = require('path');
+const compression = require('compression');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -50,6 +51,18 @@ if (process.env.CORS_ORIGIN) {
  * forge a fresh identity per request and walk straight through the limits.
  */
 app.set('trust proxy', 1);
+
+/*
+ * Compress everything compressible on the way out.
+ *
+ * Container Apps ingress terminates TLS but does not compress, so without
+ * this the bundle left the building at its full 680 KB — measured against
+ * production, with the browser offering gzip and brotli in every request.
+ * The middleware negotiates against Accept-Encoding and skips bodies that
+ * are already small or already compressed (the JPEGs), so it costs nothing
+ * where it cannot help.
+ */
+app.use(compression());
 
 /*
  * helmet's default Content-Security-Policy is img-src 'self' data:, which
@@ -109,12 +122,33 @@ mount.use(router);
 // Serve the built client, and hand any unmatched path to index.html so that
 // react-router owns client side routes on a hard refresh. Only mounted when a
 // build exists, which it does in the production image and does not in dev.
-mount.use(express.static(clientDir));
+//
+// Everything under assets/ carries a content hash in its name, so a change is
+// a new URL and the old one can be cached forever. The default max-age=0 made
+// every return visit re-validate each asset — one conditional request per
+// file, for files that cannot have changed. The document is the opposite
+// case: it is where the hashed names come from, so it must always be
+// revalidated. `no-cache` allows caching but forces the conditional request,
+// which the etag answers with a 304.
+const documentCaching = { 'Cache-Control': 'no-cache' };
+mount.use(
+  express.static(clientDir, {
+    setHeaders: (res, filePath) => {
+      if (filePath.startsWith(path.join(clientDir, 'assets') + path.sep)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.endsWith(`${path.sep}index.html`)) {
+        res.setHeader('Cache-Control', documentCaching['Cache-Control']);
+      }
+    }
+  })
+);
 // Written as middleware rather than a '*' route: express 5 moved to
 // path-to-regexp v8, which rejects a bare '*' and would need '/*splat'.
 mount.use((req, res, next) => {
   if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
-  return res.sendFile(path.join(clientDir, 'index.html'), (err) => (err ? next() : undefined));
+  return res.sendFile(path.join(clientDir, 'index.html'), { headers: documentCaching }, (err) =>
+    err ? next() : undefined
+  );
 });
 
 app.use(basePath || '/', mount);

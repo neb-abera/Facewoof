@@ -259,6 +259,35 @@ If you would rather have the path anyway, the application supports it: build
 with `VITE_BASE_PATH=/facewoof/` and run with `BASE_PATH=/facewoof`. Both were
 verified in a browser.
 
+## Cloudflare in front
+
+`abera.tech` is already proxied through Cloudflare; `facewoof.abera.tech` was
+left "DNS only", so every visitor opened a TLS connection straight to the
+ingress in eastus2 and downloaded every asset from there. Proxying the
+subdomain terminates TLS at the visitor's nearest edge, compresses with
+brotli, and serves the content-hashed assets from cache — the server marks
+them `immutable, max-age=31536000`, which Cloudflare respects, while
+`index.html` and `/api/*` stay uncached (HTML is not in Cloudflare's default
+cacheable extensions, and the API sends no cache headers).
+
+In the dashboard, zone `abera.tech`:
+
+1. **DNS → Records**: edit the `facewoof` CNAME and switch Proxy status to
+   **Proxied**. Leave the `asuid.facewoof` TXT record alone.
+2. **SSL/TLS → Overview**: the encryption mode must be **Full (strict)**. It
+   is zone-wide; if the zone is on something weaker, scope the change with a
+   configuration rule for `facewoof.abera.tech` rather than loosening the
+   main site.
+
+Full (strict) works because the Azure-managed certificate is bound at the
+ingress, so Cloudflare's connection to the origin verifies. The one caveat:
+Azure renews that certificate by re-checking the CNAME, and while proxied the
+name resolves to Cloudflare. If a renewal email arrives, switch the record to
+DNS only, wait for the renewal, and switch back — or replace the managed
+certificate with a Cloudflare Origin CA certificate (15-year validity,
+SSL/TLS → Origin Server → Create Certificate, then
+`az containerapp ssl upload`), which ends the dance permanently.
+
 ## Deploying
 
 Merging to `main` runs the checks; if they pass, the deploy workflow builds in
