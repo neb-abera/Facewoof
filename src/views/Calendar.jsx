@@ -15,7 +15,7 @@ const Calendar = () => {
   const [playStartTime, setStartTime] = useState();
   const [playEndTime, setEndTime] = useState();
   // View Selected Playdate states
-  const [, setSelectedPlaydate] = useState();
+  const [selectedPlaydate, setSelectedPlaydate] = useState();
 
   const { userId, loggedIn } = useUserContext();
   const { getPacks } = useCalendar();
