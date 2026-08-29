@@ -12,7 +12,7 @@
 # A named stage rather than an ARG deliberately: Dependabot cannot see an
 # image behind ARG indirection, but it watches a literal FROM, and every
 # consumer derives from this one stage so a bump moves them all together.
-FROM node:24-alpine AS nodebase
+FROM node:26-alpine AS nodebase
 
 # ---- deps -------------------------------------------------------------------
 FROM nodebase AS deps
