@@ -1,15 +1,55 @@
 # Weekly dependency updates; security updates are enabled at the repo level.
+#
+# Patch and minor bumps arrive grouped — one PR per ecosystem per week instead
+# of one per package — and the dependabot-automerge workflow merges those when
+# CI is green. Majors arrive as their own PRs and wait for a human, because a
+# major is where the release notes actually need reading.
+#
+# The Playwright docker image (Dockerfile e2e stage) and @playwright/test in
+# package.json must stay on the same exact version; a guard step in checks.yml
+# fails fast when the two Dependabot PRs land out of step, and merging the
+# other one clears it.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    groups:
+      npm-non-major:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    groups:
+      docker-non-major:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+  # Image tags in compose.yaml (the dev postgres); the docker ecosystem
+  # above only scans Dockerfiles.
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      compose-non-major:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions-non-major:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch

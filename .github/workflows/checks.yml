@@ -18,7 +18,20 @@ jobs:
     name: eslint and prettier
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - name: Playwright versions in lockstep
+        # The e2e image tag and @playwright/test must be the same exact
+        # version (see the Dockerfile's e2e stage). Dependabot bumps them in
+        # separate PRs — docker and npm — so this fails the first PR fast
+        # and clearly; merging its counterpart clears it.
+        run: |
+          image="$(sed -n 's|^FROM mcr\.microsoft\.com/playwright:v\([0-9.]*\)-.* AS e2e$|\1|p' Dockerfile)"
+          pkg="$(node -p "require('./package.json').devDependencies['@playwright/test']")"
+          echo "Dockerfile e2e image: $image / @playwright/test: $pkg"
+          if [ -z "$image" ] || [ "$image" != "$pkg" ]; then
+            echo "::error::Playwright version mismatch: Dockerfile e2e image is '$image' but @playwright/test is '$pkg'. Merge the matching Dependabot PR for the other ecosystem."
+            exit 1
+          fi
       - name: Lint and format check
         # The check is a build step, so it runs on the same node as everything
         # else and against a copy of the tree rather than a mount.
@@ -28,7 +41,7 @@ jobs:
     name: production image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
       - name: Build the image the deploy pipeline builds
         run: docker build --target final -t facewoof .
 
@@ -48,7 +61,7 @@ jobs:
           --health-cmd "pg_isready -U facewoof -d facewoof"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Roster is reproducible
         # A committed roster that no longer matches its generator is a trap for
@@ -149,7 +162,7 @@ jobs:
 
       - name: Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: playwright-traces
           path: test-results/
