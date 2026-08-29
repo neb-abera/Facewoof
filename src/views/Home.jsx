@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { FaBone, FaDog, FaRegCalendarAlt } from 'react-icons/fa';
 import dogImage from '../assets/dog.jpg';
 import useUserContext from '../hooks/useUserContext';
@@ -24,8 +24,15 @@ const features = [
 ];
 
 const Home = () => {
-  const { authenticating } = useUserContext();
+  const { authenticating, loggedIn } = useUserContext();
   const { start, error } = useGuestSignIn();
+
+  // Someone signed in has no use for the pitch: they came back to use the
+  // app, and the landing page made them find Discover by hand. `loggedIn`
+  // derives synchronously from the stored session, so there is no flash of
+  // the landing page while an account loads; a stale session falls through
+  // Discover's own guard to sign-in, which already handles it.
+  if (loggedIn) return <Navigate to="/discover" replace />;
 
   return (
     <div className="flex min-h-screen w-screen max-lg:flex-col">

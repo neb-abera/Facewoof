@@ -153,6 +153,15 @@ test('a card can be dragged away to choose', async ({ page }) => {
   await responded;
 });
 
+test('a signed-in visitor returning to the landing page lands on their feed', async ({ page }) => {
+  await startDemo(page);
+
+  // Regression: coming back to the site signed in showed the pitch and the
+  // demo button again, and Discover had to be found by hand in the navbar.
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/discover/, { timeout: 15_000 });
+});
+
 test('the signed-out visitor cannot reach the app', async ({ page }) => {
   await page.context().clearCookies();
   await page.goto('/discover');
