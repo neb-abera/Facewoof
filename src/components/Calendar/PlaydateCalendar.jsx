@@ -11,6 +11,8 @@ moment.locale("en-US");
 const localizer = momentLocalizer(moment);
 
 const PlaydateCalendar = ({
+  calendarDate,
+  onCalendarNavigate,
   openEditModal,
   openAddModal,
   setStartTime,
@@ -71,7 +73,8 @@ const PlaydateCalendar = ({
         views={["day", "agenda", "week", "month"]}
         selectable
         localizer={localizer}
-        defaultDate={new Date()}
+        date={calendarDate}
+        onNavigate={onCalendarNavigate}
         defaultView="week"
         step="30"
         style={{ height: "90vh", width: "100vw" }}
