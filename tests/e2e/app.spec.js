@@ -8,6 +8,18 @@ const { test, expect } = require("@playwright/test");
  * gap that suite left.
  */
 
+/*
+ * State-changing requests made straight through page.request need the CSRF
+ * header the in-app client sends automatically; without it they would be
+ * refused as forgeries before authorization is ever consulted, and the
+ * permission tests below would pass for the wrong reason.
+ */
+async function csrfHeaders(page) {
+  const cookies = await page.context().cookies();
+  const token = cookies.find((c) => c.name === "XSRF-TOKEN");
+  return { "x-xsrf-token": token ? decodeURIComponent(token.value) : "" };
+}
+
 async function signIn(page) {
   await page.goto("/");
   await page.getByRole("button", { name: /try the demo/i }).click();
@@ -355,6 +367,7 @@ test("a pack feed is only readable and writable by its members", async ({
   // requires a non-empty users array; the caller's own id satisfies it.
   const me = await page.request.get("/api/auth/me").then((r) => r.json());
   const created = await page.request.put("/api/createpack", {
+    headers: await csrfHeaders(page),
     data: { pack_name: "Members Only", users: [me.user_id] },
   });
   expect(created.status(), "the member can create a pack").toBe(201);
@@ -382,11 +395,13 @@ test("a pack feed is only readable and writable by its members", async ({
   expect(read.status(), "a non-member is refused the feed").toBe(403);
 
   const write = await stranger.request.post("/api/makePost", {
+    headers: await csrfHeaders(stranger),
     data: { packet: { pack_id: packId, body: "should never land" } },
   });
   expect(write.status(), "a non-member cannot post").toBe(403);
 
   const join = await stranger.request.put("/api/addtopack", {
+    headers: await csrfHeaders(stranger),
     data: { pack_id: packId },
   });
   expect(
@@ -398,7 +413,11 @@ test("a pack feed is only readable and writable by its members", async ({
 });
 
 test("there is no unauthenticated account endpoint", async ({ page }) => {
+  // Load a page first so the CSRF cookie exists: the point here is that the
+  // endpoint refuses an unauthenticated caller, not that CSRF got there first.
+  await page.goto("/");
   const res = await page.request.put("/api/authuser", {
+    headers: await csrfHeaders(page),
     data: { email: "nobody@example.com", name: "nobody" },
   });
   expect([401, 404]).toContain(res.status());
