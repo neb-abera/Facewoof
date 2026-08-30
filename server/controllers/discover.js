@@ -98,9 +98,12 @@ const discoverUsers = async (req, res) => {
     const nearZip = await getUserLocation(id);
     const origin = resolveZip(zipcode, nearZip);
     if (!origin) {
-      return res
-        .status(400)
-        .send(`could not resolve a location from "${zipcode}"`);
+      // The input is deliberately not echoed back: the old template string
+      // reflected the raw query into a text/html-typed body, which is a
+      // textbook reflected XSS (CodeQL js/reflected-xss).
+      return res.status(400).json({
+        error: "could not resolve a location from that zipcode or city",
+      });
     }
 
     const miles = Number(radius) || 5;

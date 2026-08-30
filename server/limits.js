@@ -72,6 +72,19 @@ const writeLimiter = rateLimit({
 });
 
 /* A backstop over the whole API, generous enough never to catch normal use. */
+/*
+ * The health probe is deliberately outside the /api limiter so the platform
+ * can never be throttled into reporting a healthy revision as sick — but it
+ * does hit the database, so it gets its own ceiling far above any poller
+ * (Container Apps probes every few seconds at most) and far below a loop.
+ */
+const healthLimiter = rateLimit({
+  ...shared,
+  windowMs: minutes(1),
+  limit: 60,
+  message: "Too many health checks.",
+});
+
 const apiLimiter = rateLimit({
   ...shared,
   windowMs: minutes(5),
@@ -80,6 +93,7 @@ const apiLimiter = rateLimit({
 });
 
 module.exports = {
+  healthLimiter,
   guestLimiter,
   swipeLimiter,
   feedLimiter,

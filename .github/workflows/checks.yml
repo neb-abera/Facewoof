@@ -109,7 +109,14 @@ jobs:
           curl -sf http://localhost:8080/healthz
 
           # Signing in sets the session cookie, and every /api route needs it.
-          curl -sf -c /tmp/jar -X POST http://localhost:8080/api/auth/guest \
+          # A state-changing request also needs the CSRF token: fetch a page
+          # first to receive the XSRF-TOKEN cookie, then echo it back in the
+          # header, exactly as the in-app client does (the jar stores the
+          # value percent-encoded, so decode it).
+          curl -sf -c /tmp/jar http://localhost:8080/ > /dev/null
+          TOKEN=$(python3 -c "import urllib.parse; print(urllib.parse.unquote(next(l.split()[-1] for l in open('/tmp/jar') if 'XSRF-TOKEN' in l)))")
+          curl -sf -b /tmp/jar -c /tmp/jar -X POST http://localhost:8080/api/auth/guest \
+            -H "x-xsrf-token: $TOKEN" \
             -H 'content-type: application/json' -d '{"zip":"60601"}' > /dev/null
 
           N=$(curl -sf -b /tmp/jar \

@@ -12,7 +12,8 @@ require("dotenv").config({
 const db = require("./db/database");
 const { purgeExpiredGuests } = require("./db/auth");
 const { migrate } = require("./db/migrate");
-const { apiLimiter } = require("./limits");
+const lusca = require("lusca");
+const { apiLimiter, healthLimiter } = require("./limits");
 const session = require("./session");
 const { insecureTransport } = require("./insecure-transport");
 const router = require("./routes");
@@ -116,6 +117,14 @@ app.use(session);
 app.use(express.json({ limit: "32kb" }));
 app.use(express.urlencoded({ extended: true, limit: "32kb" }));
 
+// CSRF, double-submit style (CodeQL js/missing-token-validation): every
+// response carries a readable XSRF-TOKEN cookie, and every state-changing
+// request must echo it in an x-xsrf-token header. axios does both halves of
+// that automatically for same-origin requests, so the client needed no
+// changes. Safe methods (GET/HEAD/OPTIONS) pass untouched, which also covers
+// the OIDC callback.
+app.use(lusca.csrf({ angular: true }));
+
 // A backstop across the whole API. The per-endpoint limits in routes.js are
 // what actually matter; this catches anything added later without one.
 app.use("/api", apiLimiter);
@@ -123,7 +132,7 @@ app.use("/api", apiLimiter);
 // Container Apps polls this to decide whether the revision is healthy.
 // Deliberately outside the /api limiter: the platform polls this on a schedule
 // and must never be throttled into reporting a healthy revision as sick.
-app.get("/healthz", async (_req, res) => {
+app.get("/healthz", healthLimiter, async (_req, res) => {
   try {
     await db.query("SELECT 1");
     res.status(200).json({ status: "ok" });
