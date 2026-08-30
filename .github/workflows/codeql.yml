@@ -1,10 +1,13 @@
 name: CodeQL
 
+# Unfiltered pull_request, deliberately: analyze(*) are required contexts
+# under strict branch protection, so with `branches: [main]` a PR based on
+# another feature branch could never merge — its required checks never ran.
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  merge_group:
   schedule:
     # Weekly scan so new queries run even without commits
     - cron: "30 6 * * 1"
@@ -16,6 +19,7 @@ jobs:
   analyze:
     name: analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       security-events: write
@@ -40,6 +44,8 @@ jobs:
             uploads.github.com:443
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: initialize CodeQL
         uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8

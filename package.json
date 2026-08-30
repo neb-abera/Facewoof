@@ -16,7 +16,7 @@
     "format": "biome check --write .",
     "migrate": "node server/db/migrate.js",
     "test:e2e": "playwright test",
-    "test:unit": "vitest run tests/unit"
+    "test:unit": "vitest run --coverage tests/unit"
   },
   "dependencies": {
     "@azure/identity": "^4.13.2",
@@ -50,6 +50,7 @@
     "@playwright/test": "1.62.1",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "daisyui": "^5.7.22",
     "nodemon": "^3.1.14",
     "tailwindcss": "^4.3.3",

@@ -1,0 +1,19 @@
+# The status checks branch protection on main requires (strict, so a PR must
+# also be up to date with main). One per line; # starts a comment.
+#
+# scripts/check-required-contexts.sh asserts, in CI, that every context here
+# still matches a job in the PR-gating workflows and that those workflows run
+# on a bare `pull_request:` — a renamed job or a branches: filter would
+# otherwise leave every PR waiting forever on a check that never reports.
+#
+# Changing branch protection? Update this list in the same breath:
+#   gh api repos/neb-abera/Facewoof/branches/main/protection \
+#     --jq '.required_status_checks.contexts[]'
+lint and format
+production image
+smoke test against postgres
+lint (actionlint + shellcheck)
+analyze (javascript-typescript)
+analyze (actions)
+container scan (trivy)
+dependency review
