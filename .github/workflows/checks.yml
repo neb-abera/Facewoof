@@ -21,7 +21,19 @@ jobs:
       - name: Harden runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            auth.docker.io:443
+            registry-1.docker.io:443
+            production.cloudflare.docker.com:443
+            index.docker.io:443
+            dl-cdn.alpinelinux.org:443
+            registry.npmjs.org:443
+            ghcr.io:443
+            pkg-containers.githubusercontent.com:443
+            objects.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
+            mirror.gcr.io:443
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Playwright versions in lockstep
@@ -52,7 +64,19 @@ jobs:
       - name: Harden runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            auth.docker.io:443
+            registry-1.docker.io:443
+            production.cloudflare.docker.com:443
+            index.docker.io:443
+            dl-cdn.alpinelinux.org:443
+            registry.npmjs.org:443
+            ghcr.io:443
+            pkg-containers.githubusercontent.com:443
+            objects.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
+            mirror.gcr.io:443
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build the image the deploy pipeline builds
@@ -69,7 +93,7 @@ jobs:
           POSTGRES_USER: facewoof
           POSTGRES_PASSWORD: facewoof
           POSTGRES_DB: facewoof
-        ports: ['5432:5432']
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U facewoof -d facewoof"
           --health-interval 5s --health-timeout 5s --health-retries 10
@@ -77,7 +101,19 @@ jobs:
       - name: Harden runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            auth.docker.io:443
+            registry-1.docker.io:443
+            production.cloudflare.docker.com:443
+            index.docker.io:443
+            dl-cdn.alpinelinux.org:443
+            registry.npmjs.org:443
+            ghcr.io:443
+            pkg-containers.githubusercontent.com:443
+            objects.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
+            mirror.gcr.io:443
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -152,6 +188,14 @@ jobs:
           docker build --target e2e -t facewoof-e2e .
           docker run --rm --network host -e CI=true \
             -e BASE_URL=http://localhost:8080 facewoof-e2e
+
+      - name: DAST baseline (OWASP ZAP)
+        # An attacker's-eye scan of the running production image. Accepted
+        # findings live in .zap/rules.tsv with their reasoning.
+        run: |
+          docker run --rm --network host -v "$PWD/.zap":/zap/wrk:ro \
+            -t ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://localhost:8080 -c rules.tsv
 
       - name: Sign-in, against a mock provider
         # Entra sign-in is only reachable with a tenant configured, so without
