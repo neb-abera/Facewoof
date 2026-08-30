@@ -23,6 +23,12 @@ const configured = Boolean(process.env.ENTRA_ISSUER);
 const signInAs = (request, subject) =>
   request.post(`${process.env.ENTRA_ISSUER}/subject`, { data: { subject } });
 
+async function csrfHeaders(page) {
+  const cookies = await page.context().cookies();
+  const token = cookies.find((c) => c.name === "XSRF-TOKEN");
+  return { "x-xsrf-token": token ? decodeURIComponent(token.value) : "" };
+}
+
 test("the sign-in page offers only what is actually configured", async ({
   page,
   request,
@@ -134,7 +140,9 @@ test.describe("with a provider configured", () => {
     await page.waitForURL("**/discover", { timeout: 30_000 });
     const first = await (await page.request.get("/api/auth/me")).json();
 
-    await page.request.post("/api/auth/logout");
+    await page.request.post("/api/auth/logout", {
+      headers: await csrfHeaders(page),
+    });
     await signInAs(request, subject);
     await page.goto("/login");
     await page.getByRole("link", { name: /continue with email/i }).click();
@@ -200,7 +208,9 @@ test.describe("with a provider configured", () => {
     await page.waitForURL("**/discover", { timeout: 30_000 });
 
     // Coming back later goes straight to the app.
-    await page.request.post("/api/auth/logout");
+    await page.request.post("/api/auth/logout", {
+      headers: await csrfHeaders(page),
+    });
     await signInAs(request, subject);
     await page.goto("/login");
     await page.getByRole("link", { name: /continue with email/i }).click();
