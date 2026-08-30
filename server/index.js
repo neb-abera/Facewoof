@@ -18,6 +18,7 @@ const session = require("./session");
 const { insecureTransport } = require("./insecure-transport");
 const router = require("./routes");
 
+const isProduction = process.env.NODE_ENV === "production";
 const app = express();
 const port = Number(process.env.PORT) || 3001;
 const clientDir = path.join(__dirname, "../dist");
@@ -77,6 +78,16 @@ app.use(compression());
  * Everything else stays at helmet's defaults. Only the image sources the app
  * actually uses are added, rather than relaxing img-src to https:.
  */
+// helmet does not emit Permissions-Policy; deny the powerful APIs this app
+// never uses. geolocation stays self for the queued location feature.
+app.use((req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(self)",
+  );
+  next();
+});
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -123,7 +134,21 @@ app.use(express.urlencoded({ extended: true, limit: "32kb" }));
 // that automatically for same-origin requests, so the client needed no
 // changes. Safe methods (GET/HEAD/OPTIONS) pass untouched, which also covers
 // the OIDC callback.
-app.use(lusca.csrf({ angular: true }));
+app.use(
+  lusca.csrf({
+    cookie: {
+      name: "XSRF-TOKEN",
+      // The token cookie is deliberately readable from JavaScript - the
+      // double-submit pattern needs the client to echo it in a header - but
+      // there is no reason to send it cross-site or over plain HTTP.
+      options: {
+        sameSite: "lax",
+        secure: isProduction && !insecureTransport,
+      },
+    },
+    header: "x-xsrf-token",
+  }),
+);
 
 // A backstop across the whole API. The per-endpoint limits in routes.js are
 // what actually matter; this catches anything added later without one.
