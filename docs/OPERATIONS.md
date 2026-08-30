@@ -15,7 +15,14 @@ fix is a tier bump, not tuning.
 ## Backup restore drill (quarterly)
 
 35-day PITR is configured, and a backup is only real if restores are
-rehearsed. The drill (verified 2026-08-30):
+rehearsed. The first drill (2026-08-30) proved the point by failing twice:
+both restores hung in Provisioning for hours because the server had had an
+in-place major upgrade (16 → 18) that same day, and until the first
+post-upgrade full backup completes (daily, ~15:45 UTC), point-in-time
+restores are effectively broken — the machinery tries to replay onto the
+old-version base. **After any major engine upgrade, treat PITR as
+unavailable until the next full backup lands, and drill again.** The
+procedure:
 
 ```bash
 az postgres flexible-server restore -g facewoof-rg \
