@@ -342,3 +342,43 @@ test('there is no unauthenticated account endpoint', async ({ page }) => {
   });
   expect([401, 404]).toContain(res.status());
 });
+
+/*
+ * The near-midnight window, pinned.
+ *
+ * The add form defaults to the next whole hour. From 23:00 the next whole
+ * hour is 00:00 tomorrow — and when tomorrow falls outside the calendar's
+ * current view (Saturday night, in a week view whose weeks start Sunday, it
+ * always does), the playdate saved fine and appeared nowhere. The person who
+ * just created it had no evidence it existed, which is exactly the class of
+ * scheduling failure this app exists to not have. CI met the bug first: the
+ * suite was green at 22:48 UTC and red from 23:18.
+ */
+test.describe('near midnight', () => {
+  test.use({ timezoneId: 'UTC' });
+
+  test('a playdate added just before midnight is shown, not lost off-view', async ({ page }) => {
+    // 2026-08-29 was a Saturday. 23:30 UTC in a UTC page: the default start
+    // becomes 00:00 Sunday — next day, next week, next view.
+    await page.clock.setFixedTime(new Date('2026-08-29T23:30:00Z'));
+
+    await signIn(page);
+    await page.locator('a[href="/calendar"]:visible').first().click();
+    await expect(page.locator('.rbc-calendar')).toBeVisible({ timeout: 20_000 });
+
+    await page.getByRole('button', { name: /add playdate/i }).click();
+    const modal = page.locator('.app-modal');
+    await expect(modal).toBeVisible();
+
+    await modal.locator('select').first().selectOption({ index: 1 });
+    await modal.locator('textarea').fill('Playwright midnight walk');
+    await modal.getByRole('button', { name: /add playdate/i }).click();
+    await expect(modal).toBeHidden({ timeout: 15_000 });
+
+    // The calendar must follow the playdate to its date, or the creator is
+    // staring at a view that does not contain what they just made.
+    await expect(page.getByText('Playwright midnight walk').first()).toBeVisible({
+      timeout: 20_000
+    });
+  });
+});
