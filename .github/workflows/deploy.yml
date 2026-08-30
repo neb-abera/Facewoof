@@ -42,6 +42,11 @@ jobs:
         with:
           # workflow_run checks out the default branch by default, which is
           # what we want, but be explicit about the commit that passed.
+          #
+          # Scorecard flags any workflow_run + head_sha checkout as a
+          # potentially untrusted checkout. Here it is not: the trigger above
+          # is gated to `branches: [main]`, so head_sha is always a commit
+          # that already landed on main - never fork or PR code.
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Azure login
