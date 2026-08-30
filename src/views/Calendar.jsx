@@ -14,6 +14,16 @@ const Calendar = () => {
   // Add new Playdate States:
   const [playStartTime, setStartTime] = useState();
   const [playEndTime, setEndTime] = useState();
+  /*
+   * The date the calendar is looking at, owned here so saving a playdate can
+   * move the view to it.
+   *
+   * The view used to be anchored to "now" and never moved. From 23:00 the add
+   * form's next-whole-hour default is 00:00 tomorrow, and on a Saturday night
+   * tomorrow is in next week's view: the playdate saved fine and appeared
+   * nowhere. The person who just created it had no evidence it existed.
+   */
+  const [calendarDate, setCalendarDate] = useState(() => new Date());
   // View Selected Playdate states
   const [selectedPlaydate, setSelectedPlaydate] = useState();
 
@@ -60,6 +70,8 @@ const Calendar = () => {
     <div id="calendar">
       {/* <h3>Playdate Calendar</h3> */}
       <PlaydateCalendar
+        calendarDate={calendarDate}
+        onCalendarNavigate={setCalendarDate}
         openEditModal={openEditModal}
         setEditPlaydateModal={setEditPlaydateModal}
         closeEditModal={closeEditModal}
@@ -90,7 +102,11 @@ const Calendar = () => {
         overlayClassName="app-modal__overlay"
       >
         <AddPlaydate
-          onAdded={getPacks}
+          onAdded={async () => {
+            await getPacks();
+            // Show the person what they just made, wherever it landed.
+            if (playStartTime) setCalendarDate(new Date(playStartTime));
+          }}
           closeAddModal={closeAddModal}
           playStartTime={playStartTime}
           setStartTime={setStartTime}
