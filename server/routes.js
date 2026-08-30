@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 
-const { requireUser } = require('./middleware/requireUser');
+const { requireUser } = require("./middleware/requireUser");
 const {
   discoverUsers,
   userResponse,
@@ -30,10 +30,15 @@ const {
   ctrlUserPlaydatesAllPacks,
   ctrlSoloPosts,
   ctrlPfp,
-  ctrlMakePost
-} = require('./controllers');
+  ctrlMakePost,
+} = require("./controllers");
 
-const { guestLimiter, swipeLimiter, feedLimiter, writeLimiter } = require('./limits');
+const {
+  guestLimiter,
+  swipeLimiter,
+  feedLimiter,
+  writeLimiter,
+} = require("./limits");
 
 const router = express.Router();
 
@@ -46,63 +51,63 @@ const router = express.Router();
 // --- auth ---
 
 // Sign a demo visitor in to their own throwaway account.
-router.post('/api/auth/guest', guestLimiter, guestLogin);
-router.get('/api/auth/me', requireUser, me);
-router.post('/api/auth/logout', logout);
+router.post("/api/auth/guest", guestLimiter, guestLogin);
+router.get("/api/auth/me", requireUser, me);
+router.post("/api/auth/logout", logout);
 
 // Sign-in through Entra External ID, which fronts Google and Microsoft.
 // These are browser navigations rather than fetches, so they redirect.
-router.get('/api/auth/providers', oidcProviders);
-router.get('/api/auth/oidc/start', guestLimiter, oidcStart);
-router.get('/api/auth/oidc/callback', oidcCallback);
+router.get("/api/auth/providers", oidcProviders);
+router.get("/api/auth/oidc/start", guestLimiter, oidcStart);
+router.get("/api/auth/oidc/callback", oidcCallback);
 
 // Finishing setup after signing in: profile, location and a roster to see.
-router.put('/api/onboarding', writeLimiter, requireUser, finishOnboarding);
+router.put("/api/onboarding", writeLimiter, requireUser, finishOnboarding);
 
 // Everything past this point acts on behalf of a signed-in user, and takes
 // that user from the session. Before this, each endpoint accepted the acting
 // user's id as a parameter, so changing a number in a URL was enough to act as
 // somebody else.
-router.use('/api', requireUser);
+router.use("/api", requireUser);
 
 // --- discover ---
 
-router.get('/api/discover', feedLimiter, discoverUsers);
-router.get('/api/resolve-location', resolveLocation);
-router.post('/api/response', swipeLimiter, userResponse);
+router.get("/api/discover", feedLimiter, discoverUsers);
+router.get("/api/resolve-location", resolveLocation);
+router.post("/api/response", swipeLimiter, userResponse);
 
 // --- profile ---
 
-router.get('/api/currentuser', getCurrentUser);
+router.get("/api/currentuser", getCurrentUser);
 
 // Move a user to where their device says they are, generating neighbours there
 // if the area is empty. How someone leaves the demo experience behind.
-router.put('/api/location', writeLimiter, updateLocation);
-router.get('/api/friends', getUserFriends);
-router.put('/api/edituser', writeLimiter, editProfile);
-router.get('/api/profilephoto', getProfilePhoto);
-router.post('/api/photos', writeLimiter, createPhotos);
-router.get('/api/getPfp', ctrlPfp);
+router.put("/api/location", writeLimiter, updateLocation);
+router.get("/api/friends", getUserFriends);
+router.put("/api/edituser", writeLimiter, editProfile);
+router.get("/api/profilephoto", getProfilePhoto);
+router.post("/api/photos", writeLimiter, createPhotos);
+router.get("/api/getPfp", ctrlPfp);
 
 // --- packs ---
 
-router.get('/api/getpacks', getUserPacks);
-router.get('/api/getUserPacks', ctrlUserPacksId);
-router.put('/api/addtopack', writeLimiter, addUserToPack);
-router.put('/api/createpack', writeLimiter, createNewPackAndAdd);
-router.post('/api/pack', createPack);
+router.get("/api/getpacks", getUserPacks);
+router.get("/api/getUserPacks", ctrlUserPacksId);
+router.put("/api/addtopack", writeLimiter, addUserToPack);
+router.put("/api/createpack", writeLimiter, createNewPackAndAdd);
+router.post("/api/pack", createPack);
 
 // --- pack feed ---
 
-router.get('/api/getAllPostsFromSpecificPack', ctrlPackPosts);
-router.get('/api/getAllPacksPostsForUser', ctrlAllPostsFromAllPacks);
-router.get('/api/getSoloPosts', ctrlSoloPosts);
-router.post('/api/makePost', writeLimiter, ctrlMakePost);
+router.get("/api/getAllPostsFromSpecificPack", ctrlPackPosts);
+router.get("/api/getAllPacksPostsForUser", ctrlAllPostsFromAllPacks);
+router.get("/api/getSoloPosts", ctrlSoloPosts);
+router.post("/api/makePost", writeLimiter, ctrlMakePost);
 
 // --- calendar ---
 
-router.get('/api/playdates', getPlaydates);
-router.post('/api/addplaydate', writeLimiter, AddPlaydate);
-router.get('/api/getUserPlaydates', ctrlUserPlaydatesAllPacks);
+router.get("/api/playdates", getPlaydates);
+router.post("/api/addplaydate", writeLimiter, AddPlaydate);
+router.get("/api/getUserPlaydates", ctrlUserPlaydatesAllPacks);
 
 module.exports = router;

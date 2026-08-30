@@ -1,20 +1,23 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-shadow */
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { FaDog } from 'react-icons/fa';
-import axios from 'axios';
-
-import ProfileCard from './ProfileCard';
-import Match from './Match';
-import Blank from './Blank';
-import './cardStack.css';
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import Blank from "./Blank";
+import Match from "./Match";
+import ProfileCard from "./ProfileCard";
+import "./cardStack.css";
 
 // Ask for the next page while this many cards are still in hand, so the
 // request lands before the stack empties and nobody waits on the network.
 const TOP_UP_AT = 4;
 
-const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, searchKey }) => {
+const CardStack = ({
+  users,
+  distances,
+  userData,
+  photos,
+  onRunningLow,
+  hasMore,
+  searchKey,
+}) => {
   const [front, setFront] = useState(null);
   const [back, setBack] = useState(null);
 
@@ -27,7 +30,7 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
 
   const [choice, setChoice] = useState(null);
   const [match, setMatch] = useState(false);
-  const [matchOut, setMatchOut] = useState(false);
+  const [matchOut, _setMatchOut] = useState(false);
 
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
@@ -82,11 +85,11 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
 
   function setRelationship(user1, user2, choice) {
     axios
-      .post('/api/response', {
+      .post("/api/response", {
         currentUserId: user1.user_id,
         otherUserId: user2.user_id,
         currentUserChoice: choice,
-        otherUserChoice: user2.user1_choice
+        otherUserChoice: user2.user1_choice,
       })
       .catch((err) => {
         console.log(err);
@@ -97,7 +100,7 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
     if (!user || !currentUser) return;
     swiped.current.add(user.user_id);
     setChoice(user);
-    if (e.target.id === 'digg') {
+    if (e.target.id === "digg") {
       setOut(user.user_id);
       setRelationship(currentUser, user, true);
       if (user.user1_choice === true) {
@@ -139,10 +142,10 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
     setX(dx);
     if (dx > 150) {
       drag.current.voted = true;
-      handleVote({ target: { id: 'digg' } });
+      handleVote({ target: { id: "digg" } });
     } else if (dx < -150) {
       drag.current.voted = true;
-      handleVote({ target: { id: 'pass' } });
+      handleVote({ target: { id: "pass" } });
     }
   }
 
@@ -157,7 +160,7 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
   return (
     <div className="card-stack-parent">
       {match ? (
-        <div className={matchOut ? 'match-out' : ''}>
+        <div className={matchOut ? "match-out" : ""}>
           <Match
             handleContinue={handleContinue}
             user1={currentUser}
@@ -178,17 +181,23 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
                     onPointerMove={dragMove}
                     onPointerUp={dragEnd}
                     onPointerCancel={dragEnd}
-                    style={{ transform: `translate(${x}px, ${y}px)`, touchAction: 'pan-y' }}
+                    style={{
+                      transform: `translate(${x}px, ${y}px)`,
+                      touchAction: "pan-y",
+                    }}
                     className={`profile-card
-                      ${out === user.user_id ? 'unmount' : ''}
-                      ${pass === user.user_id ? 'pass-unmount' : ''}
-                      ${front === user.user_id ? 'mount' : ''}
-                      ${back === user.user_id ? 'back-mount' : ''}
-                      ${index === 0 ? 'back' : ''}
+                      ${out === user.user_id ? "unmount" : ""}
+                      ${pass === user.user_id ? "pass-unmount" : ""}
+                      ${front === user.user_id ? "mount" : ""}
+                      ${back === user.user_id ? "back-mount" : ""}
+                      ${index === 0 ? "back" : ""}
                     `}
                   >
                     <div className="card-wrapper">
-                      <ProfileCard user={user} distance={distances[user.location]} />
+                      <ProfileCard
+                        user={user}
+                        distance={distances[user.location]}
+                      />
                     </div>
                   </div>
                 );
@@ -197,15 +206,18 @@ const CardStack = ({ users, distances, userData, photos, onRunningLow, hasMore, 
                 <div
                   key={`user${user.user_id}`}
                   className={`profile-card
-                    ${out === user.user_id ? 'unmount' : ''}
-                    ${pass === user.user_id ? 'pass-unmount' : ''}
-                    ${front === user.user_id ? 'mount' : ''}
-                    ${back === user.user_id ? 'back-mount' : ''}
-                    ${index === 0 ? 'back' : ''}
+                    ${out === user.user_id ? "unmount" : ""}
+                    ${pass === user.user_id ? "pass-unmount" : ""}
+                    ${front === user.user_id ? "mount" : ""}
+                    ${back === user.user_id ? "back-mount" : ""}
+                    ${index === 0 ? "back" : ""}
                   `}
                 >
                   <div className="card-wrapper">
-                    <ProfileCard user={user} distance={distances[user.location]} />
+                    <ProfileCard
+                      user={user}
+                      distance={distances[user.location]}
+                    />
                   </div>
                 </div>
               );

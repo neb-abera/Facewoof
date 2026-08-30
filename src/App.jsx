@@ -1,11 +1,11 @@
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import Home from './views/Home';
-import './App.css';
-import Navbar from './components/Navbar/Navbar';
-import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
-import useUserContext from './hooks/useUserContext';
+import PropTypes from "prop-types";
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Home from "./views/Home";
+import "./App.css";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
+import Navbar from "./components/Navbar/Navbar";
+import useUserContext from "./hooks/useUserContext";
 
 /*
  * Every view except the landing page loads on demand.
@@ -16,12 +16,12 @@ import useUserContext from './hooks/useUserContext';
  * landing page ships what the landing page renders, and each view's chunk
  * arrives when the visitor first navigates to it.
  */
-const Login = lazy(() => import('./views/Login'));
-const Discover = lazy(() => import('./views/Discover'));
-const PackFeed = lazy(() => import('./views/PackFeed'));
-const PlaydateCalendar = lazy(() => import('./views/Calendar'));
-const Profile = lazy(() => import('./views/Profile'));
-const Welcome = lazy(() => import('./views/Welcome'));
+const Login = lazy(() => import("./views/Login"));
+const Discover = lazy(() => import("./views/Discover"));
+const PackFeed = lazy(() => import("./views/PackFeed"));
+const PlaydateCalendar = lazy(() => import("./views/Calendar"));
+const Profile = lazy(() => import("./views/Profile"));
+const Welcome = lazy(() => import("./views/Welcome"));
 
 /*
  * Send anyone without a session to the sign-in page, and anyone who has not
@@ -39,12 +39,13 @@ const Welcome = lazy(() => import('./views/Welcome'));
 const RequireUser = ({ children }) => {
   const { loggedIn, userData } = useUserContext();
   if (!loggedIn) return <Navigate to="/login" replace />;
-  if (userData && !userData.onboarded_at) return <Navigate to="/welcome" replace />;
+  if (userData && !userData.onboarded_at)
+    return <Navigate to="/welcome" replace />;
   return <ErrorBoundary>{children}</ErrorBoundary>;
 };
 
 RequireUser.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 const App = () => (

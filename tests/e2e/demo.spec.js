@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect } = require("@playwright/test");
 
 /*
  * The demo, as a visitor experiences it.
@@ -11,13 +11,13 @@ const { test, expect } = require('@playwright/test');
 /* Collect anything the browser refused to load or complained about. */
 function watchForFailures(page) {
   const problems = [];
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') problems.push(`console: ${msg.text()}`);
+  page.on("console", (msg) => {
+    if (msg.type() === "error") problems.push(`console: ${msg.text()}`);
   });
-  page.on('requestfailed', (req) => {
+  page.on("requestfailed", (req) => {
     problems.push(`request failed: ${req.url()} (${req.failure()?.errorText})`);
   });
-  page.on('response', (res) => {
+  page.on("response", (res) => {
     if (res.status() >= 500) problems.push(`${res.status()} from ${res.url()}`);
   });
   return problems;
@@ -25,28 +25,30 @@ function watchForFailures(page) {
 
 /* Start the demo from the landing page and land on the discover feed. */
 async function startDemo(page) {
-  await page.goto('/');
-  await page.getByRole('button', { name: /try the demo/i }).click();
-  await page.waitForURL('**/discover', { timeout: 30_000 });
+  await page.goto("/");
+  await page.getByRole("button", { name: /try the demo/i }).click();
+  await page.waitForURL("**/discover", { timeout: 30_000 });
 }
 
-test('the landing page starts the demo in one click', async ({ page }) => {
-  await page.goto('/');
+test("the landing page starts the demo in one click", async ({ page }) => {
+  await page.goto("/");
 
   // Regression: the call to action used to be a link to /login, where the only
   // thing on offer was the same button again.
-  const cta = page.getByRole('button', { name: /try the demo/i });
+  const cta = page.getByRole("button", { name: /try the demo/i });
   await expect(cta).toBeVisible();
 
   await cta.click();
   await expect(page).toHaveURL(/\/discover/, { timeout: 30_000 });
 });
 
-test('the discover feed shows dogs, and their photos actually load', async ({ page }) => {
+test("the discover feed shows dogs, and their photos actually load", async ({
+  page,
+}) => {
   const problems = watchForFailures(page);
   await startDemo(page);
 
-  await expect(page.locator('.profile-card').first()).toBeVisible();
+  await expect(page.locator(".profile-card").first()).toBeVisible();
 
   // Regression: helmet's default CSP was img-src 'self', which blocked every
   // photo. The markup was correct and the page was full of broken images, so
@@ -54,36 +56,43 @@ test('the discover feed shows dogs, and their photos actually load', async ({ pa
   // what distinguishes "rendered" from "refused".
   await page.waitForFunction(
     () => {
-      const imgs = [...document.querySelectorAll('.card-stack img')];
+      const imgs = [...document.querySelectorAll(".card-stack img")];
       return imgs.length > 0 && imgs.every((i) => i.complete);
     },
     null,
-    { timeout: 30_000 }
+    { timeout: 30_000 },
   );
 
   const images = await page.evaluate(() =>
-    [...document.querySelectorAll('.card-stack img')].map((i) => ({
+    [...document.querySelectorAll(".card-stack img")].map((i) => ({
       src: i.src,
-      loaded: i.naturalWidth > 0
-    }))
+      loaded: i.naturalWidth > 0,
+    })),
   );
 
   expect(images.length).toBeGreaterThan(0);
   const broken = images.filter((i) => !i.loaded);
-  expect(broken, `broken images: ${JSON.stringify(broken, null, 2)}`).toHaveLength(0);
+  expect(
+    broken,
+    `broken images: ${JSON.stringify(broken, null, 2)}`,
+  ).toHaveLength(0);
 
-  const csp = problems.filter((p) => /content security policy|refused to load/i.test(p));
-  expect(csp, `CSP violations: ${csp.join('\n')}`).toHaveLength(0);
+  const csp = problems.filter((p) =>
+    /content security policy|refused to load/i.test(p),
+  );
+  expect(csp, `CSP violations: ${csp.join("\n")}`).toHaveLength(0);
 });
 
-test('a match shows both photos, not a name where a photo should be', async ({ page }) => {
+test("a match shows both photos, not a name where a photo should be", async ({
+  page,
+}) => {
   await startDemo(page);
-  await expect(page.locator('.profile-card').first()).toBeVisible();
+  await expect(page.locator(".profile-card").first()).toBeVisible();
 
   // The first few profiles have already swiped yes, so one Woof matches.
-  await page.getByRole('button', { name: /^woof$/i }).click();
+  await page.getByRole("button", { name: /^woof$/i }).click();
 
-  const overlay = page.locator('.match-parent');
+  const overlay = page.locator(".match-parent");
   await expect(overlay).toBeVisible({ timeout: 15_000 });
 
   // Regression: the heading was hidden behind the navbar and search bar,
@@ -99,34 +108,39 @@ test('a match shows both photos, not a name where a photo should be', async ({ p
   // every one of them as broken.
   await page.waitForFunction(
     () => {
-      const imgs = [...document.querySelectorAll('.match-parent img')];
+      const imgs = [...document.querySelectorAll(".match-parent img")];
       return imgs.length > 0 && imgs.every((i) => i.complete);
     },
     null,
-    { timeout: 20_000 }
+    { timeout: 20_000 },
   );
 
   const matchImages = await overlay.evaluate((el) =>
-    [...el.querySelectorAll('img')].map((i) => ({ src: i.src, loaded: i.naturalWidth > 0 }))
+    [...el.querySelectorAll("img")].map((i) => ({
+      src: i.src,
+      loaded: i.naturalWidth > 0,
+    })),
   );
   expect(matchImages.length).toBeGreaterThan(0);
   expect(matchImages.filter((i) => !i.loaded)).toHaveLength(0);
 });
 
-test('no developer instructions are shown to visitors', async ({ page }) => {
+test("no developer instructions are shown to visitors", async ({ page }) => {
   await startDemo(page);
-  await page.goto('/profile');
+  await page.goto("/profile");
 
   // Regression: an unconfigured Cloudinary told the visitor to "set
   // VITE_CLOUD_NAME and VITE_UPLOAD_PRESET", which is an instruction to
   // whoever deploys the app, shown to whoever is using it.
-  await expect(page.locator('body')).not.toContainText(/VITE_[A-Z_]+/);
-  await expect(page.locator('body')).not.toContainText(/undefined|NaN|\[object Object\]/);
+  await expect(page.locator("body")).not.toContainText(/VITE_[A-Z_]+/);
+  await expect(page.locator("body")).not.toContainText(
+    /undefined|NaN|\[object Object\]/,
+  );
 });
 
-test('a card can be dragged away to choose', async ({ page }) => {
+test("a card can be dragged away to choose", async ({ page }) => {
   await startDemo(page);
-  const card = page.locator('.card-stack .profile-card').last();
+  const card = page.locator(".card-stack .profile-card").last();
   await expect(card).toBeVisible();
 
   // Regression: under React 19 react-draggable's findDOMNode fallback threw
@@ -134,8 +148,8 @@ test('a card can be dragged away to choose', async ({ page }) => {
   // dragging — the way the feed is meant to be used — silently did nothing.
   // The swipe request is the proof the drag registered as a choice.
   const responded = page.waitForRequest(
-    (req) => req.url().includes('/api/response') && req.method() === 'POST',
-    { timeout: 10_000 }
+    (req) => req.url().includes("/api/response") && req.method() === "POST",
+    { timeout: 10_000 },
   );
 
   // Grip the middle of the card: its bounding box starts under the search
@@ -153,18 +167,20 @@ test('a card can be dragged away to choose', async ({ page }) => {
   await responded;
 });
 
-test('a signed-in visitor returning to the landing page lands on their feed', async ({ page }) => {
+test("a signed-in visitor returning to the landing page lands on their feed", async ({
+  page,
+}) => {
   await startDemo(page);
 
   // Regression: coming back to the site signed in showed the pitch and the
   // demo button again, and Discover had to be found by hand in the navbar.
-  await page.goto('/');
+  await page.goto("/");
   await expect(page).toHaveURL(/\/discover/, { timeout: 15_000 });
 });
 
-test('the signed-out visitor cannot reach the app', async ({ page }) => {
+test("the signed-out visitor cannot reach the app", async ({ page }) => {
   await page.context().clearCookies();
-  await page.goto('/discover');
+  await page.goto("/discover");
 
   // The route guard sends them to the landing page or sign-in rather than
   // rendering an empty feed.

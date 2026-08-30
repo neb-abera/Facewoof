@@ -1,16 +1,14 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import PackName from '../AllPackView/PackName.jsx';
-import SoloPlaydate from './SoloPlaydate';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import SoloPlaydate from "./SoloPlaydate";
 
-const SoloPlaydates = ({ setViewing, userIdentity }) => {
+const SoloPlaydates = ({ setViewing }) => {
   // var listNames = ['Woofram Alpha', 'Barkalona', 'Bark Simpson'];
 
   const [playdates, setPlaydates] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/getUserPlaydates').then((data) => {
+    axios.get("/api/getUserPlaydates").then((data) => {
       // console.log('data', data.data);
       const input = data.data;
       // var packs = [];
@@ -22,23 +20,23 @@ const SoloPlaydates = ({ setViewing, userIdentity }) => {
     });
   }, []);
 
-  const styles = {
+  const _styles = {
     playdates: {
-      width: '100%',
-      backgroundColor: 'transparent'
+      width: "100%",
+      backgroundColor: "transparent",
       // flexGrow: 2
-    }
+    },
   };
 
   return (
     <div>
       {/* {console.log('within code', typeof playdates)} */}
       {playdates
-        ? playdates.map((packName, key) => (
-            <li key={`packName-${key + 1}`}>
-              <a>
-                <SoloPlaydate dataPoint={packName} setViewing={setViewing} />
-              </a>
+        ? playdates.map((playdate) => (
+            <li key={playdate.playdate_id}>
+              <div>
+                <SoloPlaydate dataPoint={playdate} setViewing={setViewing} />
+              </div>
             </li>
           ))
         : null}

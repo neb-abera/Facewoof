@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import SoloPostTile from './SoloPostTile';
-import PostMaker from './PostMaker';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import PostMaker from "./PostMaker";
+import SoloPostTile from "./SoloPostTile";
 
-const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
+const SoloPostTiles = ({ viewing, viewingName }) => {
   const styles = {
     posts: {
-      display: 'flex',
-      flexDirection: 'column',
-      maxWidth: '100vw',
-      minWidth: '80vw',
-      gapY: '25px'
+      display: "flex",
+      flexDirection: "column",
+      maxWidth: "100vw",
+      minWidth: "80vw",
+      gapY: "25px",
       // border: '3px solid black'
     },
     packHighest: {
-      display: 'flex',
-      flexDirection: 'column'
-    }
+      display: "flex",
+      flexDirection: "column",
+    },
   };
 
   let [data, setData] = useState([]);
@@ -24,8 +24,8 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
 
   useEffect(() => {
     axios
-      .get('/api/getSoloPosts', {
-        params: { packId: viewing }
+      .get("/api/getSoloPosts", {
+        params: { packId: viewing },
       })
       .then((packet) => {
         // console.log('data', packet.data);
@@ -33,7 +33,7 @@ const SoloPostTiles = ({ viewing, userIdentity, viewingName }) => {
         setData(input);
       })
       .then(() => {
-        axios.get('/api/getPfp').then((resp) => {
+        axios.get("/api/getPfp").then((resp) => {
           setPfp(resp.data[0].url);
           // console.log('pfp', resp.data[0].url);
         });

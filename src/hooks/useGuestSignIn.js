@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useUserContext from './useUserContext';
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useUserContext from "./useUserContext";
 
 /*
  * Starting the demo, from wherever the visitor clicks.
@@ -30,9 +30,10 @@ const useGuestSignIn = () => {
         return;
       }
       navigator.geolocation.getCurrentPosition(
-        ({ coords }) => resolve({ lat: coords.latitude, lng: coords.longitude }),
+        ({ coords }) =>
+          resolve({ lat: coords.latitude, lng: coords.longitude }),
         () => resolve(null),
-        { timeout: 8000, maximumAge: 600000 }
+        { timeout: 8000, maximumAge: 600000 },
       );
     });
 
@@ -41,10 +42,10 @@ const useGuestSignIn = () => {
     try {
       const where = await askWhereTheyAre();
       await signInAsGuest(where);
-      navigate('/discover');
+      navigate("/discover");
     } catch (err) {
-      console.error('guest sign in failed', err);
-      setError('Could not start a demo session. Please try again.');
+      console.error("guest sign in failed", err);
+      setError("Could not start a demo session. Please try again.");
     }
   }, [signInAsGuest, navigate]);
 

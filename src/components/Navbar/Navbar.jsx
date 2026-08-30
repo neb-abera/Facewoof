@@ -1,21 +1,20 @@
-import React from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaBars } from 'react-icons/fa';
-import useUserContext from '../../hooks/useUserContext';
-import useAuthProviders from '../../hooks/useAuthProviders';
-import Logo from '../../assets/facewoofLogo.png';
-import './nav.css';
+import { FaBars } from "react-icons/fa";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import Logo from "../../assets/facewoofLogo.png";
+import useAuthProviders from "../../hooks/useAuthProviders";
+import useUserContext from "../../hooks/useUserContext";
+import "./nav.css";
 
 const links = [
-  { to: '/discover', label: 'Discover' },
-  { to: '/packFeed', label: 'Pack Feed' },
-  { to: '/calendar', label: 'Calendar' },
-  { to: '/profile', label: 'Profile' }
+  { to: "/discover", label: "Discover" },
+  { to: "/packFeed", label: "Pack Feed" },
+  { to: "/calendar", label: "Calendar" },
+  { to: "/profile", label: "Profile" },
 ];
 
 // NavLink hands its className a match flag, which plain <Link> could not do,
 // so the current page was never marked.
-const navClass = ({ isActive }) => (isActive ? 'active' : undefined);
+const navClass = ({ isActive }) => (isActive ? "active" : undefined);
 
 const Navbar = () => {
   const { loggedIn, logout, userData } = useUserContext();
@@ -29,7 +28,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -39,7 +38,12 @@ const Navbar = () => {
             button: the bar used to overlap itself and spill off the screen.
             They collapse into this menu instead. */}
         <div className="dropdown lg:hidden">
-          <button type="button" tabIndex={0} className="btn btn-ghost px-2" aria-label="Menu">
+          <button
+            type="button"
+            tabIndex={0}
+            className="btn btn-ghost px-2"
+            aria-label="Menu"
+          >
             <FaBars />
           </button>
           <ul className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
@@ -94,7 +98,11 @@ const Navbar = () => {
             Save your account
           </a>
         )}
-        <button type="button" className="btn btn-secondary btn-sm" onClick={handleLogout}>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={handleLogout}
+        >
           Log out
         </button>
       </div>

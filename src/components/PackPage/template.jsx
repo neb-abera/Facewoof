@@ -1,8 +1,5 @@
-import React from 'react';
-import axios from 'axios';
-
 const template = () => {
-  const styles = {};
+  const _styles = {};
 
   return <div />;
 };
