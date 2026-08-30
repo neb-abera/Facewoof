@@ -1,8 +1,9 @@
 # npm's own bundled dependencies (usr/local/lib/node_modules/npm/...).
-# The latest npm (12.x) still ships these versions; fixed releases exist
-# upstream but npm has not cut a release containing them. npm runs only at
-# image build and for `npm run migrate` — it never serves traffic. Remove
-# these entries when a new npm release lands via the base image.
+# Both the base image's npm (11.x) and the latest npm (12.x) still ship
+# these versions; fixed releases exist upstream but npm has not cut a
+# release containing them. npm runs only at image build and for
+# `npm run migrate` — it never serves traffic. Remove these entries when a
+# fixed npm release lands via the base image.
 CVE-2026-69152
 CVE-2026-14257
 CVE-2026-69192

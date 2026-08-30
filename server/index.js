@@ -17,6 +17,7 @@ const lusca = require("lusca");
 const { apiLimiter, healthLimiter } = require("./limits");
 const session = require("./session");
 const { insecureTransport } = require("./insecure-transport");
+const { registerShutdown } = require("./shutdown");
 const router = require("./routes");
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -230,7 +231,12 @@ if (require.main === module) {
       console.log("database connected");
       sweepGuests();
       setInterval(sweepGuests, GUEST_SWEEP_INTERVAL_MS).unref();
-      app.listen(port, () => console.log(`Server started on port ${port}`));
+      const server = app.listen(port, () =>
+        console.log(`Server started on port ${port}`),
+      );
+      // Drain in-flight requests and close the pool on SIGTERM/SIGINT,
+      // instead of dying mid-response when Docker's grace period runs out.
+      registerShutdown({ server, pool: db });
     })
     .catch((err) => {
       console.error("could not reach the database:", err.message);
