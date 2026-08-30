@@ -36,7 +36,9 @@ export default defineConfig(({ mode }) => {
 
     build: {
       outDir: "dist",
-      sourcemap: true,
+      // Off on purpose: the repo is public, so maps add no transparency —
+      // only weight in the image and the deploy.
+      sourcemap: false,
     },
   };
 });

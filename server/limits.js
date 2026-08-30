@@ -93,6 +93,9 @@ const apiLimiter = rateLimit({
 });
 
 module.exports = {
+  // Exported for the unit tests: the parsed number is the behavior worth
+  // pinning, and the middleware object does not expose it.
+  GUEST_LIMIT_PER_HOUR,
   healthLimiter,
   guestLimiter,
   swipeLimiter,
