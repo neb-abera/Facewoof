@@ -25,6 +25,11 @@ services:
     build:
       context: .
       target: api
+    # Pinned rather than assumed: the server's shutdown handler drains for up
+    # to 8s (server/shutdown.js) and must finish before docker gives up and
+    # SIGKILLs. 10s is Docker's default, written down so the two numbers are
+    # visibly a pair.
+    stop_grace_period: 10s
     environment:
       DATABASE_URL: postgres://facewoof:facewoof@db:5432/facewoof
       PORT: "3001"

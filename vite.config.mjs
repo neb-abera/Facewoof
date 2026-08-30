@@ -40,5 +40,23 @@ export default defineConfig(({ mode }) => {
       // only weight in the image and the deploy.
       sourcemap: false,
     },
+
+    test: {
+      coverage: {
+        provider: "v8",
+        // Coverage counts the modules the unit tests actually load — the
+        // decision-heavy server modules — not the React client, which the
+        // browser tests cover from the outside. Thresholds sit below the
+        // measured numbers (97% lines / 89% branches / 70% funcs when set)
+        // so they catch a real coverage collapse without failing the build
+        // over one new branch.
+        thresholds: {
+          lines: 90,
+          statements: 85,
+          branches: 80,
+          functions: 60,
+        },
+      },
+    },
   };
 });

@@ -29,6 +29,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: production
 
     env:
@@ -48,6 +49,9 @@ jobs:
           # is gated to `branches: [main]`, so head_sha is always a commit
           # that already landed on main - never fork or PR code.
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          # This job pushes images to ACR via the Azure OIDC login, never to
+          # git, so the checkout token has no reason to stay on disk.
+          persist-credentials: false
 
       - name: Azure login
         uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2

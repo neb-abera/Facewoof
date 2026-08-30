@@ -1,7 +1,11 @@
 name: checks
 
+# Bare pull_request, deliberately: several jobs here are required contexts
+# under strict branch protection, and a branches filter would leave a PR
+# whose base is a feature branch waiting forever on checks that never run.
 on:
   pull_request:
+  merge_group:
   push:
     branches: [main]
 
@@ -17,6 +21,7 @@ jobs:
   lint:
     name: lint and format
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
@@ -27,12 +32,15 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Playwright versions in lockstep
         # The e2e image tag and @playwright/test must be the same exact
         # version (see the Dockerfile's e2e stage). Dependabot bumps them in
         # separate PRs — docker and npm — so this fails the first PR fast
         # and clearly; merging its counterpart clears it.
         run: |
+          set -euo pipefail
           image="$(sed -n 's|^FROM mcr\.microsoft\.com/playwright:v\([0-9.]*\)-.* AS e2e$|\1|p' Dockerfile)"
           pkg="$(node -p "require('./package.json').devDependencies['@playwright/test']")"
           echo "Dockerfile e2e image: $image / @playwright/test: $pkg"
@@ -46,11 +54,34 @@ jobs:
         run: docker build --target lint .
 
       - name: Unit tests
-        run: docker build --target unittest .
+        # --progress=plain and a tee so the vitest totals the build prints
+        # can be lifted into the job summary without running anything twice.
+        run: |
+          set -euo pipefail
+          docker build --progress=plain --target unittest . 2>&1 | tee unittest.log
+
+      # Parses the vitest summary already in the log — never re-runs tests.
+      - name: Append test totals to the job summary
+        run: |
+          set -euo pipefail
+          [ -n "${GITHUB_STEP_SUMMARY:-}" ] || exit 0
+          clean="$(sed 's/\x1b\[[0-9;]*m//g' unittest.log)"
+          passed="$(grep ' Tests ' <<<"$clean" | grep -Eo '[0-9]+ passed' | grep -Eo '[0-9]+' | tail -1 || true)"
+          failed="$(grep ' Tests ' <<<"$clean" | grep -Eo '[0-9]+ failed' | grep -Eo '[0-9]+' | tail -1 || true)"
+          coverage="$(grep -E 'All files' <<<"$clean" | grep -Eo '[0-9]+(\.[0-9]+)?' | tail -1 || true)"
+          [ -n "${passed:-}" ] || exit 0
+          {
+            echo "### Unit tests (vitest, in-container)"
+            echo ""
+            echo "| Tests passed | Tests failed | Line coverage |"
+            echo "| --- | --- | --- |"
+            echo "| ${passed} | ${failed:-0} | ${coverage:-?}% |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build:
     name: production image
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
@@ -61,12 +92,29 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Build the image the deploy pipeline builds
         run: docker build --target final -t facewoof .
+
+      - name: The image runs as a non-root user
+        # The Dockerfile drops to `node` before the CMD; assert it stayed
+        # dropped so a refactor cannot silently ship a root container.
+        run: |
+          set -euo pipefail
+          user="$(docker inspect --format '{{.Config.User}}' facewoof)"
+          echo "Config.User = '${user}'"
+          case "$user" in
+            ""|0|root)
+              echo "::error::production image runs as root (Config.User='${user}')"
+              exit 1
+              ;;
+          esac
 
   smoke:
     name: smoke test against postgres
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: build
     services:
       postgres:
@@ -89,16 +137,20 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Roster is reproducible
         # A committed roster that no longer matches its generator is a trap for
         # the next person who regenerates it.
         run: |
+          set -euo pipefail
           python3 server/db/migrations/generate-roster.py
           git diff --exit-code -- server/db/migrations/0002_demo_roster.sql
 
       - name: Build, migrate and start
         run: |
+          set -euo pipefail
           docker build --target final -t facewoof .
           # Migrations run from the image, the same way production does.
           docker run --rm --network host \
@@ -111,8 +163,9 @@ jobs:
             -e INSECURE_TRANSPORT=true \
             -e GUEST_LIMIT_PER_HOUR=200 \
             -e PORT=8080 facewoof
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:8080/healthz && break || sleep 2
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8080/healthz; then break; fi
+            sleep 2
           done
 
       - name: The demo actually shows dogs
@@ -158,6 +211,7 @@ jobs:
         # a call to action that needs two clicks. All four of those reached
         # production because nothing opened the app in a browser.
         run: |
+          set -euo pipefail
           docker build --target e2e -t facewoof-e2e .
           docker run --rm --network host -e CI=true \
             -e BASE_URL=http://localhost:8080 facewoof-e2e
@@ -182,8 +236,9 @@ jobs:
             -e PORT=9000 -e ISSUER=http://localhost:9000 -e CLIENT_ID=facewoof-ci \
             -v "$PWD/tests/oidc-mock/server.js:/app/server.js:ro" \
             -w /app facewoof node /app/server.js
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:9000/.well-known/openid-configuration >/dev/null && break || sleep 2
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:9000/.well-known/openid-configuration >/dev/null; then break; fi
+            sleep 2
           done
 
           docker rm -f app
@@ -199,8 +254,9 @@ jobs:
             -e ENTRA_CLIENT_SECRET=ci-only-not-a-real-secret \
             -e ENTRA_REDIRECT_URI=http://localhost:8080/api/auth/oidc/callback \
             facewoof
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:8080/healthz && break || sleep 2
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8080/healthz; then break; fi
+            sleep 2
           done
 
           docker run --rm --network host -e CI=true \
@@ -221,3 +277,61 @@ jobs:
       - name: Server logs
         if: always()
         run: docker logs app || true
+
+  # Lint the linters: the workflows and shell scripts every other gate is
+  # built out of get no checks from the app toolchain, so a typo'd `if:` or
+  # an unquoted variable in an embedded run: block fails silently until it
+  # matters. actionlint validates the workflow files (delegating embedded
+  # run: blocks to shellcheck); shellcheck covers scripts/*.sh. Both binaries
+  # are version- and checksum-pinned so this job runs exactly what was
+  # reviewed.
+  workflow-lint:
+    name: lint (actionlint + shellcheck)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: block
+          # checkout dials github.com; the two release tarballs redirect to
+          # the githubusercontent asset hosts.
+          allowed-endpoints: >
+            github.com:443
+            api.github.com:443
+            objects.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned actionlint and shellcheck
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+          SHELLCHECK_VERSION: 0.11.0
+          SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          curl -fsSLo actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
+          curl -fsSLo shellcheck.tar.xz \
+            "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
+          echo "${SHELLCHECK_SHA256}  shellcheck.tar.xz" | sha256sum -c -
+          tar -xJf shellcheck.tar.xz --strip-components=1 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck"
+
+      - name: actionlint (workflows, including embedded shell)
+        run: '"$RUNNER_TEMP/actionlint" -color -shellcheck "$RUNNER_TEMP/shellcheck"'
+
+      - name: shellcheck (scripts/*.sh)
+        run: '"$RUNNER_TEMP/shellcheck" scripts/*.sh'
+
+      - name: Required contexts match the workflows
+        # Branch protection requires contexts by name; a renamed job here
+        # would leave PRs waiting forever on a context that no longer
+        # reports. The committed list is asserted against the workflows.
+        run: scripts/check-required-contexts.sh

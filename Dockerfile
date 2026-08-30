@@ -12,7 +12,9 @@
 # A named stage rather than an ARG deliberately: Dependabot cannot see an
 # image behind ARG indirection, but it watches a literal FROM, and every
 # consumer derives from this one stage so a bump moves them all together.
-FROM node:26-alpine AS nodebase
+# Pinned to a digest so the build is reproducible and a tag repoint upstream
+# cannot change what ships; Dependabot bumps the digest and the tag together.
+FROM node:26-alpine@sha256:2d984a15c9b54fd0aeb608b8e0d0d83529eb34d2966db27a1fb4f1edc3d298a3 AS nodebase
 
 # ---- deps -------------------------------------------------------------------
 FROM nodebase AS deps
@@ -54,8 +56,10 @@ RUN npm run test:unit
 # This tag and @playwright/test in package.json are pinned to the same exact
 # version deliberately. A caret range on the package lets npm resolve a newer
 # Playwright than the image's browsers, and it refuses to run rather than
-# silently testing against the wrong browser.
-FROM mcr.microsoft.com/playwright:v1.62.1-noble AS e2e
+# silently testing against the wrong browser. The digest pins the bytes; the
+# tag stays because the lockstep guard in checks.yml parses the version from
+# it, so keep the tag@digest form when bumping.
+FROM mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e AS e2e
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -82,11 +86,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# The base image trails its own security fixes between releases: upgrade the
-# Alpine packages and npm's bundled dependencies so the image scan stays
-# clean without waiting for a new node tag.
-RUN apk --no-cache upgrade && npm install -g npm@latest
-
+# The base image trails Alpine's security fixes between releases: upgrade the
+# packages so the image scan stays clean without waiting for a new node tag.
+# npm deliberately stays at the version the base image bundles — a floating
+# `npm install -g npm@latest` here was an unpinned input to the shipped image
+# that no ecosystem could see or bump. The base image's npm is clean under
+# .trivyignore today (verified by scan), the weekly trivy schedule catches
+# any new CVE in it, and the digest-pinned FROM above is how it advances.
+RUN apk --no-cache upgrade
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
