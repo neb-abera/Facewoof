@@ -1,0 +1,7 @@
+10010	IGNORE	(Cookie No HttpOnly - only the XSRF-TOKEN cookie: the double-submit CSRF pattern requires the client to read and echo it; the session cookies are HttpOnly)
+10027	IGNORE	(Suspicious comments - bundler artifacts in the built JS)
+10049	IGNORE	(Storable and Cacheable Content - hashed assets are immutable by design, the document is no-cache)
+10055	IGNORE	(CSP notices - the policy is helmet defaults plus the documented placedog/cloudinary image and connect sources)
+10109	IGNORE	(Modern Web Application - informational)
+10112	IGNORE	(Session Management Response Identified - informational)
+90004	IGNORE	(COEP require-corp would block the placedog.net and Cloudinary images, which do not send CORP headers; COOP and CORP are set by helmet)

@@ -4,7 +4,7 @@ name: deploy
 # reaches the internet that has not been linted, built and smoke tested.
 on:
   workflow_run:
-    workflows: ['checks']
+    workflows: ["checks"]
     branches: [main]
     types: [completed]
   # For redeploying the current main without a new commit.
