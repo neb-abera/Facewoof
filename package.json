@@ -19,6 +19,7 @@
     "test:unit": "vitest run tests/unit"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.2",
     "axios": "^1.20.0",
     "compression": "^1.8.1",
     "cookie-session": "^2.1.1",
