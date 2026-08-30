@@ -42,6 +42,9 @@ jobs:
         # else and against a copy of the tree rather than a mount.
         run: docker build --target lint .
 
+      - name: Unit tests
+        run: docker build --target unittest .
+
   build:
     name: production image
     runs-on: ubuntu-latest
