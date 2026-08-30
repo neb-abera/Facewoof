@@ -1,3 +1,4 @@
+require("./telemetry");
 const path = require("node:path");
 const compression = require("compression");
 const express = require("express");
@@ -80,7 +81,7 @@ app.use(compression());
  */
 // helmet does not emit Permissions-Policy; deny the powerful APIs this app
 // never uses. geolocation stays self for the queued location feature.
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   res.setHeader(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(self)",
