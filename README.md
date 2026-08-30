@@ -224,3 +224,13 @@ The app had not been run in some time and did not start. The larger items:
 
 Smaller fixes are noted in comments where they were made, next to the code that
 had the problem.
+
+## License
+
+Licensed under the
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) — see
+[LICENSE](LICENSE) and keep the [NOTICE](NOTICE) attribution with any copies.
+The license covers Nebyou Abera's contributions and the project from the
+revival onward; the original Diggr team project was built with Louise Ly,
+Gabe Bennett-Brandt, Claire Tunakan and Mantaqaa Oheen, whose work remains
+credited in the git history.
