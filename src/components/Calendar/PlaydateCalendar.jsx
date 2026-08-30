@@ -1,42 +1,35 @@
-/* eslint-disable camelcase */
-/* eslint-disable react/prop-types */
-/* eslint-disable react/jsx-indent-props */
-import React, { useState, useContext, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import moment from "moment";
+import { useEffect, useState } from "react";
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import { useLocation } from "react-router-dom";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 // After the library's own stylesheet, so these overrides win.
-import './calendar-theme.css';
-import useUserContext from '../../hooks/useUserContext';
+import "./calendar-theme.css";
+import useUserContext from "../../hooks/useUserContext";
 
-moment.locale('en-US');
+moment.locale("en-US");
 const localizer = momentLocalizer(moment);
 
 const PlaydateCalendar = ({
   calendarDate,
   onCalendarNavigate,
   openEditModal,
-  setEditPlaydateModal,
-  closeEditModal,
   openAddModal,
-  setAddPlaydateModal,
-  closeAddModal,
   setStartTime,
   setEndTime,
-  setSelectedPlaydate
+  setSelectedPlaydate,
 }) => {
-  const [showPlaydateModal, setShowPlaydateModal] = useState(false);
+  const [_showPlaydateModal, _setShowPlaydateModal] = useState(false);
   const [eventsData, setEventsData] = useState([]);
 
-  const { playdates, setPlaydates, handleSetPlaydates } = useUserContext();
+  const { playdates } = useUserContext();
 
   useEffect(() => {
     setEventsData(playdates);
   }, [playdates]);
 
   const location = useLocation();
-  const background = location.state && location.state.background;
+  const _background = location.state?.background;
 
   const handleAddNewPlaydate = ({ start, end }) => {
     // console.log(start);
@@ -69,18 +62,22 @@ const PlaydateCalendar = ({
       {/* <Link to="/editplaydate" state={{ background: location }}>
         Edit Playdate Details
       </Link> */}
-      <button className="btn btn-active btn-primary" type="button" onClick={openAddModal}>
+      <button
+        className="btn btn-active btn-primary"
+        type="button"
+        onClick={openAddModal}
+      >
         Add Playdate
       </button>
       <Calendar
-        views={['day', 'agenda', 'week', 'month']}
+        views={["day", "agenda", "week", "month"]}
         selectable
         localizer={localizer}
         date={calendarDate}
         onNavigate={onCalendarNavigate}
         defaultView="week"
         step="30"
-        style={{ height: '90vh', width: '100vw' }}
+        style={{ height: "90vh", width: "100vw" }}
         events={eventsData}
         onSelectEvent={handleSelectPlaydate}
         onSelectSlot={handleAddNewPlaydate}

@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /*
  * Whether this instance is being served over plain HTTP on purpose.
  *
@@ -15,12 +13,12 @@
  * One flag covers both rather than one per symptom, and it is named so nobody
  * reaches for it casually. It warns on start-up when it is on.
  */
-const insecureTransport = process.env.INSECURE_TRANSPORT === 'true';
+const insecureTransport = process.env.INSECURE_TRANSPORT === "true";
 
 if (insecureTransport) {
   console.warn(
-    'INSECURE_TRANSPORT is set: the session cookie will be sent over plain HTTP ' +
-      'and the CSP will not upgrade insecure requests. This must not be set in production.'
+    "INSECURE_TRANSPORT is set: the session cookie will be sent over plain HTTP " +
+      "and the CSP will not upgrade insecure requests. This must not be set in production.",
   );
 }
 

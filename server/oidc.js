@@ -11,18 +11,18 @@
  * it does today, on guest accounts, and the sign-in buttons do not appear. A
  * missing tenant is a reason to hide a button, never to fail to boot.
  */
-const crypto = require('crypto');
-const { createRemoteJWKSet, jwtVerify } = require('jose');
+const crypto = require("node:crypto");
+const { createRemoteJWKSet, jwtVerify } = require("jose");
 
 const CONFIG = {
   issuer: process.env.ENTRA_ISSUER,
   clientId: process.env.ENTRA_CLIENT_ID,
   clientSecret: process.env.ENTRA_CLIENT_SECRET,
-  redirectUri: process.env.ENTRA_REDIRECT_URI
+  redirectUri: process.env.ENTRA_REDIRECT_URI,
 };
 
 const isConfigured = Boolean(
-  CONFIG.issuer && CONFIG.clientId && CONFIG.clientSecret && CONFIG.redirectUri
+  CONFIG.issuer && CONFIG.clientId && CONFIG.clientSecret && CONFIG.redirectUri,
 );
 
 /*
@@ -44,10 +44,10 @@ const isConfigured = Boolean(
  * is a different thing from consumer Microsoft sign-in.
  */
 const KNOWN_PROVIDERS = {
-  email: { label: 'Email', domainHint: null },
-  google: { label: 'Google', domainHint: 'accounts.google.com' },
-  facebook: { label: 'Facebook', domainHint: 'www.facebook.com' },
-  apple: { label: 'Apple', domainHint: 'appleid.apple.com' }
+  email: { label: "Email", domainHint: null },
+  google: { label: "Google", domainHint: "accounts.google.com" },
+  facebook: { label: "Facebook", domainHint: "www.facebook.com" },
+  apple: { label: "Apple", domainHint: "appleid.apple.com" },
 };
 
 /*
@@ -61,29 +61,36 @@ const KNOWN_PROVIDERS = {
 const configuredProviders = () => {
   // Each entry is `name` or `name:domain-hint`, the second form overriding the
   // default hint for a tenant that addresses its provider differently.
-  const requested = (process.env.ENTRA_PROVIDERS || 'email')
-    .split(',')
+  const requested = (process.env.ENTRA_PROVIDERS || "email")
+    .split(",")
     .map((entry) => entry.trim())
     .filter(Boolean)
     .map((entry) => {
-      const [name, ...rest] = entry.split(':');
-      return { name: name.trim().toLowerCase(), hint: rest.join(':').trim() || null };
+      const [name, ...rest] = entry.split(":");
+      return {
+        name: name.trim().toLowerCase(),
+        hint: rest.join(":").trim() || null,
+      };
     });
 
   const unknown = requested.filter(({ name }) => !KNOWN_PROVIDERS[name]);
   if (unknown.length) {
-    console.warn(`ignoring unknown sign-in providers: ${unknown.map((u) => u.name).join(', ')}`);
+    console.warn(
+      `ignoring unknown sign-in providers: ${unknown.map((u) => u.name).join(", ")}`,
+    );
   }
 
   const known = requested.filter(({ name }) => KNOWN_PROVIDERS[name]);
-  return known.length ? known : [{ name: 'email', hint: null }];
+  return known.length ? known : [{ name: "email", hint: null }];
 };
 
 const PROVIDERS = Object.fromEntries(
   configuredProviders().map(({ name, hint }) => [
     name,
-    hint ? { ...KNOWN_PROVIDERS[name], domainHint: hint } : KNOWN_PROVIDERS[name]
-  ])
+    hint
+      ? { ...KNOWN_PROVIDERS[name], domainHint: hint }
+      : KNOWN_PROVIDERS[name],
+  ]),
 );
 
 let discoveryPromise = null;
@@ -96,10 +103,11 @@ let discoveryPromise = null;
  * warning. Discovery is one request at first use.
  */
 const discover = () => {
-  if (!isConfigured) return Promise.reject(new Error('Entra sign-in is not configured'));
+  if (!isConfigured)
+    return Promise.reject(new Error("Entra sign-in is not configured"));
   if (discoveryPromise) return discoveryPromise;
 
-  const url = `${CONFIG.issuer.replace(/\/$/, '')}/.well-known/openid-configuration`;
+  const url = `${CONFIG.issuer.replace(/\/$/, "")}/.well-known/openid-configuration`;
   discoveryPromise = fetch(url)
     .then((res) => {
       if (!res.ok) throw new Error(`discovery failed with ${res.status}`);
@@ -114,7 +122,7 @@ const discover = () => {
   return discoveryPromise;
 };
 
-const base64url = (buffer) => buffer.toString('base64url');
+const base64url = (buffer) => buffer.toString("base64url");
 
 /*
  * PKCE, and the one-time values that tie a callback to the request that
@@ -126,7 +134,9 @@ const base64url = (buffer) => buffer.toString('base64url');
  */
 const createAuthRequest = (provider) => {
   const verifier = base64url(crypto.randomBytes(32));
-  const challenge = base64url(crypto.createHash('sha256').update(verifier).digest());
+  const challenge = base64url(
+    crypto.createHash("sha256").update(verifier).digest(),
+  );
 
   return {
     verifier,
@@ -135,7 +145,7 @@ const createAuthRequest = (provider) => {
     nonce: base64url(crypto.randomBytes(16)),
     // An unrecognised provider falls back to the first configured one rather
     // than to a name that may not be enabled here.
-    provider: PROVIDERS[provider] ? provider : Object.keys(PROVIDERS)[0]
+    provider: PROVIDERS[provider] ? provider : Object.keys(PROVIDERS)[0],
   };
 };
 
@@ -143,17 +153,17 @@ const authorizeUrl = async ({ challenge, state, nonce, provider }) => {
   const meta = await discover();
   const url = new URL(meta.authorization_endpoint);
 
-  url.searchParams.set('client_id', CONFIG.clientId);
-  url.searchParams.set('response_type', 'code');
-  url.searchParams.set('redirect_uri', CONFIG.redirectUri);
-  url.searchParams.set('scope', 'openid profile email');
-  url.searchParams.set('state', state);
-  url.searchParams.set('nonce', nonce);
-  url.searchParams.set('code_challenge', challenge);
-  url.searchParams.set('code_challenge_method', 'S256');
+  url.searchParams.set("client_id", CONFIG.clientId);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("redirect_uri", CONFIG.redirectUri);
+  url.searchParams.set("scope", "openid profile email");
+  url.searchParams.set("state", state);
+  url.searchParams.set("nonce", nonce);
+  url.searchParams.set("code_challenge", challenge);
+  url.searchParams.set("code_challenge_method", "S256");
 
   const hint = PROVIDERS[provider]?.domainHint;
-  if (hint) url.searchParams.set('domain_hint', hint);
+  if (hint) url.searchParams.set("domain_hint", hint);
 
   return url.toString();
 };
@@ -162,23 +172,25 @@ const exchangeCode = async ({ code, verifier }) => {
   const meta = await discover();
 
   const body = new URLSearchParams({
-    grant_type: 'authorization_code',
+    grant_type: "authorization_code",
     code,
     client_id: CONFIG.clientId,
     client_secret: CONFIG.clientSecret,
     redirect_uri: CONFIG.redirectUri,
-    code_verifier: verifier
+    code_verifier: verifier,
   });
 
   const res = await fetch(meta.token_endpoint, {
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body,
   });
 
   if (!res.ok) {
-    const detail = await res.text().catch(() => '');
-    throw new Error(`token exchange failed with ${res.status}: ${detail.slice(0, 200)}`);
+    const detail = await res.text().catch(() => "");
+    throw new Error(
+      `token exchange failed with ${res.status}: ${detail.slice(0, 200)}`,
+    );
   }
 
   return res.json();
@@ -203,17 +215,17 @@ const verifyIdToken = async ({ idToken, nonce }) => {
 
   const { payload } = await jwtVerify(idToken, jwks, {
     issuer: meta.issuer,
-    audience: CONFIG.clientId
+    audience: CONFIG.clientId,
   });
 
   // Ties this token to the sign-in this browser actually started. Without it a
   // token minted for another session could be replayed into this callback.
   if (payload.nonce !== nonce) {
-    throw new Error('id_token nonce did not match the one we issued');
+    throw new Error("id_token nonce did not match the one we issued");
   }
 
   if (!payload.sub) {
-    throw new Error('id_token carried no subject');
+    throw new Error("id_token carried no subject");
   }
 
   return payload;
@@ -227,5 +239,5 @@ module.exports = {
   createAuthRequest,
   authorizeUrl,
   exchangeCode,
-  CONFIG
+  CONFIG,
 };

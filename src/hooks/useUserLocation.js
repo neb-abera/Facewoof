@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useCallback, useRef } from 'react';
-import axios from 'axios';
-import useUserContext from './useUserContext';
+import axios from "axios";
+import { useCallback, useRef, useState } from "react";
+import useUserContext from "./useUserContext";
 
 // This file used to start with `require('dotenv').config({ path: ... })` and
 // `require('path')`. Neither exists in a browser and neither is shimmed by
@@ -15,10 +14,12 @@ const PAGE_SIZE = 10;
 const getCoordinates = () =>
   new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('this browser cannot report a location'));
+      reject(new Error("this browser cannot report a location"));
       return;
     }
-    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      timeout: 10000,
+    });
   });
 
 const useUserLocation = (setUsers, setDistances) => {
@@ -42,27 +43,27 @@ const useUserLocation = (setUsers, setDistances) => {
   /* Ask the browser where we are and turn that into a zip code. */
   const getUserLocation = useCallback(async () => {
     const { coords } = await getCoordinates();
-    const { data } = await axios.get('/api/resolve-location', {
-      params: { lat: coords.latitude, lng: coords.longitude }
+    const { data } = await axios.post("/api/resolve-location", {
+      lat: coords.latitude,
+      lng: coords.longitude,
     });
     return data.zip;
   }, []);
 
   const fetchPage = useCallback(
     async (location, radius) => {
-      const { data } = await axios.get('/api/discover', {
-        params: {
-          id: userId,
-          zipcode: String(location).trim(),
-          radius,
-          limit: PAGE_SIZE,
-          seen: seenRef.current.join(',')
-        }
+      const { data } = await axios.post("/api/discover", {
+        zipcode: String(location).trim(),
+        radius,
+        limit: PAGE_SIZE,
+        seen: seenRef.current.join(","),
       });
-      seenRef.current = seenRef.current.concat(data.users.map((u) => u.user_id));
+      seenRef.current = seenRef.current.concat(
+        data.users.map((u) => u.user_id),
+      );
       return data;
     },
-    [userId]
+    [userId],
   );
 
   /*
@@ -87,15 +88,15 @@ const useUserLocation = (setUsers, setDistances) => {
         setHasMore(data.remaining > 0);
         setSearchKey((n) => n + 1);
       } catch (err) {
-        console.error('could not load the discover feed', err);
-        setError('Could not load nearby dogs. Try a different location.');
+        console.error("could not load the discover feed", err);
+        setError("Could not load nearby dogs. Try a different location.");
         setUsers([]);
         setHasMore(false);
       } finally {
         setLoading(false);
       }
     },
-    [userId, fetchPage, setUsers, setDistances]
+    [userId, fetchPage, setUsers, setDistances],
   );
 
   /*
@@ -116,7 +117,7 @@ const useUserLocation = (setUsers, setDistances) => {
       setDistances((prev) => ({ ...prev, ...data.distances }));
       setHasMore(data.remaining > 0);
     } catch (err) {
-      console.error('could not load more dogs', err);
+      console.error("could not load more dogs", err);
       setHasMore(false);
     } finally {
       inFlight.current = false;
@@ -133,7 +134,7 @@ const useUserLocation = (setUsers, setDistances) => {
     searchKey,
     error,
     getUserLocation,
-    getUsers
+    getUsers,
   };
 };
 

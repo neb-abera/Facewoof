@@ -1,8 +1,4 @@
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable react/prop-types */
-/* eslint-disable jsx-a11y/alt-text */
-import React from 'react';
-import './profileCardGeneral.css';
+import "./profileCardGeneral.css";
 
 export default function ProfileCardGeneral({ user }) {
   return (
@@ -12,7 +8,7 @@ export default function ProfileCardGeneral({ user }) {
           <div className="card-header-title">
             <div className="avatar">
               <div className="w-24 rounded-contain profile-image drop-shadow-none">
-                <img src={user.photos[0]} />
+                <img src={user.photos[0]} alt="Dog profile" />
               </div>
             </div>
 
@@ -29,7 +25,9 @@ export default function ProfileCardGeneral({ user }) {
                   {user.age} • {user.dog_breed}
                 </p>
                 {user.vaccination ? (
-                  <div className="badge badge-secondary">&#10004; Vaccinated</div>
+                  <div className="badge badge-secondary">
+                    &#10004; Vaccinated
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -59,7 +57,7 @@ export default function ProfileCardGeneral({ user }) {
             </div>
           </figure>
           <div className="flex justify-center w-full py-2 gap-2 carousel-buttons">
-            {user.photos.map((url, index) => (
+            {user.photos.map((_url, index) => (
               <a
                 key={`button${index}`}
                 href={`#item${user.user_id}${index}`}

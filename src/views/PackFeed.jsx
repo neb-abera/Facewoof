@@ -1,11 +1,10 @@
-/* eslint-disable react/jsx-indent-props */
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AllPostTiles from '../components/PackPage/AllPackView/AllPostTiles';
-import PackMenu from '../components/PackPage/AllPackView/PackMenu';
-import SoloPostTiles from '../components/PackPage/SoloPostView/SoloPostTiles';
-import useUserContext from '../hooks/useUserContext';
-import './packFeed.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import AllPostTiles from "../components/PackPage/AllPackView/AllPostTiles";
+import PackMenu from "../components/PackPage/AllPackView/PackMenu";
+import SoloPostTiles from "../components/PackPage/SoloPostView/SoloPostTiles";
+import useUserContext from "../hooks/useUserContext";
+import "./packFeed.css";
 
 const PackFeed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -14,13 +13,13 @@ const PackFeed = () => {
 
   useEffect(() => {
     axios
-      .get('/api/getAllPacksPostsForUser')
+      .get("/api/getAllPacksPostsForUser")
       .then((resp) => setAllPosts(resp.data || []))
-      .catch((err) => console.error('could not load the pack feed', err));
+      .catch((err) => console.error("could not load the pack feed", err));
   }, [userId, loggedIn]);
 
-  const [viewing, setViewing] = useState('-1');
-  const [viewingName, setViewingName] = useState('');
+  const [viewing, setViewing] = useState("-1");
+  const [viewingName, setViewingName] = useState("");
   return (
     <div className="pack-feed">
       <PackMenu
@@ -29,10 +28,14 @@ const PackFeed = () => {
         setViewingName={setViewingName}
         userIdentity={userIdentity}
       />
-      {viewing === '-1' ? (
+      {viewing === "-1" ? (
         <AllPostTiles allPosts={allPosts} />
       ) : (
-        <SoloPostTiles viewing={viewing} viewingName={viewingName} userIdentity={userIdentity} />
+        <SoloPostTiles
+          viewing={viewing}
+          viewingName={viewingName}
+          userIdentity={userIdentity}
+        />
       )}
     </div>
   );

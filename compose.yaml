@@ -4,7 +4,7 @@ name: facewoof
 
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: facewoof
       POSTGRES_PASSWORD: facewoof
@@ -56,7 +56,7 @@ services:
       - ./src:/app/src
       - ./public:/app/public
       - ./index.html:/app/index.html
-      - ./vite.config.js:/app/vite.config.js
+      - ./vite.config.mjs:/app/vite.config.mjs
       - ./tailwind.config.js:/app/tailwind.config.js
       - ./postcss.config.js:/app/postcss.config.js
     depends_on:
@@ -109,7 +109,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: ['sh', '-c', 'npx eslint . && npx prettier --check .']
+    command: ['npx', 'biome', 'check', '.']
 
 volumes:
   pgdata:

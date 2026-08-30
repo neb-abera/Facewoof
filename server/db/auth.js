@@ -1,12 +1,12 @@
-const crypto = require('crypto');
-const zipcodes = require('zipcodes');
-const db = require('./database');
+const crypto = require("node:crypto");
+const zipcodes = require("zipcodes");
+const db = require("./database");
 
 // The seeded profile every demo account is cloned from.
 const TEMPLATE_USER_ID = 1;
 
 // Where a demo lands when the visitor's location is unknown.
-const DEFAULT_ZIP = '10011';
+const DEFAULT_ZIP = "10011";
 
 /*
  * Pick zip codes to scatter the demo roster across, near `originZip`.
@@ -66,7 +66,7 @@ async function countNeighbours(client, userId, zips) {
        AND user_id <> $1
        AND location = ANY($2)
        AND (demo_of IS NULL OR demo_of = $1)`,
-    [userId, zips]
+    [userId, zips],
   );
   return rows[0].n;
 }
@@ -124,7 +124,7 @@ async function ensureNeighbours(client, userId, originZip) {
        RETURNING user_id
      )
      SELECT user_id FROM ins ORDER BY user_id`,
-    [userId, TEMPLATE_USER_ID, scattered]
+    [userId, TEMPLATE_USER_ID, scattered],
   );
 
   const ids = created.map((row) => row.user_id);
@@ -137,7 +137,7 @@ async function ensureNeighbours(client, userId, originZip) {
       `INSERT INTO pending_relationships (user1_id, user2_id, user1_choice)
        SELECT u, $1, true FROM unnest($2::int[]) AS u
        ON CONFLICT DO NOTHING`,
-      [userId, admirers]
+      [userId, admirers],
     );
   }
 
@@ -151,7 +151,7 @@ async function ensureNeighbours(client, userId, originZip) {
        UNION ALL
        SELECT u, $1 FROM unnest($2::int[]) AS u
        ON CONFLICT DO NOTHING`,
-      [userId, matched]
+      [userId, matched],
     );
   }
 
@@ -162,11 +162,13 @@ async function createGuestUser(requestedZip) {
   // An unknown or malformed zip falls back rather than producing a demo with
   // nobody in it.
   const originZip =
-    requestedZip && zipcodes.lookup(requestedZip) ? String(requestedZip) : DEFAULT_ZIP;
+    requestedZip && zipcodes.lookup(requestedZip)
+      ? String(requestedZip)
+      : DEFAULT_ZIP;
 
   const client = await db.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     const { rows } = await client.query(
       // onboarded_at is set here because a demo account arrives complete: it
@@ -183,32 +185,38 @@ async function createGuestUser(requestedZip) {
               now()
        FROM users WHERE user_id = $1
        RETURNING *`,
-      [TEMPLATE_USER_ID, `guest-${crypto.randomUUID()}@facewoof.app`, originZip]
+      [
+        TEMPLATE_USER_ID,
+        `guest-${crypto.randomUUID()}@facewoof.app`,
+        originZip,
+      ],
     );
     const guest = rows[0];
 
     if (!guest) {
-      throw new Error(`template user ${TEMPLATE_USER_ID} is missing: has seed.sql been loaded?`);
+      throw new Error(
+        `template user ${TEMPLATE_USER_ID} is missing: has seed.sql been loaded?`,
+      );
     }
 
     await client.query(
       `INSERT INTO profile_photos (user_id, url)
        SELECT $2, url FROM profile_photos WHERE user_id = $1`,
-      [TEMPLATE_USER_ID, guest.user_id]
+      [TEMPLATE_USER_ID, guest.user_id],
     );
 
     await client.query(
       `INSERT INTO pack_users (pack_id, user_id)
        SELECT pack_id, $2 FROM pack_users WHERE user_id = $1`,
-      [TEMPLATE_USER_ID, guest.user_id]
+      [TEMPLATE_USER_ID, guest.user_id],
     );
 
     await ensureNeighbours(client, guest.user_id, originZip);
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return guest;
   } catch (err) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     throw err;
   } finally {
     client.release();
@@ -223,7 +231,7 @@ function purgeExpiredGuests(maxAgeHours = 24) {
   return db.query(
     `DELETE FROM users
      WHERE is_guest AND created_at < now() - ($1 || ' hours')::interval`,
-    [maxAgeHours]
+    [maxAgeHours],
   );
 }
 
@@ -231,7 +239,7 @@ module.exports = {
   createGuestUser,
   purgeExpiredGuests,
   ensureNeighbours,
-  TEMPLATE_USER_ID
+  TEMPLATE_USER_ID,
 };
 
 /*
@@ -245,10 +253,17 @@ module.exports = {
  * they built up during the demo, and it stops being a guest so the cleanup
  * leaves it alone. Signing in should feel like keeping your work.
  */
-async function findOrCreateExternalUser({ issuer, subject, provider, email, name, guestUserId }) {
+async function findOrCreateExternalUser({
+  issuer,
+  subject,
+  provider,
+  email,
+  name,
+  guestUserId,
+}) {
   const existing = await db.query(
     `SELECT user_id FROM external_identities WHERE issuer = $1 AND subject = $2`,
-    [issuer, subject]
+    [issuer, subject],
   );
 
   if (existing.rows.length) {
@@ -257,7 +272,7 @@ async function findOrCreateExternalUser({ issuer, subject, provider, email, name
 
   const client = await db.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     let userId = null;
 
@@ -273,7 +288,7 @@ async function findOrCreateExternalUser({ issuer, subject, provider, email, name
                 owner_name = COALESCE($3, owner_name)
           WHERE user_id = $1 AND is_guest
           RETURNING user_id`,
-        [guestUserId, email || null, name || null]
+        [guestUserId, email || null, name || null],
       );
       if (claimed.rows.length) userId = claimed.rows[0].user_id;
     }
@@ -287,7 +302,7 @@ async function findOrCreateExternalUser({ issuer, subject, provider, email, name
               VALUES ($1, $2, false)
          ON CONFLICT (owner_email) DO UPDATE SET owner_email = EXCLUDED.owner_email
            RETURNING user_id`,
-        [address, name || null]
+        [address, name || null],
       );
       userId = inserted.rows[0].user_id;
     }
@@ -296,13 +311,13 @@ async function findOrCreateExternalUser({ issuer, subject, provider, email, name
       `INSERT INTO external_identities (user_id, issuer, subject, provider)
             VALUES ($1, $2, $3, $4)
        ON CONFLICT (issuer, subject) DO NOTHING`,
-      [userId, issuer, subject, provider || null]
+      [userId, issuer, subject, provider || null],
     );
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return { userId, created: true };
   } catch (err) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     throw err;
   } finally {
     client.release();
@@ -319,10 +334,17 @@ module.exports.findOrCreateExternalUser = findOrCreateExternalUser;
  * result would leave someone half-onboarded with an empty feed, which is the
  * exact state this exists to prevent.
  */
-async function completeOnboarding({ userId, dogName, dogBreed, age, vaccination, zip }) {
+async function completeOnboarding({
+  userId,
+  dogName,
+  dogBreed,
+  age,
+  vaccination,
+  zip,
+}) {
   const client = await db.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     await client.query(
       `UPDATE users
@@ -333,16 +355,23 @@ async function completeOnboarding({ userId, dogName, dogBreed, age, vaccination,
               location = COALESCE($6, location),
               onboarded_at = now()
         WHERE user_id = $1`,
-      [userId, dogName || null, dogBreed || null, age ?? null, vaccination ?? null, zip || null]
+      [
+        userId,
+        dogName || null,
+        dogBreed || null,
+        age ?? null,
+        vaccination ?? null,
+        zip || null,
+      ],
     );
 
     // The whole point: somebody to see when they arrive.
     const nearby = await ensureNeighbours(client, userId, zip || DEFAULT_ZIP);
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return { nearby };
   } catch (err) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     throw err;
   } finally {
     client.release();

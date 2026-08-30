@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import useUserContext from '../../hooks/useUserContext';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import { useState } from "react";
+import useUserContext from "../../hooks/useUserContext";
 
 /*
  * Says plainly that the feed is a sample, and offers the one action that fixes
@@ -40,34 +40,41 @@ const LocationNotice = ({ onProvide, searchingFrom }) => {
         setAsking(false);
         setBlocked(true);
       },
-      { timeout: 8000 }
+      { timeout: 8000 },
     );
   };
 
   return (
     <div className="alert bg-base-200 rounded-none flex-wrap gap-3 py-3 px-6 text-sm">
       <div className="flex-1">
-        <strong>{onDemo ? "You're seeing a demo." : 'Sample dogs for now.'}</strong>{' '}
+        <strong>
+          {onDemo ? "You're seeing a demo." : "Sample dogs for now."}
+        </strong>{" "}
         {searchingFrom ? (
           <>
-            These dogs are samples around {searchingFrom}, not dogs near you. Share your location to
-            see real profiles in your area.
+            These dogs are samples around {searchingFrom}, not dogs near you.
+            Share your location to see real profiles in your area.
           </>
         ) : (
           <>
-            These dogs are samples, not dogs near you. Share your location to see real profiles in
-            your area.
+            These dogs are samples, not dogs near you. Share your location to
+            see real profiles in your area.
           </>
         )}
         {blocked && (
           <div className="mt-1 opacity-80">
-            Your browser is blocking location for this site. Allow it in the address bar or your
-            browser&apos;s site settings, then try again.
+            Your browser is blocking location for this site. Allow it in the
+            address bar or your browser&apos;s site settings, then try again.
           </div>
         )}
       </div>
-      <button type="button" className="btn btn-sm btn-primary" onClick={ask} disabled={asking}>
-        {asking ? 'Checking…' : 'Use my location'}
+      <button
+        type="button"
+        className="btn btn-sm btn-primary"
+        onClick={ask}
+        disabled={asking}
+      >
+        {asking ? "Checking…" : "Use my location"}
       </button>
     </div>
   );
@@ -75,11 +82,11 @@ const LocationNotice = ({ onProvide, searchingFrom }) => {
 
 LocationNotice.propTypes = {
   onProvide: PropTypes.func.isRequired,
-  searchingFrom: PropTypes.string
+  searchingFrom: PropTypes.string,
 };
 
 LocationNotice.defaultProps = {
-  searchingFrom: null
+  searchingFrom: null,
 };
 
 export default LocationNotice;

@@ -38,7 +38,7 @@ CMD ["npm", "run", "server:dev"]
 # what a reviewer would get from a fresh clone.
 FROM deps AS lint
 COPY . .
-RUN npx eslint . && npx prettier --check .
+RUN npx biome check .
 
 # ---- e2e --------------------------------------------------------------------
 # The browser tests. Playwright's own image so the browser and its system
