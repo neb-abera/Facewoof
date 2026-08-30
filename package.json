@@ -15,7 +15,8 @@
     "lint": "biome check .",
     "format": "biome check --write .",
     "migrate": "node server/db/migrate.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "vitest run tests/unit"
   },
   "dependencies": {
     "axios": "^1.20.0",
@@ -50,6 +51,7 @@
     "daisyui": "^5.7.22",
     "nodemon": "^3.1.14",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^4.0.18"
   }
 }

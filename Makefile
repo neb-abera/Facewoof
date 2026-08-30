@@ -39,6 +39,9 @@ e2e: ## Browser tests against a running instance (BASE_URL to override)
 
 check: ## The gate CI runs: lint, format and the production image
 	$(DOCKER) build --target lint .
+
+test-unit: ## Unit tests, hermetically, the way CI runs them
+	$(DOCKER) build --target unittest .
 	$(DOCKER) build --target final -t facewoof .
 
 image: ## Build the production image the deploy pipeline builds
