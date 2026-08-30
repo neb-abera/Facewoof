@@ -10,6 +10,12 @@ const { test, expect } = require("@playwright/test");
  * that would notice them regressing.
  */
 
+async function csrfHeaders(page) {
+  const cookies = await page.context().cookies();
+  const token = cookies.find((c) => c.name === "XSRF-TOKEN");
+  return { "x-xsrf-token": token ? decodeURIComponent(token.value) : "" };
+}
+
 async function signIn(page) {
   await page.goto("/");
   await page.getByRole("button", { name: /try the demo/i }).click();
@@ -21,9 +27,10 @@ test("a crafted location is not reflected into the error response", async ({
 }) => {
   await signIn(page);
 
-  const res = await page.request.get(
-    "/api/discover?zipcode=<script>alert(1)</script>&radius=5&limit=10",
-  );
+  const res = await page.request.post("/api/discover", {
+    headers: await csrfHeaders(page),
+    data: { zipcode: "<script>alert(1)</script>", radius: 5, limit: 10 },
+  });
   expect(res.status(), "an unresolvable location is still a 400").toBe(400);
 
   // The old handler echoed the raw query string into a text/html-typed body,
@@ -31,6 +38,34 @@ test("a crafted location is not reflected into the error response", async ({
   // contain the input.
   expect(res.headers()["content-type"]).toContain("application/json");
   expect(await res.text()).not.toContain("<script>");
+});
+
+test("location travels in the request body, never the URL", async ({
+  page,
+}) => {
+  await signIn(page);
+
+  // The feed and the coordinate resolver both take their location in a
+  // POSTed body...
+  const post = await page.request.post("/api/discover", {
+    headers: await csrfHeaders(page),
+    data: { zipcode: "10011", radius: 25, limit: 10 },
+  });
+  expect(post.status(), "the feed answers a POSTed location").toBe(200);
+  expect((await post.json()).users.length).toBeGreaterThan(0);
+
+  // ...and the old query-string forms are gone, so a zipcode or a GPS fix
+  // can never again end up in access logs, proxy logs, or browser history.
+  const get = await page.request.get(
+    "/api/discover?zipcode=10011&radius=25&limit=10",
+  );
+  expect(get.status(), "the query-string feed no longer exists").toBe(404);
+  const coords = await page.request.get(
+    "/api/resolve-location?lat=40.7&lng=-74.0",
+  );
+  expect(coords.status(), "the query-string resolver no longer exists").toBe(
+    404,
+  );
 });
 
 test("a state-changing request without the CSRF token is refused", async ({
