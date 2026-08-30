@@ -40,6 +40,13 @@ FROM deps AS lint
 COPY . .
 RUN npx biome check .
 
+# ---- unittest ---------------------------------------------------------------
+# The unit layer: fast checks on the decisions inside the server, hermetic
+# like lint, and a leaf the production build never pays for.
+FROM deps AS unittest
+COPY . .
+RUN npm run test:unit
+
 # ---- e2e --------------------------------------------------------------------
 # The browser tests. Playwright's own image so the browser and its system
 # libraries match exactly; a leaf, so the production build never pays for it.
