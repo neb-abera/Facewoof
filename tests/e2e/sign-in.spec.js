@@ -187,7 +187,10 @@ test.describe("with a provider configured", () => {
 
     // The point of the whole exercise: somebody to see.
     const feed = await (
-      await page.request.get("/api/discover?zipcode=10011&radius=25&limit=10")
+      await page.request.post("/api/discover", {
+        headers: await csrfHeaders(page),
+        data: { zipcode: "10011", radius: 25, limit: 10 },
+      })
     ).json();
     expect(
       feed.users.length,

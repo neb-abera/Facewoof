@@ -72,8 +72,11 @@ router.use("/api", requireUser);
 
 // --- discover ---
 
-router.get("/api/discover", feedLimiter, discoverUsers);
-router.get("/api/resolve-location", resolveLocation);
+// POST, not GET, on purpose: the payload is the caller's location, and a
+// query string would copy it into access logs, proxy logs, Referer headers
+// and browser history on every request (CodeQL js/sensitive-get-query).
+router.post("/api/discover", feedLimiter, discoverUsers);
+router.post("/api/resolve-location", resolveLocation);
 router.post("/api/response", swipeLimiter, userResponse);
 
 // --- profile ---

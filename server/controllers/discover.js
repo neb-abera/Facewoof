@@ -85,9 +85,11 @@ function resolveZip(location, nearZip) {
 
 const discoverUsers = async (req, res) => {
   try {
-    const { zipcode, radius, limit } = req.query;
+    // From the body, not the query string: a URL is copied into too many
+    // places (logs, history, Referer) to carry someone's location.
+    const { zipcode, radius, limit } = req.body;
     const { userId: id } = req;
-    const seen = parseSeen(req.query.seen);
+    const seen = parseSeen(req.body.seen);
     const pageSize = Math.min(
       Number(limit) || DEFAULT_PAGE_SIZE,
       MAX_PAGE_SIZE,
@@ -171,8 +173,8 @@ const userResponse = async (req, res) => {
  * network round trip, or a key to leak.
  */
 const resolveLocation = (req, res) => {
-  const lat = Number(req.query.lat);
-  const lng = Number(req.query.lng);
+  const lat = Number(req.body.lat);
+  const lng = Number(req.body.lng);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return res.status(400).send("lat and lng are required");

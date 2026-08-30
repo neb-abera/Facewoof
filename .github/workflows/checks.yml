@@ -119,8 +119,9 @@ jobs:
             -H "x-xsrf-token: $TOKEN" \
             -H 'content-type: application/json' -d '{"zip":"60601"}' > /dev/null
 
-          N=$(curl -sf -b /tmp/jar \
-            "http://localhost:8080/api/discover?zipcode=60601&radius=25&limit=10" \
+          N=$(curl -sf -b /tmp/jar -X POST http://localhost:8080/api/discover \
+            -H "x-xsrf-token: $TOKEN" -H 'content-type: application/json' \
+            -d '{"zipcode":"60601","radius":25,"limit":10}' \
             | python3 -c 'import sys,json; print(len(json.load(sys.stdin)["users"]))')
           echo "discover returned $N dogs"
           test "$N" -gt 0
@@ -128,9 +129,15 @@ jobs:
       - name: An unauthenticated caller is refused
         run: |
           set -euo pipefail
+          # A fresh jar gets its own CSRF token so the refusal proves the
+          # missing session, not the missing token.
+          curl -sf -c /tmp/anonjar http://localhost:8080/ > /dev/null
+          ANON=$(python3 -c "import urllib.parse; print(urllib.parse.unquote(next(l.split()[-1] for l in open('/tmp/anonjar') if 'XSRF-TOKEN' in l)))")
           code=$(curl -s -o /dev/null -w '%{http_code}' \
-            "http://localhost:8080/api/discover?zipcode=60601")
-          echo "no cookie -> $code"
+            -b /tmp/anonjar -X POST http://localhost:8080/api/discover \
+            -H "x-xsrf-token: $ANON" -H 'content-type: application/json' \
+            -d '{"zipcode":"60601"}')
+          echo "no session -> $code"
           test "$code" = "401"
 
       - name: Browser tests
