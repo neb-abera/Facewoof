@@ -105,9 +105,10 @@ jobs:
         # once it is serving. Without this a broken deploy looks green.
         run: |
           set -euo pipefail
-          fqdn=$(az containerapp show --name "$CONTAINER_APP" \
-            --resource-group "$RESOURCE_GROUP" \
-            --query 'properties.configuration.ingress.fqdn' -o tsv)
+          # Through the public domain (Cloudflare), not the origin FQDN:
+          # ingress is being restricted to Cloudflare's IPs, so the origin
+          # no longer answers the runner directly.
+          fqdn=facewoof.abera.tech
           echo "checking https://$fqdn/healthz"
           for attempt in $(seq 1 30); do
             if curl -sf --max-time 10 "https://$fqdn/healthz" > /tmp/health.json; then
