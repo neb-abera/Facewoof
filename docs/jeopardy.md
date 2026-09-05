@@ -1,6 +1,6 @@
 # Jeopardy: Professional Development Edition
 
-Five categories, ten clues each, ordered from easy (100) to harder (1000).
+Ten categories, ten clues each, ordered from easy (100) to harder (1000).
 Nothing here needs an expert. The goal is for people to have fun, get a few
 right, and walk away having learned something.
 
@@ -74,16 +74,93 @@ Host notes:
 
 | Value | Clue | Response |
 |------:|------|----------|
-| 100 | Every biology student learns that this organelle is the "powerhouse of the cell." | What are mitochondria? |
-| 200 | This force keeps the planets in orbit and, according to legend, dropped an apple on Isaac Newton. | What is gravity? |
+| 100 | Human DNA is packaged into 23 pairs of these structures. | What are chromosomes? |
+| 200 | The time it takes for half the atoms in a radioactive sample to decay. | What is a half-life? |
 | 300 | Watson and Crick described DNA as having this twisted shape. | What is a double helix? |
-| 400 | Plants take in carbon dioxide, water, and sunlight, and release this gas that we breathe. | What is oxygen? |
+| 400 | The Sun produces its energy by fusing hydrogen into this element. | What is helium? |
 | 500 | Newton's third law says that for every action there is one of these. | What is an equal and opposite reaction? |
 | 600 | Chuck Yeager was the first pilot to break this in 1947, reaching a speed known as Mach 1. | What is the sound barrier? |
 | 700 | Charles Darwin developed his theory of natural selection after studying finches on these islands. | What are the Galápagos Islands? |
 | 800 | This effect makes a siren change pitch as it passes you. It is also how police and weather radars measure speed. | What is the Doppler effect? |
 | 900 | This Austrian physicist's famous thought experiment involves a cat that is both alive and dead. | Who is Schrödinger? |
 | 1000 | This gene-editing tool, whose name is an acronym, won its developers the 2020 Nobel Prize in Chemistry. | What is CRISPR? |
+
+## 6. Famous Luxury Brands
+
+| Value | Clue | Response |
+|------:|------|----------|
+| 100 | Founded by Coco, this French house launched its No. 5 perfume in 1921 and uses interlocking C's as its logo. | What is Chanel? |
+| 200 | The crown logo belongs to this Swiss watchmaker, whose Submariner and Daytona are among the most copied watches on earth. | What is Rolex? |
+| 300 | Green and red stripes and a double-G logo mark this Italian house founded in Florence in 1921. | What is Gucci? |
+| 400 | Founded in Paris in 1854 as a trunk maker, this house's two-letter monogram is one of the most counterfeited patterns in the world. | What is Louis Vuitton? |
+| 500 | Named for a British actress and singer, this Hermès handbag comes with a waiting list and a five-figure price tag. | What is the Birkin? |
+| 600 | This British brand's tan, black, red, and white check pattern began as the lining of its trench coats. | What is Burberry? |
+| 700 | A flash of red on the sole identifies shoes by this French designer. | Who is Christian Louboutin? |
+| 800 | The "Spirit of Ecstasy" is the hood ornament on cars from this British marque. | What is Rolls-Royce? |
+| 900 | Run by Bernard Arnault, this conglomerate owns Louis Vuitton, Dior, Tiffany, and Moët & Chandon. | What is LVMH? |
+| 1000 | "You never actually own one. You merely look after it for the next generation" is the slogan of this Geneva watchmaker. | What is Patek Philippe? |
+
+## 7. Current U.S. Events
+
+Written for September 2026. Check the answers if you use this later.
+
+| Value | Clue | Response |
+|------:|------|----------|
+| 100 | July 4, 2026 marked this milestone anniversary of the Declaration of Independence. | What is the 250th (semiquincentennial)? |
+| 200 | The Seattle Seahawks beat this team 29 to 13 in Super Bowl LX in February. | Who are the New England Patriots? |
+| 300 | Bad Bunny made history at the Super Bowl LX halftime show as the first headliner to perform mostly in this language. | What is Spanish? |
+| 400 | This European nation beat Argentina 1 to 0 in extra time at MetLife Stadium to win the 2026 World Cup. | What is Spain? |
+| 500 | In April, this NASA mission carried four astronauts around the Moon, the first crewed lunar flight since 1972. | What is Artemis II? |
+| 600 | In November 2025, the U.S. Mint struck the last circulating one of these after 232 years, because each cost nearly four cents to make. | What is the penny? |
+| 700 | In May, Kevin Warsh was sworn in to replace Jerome Powell as chair of this institution. | What is the Federal Reserve? |
+| 800 | A September 2025 executive order restored this name as a secondary title for the Department of Defense. | What is the Department of War? |
+| 900 | Announced in 2025 with a $175 billion price tag, this proposed nationwide missile shield borrows its name from an Israeli system. | What is Golden Dome? |
+| 1000 | Two of the 35 Senate seats on the ballot this November are special elections for seats vacated by these two men when they joined the Trump administration. | Who are JD Vance and Marco Rubio? |
+
+## 8. Astronomy
+
+| Value | Clue | Response |
+|------:|------|----------|
+| 100 | Its rings are mostly water ice, and its average density is so low it would float in a big enough bathtub. | What is Saturn? |
+| 200 | In 2006 the International Astronomical Union reclassified this body as a dwarf planet. | What is Pluto? |
+| 300 | Also called the North Star, this star sits at the end of the Little Dipper's handle. | What is Polaris? |
+| 400 | Launched in 1990, this space telescope is named for the astronomer who showed the universe is expanding. | What is Hubble? |
+| 500 | Despite its name, a light-year measures this. | What is distance? |
+| 600 | Launched in 2021, this infrared telescope observes from a point about a million miles from Earth. | What is the James Webb Space Telescope? |
+| 700 | The nearest large galaxy to our own, it is on course to merge with the Milky Way in about four billion years. | What is Andromeda? |
+| 800 | The boundary around a black hole beyond which nothing, not even light, can escape. | What is the event horizon? |
+| 900 | Saturn's largest moon has a thick nitrogen atmosphere and lakes of liquid methane, and NASA's Dragonfly mission will fly there. | What is Titan? |
+| 1000 | Sagittarius A-star, at the center of the Milky Way, is this kind of object, about four million times the mass of the Sun. | What is a supermassive black hole? |
+
+## 9. Favorite Pastimes of U.S. Presidents
+
+| Value | Clue | Response |
+|------:|------|----------|
+| 100 | Known for pickup games with staff and friends, this president had the White House tennis court adapted for basketball. | Who is Barack Obama? |
+| 200 | In 1992 this candidate put on sunglasses and played "Heartbreak Hotel" on the saxophone on The Arsenio Hall Show. | Who is Bill Clinton? |
+| 300 | This Rough Rider boxed and practiced judo in the White House, and a sparring match left him blind in one eye. | Who is Theodore Roosevelt? |
+| 400 | This general turned president played roughly 800 rounds of golf in office and had a putting green installed outside the Oval Office. | Who is Dwight Eisenhower? |
+| 500 | This president had a one-lane bowling alley built beneath the White House's North Portico in 1969. | Who is Richard Nixon? |
+| 600 | After leaving office, this president took up oil painting and published a book of portraits of wounded veterans. | Who is George W. Bush? |
+| 700 | Before politics he fought about 300 matches and is honored in the National Wrestling Hall of Fame. | Who is Abraham Lincoln? |
+| 800 | A star center on two national championship Michigan football teams, this president turned down offers from the Packers and Lions. | Who is Gerald Ford? |
+| 900 | This president invented a game, played with a six-pound medicine ball over a high net, that still bears his name. | Who is Herbert Hoover? |
+| 1000 | So devoted to golf that he had balls painted black to play in the snow, this president also led the country through World War I. | Who is Woodrow Wilson? |
+
+## 10. Physics of Signals and RF
+
+| Value | Clue | Response |
+|------:|------|----------|
+| 100 | The unit of frequency, one cycle per second, is named for this German physicist. | Who is Hertz? |
+| 200 | AM radio varies a carrier wave's amplitude; FM varies this. | What is frequency? |
+| 300 | As a radio signal's frequency goes up, this property, measured in meters, gets shorter. | What is wavelength? |
+| 400 | Radio waves travel through a vacuum at this speed, about 300,000 kilometers per second. | What is the speed of light? |
+| 500 | Abbreviated SNR, this ratio compares the strength of a desired signal to the background. | What is signal-to-noise ratio? |
+| 600 | On the decibel scale, a gain of 3 dB means power has changed by roughly this factor. | What is doubled (a factor of two)? |
+| 700 | The "F" in FFT, the algorithm that converts a signal from the time domain to the frequency domain. | What is Fourier? |
+| 800 | To reconstruct a signal without aliasing, you must sample at least twice its highest frequency, according to this theorem. | What is the Nyquist theorem (Nyquist-Shannon sampling theorem)? |
+| 900 | Coaxial cable and most RF equipment are matched to 50 ohms of this property to avoid reflections. | What is impedance? |
+| 1000 | Hollywood star Hedy Lamarr co-patented a 1942 torpedo guidance system using this anti-jamming technique, an ancestor of Bluetooth and military radios. | What is frequency hopping (spread spectrum)? |
 
 ## Final Jeopardy
 
