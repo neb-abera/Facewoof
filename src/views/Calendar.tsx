@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "react-modal";
 import AddPlaydate from "../components/Calendar/AddPlaydate";
 import PlaydateCalendar from "../components/Calendar/PlaydateCalendar";
 import ViewPlaydate from "../components/Calendar/ViewPlaydate";
-import useCalendar from "../hooks/useCalendar";
 import type { CalendarEvent } from "../types";
 import "../components/Calendar/Playdate.css";
 import "../components/Shared/modal.css";
@@ -27,8 +26,6 @@ const Calendar = () => {
   // View Selected Playdate states
   const [selectedPlaydate, setSelectedPlaydate] =
     useState<CalendarEvent | null>(null);
-
-  const { getPacks } = useCalendar();
 
   const openEditModal = () => {
     setEditPlaydateModal(true);
@@ -62,14 +59,6 @@ const Calendar = () => {
     setAddPlaydateModal(false);
   };
 
-  // On mount. Signing in or out remounts this view, and getPacks is a stable
-  // callback, so this runs once per visit to the calendar.
-  useEffect(() => {
-    getPacks().catch((err: unknown) =>
-      console.error("could not load the calendar", err),
-    );
-  }, [getPacks]);
-
   return (
     <div id="calendar">
       <PlaydateCalendar
@@ -102,8 +91,8 @@ const Calendar = () => {
       >
         <AddPlaydate
           onAdded={async () => {
-            await getPacks();
-            // Show the person what they just made, wherever it landed.
+            // The list refreshes itself (the mutation invalidates it); show
+            // the person what they just made, wherever it landed.
             if (playStartTime) setCalendarDate(new Date(playStartTime));
           }}
           closeAddModal={closeAddModal}

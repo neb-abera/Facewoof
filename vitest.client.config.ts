@@ -20,6 +20,10 @@ export default defineConfig({
     include: ["tests/client/**/*.test.{ts,tsx}"],
     setupFiles: ["./tests/client/setup.ts"],
     globals: false,
+    // Seven small files: sequential is a few seconds, and it spares the
+    // first test in each file the transform stampede of four workers
+    // starting at once, which is what tripped findBy* timeouts under load.
+    fileParallelism: false,
     coverage: {
       provider: "v8",
       // What the client tests actually exercise. main.tsx is the browser

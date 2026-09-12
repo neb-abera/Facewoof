@@ -1,6 +1,13 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
+
+// findBy*/waitFor default to one second, which the first test in a worker
+// can exceed while the modules it imports are still being transformed under
+// a busy machine (a CI runner, or a smoke suite in the next terminal). Ten
+// seconds is still inside the per-test timeout, so a genuinely missing
+// element fails soon enough.
+configure({ asyncUtilTimeout: 10_000 });
 
 afterEach(() => {
   cleanup();

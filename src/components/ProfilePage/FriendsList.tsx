@@ -1,49 +1,20 @@
-import { useEffect, useState } from "react";
-import { api } from "../../api";
-import useUserContext from "../../hooks/useUserContext";
-import type { Friend, User } from "../../types";
+import { useFriends, useJoinPack, usePacks } from "../../queries";
+import type { User } from "../../types";
 import ProfileCardGeneral from "../Shared/ProfileCardGeneral";
 import CreatePackCard from "./CreatePackCard";
 import "./profile.css";
 
 const FriendsList = ({ currentUser }: { currentUser: User }) => {
-  const [friendsData, setFriendsData] = useState<Friend[]>([]);
-  // setPacks comes from the context too. It was called here without ever
-  // being taken from it, so every mount threw ReferenceError inside the
-  // promise chain, the catch below logged it, and the "Add To Pack" menu only
-  // ever had packs in it if the calendar page had happened to load them
-  // first. Lint was not watching: a stray src/package.json kept Biome's React
-  // rules off for the whole client until it was removed.
-  const { packs, setPacks } = useUserContext();
-
-  // Once, on mount: the list is for this visit to the page.
-  useEffect(() => {
-    api
-      .GET("/api/friends")
-      .then(({ data }) => setFriendsData(data ?? []))
-      .catch((err: unknown) => {
-        console.error("could not load friends", err);
-      });
-  }, []);
-
-  useEffect(() => {
-    api
-      .GET("/api/getpacks")
-      .then(({ data }) => setPacks(data ?? []))
-      .catch((err: unknown) => {
-        console.error("could not load packs", err);
-      });
-  }, [setPacks]);
+  const { data: friendsData = [] } = useFriends();
+  // The same packs the calendar form and the pack feed show: one request,
+  // refreshed for all of them when a pack is created or joined.
+  const { data: packs = [] } = usePacks();
+  const join = useJoinPack();
 
   const addToPack = (packId: number) => {
-    api
-      .PUT("/api/addtopack", { body: { pack_id: packId } })
-      .then(({ response }) => {
-        if (!response.ok) alert("That user is already a part of that pack");
-      })
-      .catch(() => {
-        alert("That user is already a part of that pack");
-      });
+    join.mutateAsync(packId).catch(() => {
+      alert("That user is already a part of that pack");
+    });
   };
 
   return (

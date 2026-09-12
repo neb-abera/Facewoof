@@ -1,14 +1,12 @@
 import { type CSSProperties, useState } from "react";
-import { api, unwrap } from "../../../api";
+import { useMakePost } from "../../../queries";
 
 interface PostMakerProps {
   /* The pack being posted to. */
   viewing: number;
   viewingName: string;
-  /* The author's profile photo URL, shown beside the box. */
+  /* The author's profile photo URL, shown beside the box and on the post. */
   pfp: string | null;
-  /* Called after a post lands, so the feed can reload. */
-  onPosted?: () => void;
 }
 
 const styles: Record<"postMakerImg" | "poster" | "parent", CSSProperties> = {
@@ -31,27 +29,17 @@ const styles: Record<"postMakerImg" | "poster" | "parent", CSSProperties> = {
 // below counts down to it.
 const MIN_LENGTH = 50;
 
-const PostMaker = ({ viewing, viewingName, pfp, onPosted }: PostMakerProps) => {
+const PostMaker = ({ viewing, viewingName, pfp }: PostMakerProps) => {
   const [body, setBody] = useState("");
+  // The feeds that show the post refresh themselves when it lands.
+  const post = useMakePost();
 
   const makePost = async () => {
     const text = body;
     setBody("");
     try {
       // The photo on the post is the author's profile photo.
-      const photos = unwrap(await api.GET("/api/getPfp"));
-      unwrap(
-        await api.POST("/api/makePost", {
-          body: {
-            packet: {
-              pack_id: viewing,
-              body: text,
-              photo_url: photos[0]?.url ?? null,
-            },
-          },
-        }),
-      );
-      onPosted?.();
+      await post.mutateAsync({ pack_id: viewing, body: text, photo_url: pfp });
     } catch (err) {
       console.error("could not post", err);
     }

@@ -1,9 +1,19 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { expect, test, vi } from "vitest";
 import { UserProvider } from "../../src/context/user";
 import useUserContext from "../../src/hooks/useUserContext";
 import type { User } from "../../src/types";
 import { fakeApi, ok, refused } from "./fakeApi";
+import { testQueryClient } from "./withUser";
+
+/* The real provider, under the query client it needs. */
+const provided = (element: ReactElement) => (
+  <QueryClientProvider client={testQueryClient()}>
+    <UserProvider>{element}</UserProvider>
+  </QueryClientProvider>
+);
 
 const account = {
   user_id: 42,
@@ -33,19 +43,20 @@ test("adopts a session the server already has, with nothing in storage", async (
     .on("GET", "/api/auth/me", () => ok(account))
     .on("GET", "/api/profilephoto", () => ok([]));
 
-  render(
-    <UserProvider>
-      <Probe />
-    </UserProvider>,
-  );
+  render(provided(<Probe />));
 
-  expect(screen.getByTestId("loggedIn")).toHaveTextContent("false");
+  // Not asserted before the wait: render's act() can already have flushed
+  // the fake response, so the "not yet signed in" moment is not observable.
   await waitFor(
     () => expect(screen.getByTestId("userId")).toHaveTextContent("42"),
     patiently,
   );
   expect(screen.getByTestId("dog")).toHaveTextContent("Biscuit");
-  expect(localStorage.getItem("facewoof.userId")).toBe("42");
+  // Written by a passive effect after the commit the wait above observed.
+  await waitFor(
+    () => expect(localStorage.getItem("facewoof.userId")).toBe("42"),
+    patiently,
+  );
 });
 
 test("drops a stored id whose account is gone (401), and keeps it on any other error", async () => {
@@ -54,17 +65,15 @@ test("drops a stored id whose account is gone (401), and keeps it on any other e
     .on("GET", "/api/auth/me", () => refused(401, "sign in first"))
     .on("GET", "/api/profilephoto", () => ok([]));
 
-  render(
-    <UserProvider>
-      <Probe />
-    </UserProvider>,
-  );
-  expect(screen.getByTestId("loggedIn")).toHaveTextContent("true");
+  render(provided(<Probe />));
   await waitFor(
     () => expect(screen.getByTestId("loggedIn")).toHaveTextContent("false"),
     patiently,
   );
-  expect(localStorage.getItem("facewoof.userId")).toBeNull();
+  await waitFor(
+    () => expect(localStorage.getItem("facewoof.userId")).toBeNull(),
+    patiently,
+  );
 });
 
 test("a transient error does not sign the visitor out", async () => {
@@ -74,11 +83,7 @@ test("a transient error does not sign the visitor out", async () => {
     .on("GET", "/api/auth/me", () => refused(500, "boom"))
     .on("GET", "/api/profilephoto", () => ok([]));
 
-  render(
-    <UserProvider>
-      <Probe />
-    </UserProvider>,
-  );
+  render(provided(<Probe />));
 
   await waitFor(() => expect(spy).toHaveBeenCalled(), patiently);
   expect(screen.getByTestId("loggedIn")).toHaveTextContent("true");
@@ -87,5 +92,11 @@ test("a transient error does not sign the visitor out", async () => {
 
 test("useUserContext refuses to run outside the provider", () => {
   vi.spyOn(console, "error").mockImplementation(() => {});
-  expect(() => render(<Probe />)).toThrow(/inside a UserProvider/);
+  expect(() =>
+    render(
+      <QueryClientProvider client={testQueryClient()}>
+        <Probe />
+      </QueryClientProvider>,
+    ),
+  ).toThrow(/inside a UserProvider/);
 });

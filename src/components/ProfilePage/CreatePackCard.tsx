@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "../Discover/profileCard.css";
-import { api, unwrap } from "../../api";
+import { useCreatePack } from "../../queries";
 import type { Friend, User } from "../../types";
 
 interface CreatePackCardProps {
@@ -12,20 +12,14 @@ interface CreatePackCardProps {
 const CreatePackCard = ({ currentUser, friend }: CreatePackCardProps) => {
   const [packName, setPackName] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const create = useCreatePack();
 
   const createPack = async () => {
     try {
-      unwrap(
-        await api.PUT("/api/createpack", {
-          body: {
-            pack_name: packName,
-            users: [
-              ...(currentUser ? [currentUser.user_id] : []),
-              friend.user_id,
-            ],
-          },
-        }),
-      );
+      await create.mutateAsync({
+        pack_name: packName,
+        users: [...(currentUser ? [currentUser.user_id] : []), friend.user_id],
+      });
       setShowSuccess(true);
     } catch (err) {
       console.error("could not create the pack", err);

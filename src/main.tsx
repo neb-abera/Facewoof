@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Modal from "react-modal";
@@ -18,15 +19,30 @@ const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
  */
 Modal.setAppElement("#root");
 
+/*
+ * The query cache (src/queries.ts). A list is fresh for half a minute: long
+ * enough that moving between views does not refetch what was just shown,
+ * short enough that a change made in another tab appears on the next visit.
+ * Writes invalidate what they change, so the wait never applies to your own
+ * edits.
+ */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 30_000, retry: 1 },
+  },
+});
+
 const root = document.getElementById("root");
 if (!root) throw new Error("index.html has no #root element");
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <UserProvider>
-      <Router basename={basename}>
-        <App />
-      </Router>
-    </UserProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserProvider>
+        <Router basename={basename}>
+          <App />
+        </Router>
+      </UserProvider>
+    </QueryClientProvider>
   </React.StrictMode>,
 );

@@ -5,6 +5,7 @@ import LocationNotice from "../components/Discover/LocationNotice";
 import SearchBar from "../components/Discover/SearchBar";
 import useUserContext from "../hooks/useUserContext";
 import useUserLocation from "../hooks/useUserLocation";
+import { usePhotos } from "../queries";
 import type { DiscoverPage, FeedCard, Whereabouts } from "../types";
 import "./discover.css";
 
@@ -19,8 +20,12 @@ export default function Discover() {
   const [distances, setDistances] = useState<DiscoverPage["distances"]>({});
   const [resolving, setResolving] = useState(true);
 
-  const { userId, userData, photos, locationSource, provideLocation } =
+  const { userId, userData, locationSource, provideLocation } =
     useUserContext();
+  // The signed-in user's own photos, for the match screen. Nothing loaded
+  // these before, so the browser rendered the alt text in a 25vh circle —
+  // a dog's name floating where its picture should be.
+  const { data: photos = [] } = usePhotos();
   const {
     loading,
     error,

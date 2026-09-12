@@ -1,5 +1,5 @@
 import { type ChangeEvent, useState } from "react";
-import { api } from "../../api";
+import { useAddPhoto } from "../../queries";
 import FileUploader from "./FileUploader";
 import "./UploadFileWidget.css";
 import { uploadsConfigured, uploadToCloudinary } from "./cloudinary";
@@ -7,6 +7,7 @@ import { uploadsConfigured, uploadToCloudinary } from "./cloudinary";
 const UploadFileWidget = () => {
   const [urls, setUrls] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const addPhoto = useAddPhoto();
 
   const uploadImage = (img: File) => {
     setError(null);
@@ -15,7 +16,7 @@ const UploadFileWidget = () => {
         // The original spread a stale `urls` into a functional update, so it
         // read the same snapshot twice and dropped uploads that overlapped.
         setUrls((prev) => [...prev, url]);
-        return api.POST("/api/photos", { body: { photoUrl: url } });
+        return addPhoto.mutateAsync(url);
       })
       .catch((err: unknown) => {
         console.error("photo upload failed", err);

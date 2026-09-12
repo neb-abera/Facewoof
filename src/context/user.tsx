@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   type Dispatch,
@@ -9,7 +10,7 @@ import {
   useState,
 } from "react";
 import { ApiError, api, unwrap } from "../api";
-import type { CalendarEvent, Pack, User, Whereabouts } from "../types";
+import type { User, Whereabouts } from "../types";
 
 // A signed-in guest survives a page refresh: without this every reload would
 // mint a new throwaway account and lose whatever the visitor had swiped.
@@ -21,19 +22,17 @@ const SOURCE_KEY = "facewoof.locationSource";
 
 export type LocationSource = "device" | "fallback";
 
-/* Everything the provider shares. The setters are React's own. */
+/*
+ * Who is signed in, and how. Only that: the account's photos, friends,
+ * packs and playdates are server state and live in the query cache
+ * (src/queries.ts), where a write can refresh them for every view at once.
+ */
 export interface UserContextValue {
   userId: number | null;
   setUserId: Dispatch<SetStateAction<number | null>>;
   userData: User | null;
   setUserData: Dispatch<SetStateAction<User | null>>;
   loggedIn: boolean;
-  /* The signed-in user's own photo URLs, profile photo first. */
-  photos: string[];
-  packs: Pack[];
-  setPacks: Dispatch<SetStateAction<Pack[]>>;
-  playdates: CalendarEvent[];
-  setPlaydates: Dispatch<SetStateAction<CalendarEvent[]>>;
   /* Whether the profile page shows the edit form rather than the display. */
   firstLogin: boolean;
   setFirstLogin: Dispatch<SetStateAction<boolean>>;
@@ -69,11 +68,9 @@ const readStoredSource = (): LocationSource => {
 };
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const queryClient = useQueryClient();
   const [userId, setUserId] = useState<number | null>(readStoredUserId);
   const [userData, setUserData] = useState<User | null>(null);
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [packs, setPacks] = useState<Pack[]>([]);
-  const [playdates, setPlaydates] = useState<CalendarEvent[]>([]);
   const [firstLogin, setFirstLogin] = useState(false);
   const [authenticating, setAuthenticating] = useState(false);
   const [locationSource, setLocationSource] =
@@ -100,25 +97,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       // As above.
     }
   }, [locationSource]);
-
-  /*
-   * Load the signed-in user's own photos.
-   *
-   * Nothing populated this, so anything rendering the current user's picture —
-   * the match screen most visibly — got undefined for a src and fell back to
-   * showing the alt text, which is why a dog's name appeared floating where
-   * its photo should be.
-   */
-  useEffect(() => {
-    if (userId === null) {
-      setPhotos([]);
-      return;
-    }
-    api
-      .GET("/api/profilephoto")
-      .then(({ data }) => setPhotos((data ?? []).map((row) => row.url)))
-      .catch(() => setPhotos([]));
-  }, [userId]);
 
   /*
    * Adopt a session the server already has, once, on first load.
@@ -172,25 +150,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // `where` is an optional { lat, lng } or { zip }: the demo roster is created
   // next to it, so the visitor sees dogs near them rather than in New York.
-  const signInAsGuest = useCallback(async (where?: Whereabouts | null) => {
-    setAuthenticating(true);
-    try {
-      // The response sets the session cookie; the body is the new profile.
-      const data = unwrap(
-        await api.POST("/api/auth/guest", { body: where ?? {} }),
-      );
-      setUserData(data);
-      setUserId(data.user_id);
-      setLocationSource(where ? "device" : "fallback");
-      // Not firstLogin: that renders the edit form, so every demo visitor met
-      // a form instead of the profile they came to look at. Editing is a thing
-      // they choose from the profile page.
-      setFirstLogin(false);
-      return data;
-    } finally {
-      setAuthenticating(false);
-    }
-  }, []);
+  const signInAsGuest = useCallback(
+    async (where?: Whereabouts | null) => {
+      setAuthenticating(true);
+      try {
+        // The response sets the session cookie; the body is the new profile.
+        const data = unwrap(
+          await api.POST("/api/auth/guest", { body: where ?? {} }),
+        );
+        // Whatever the cache held belonged to the previous account.
+        queryClient.clear();
+        setUserData(data);
+        setUserId(data.user_id);
+        setLocationSource(where ? "device" : "fallback");
+        // Not firstLogin: that renders the edit form, so every demo visitor
+        // met a form instead of the profile they came to look at. Editing is
+        // a thing they choose from the profile page.
+        setFirstLogin(false);
+        return data;
+      } finally {
+        setAuthenticating(false);
+      }
+    },
+    [queryClient],
+  );
 
   /*
    * Move the account to where the device says it is.
@@ -218,11 +201,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     api.POST("/api/auth/logout").catch(() => {});
     setUserId(null);
     setUserData(null);
-    setPhotos([]);
-    setPacks([]);
-    setPlaydates([]);
     setFirstLogin(false);
-  }, []);
+    // Nothing in the cache is this visitor's any more.
+    queryClient.clear();
+  }, [queryClient]);
 
   const valueToShare = useMemo<UserContextValue>(
     () => ({
@@ -231,11 +213,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       userData,
       setUserData,
       loggedIn,
-      photos,
-      packs,
-      setPacks,
-      playdates,
-      setPlaydates,
       firstLogin,
       setFirstLogin,
       authenticating,
@@ -248,9 +225,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       userId,
       userData,
       loggedIn,
-      photos,
-      packs,
-      playdates,
       firstLogin,
       authenticating,
       signInAsGuest,

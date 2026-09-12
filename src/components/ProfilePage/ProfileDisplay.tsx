@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
 import { FaPen } from "react-icons/fa";
 import "./profile.css";
-import { api } from "../../api";
 import defaultDog from "../../assets/default-dog.svg";
 import useUserContext from "../../hooks/useUserContext";
+import { usePhotos } from "../../queries";
 import FriendsList from "./FriendsList";
 
 /*
@@ -37,14 +36,7 @@ const label = (kind: keyof typeof LABELS, value: string | null) =>
 
 const ProfileDisplay = () => {
   const { userData, setFirstLogin } = useUserContext();
-  const [photos, setPhotos] = useState<string[]>([]);
-
-  useEffect(() => {
-    api
-      .GET("/api/profilephoto")
-      .then(({ data }) => setPhotos((data ?? []).map((row) => row.url)))
-      .catch((err: unknown) => console.error("could not load photos", err));
-  }, []);
+  const { data: photos = [] } = usePhotos();
 
   // Context is still loading the account; there is nothing truthful to show.
   if (!userData) return null;

@@ -1,19 +1,8 @@
-import { useEffect, useState } from "react";
-import { api } from "../../../api";
-import type { Playdate as PlaydateRow } from "../../../types";
+import { useMyPlaydates } from "../../../queries";
 import Playdate from "./Playdate";
 
 const Playdates = () => {
-  const [playdates, setPlaydates] = useState<PlaydateRow[]>([]);
-
-  useEffect(() => {
-    api
-      .GET("/api/getUserPlaydates")
-      .then(({ data }) => setPlaydates(data ?? []))
-      .catch((err: unknown) =>
-        console.error("could not load your playdates", err),
-      );
-  }, []);
+  const { data: playdates = [] } = useMyPlaydates();
 
   // An empty list said nothing at all, which reads as a broken panel rather
   // than as having nothing scheduled.

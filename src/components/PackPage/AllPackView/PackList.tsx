@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { api } from "../../../api";
+import { usePacks } from "../../../queries";
 import type { Pack } from "../../../types";
 import PackName from "./PackName";
 
@@ -9,16 +8,9 @@ interface PackListProps {
 }
 
 const PackList = ({ setViewing, setViewingName }: PackListProps) => {
-  const [packList, setPackList] = useState<Pack[]>([]);
-
-  useEffect(() => {
-    api
-      .GET("/api/getUserPacks")
-      .then(({ data }) => setPackList(data ?? []))
-      .catch((err: unknown) =>
-        console.error("could not load the pack list", err),
-      );
-  }, []);
+  // Shared with the calendar's form and the friends list: one request, and
+  // a pack created anywhere shows up here at once.
+  const { data: packList = [] } = usePacks();
 
   const click = (pack: Pack) => {
     setViewing(pack.pack_id);

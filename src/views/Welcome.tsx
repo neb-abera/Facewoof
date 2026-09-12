@@ -7,6 +7,7 @@ import {
   uploadToCloudinary,
 } from "../components/FileUploader/cloudinary";
 import useUserContext from "../hooks/useUserContext";
+import { useAddPhoto } from "../queries";
 import type { Whereabouts } from "../types";
 import "./welcome.css";
 
@@ -25,6 +26,7 @@ import "./welcome.css";
 const Welcome = () => {
   const { userData, setUserData, loggedIn } = useUserContext();
   const navigate = useNavigate();
+  const addPhoto = useAddPhoto();
 
   const [dogName, setDogName] = useState("");
   const [dogBreed, setDogBreed] = useState("");
@@ -88,7 +90,7 @@ const Welcome = () => {
       // stopping for: the account is set up, and the profile page can add a
       // photo any time.
       if (photoUrl) {
-        await api.POST("/api/photos", { body: { photoUrl } }).catch((err) => {
+        await addPhoto.mutateAsync(photoUrl).catch((err: unknown) => {
           console.error("could not attach the photo", err);
         });
       }

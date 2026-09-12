@@ -1,6 +1,5 @@
-import { type CSSProperties, useCallback, useEffect, useState } from "react";
-import { api } from "../../../api";
-import type { Post } from "../../../types";
+import type { CSSProperties } from "react";
+import { usePackPosts, usePhotos } from "../../../queries";
 import PostMaker from "./PostMaker";
 import SoloPostTile from "./SoloPostTile";
 
@@ -23,23 +22,9 @@ const styles: Record<"posts" | "packHighest", CSSProperties> = {
 };
 
 const SoloPostTiles = ({ viewing, viewingName }: SoloPostTilesProps) => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [pfp, setPfp] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    const { data } = await api.GET("/api/getSoloPosts", {
-      params: { query: { packId: viewing } },
-    });
-    setPosts(data ?? []);
-    const photos = await api.GET("/api/getPfp");
-    setPfp(photos.data?.[0]?.url ?? null);
-  }, [viewing]);
-
-  useEffect(() => {
-    load().catch((err: unknown) =>
-      console.error("could not load the pack's posts", err),
-    );
-  }, [load]);
+  const { data: posts = [] } = usePackPosts(viewing);
+  const { data: photos = [] } = usePhotos();
+  const pfp = photos[0] ?? null;
 
   // Newest first.
   const sorted = [...posts].sort(
@@ -49,14 +34,7 @@ const SoloPostTiles = ({ viewing, viewingName }: SoloPostTilesProps) => {
   return (
     <div className="card" style={styles.packHighest}>
       <div>
-        <PostMaker
-          pfp={pfp}
-          viewing={viewing}
-          viewingName={viewingName}
-          onPosted={() => {
-            load().catch(() => {});
-          }}
-        />
+        <PostMaker pfp={pfp} viewing={viewing} viewingName={viewingName} />
       </div>
       <div style={styles.posts}>
         {sorted.map((each) => (

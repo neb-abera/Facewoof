@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { api, unwrap } from "../../../api";
+import { useCreatePack, useFriends } from "../../../queries";
 import type { Friend } from "../../../types";
 import "../../Shared/modal.css";
 import "./createPack.css";
@@ -31,23 +31,14 @@ const CreatePackModal = ({
   onClose,
   onCreated,
 }: CreatePackModalProps) => {
-  const [friends, setFriends] = useState<Friend[]>([]);
+  // Fetched when the dialog opens, and shared with the friends list.
+  const { data: friends = [], isError: friendsFailed } = useFriends(isOpen);
+  const create = useCreatePack();
   const [selected, setSelected] = useState<Friend | null>(null);
   const [packName, setPackName] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    api
-      .GET("/api/friends")
-      .then(({ data }) => setFriends(data ?? []))
-      .catch((err: unknown) => {
-        console.error("could not load your friends", err);
-        setError("Your friends could not be loaded.");
-      });
-  }, [isOpen]);
 
   // A dialog that remembers last time's half-finished input is worse than one
   // that starts clean.
@@ -72,17 +63,13 @@ const CreatePackModal = ({
     setSaving(true);
     setError(null);
     try {
-      unwrap(
-        await api.PUT("/api/createpack", {
-          body: {
-            pack_name: packName.trim(),
-            users: [
-              ...(userIdentity !== null ? [userIdentity] : []),
-              selected.user_id,
-            ],
-          },
-        }),
-      );
+      await create.mutateAsync({
+        pack_name: packName.trim(),
+        users: [
+          ...(userIdentity !== null ? [userIdentity] : []),
+          selected.user_id,
+        ],
+      });
       setCreated(packName.trim());
       if (onCreated) await onCreated();
     } catch (err) {
@@ -151,6 +138,11 @@ const CreatePackModal = ({
             />
           </div>
 
+          {friendsFailed ? (
+            <p className="text-error text-sm">
+              Your friends could not be loaded.
+            </p>
+          ) : null}
           {error ? <p className="text-error text-sm">{error}</p> : null}
 
           <button

@@ -2,9 +2,9 @@ import { FaDog } from "react-icons/fa";
 import { Link, Navigate } from "react-router-dom";
 import dogImage from "../assets/dog.jpg";
 import "../components/Login/Login.css";
-import useAuthProviders from "../hooks/useAuthProviders";
 import useGuestSignIn from "../hooks/useGuestSignIn";
 import useUserContext from "../hooks/useUserContext";
+import { useProviders } from "../queries";
 
 /*
  * Sign-in.
@@ -17,7 +17,9 @@ import useUserContext from "../hooks/useUserContext";
 const Login = () => {
   const { loggedIn, authenticating } = useUserContext();
   const { start: handleGuestSignIn, error } = useGuestSignIn();
-  const providers = useAuthProviders();
+  // Asked for rather than assumed, so an install with no Entra tenant
+  // configured shows the demo button and nothing that leads to a dead end.
+  const { data: providers = [] } = useProviders();
 
   // The callback redirects here with a reason rather than rendering its own
   // error page, because it is reached by a browser navigation.

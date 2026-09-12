@@ -9,8 +9,7 @@ import DateTimePicker from "react-datetime-picker";
 import "react-datetime-picker/dist/DateTimePicker.css";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
-import { api, unwrap } from "../../api";
-import useUserContext from "../../hooks/useUserContext";
+import { useAddPlaydate, usePacks } from "../../queries";
 import "./Playdate.css";
 
 interface AddPlaydateProps {
@@ -40,7 +39,8 @@ const AddPlaydate = ({
   const [playdateInfo, setPlaydateInfo] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const { packs } = useUserContext();
+  const { data: packs = [] } = usePacks();
+  const addPlaydate = useAddPlaydate();
 
   const handleSubmit = async () => {
     // Every one of these was silently optional. Submitting without a pack or a
@@ -65,18 +65,12 @@ const AddPlaydate = ({
       // No userId: it used to send a hardcoded 7 with a note to fix it later.
       // The server takes the acting user from the session and ignores anything
       // the client claims.
-      unwrap(
-        await api.POST("/api/addplaydate", {
-          body: {
-            packId: packChoiceId,
-            playdateBody: playdateInfo,
-            startTime: playStartTime.toISOString(),
-            endTime: playEndTime.toISOString(),
-          },
-        }),
-      );
-      // The calendar only loaded on mount, so a saved playdate never appeared
-      // and the whole feature looked broken.
+      await addPlaydate.mutateAsync({
+        packId: packChoiceId,
+        playdateBody: playdateInfo,
+        startTime: playStartTime.toISOString(),
+        endTime: playEndTime.toISOString(),
+      });
       if (onAdded) await onAdded();
       closeAddModal();
     } catch (err) {

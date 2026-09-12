@@ -4,7 +4,7 @@ import { Calendar, dateFnsLocalizer, type SlotInfo } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 // After the library's own stylesheet, so these overrides win.
 import "./calendar-theme.css";
-import useUserContext from "../../hooks/useUserContext";
+import { usePlaydates } from "../../queries";
 import type { CalendarEvent } from "../../types";
 
 // date-fns rather than moment: moment is in maintenance mode and ships as one
@@ -37,7 +37,10 @@ const PlaydateCalendar = ({
   setEndTime,
   setSelectedPlaydate,
 }: PlaydateCalendarProps) => {
-  const { playdates } = useUserContext();
+  // The list refreshes when a playdate is added anywhere: the calendar only
+  // ever fetched on mount before, so a saved playdate never appeared and the
+  // whole feature looked broken.
+  const { data: playdates = [] } = usePlaydates();
 
   const handleAddNewPlaydate = ({ start, end }: SlotInfo) => {
     openAddModal();

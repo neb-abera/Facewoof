@@ -1,8 +1,8 @@
 import { FaBars } from "react-icons/fa";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Logo from "../../assets/facewoofLogo.png";
-import useAuthProviders from "../../hooks/useAuthProviders";
 import useUserContext from "../../hooks/useUserContext";
+import { useProviders } from "../../queries";
 import "./nav.css";
 
 const links = [
@@ -19,7 +19,7 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 
 const Navbar = () => {
   const { loggedIn, logout, userData } = useUserContext();
-  const providers = useAuthProviders();
+  const { data: providers = [] } = useProviders();
   const navigate = useNavigate();
 
   // The original rendered a logout button that only console.logged, and hid
