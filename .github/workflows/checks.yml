@@ -46,22 +46,32 @@ jobs:
           set -euo pipefail
           docker build --progress=plain --target unittest . 2>&1 | tee unittest.log
 
-      # Parses the vitest summary already in the log — never re-runs tests.
+      # Parses the vitest summaries already in the log — never re-runs tests.
+      # The unittest stage runs the server's unit tests, prints a marker, then
+      # the client's component tests; each half is summarised on its own row.
       - name: Append test totals to the job summary
         run: |
           set -euo pipefail
           [ -n "${GITHUB_STEP_SUMMARY:-}" ] || exit 0
           clean="$(sed 's/\x1b\[[0-9;]*m//g' unittest.log)"
-          passed="$(grep ' Tests ' <<<"$clean" | grep -Eo '[0-9]+ passed' | grep -Eo '[0-9]+' | tail -1 || true)"
-          failed="$(grep ' Tests ' <<<"$clean" | grep -Eo '[0-9]+ failed' | grep -Eo '[0-9]+' | tail -1 || true)"
-          coverage="$(grep -E 'All files' <<<"$clean" | grep -Eo '[0-9]+(\.[0-9]+)?' | tail -1 || true)"
-          [ -n "${passed:-}" ] || exit 0
+          server="$(sed '/::client-tests::/,$d' <<<"$clean")"
+          client="$(sed -n '/::client-tests::/,$p' <<<"$clean")"
+          row() {
+            local name="$1" log="$2"
+            local passed failed coverage
+            passed="$(grep ' Tests ' <<<"$log" | grep -Eo '[0-9]+ passed' | grep -Eo '[0-9]+' | tail -1 || true)"
+            failed="$(grep ' Tests ' <<<"$log" | grep -Eo '[0-9]+ failed' | grep -Eo '[0-9]+' | tail -1 || true)"
+            coverage="$(grep -E 'All files' <<<"$log" | grep -Eo '[0-9]+(\.[0-9]+)?' | tail -1 || true)"
+            [ -n "${passed:-}" ] || return 0
+            echo "| ${name} | ${passed} | ${failed:-0} | ${coverage:-?}% |"
+          }
           {
-            echo "### Unit tests (vitest, in-container)"
+            echo "### Unit and component tests (vitest, in-container)"
             echo ""
-            echo "| Tests passed | Tests failed | Line coverage |"
-            echo "| --- | --- | --- |"
-            echo "| ${passed} | ${failed:-0} | ${coverage:-?}% |"
+            echo "| Suite | Tests passed | Tests failed | Line coverage |"
+            echo "| --- | --- | --- | --- |"
+            row "server (tests/unit)" "$server"
+            row "client (tests/client)" "$client"
           } >> "$GITHUB_STEP_SUMMARY"
 
   build:

@@ -49,11 +49,13 @@ COPY . .
 RUN npx biome check . && npm run typecheck && npm run check:contract
 
 # ---- unittest ---------------------------------------------------------------
-# The unit layer: fast checks on the decisions inside the server, hermetic
-# like lint, and a leaf the production build never pays for.
+# The unit layer: fast checks on the decisions inside the server, then the
+# client's component tests in jsdom (vitest.client.config.ts), hermetic like
+# lint, and a leaf the production build never pays for. The marker line lets
+# checks.yml split the two runs' totals for the job summary.
 FROM deps AS unittest
 COPY . .
-RUN npm run test:unit
+RUN npm run test:unit && echo "::client-tests::" && npm run test:client
 
 # ---- build ------------------------------------------------------------------
 FROM deps AS build

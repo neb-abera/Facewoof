@@ -20,7 +20,8 @@
     "format": "biome check --write .",
     "migrate": "node server/db/migrate.ts",
     "test:e2e": "playwright test",
-    "test:unit": "vitest run --coverage tests/unit"
+    "test:unit": "vitest run --coverage tests/unit",
+    "test:client": "vitest run --coverage --config vitest.client.config.ts"
   },
   "dependencies": {
     "@azure/identity": "^4.13.2",
@@ -53,6 +54,9 @@
     "@biomejs/biome": "2.5.12",
     "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/compression": "^1.8.1",
     "@types/cookie-session": "^2.0.49",
     "@types/cors": "^2.8.19",
@@ -68,7 +72,9 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^5.0.0",
     "daisyui": "^5.7.28",
+    "jsdom": "^30.0.1",
     "openapi-typescript": "^6.7.6",
+    "oxc-transform-react": "^0.145.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",

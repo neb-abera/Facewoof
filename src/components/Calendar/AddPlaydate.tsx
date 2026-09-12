@@ -91,6 +91,7 @@ const AddPlaydate = ({
     <div className="playdate-form">
       <h2>Add a Playdate</h2>
       <select
+        aria-label="Pack"
         value={packChoiceId ?? ""}
         onChange={(e) => setPackChoiceId(Number(e.target.value) || null)}
         className="select w-full max-w-xs"

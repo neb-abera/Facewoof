@@ -8,7 +8,24 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
-    plugins: [react(), tailwindcss()],
+    /*
+     * The React Compiler memoises components and hooks automatically, so
+     * the hand-written useCallback/useMemo are no longer load-bearing and a
+     * missed dependency cannot leave a stale closure behind. Native (oxc)
+     * rather than the Babel route: one transform, no Babel in the build.
+     * A component the compiler cannot prove safe is left as written — today
+     * that is the handlers built on try/finally (signInAsGuest, the playdate
+     * form, the location prompt), which the compiler does not yet lower.
+     * REACT_COMPILER_DIAGNOSTICS=true on a build prints which and why.
+     */
+    plugins: [
+      react({
+        compiler: {
+          logDiagnostics: process.env.REACT_COMPILER_DIAGNOSTICS === "true",
+        },
+      }),
+      tailwindcss(),
+    ],
 
     // Set to '/facewoof/' to serve the app under a path rather than at the root
     // of its own host. Vite rewrites asset URLs to match, and the router picks

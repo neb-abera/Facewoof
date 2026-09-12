@@ -13,7 +13,16 @@
 import createClient, { type Middleware } from "openapi-fetch";
 import type { paths } from "./api-types";
 
-const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+// Absolute, on the page's own origin. A relative base would do in a browser,
+// but openapi-fetch builds a Request before calling fetch, and Node's Request
+// (which the component tests run against) refuses a relative URL. The origin
+// is the one a relative URL would have resolved against anyway.
+const base = new URL(
+  import.meta.env.BASE_URL.replace(/\/$/, "") || "/",
+  window.location.origin,
+)
+  .toString()
+  .replace(/\/$/, "");
 
 /* One cookie's value, decoded, or null. */
 const readCookie = (name: string): string | null => {
@@ -40,6 +49,10 @@ const xsrf: Middleware = {
 
 export const api = createClient<paths>({
   baseUrl: base,
+  // Resolved per call rather than captured now: openapi-fetch would
+  // otherwise hold on to whatever globalThis.fetch was when this module
+  // loaded, which is before a test has installed its stand-in.
+  fetch: (input) => globalThis.fetch(input),
   // The session lives in a signed, httpOnly cookie. Same-origin requests
   // send it anyway, but being explicit means a future split-origin
   // deployment does not silently stop authenticating.
