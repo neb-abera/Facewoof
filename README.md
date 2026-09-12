@@ -47,7 +47,7 @@ of the repository never fight over a port or browse each other's build. Image
 tags, container names and the compose project derive from the directory the
 same way. `make ports` prints what this copy uses.
 
-The database is brought up to date by `server/db/migrate.js`, which the API
+The database is brought up to date by `server/db/migrate.ts`, which the API
 runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
 
 ## How it fits together
@@ -55,10 +55,10 @@ runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
 | Piece                   | What it is                                                                        |
 | ----------------------- | --------------------------------------------------------------------------------- |
 | `src/`                  | the React client, built by vite                                                   |
-| `server/routes.js`      | every HTTP route, all under `/api`                                                |
+| `server/routes.ts`      | every HTTP route, all under `/api`                                                |
 | `server/controllers/`   | request handling: unpack the request, call the database layer, shape the response |
 | `server/db/`            | the queries, one module per feature                                               |
-| `server/db/migrations/` | the schema and the demo roster, applied in order by `server/db/migrate.js`        |
+| `server/db/migrations/` | the schema and the demo roster, applied in order by `server/db/migrate.ts`        |
 | `tests/unit/`           | vitest, for the decisions inside the server                                       |
 | `tests/e2e/`            | Playwright, against the production image                                          |
 

@@ -1,0 +1,26 @@
+{
+  // The strictness every TypeScript project in this repository shares. The
+  // per-environment configs (server, e2e, client) extend this and add only
+  // their libs, types and files, so a rule loosened here is loosened
+  // everywhere on purpose and nowhere by accident.
+  //
+  // There is no build step anywhere: Node strips types itself, Vite and
+  // Playwright transpile their own inputs. These configs only check, hence
+  // noEmit, and erasableSyntaxOnly so tsc rejects the syntax Node cannot
+  // strip (enums, namespaces, parameter properties) before a runtime sees it.
+  "compilerOptions": {
+    "target": "es2024",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  }
+}

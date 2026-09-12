@@ -6,51 +6,33 @@ import CreatePackCard from "./createPack";
 import "./profile.css";
 
 const FriendsList = ({ currentUser }) => {
-  const [friendsName, setFriendsName] = useState([]);
   const [friendsData, setFriendsData] = useState([]);
-  const [gotFriends, setGotFriends] = useState(false);
-  const [gotPacks, setGotPacks] = useState(false);
-  // const [packs, setPacks] = useState([]);
-  const { packs } = useUserContext();
+  // setPacks comes from the context too. It was called here without ever
+  // being taken from it, so every mount threw ReferenceError inside the
+  // promise chain, the catch below logged it, and the "Add To Pack" menu only
+  // ever had packs in it if the calendar page had happened to load them
+  // first. Lint was not watching: a stray src/package.json kept Biome's React
+  // rules off for the whole client until it was removed.
+  const { packs, setPacks } = useUserContext();
 
+  // Once, on mount: the list is for this visit to the page.
   useEffect(() => {
-    if (!gotFriends) {
-      axios
-        .get("/api/friends")
-        .then((results) => {
-          const friendos = results.data;
-          const friendsArray = [];
-          // console.log(friendos);
-          friendos.forEach((friend) => {
-            friendsArray.push(friend.dog_name);
-            // friend.photos = [
-            //   'https://i.imgflip.com/3nzkub.png?a465864',
-            //   'https://i.imgflip.com/3nzkub.png?a465864'
-            // ];
-          });
-          setFriendsName(friendsArray);
-          setFriendsData(friendos);
-          setGotFriends(true);
-        })
-        .catch((err) => {
-          console.log("err", err);
-        });
-    }
+    axios
+      .get("/api/friends")
+      .then((results) => setFriendsData(results.data))
+      .catch((err) => {
+        console.log("err", err);
+      });
   }, []);
 
   useEffect(() => {
-    if (!gotPacks) {
-      axios
-        .get("/api/getpacks")
-        .then((results) => {
-          setPacks(results.data);
-          setGotPacks(true);
-        })
-        .catch((err) => {
-          console.log("err in getpacks", err);
-        });
-    }
-  }, []);
+    axios
+      .get("/api/getpacks")
+      .then((results) => setPacks(results.data))
+      .catch((err) => {
+        console.log("err in getpacks", err);
+      });
+  }, [setPacks]);
 
   const addToPack = (packId) => {
     axios
@@ -72,21 +54,20 @@ const FriendsList = ({ currentUser }) => {
           </tr>
         </thead>
         <tbody>
-          {friendsName.map((item, index) => {
+          {friendsData.map((user, index) => {
             // Ids, not CSS selectors. These were `#my-modal-N`, and a label's
             // htmlFor matches an element id literally, so the leading # made
             // every one of these buttons a no-op.
             const hrefString = `my-modal-${index}`;
             const hrefString2 = `my-modal-${index + 10}`;
-            const user = friendsData[index];
             return (
-              <tr key={index} className="flex">
+              <tr key={user.user_id} className="flex">
                 <td className="bg-base-200">
                   <label
                     htmlFor={hrefString}
                     className="btn btn-primary w-40 self-center"
                   >
-                    {item}
+                    {user.dog_name}
                   </label>
                   {/* Put this part before </body> tag */}
                   <input

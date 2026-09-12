@@ -1,0 +1,12 @@
+{
+  // The Playwright suite. It needs the DOM lib because page.evaluate callbacks
+  // run in the browser, and it must not share a config with the server for
+  // the same reason in reverse.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "lib": ["es2024", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": ["tests/e2e/**/*.ts", "playwright.config.ts"]
+}

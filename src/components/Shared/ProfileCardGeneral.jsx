@@ -35,8 +35,8 @@ export default function ProfileCardGeneral({ user }) {
           <div className="card-actions justify-start">
             {user.interests === undefined
               ? null
-              : user.interests.map((interest, index) => (
-                  <div key={`interest${index}`} className="badge badge-outline">
+              : user.interests.map((interest) => (
+                  <div key={interest} className="badge badge-outline">
                     {interest}
                   </div>
                 ))}
@@ -47,7 +47,7 @@ export default function ProfileCardGeneral({ user }) {
             <div className="carousel w-full">
               {user.photos.map((url, index) => (
                 <div
-                  key={`photo${index}`}
+                  key={url}
                   id={`item${user.user_id}${index}`}
                   className="carousel-item w-full"
                 >
@@ -57,9 +57,9 @@ export default function ProfileCardGeneral({ user }) {
             </div>
           </figure>
           <div className="flex justify-center w-full py-2 gap-2 carousel-buttons">
-            {user.photos.map((_url, index) => (
+            {user.photos.map((url, index) => (
               <a
-                key={`button${index}`}
+                key={url}
                 href={`#item${user.user_id}${index}`}
                 className="btn btn-xs"
               >

@@ -41,7 +41,7 @@ make test-unit
 Add tests with your change — unit tests for server behavior
 (`tests/unit/`), Playwright tests for anything a browser can see
 (`tests/e2e/`). Unit test coverage is enforced with thresholds in
-`vite.config.mjs`.
+`vite.config.mjs`, and `npm run typecheck` (part of `make check`) has to pass.
 
 ## What CI requires
 

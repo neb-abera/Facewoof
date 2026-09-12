@@ -38,6 +38,7 @@ export default function Discover() {
    * feed and no explanation. Denial now falls back to the profile's own zip
    * code, so the feed always has somewhere to look.
    */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberately mount-only (per user) — re-running would overwrite whatever the visitor has since typed into the search box
   useEffect(() => {
     if (!userId) return undefined;
 
@@ -61,11 +62,10 @@ export default function Discover() {
     return () => {
       cancelled = true;
     };
-    // Deliberately mount-only: re-running would overwrite whatever the visitor
-    // has since typed into the search box.
   }, [userId]);
 
   // Re-search when the radius changes, but not before a location is known.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: radius is the trigger — searching again on every keystroke in the location box is exactly what the Search button exists to avoid
   useEffect(() => {
     if (!resolving && searchLocation) getUsers(searchLocation, radius);
   }, [radius]);

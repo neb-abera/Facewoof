@@ -219,8 +219,8 @@ jobs:
           set -euo pipefail
           docker run -d --name oidc-mock --network host \
             -e PORT=9000 -e ISSUER=http://localhost:9000 -e CLIENT_ID=facewoof-ci \
-            -v "$PWD/tests/oidc-mock/server.js:/app/server.js:ro" \
-            -w /app facewoof node /app/server.js
+            -v "$PWD/tests/oidc-mock/server.ts:/app/server.ts:ro" \
+            -w /app facewoof node /app/server.ts
           for _ in $(seq 1 30); do
             if curl -sf http://localhost:9000/.well-known/openid-configuration >/dev/null; then break; fi
             sleep 2

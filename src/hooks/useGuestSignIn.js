@@ -10,32 +10,31 @@ import useUserContext from "./useUserContext";
  * only thing on offer was the same button again: two clicks and a page change
  * to do one thing.
  */
+/*
+ * Ask where the visitor is before creating the demo, so the roster can be
+ * generated next to them.
+ *
+ * Asked on the click that starts the demo, so a permission prompt is
+ * expected rather than a surprise. Declining costs a few seconds at most and
+ * the demo falls back to its default city.
+ */
+const askWhereTheyAre = () =>
+  new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve({ lat: coords.latitude, lng: coords.longitude }),
+      () => resolve(null),
+      { timeout: 8000, maximumAge: 600000 },
+    );
+  });
+
 const useGuestSignIn = () => {
   const { signInAsGuest } = useUserContext();
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  /*
-   * Ask where the visitor is before creating the demo, so the roster can be
-   * generated next to them.
-   *
-   * Asked on the click that starts the demo, so a permission prompt is
-   * expected rather than a surprise. Declining costs a few seconds at most and
-   * the demo falls back to its default city.
-   */
-  const askWhereTheyAre = () =>
-    new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        resolve(null);
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) =>
-          resolve({ lat: coords.latitude, lng: coords.longitude }),
-        () => resolve(null),
-        { timeout: 8000, maximumAge: 600000 },
-      );
-    });
 
   const start = useCallback(async () => {
     setError(null);

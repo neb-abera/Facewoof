@@ -130,8 +130,8 @@ e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
 	$(DOCKER) run -d --rm --name $(IMAGE)-oidc-mock --network $(NET) \
 	  --network-alias oidc-mock \
 	  -e PORT=9000 -e ISSUER=http://oidc-mock:9000 -e CLIENT_ID=facewoof-test \
-	  -v "$(CURDIR)/tests/oidc-mock/server.js:/app/server.js:ro" \
-	  -w /app $(IMAGE) node /app/server.js
+	  -v "$(CURDIR)/tests/oidc-mock/server.ts:/app/server.ts:ro" \
+	  -w /app $(IMAGE) node /app/server.ts
 	$(DOCKER) run -d --rm --name $(IMAGE)-signin --network $(NET) \
 	  --network-alias signin-under-test \
 	  -e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \

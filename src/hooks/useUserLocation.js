@@ -63,7 +63,8 @@ const useUserLocation = (setUsers, setDistances) => {
       );
       return data;
     },
-    [userId],
+    // Nothing here closes over the user: the session cookie identifies them.
+    [],
   );
 
   /*

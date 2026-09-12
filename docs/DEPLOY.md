@@ -143,7 +143,7 @@ az containerapp update -g "$RG" -n "$APP" \
 ```
 
 Azure Database for PostgreSQL requires TLS, which is what `PGSSL=true` turns on
-in `server/db/database.js`.
+in `server/db/database.ts`.
 
 ## 4. Let the container app pull from the registry
 

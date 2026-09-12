@@ -53,9 +53,9 @@ const SoloPostTiles = ({ viewing, viewingName }) => {
       </div>
       <div style={styles.posts}>
         {data
-          ? data.map((each, key) => (
+          ? data.map((each) => (
               <SoloPostTile
-                key={`${key + 1}`}
+                key={each.post_id}
                 img={each.photo_url}
                 content={each.body}
                 postedOn={each.date}

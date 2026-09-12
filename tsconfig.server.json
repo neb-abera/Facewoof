@@ -1,0 +1,12 @@
+{
+  // The server, its unit tests and the OIDC mock: everything that runs under
+  // Node. No DOM lib, so a browser global used here is a compile error rather
+  // than a crash at start-up.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "lib": ["es2024"],
+    "types": ["node"]
+  },
+  "include": ["server/**/*.ts", "tests/unit/**/*.ts", "tests/oidc-mock/**/*.ts"]
+}

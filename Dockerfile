@@ -29,6 +29,9 @@ EXPOSE 5173
 CMD ["npm", "run", "dev"]
 
 # ---- api --------------------------------------------------------------------
+# `node --watch` rather than nodemon: node restarts itself when an imported
+# file changes, and it loads .ts straight off the disk, so there is nothing
+# between the source and the process.
 FROM deps AS api
 ENV NODE_ENV=development
 EXPOSE 3001
@@ -40,7 +43,7 @@ CMD ["npm", "run", "server:dev"]
 # what a reviewer would get from a fresh clone.
 FROM deps AS lint
 COPY . .
-RUN npx biome check .
+RUN npx biome check . && npm run typecheck
 
 # ---- unittest ---------------------------------------------------------------
 # The unit layer: fast checks on the decisions inside the server, hermetic
@@ -80,6 +83,9 @@ RUN apk --no-cache upgrade
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
+# TypeScript source, run as-is: Node 26 strips the type annotations when it
+# loads a .ts file, so there is no compiled copy to keep in step with the
+# source and nothing from devDependencies is needed at run time.
 COPY server ./server
 COPY --from=build /app/dist ./dist
 
@@ -90,4 +96,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["node", "server/index.js"]
+CMD ["node", "server/index.ts"]

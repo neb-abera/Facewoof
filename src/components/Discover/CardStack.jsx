@@ -49,6 +49,7 @@ const CardStack = ({
   // null between drags.
   const drag = useRef(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: searchKey is the trigger, not an input — a new search forgets what was swiped in the old one
   useEffect(() => {
     swiped.current = new Set();
   }, [searchKey]);
@@ -62,6 +63,7 @@ const CardStack = ({
     if (hasMore && data.length <= TOP_UP_AT) onRunningLow();
   }, [data.length, hasMore, onRunningLow]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once per vote, on out/pass only — re-running on every data change would restart the 300ms exit animation mid-flight
   useEffect(() => {
     if (data.length > 1 && (out !== null || pass !== null)) {
       setFront(data[1].user_id);

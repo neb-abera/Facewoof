@@ -96,6 +96,7 @@ export const UserProvider = ({ children }) => {
    * and bounced to /login — while /api/auth/me was answering 200 the whole
    * time. It also covers a browser that dropped localStorage but kept cookies.
    */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberately once, on mount — after this, sign-in and sign-out drive the id, and re-running on every change to it would undo signing out
   useEffect(() => {
     if (userId !== null) return;
 
@@ -108,8 +109,6 @@ export const UserProvider = ({ children }) => {
       })
       // 401 is the ordinary answer for a visitor who has not signed in.
       .catch(() => {});
-    // Deliberately once, on mount: after this, sign-in and sign-out drive the
-    // id, and re-running on every change to it would undo signing out.
   }, []);
 
   // Rehydrate the profile behind a stored id, and drop the id if the account

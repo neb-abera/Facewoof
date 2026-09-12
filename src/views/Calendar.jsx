@@ -4,7 +4,6 @@ import AddPlaydate from "../components/Calendar/AddPlaydate";
 import PlaydateCalendar from "../components/Calendar/PlaydateCalendar";
 import ViewPlaydate from "../components/Calendar/ViewPlaydate";
 import useCalendar from "../hooks/useCalender";
-import useUserContext from "../hooks/useUserContext";
 import "../components/Calendar/Playdate.css";
 import "../components/Shared/modal.css";
 
@@ -27,7 +26,6 @@ const Calendar = () => {
   // View Selected Playdate states
   const [selectedPlaydate, setSelectedPlaydate] = useState();
 
-  const { userId, loggedIn } = useUserContext();
   const { getPacks } = useCalendar();
 
   const openEditModal = () => {
@@ -62,9 +60,11 @@ const Calendar = () => {
     setAddPlaydateModal(false);
   };
 
+  // On mount. Signing in or out remounts this view, and getPacks is a stable
+  // callback, so this runs once per visit to the calendar.
   useEffect(() => {
     getPacks();
-  }, [userId, loggedIn]);
+  }, [getPacks]);
 
   return (
     <div id="calendar">

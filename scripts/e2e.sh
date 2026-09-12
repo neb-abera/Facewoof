@@ -48,7 +48,7 @@ docker run --name "$ctr" --network "${E2E_NETWORK:-host}" \
   "$image" bash -c '
     set -e
     mkdir /w && cd /w
-    cp /src/package.json /src/package-lock.json /src/playwright.config.js .
+    cp /src/package.json /src/package-lock.json /src/playwright.config.ts .
     cp -r /src/tests .
     npm ci --no-audit --no-fund
     npx playwright test "$@"
