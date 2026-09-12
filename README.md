@@ -11,8 +11,26 @@ rate limiting, browser tests and a pipeline to Azure.
 **[Try the demo](https://facewoof.abera.tech)** — one click, no sign-up.
 
 <p align="center">
-  <img src="public/READMEGIF/searchCity.gif" width="450" alt="Searching by city" />
+  <img src="docs/media/demo.gif" width="900" alt="Starting the demo, swiping through nearby dogs, matching, and visiting the profile, calendar and pack feed" />
 </p>
+<p align="center"><sub>The demo, start to finish. <a href="docs/media/demo.mp4">Full-quality clip</a>.</sub></p>
+
+| Discover | Match |
+| --- | --- |
+| ![The discover feed: a card for a nearby dog with photos, breed, age, distance and interests, and Pass and Woof buttons](docs/media/discover.png) | ![A match: both dogs' photos with Keep searching and Add to Pack](docs/media/match.png) |
+
+| Profile | Calendar |
+| --- | --- |
+| ![A dog's profile: photo, breed, age, location, vaccination badge, playdate facts and the friends list](docs/media/profile.png) | ![The shared playdate calendar in week view, with a playdate just added and the Add Playdate button](docs/media/calendar.png) |
+
+| Pack feed | Landing page |
+| --- | --- |
+| ![The pack feed: posts from every pack, with the packs and upcoming playdates in a sidebar](docs/media/packfeed.png) | ![The landing page: a dog on a beach, the three features, and the Try the demo button](docs/media/landing.png) |
+
+Every image above is captured from the current app by `make media`
+(`scripts/media/capture.spec.ts` walks the demo in the same browser image the
+tests use, and ffmpeg makes the clip), so the README cannot quietly fall behind
+the site.
 
 ## Running it
 
@@ -32,6 +50,7 @@ make test-unit  # unit tests with coverage, hermetically, the way CI runs them
 make image      # build the production image the deploy pipeline builds
 make run        # build and run the production image (on http://localhost:8080)
 make e2e        # browser tests against a running instance
+make media      # regenerate the README's screenshots and demo clip
 make clean      # stop this checkout's containers and delete its database volume
 ```
 

@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql lint fmt e2e e2e-signin check test-unit image run logs down clean
+.PHONY: help ports dev migrate reset-db psql lint fmt e2e e2e-signin check test-unit image run logs down clean media
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -110,6 +110,9 @@ run: image ## Build and run the production image; `make ports` says where
 		-e SESSION_SECRET=local-only \
 		-e INSECURE_TRANSPORT=true \
 		$(IMAGE)
+
+media: ## Regenerate the README's screenshots and demo clip from the production image
+	scripts/media/capture.sh
 
 logs: ## Follow the logs of every running service
 	$(COMPOSE) logs -f

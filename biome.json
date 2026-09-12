@@ -12,7 +12,8 @@
       "!public",
       "!coverage",
       "!src/api-types.d.ts",
-      "!server/openapi.json"
+      "!server/openapi.json",
+      "!scripts/media/out"
     ]
   },
   "formatter": {

@@ -13,6 +13,8 @@ coverage
 dist
 dist-ssr
 *.local
+# Raw captures; the finished media is committed under docs/media.
+scripts/media/out
 
 # The demo roster fixture is generated into a migration; the source JSON is
 # not committed.

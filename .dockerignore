@@ -7,4 +7,5 @@ coverage
 !.env.example
 npm-debug.log*
 .DS_Store
-public/READMEGIF
+docs/media
+scripts/media/out
