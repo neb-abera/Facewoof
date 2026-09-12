@@ -52,3 +52,6 @@ server/.DS_Store
 src/.DS_Store
 src/components/.DS_Store
 oktaConfig.js
+
+# Playwright traces, copied out by scripts/e2e.sh when a run fails.
+test-results/

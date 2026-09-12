@@ -11,10 +11,10 @@
 # so auto-merging a release published hours ago is the riskiest moment to
 # take it. Security updates ignore the cooldown and arrive immediately.
 #
-# The Playwright docker image (Dockerfile e2e stage) and @playwright/test in
-# package.json must stay on the same exact version; a guard step in checks.yml
-# fails fast when the two Dependabot PRs land out of step, and merging the
-# other one clears it.
+# Packages that must move together are grouped at every update level, majors
+# included, or a major arrives as two PRs that each fail npm ci. The
+# Playwright image is not a second pin any more: scripts/e2e.sh derives it
+# from @playwright/test.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -24,6 +24,13 @@ updates:
     cooldown:
       default-days: 5
     groups:
+      # vitest and @vitest/* peer-depend on each other's exact version, so a
+      # major split across two PRs cannot install in either. First match
+      # wins, so this catches the pair before the non-major group does.
+      vitest:
+        patterns:
+          - vitest
+          - "@vitest/*"
       npm-non-major:
         applies-to: version-updates
         update-types:

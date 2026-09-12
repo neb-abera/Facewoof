@@ -63,17 +63,14 @@ Merges are **squash-only** (linear history is required), commits must be
 signed, and review conversations — including bot code-scanning threads —
 must be resolved before merge.
 
-## The Playwright lockstep rule
+## The Playwright version
 
-The Playwright Docker image tag in the Dockerfile's `e2e` stage and the
-`@playwright/test` version in `package.json` must be the **same exact
-version** — the image ships the browsers, the package drives them, and a
-mismatch means testing against the wrong browser build. A guard step in
-`checks.yml` fails fast on any mismatch. Dependabot bumps the two in
-separate PRs (docker and npm ecosystems), so the first PR of the pair goes
-red until its counterpart merges — merge both, in either order. When bumping
-by hand, change both in one commit, and keep the image reference in
-`tag@digest` form: the guard parses the version out of the tag.
+`@playwright/test` in `package.json` is pinned to an **exact version**, and
+`scripts/e2e.sh` runs the suite in Playwright's own image at that same
+version — the image ships the browsers, the package drives them, and a
+mismatch means testing against the wrong browser build. There is no second
+pin to keep in step: Dependabot bumps the package and the image follows.
+Keep the version exact (no caret); the script refuses a range.
 
 ## Conventions
 

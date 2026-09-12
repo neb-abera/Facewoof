@@ -34,20 +34,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Playwright versions in lockstep
-        # The e2e image tag and @playwright/test must be the same exact
-        # version (see the Dockerfile's e2e stage). Dependabot bumps them in
-        # separate PRs — docker and npm — so this fails the first PR fast
-        # and clearly; merging its counterpart clears it.
-        run: |
-          set -euo pipefail
-          image="$(sed -n 's|^FROM mcr\.microsoft\.com/playwright:v\([0-9.]*\)-.* AS e2e$|\1|p' Dockerfile)"
-          pkg="$(node -p "require('./package.json').devDependencies['@playwright/test']")"
-          echo "Dockerfile e2e image: $image / @playwright/test: $pkg"
-          if [ -z "$image" ] || [ "$image" != "$pkg" ]; then
-            echo "::error::Playwright version mismatch: Dockerfile e2e image is '$image' but @playwright/test is '$pkg'. Merge the matching Dependabot PR for the other ecosystem."
-            exit 1
-          fi
       - name: Lint and format check
         # The check is a build step, so it runs on the same node as everything
         # else and against a copy of the tree rather than a mount.
@@ -210,11 +196,11 @@ jobs:
         # rendered in place of a photo, an overlay hidden behind the search bar,
         # a call to action that needs two clicks. All four of those reached
         # production because nothing opened the app in a browser.
-        run: |
-          set -euo pipefail
-          docker build --target e2e -t facewoof-e2e .
-          docker run --rm --network host -e CI=true \
-            -e BASE_URL=http://localhost:8080 facewoof-e2e
+        #
+        # The script runs the suite in Playwright's image at the exact version
+        # package.json pins, so there is no second pin for Dependabot to bump
+        # out of step.
+        run: E2E_NETWORK=host CI=true BASE_URL=http://localhost:8080 scripts/e2e.sh
 
       - name: DAST baseline (OWASP ZAP)
         # An attacker's-eye scan of the running production image. Accepted
@@ -259,11 +245,9 @@ jobs:
             sleep 2
           done
 
-          docker run --rm --network host -e CI=true \
-            -e BASE_URL=http://localhost:8080 \
-            -e ENTRA_PROVIDERS=email,google \
-            -e ENTRA_ISSUER=http://localhost:9000 \
-            facewoof-e2e npx playwright test sign-in --workers=1
+          E2E_NETWORK=host CI=true BASE_URL=http://localhost:8080 \
+            ENTRA_PROVIDERS=email,google ENTRA_ISSUER=http://localhost:9000 \
+            scripts/e2e.sh sign-in --workers=1
 
       - name: Playwright report
         if: failure()

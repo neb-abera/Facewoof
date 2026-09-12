@@ -35,7 +35,15 @@ fmt: ## Rewrite files to match biome
 	$(COMPOSE) run --rm lint npx biome check --write .
 
 e2e: ## Browser tests against a running instance (BASE_URL to override)
-	$(COMPOSE) run --rm e2e
+	# Playwright's own image, at the version package.json pins (scripts/e2e.sh
+	# derives it). The default BASE_URL is the container `make run` starts. It
+	# must not be a bare `app`: .app is a real gTLD on Chromium's HSTS preload
+	# list (Google owns it), so the browser force-upgrades any host with that
+	# name to https before the first request leaves, and every test dies with
+	# ERR_SSL_PROTOCOL_ERROR against a plain-HTTP instance. Nothing the server
+	# sends can prevent it — the list ships inside the browser. The same goes
+	# for other preloaded TLDs (dev, page, new, day).
+	E2E_NETWORK=facewoof_default BASE_URL=$${BASE_URL:-http://facewoof-app:8080} scripts/e2e.sh
 
 check: ## The gate CI runs: lint, format and the production image
 	$(DOCKER) build --target lint .
@@ -81,7 +89,6 @@ clean: ## Stop the containers and delete the database volume
 # nonce and signature verification are all genuinely exercised.
 e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
 	docker build --target final -t facewoof .
-	docker build --target e2e -t facewoof-e2e .
 	-docker rm -f facewoof-oidc-mock facewoof-signin
 	docker run -d --rm --name facewoof-oidc-mock --network facewoof_default \
 	  -e PORT=9000 -e ISSUER=http://facewoof-oidc-mock:9000 -e CLIENT_ID=facewoof-test \
@@ -98,8 +105,8 @@ e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
 	  -e ENTRA_REDIRECT_URI=http://facewoof-signin:8080/api/auth/oidc/callback \
 	  facewoof
 	sleep 12
-	docker run --rm --network facewoof_default -e CI=true \
-	  -e BASE_URL=http://facewoof-signin:8080 \
-	  -e ENTRA_ISSUER=http://facewoof-oidc-mock:9000 \
-	  facewoof-e2e npx playwright test sign-in --workers=1
+	E2E_NETWORK=facewoof_default CI=true \
+	  BASE_URL=http://facewoof-signin:8080 \
+	  ENTRA_ISSUER=http://facewoof-oidc-mock:9000 \
+	  scripts/e2e.sh sign-in --workers=1
 	docker rm -f facewoof-oidc-mock facewoof-signin
