@@ -1,4 +1,4 @@
- # Logs
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -7,50 +7,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies and build output
 node_modules
 coverage
-server/controllers/users.json
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# The demo roster fixture is generated into a migration; the source JSON is
+# not committed.
+server/controllers/users.json
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Local configuration. scripts/worktree-env.sh writes this copy's ports here;
+# .env.example documents the rest.
 .env
 *.env
+!.env.example
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# other
+# Other
 *.pem
 *.csv
-dist/
-.DS_Store
-server/.DS_Store
-src/.DS_Store
-src/components/.DS_Store
 oktaConfig.js
 
 # Playwright traces, copied out by scripts/e2e.sh when a run fails.

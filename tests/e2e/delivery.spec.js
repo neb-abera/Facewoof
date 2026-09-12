@@ -75,7 +75,7 @@ test("the hero photo is sized for the page, not the camera", async ({
 test("the landing page does not download the calendar", async ({ page }) => {
   const responses = await loadLanding(page);
 
-  // moment and react-big-calendar are only rendered on /calendar, behind
+  // date-fns and react-big-calendar are only rendered on /calendar, behind
   // sign-in. With the views code-split they live in the Calendar chunk, and a
   // visitor who bounces off the landing page never pays for them.
   const calendar = responses.filter((res) =>

@@ -11,11 +11,15 @@ cd Facewoof
 make dev        # database, API and hot-reloading client on http://localhost:3000
 ```
 
-`make` on its own lists every target. The ones you will use most:
+`make` on its own lists every target. Every copy of the repository — the main
+checkout, a git worktree, a second clone — gets its own host ports, image tag
+and compose project, derived from its directory name, so several can run side
+by side. `make ports` prints yours. The ones you will use most:
 
 | Target           | What it does                                                    |
 | ---------------- | --------------------------------------------------------------- |
-| `make dev`       | Database, API and hot-reloading client on http://localhost:3000 |
+| `make ports`     | This checkout's host ports, image name and compose network      |
+| `make dev`       | Database, API and hot-reloading client (`make ports` says where)|
 | `make check`     | The lint/format gate CI runs (biome, in-container)              |
 | `make test-unit` | Unit tests with coverage, hermetically, the way CI runs them    |
 | `make fmt`       | Rewrite files to match biome                                    |

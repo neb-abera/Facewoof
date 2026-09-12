@@ -1,9 +1,19 @@
 # Everything needed to work on Facewoof, in containers. See the Makefile for
 # the entry points; `make dev` is the one to start with.
-name: facewoof
+#
+# No `name:` on purpose. Compose falls back to the directory, and a worktree or
+# a second clone already has a directory of its own, so two copies of this
+# repository never share container names, networks or volumes. Published ports
+# cannot be derived that way — compose only reads numbers — so
+# scripts/worktree-env.sh writes them to .env, which compose loads on every
+# invocation. `make ports` says which are yours.
 
 services:
   db:
+    # The one place the Postgres version lives. Production runs the same major
+    # (Azure Database for PostgreSQL flexible server, see docs/DEPLOY.md), the
+    # CI smoke job starts this very service rather than naming an image of its
+    # own, and Dependabot's docker-compose ecosystem bumps the tag here.
     image: postgres:18-alpine
     environment:
       POSTGRES_USER: facewoof
@@ -12,7 +22,7 @@ services:
     ports:
       # Loopback only. A published port defaults to 0.0.0.0, which would put a
       # database with a guessable password on every interface this machine has.
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql
     healthcheck:
@@ -37,7 +47,7 @@ services:
       - path: .env
         required: false
     ports:
-      - "127.0.0.1:3001:3001"
+      - "127.0.0.1:${API_PORT:-3001}:3001"
     volumes:
       - ./server:/app/server
       - ./package.json:/app/package.json:ro
@@ -55,15 +65,13 @@ services:
       - path: .env
         required: false
     ports:
-      - "127.0.0.1:3000:5173"
+      - "127.0.0.1:${CLIENT_PORT:-3000}:5173"
     volumes:
       # Edits on the host reload in the container.
       - ./src:/app/src
       - ./public:/app/public
       - ./index.html:/app/index.html
       - ./vite.config.mjs:/app/vite.config.mjs
-      - ./tailwind.config.js:/app/tailwind.config.js
-      - ./postcss.config.js:/app/postcss.config.js
     depends_on:
       - api
 
