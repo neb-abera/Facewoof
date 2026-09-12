@@ -1,12 +1,3 @@
-/* @media screen and (max-width: 460px) {
-  .discover-cardview-parent {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-    justify-content: space-around;
-  }
-} */
-
 @media screen and (min-width: 0px) {
   .card-stack-parent {
     overflow: hidden;
@@ -283,5 +274,26 @@
 
   .buttons {
     width: 85%;
+  }
+}
+
+/*
+ * Phones. The card is absolutely positioned (see .profile-card below), and
+ * with no positioned ancestor its `top: 15%` was measured from the viewport.
+ * On a phone the demo notice and the search bar above the feed are taller
+ * than that, so the card's header — name, breed, interests — sat underneath
+ * them. Anchoring the card to its own container puts it below the bar.
+ *
+ * Last in the file on purpose: the base .profile-card rules above set the
+ * same properties at the same specificity, and the later declaration wins.
+ */
+@media screen and (max-width: 460px) {
+  .discover-cardview-parent {
+    position: relative;
+  }
+
+  .profile-card {
+    top: 0;
+    padding-top: 1vh;
   }
 }

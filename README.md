@@ -27,6 +27,10 @@ rate limiting, browser tests and a pipeline to Azure.
 | --- | --- |
 | ![The pack feed: posts from every pack, with the packs and upcoming playdates in a sidebar](docs/media/packfeed.png) | ![The landing page: a dog on a beach, the three features, and the Try the demo button](docs/media/landing.png) |
 
+<p align="center">
+  <img src="docs/media/discover-phone.png" width="300" alt="The discover feed at phone width: the demo notice, the search bar, and one card with the Pass and Woof buttons at its foot" />
+</p>
+
 Every image above is captured from the current app by `make media`
 (`scripts/media/capture.spec.ts` walks the demo in the same browser image the
 tests use, and ffmpeg makes the clip), so the README cannot quietly fall behind

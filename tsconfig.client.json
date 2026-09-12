@@ -1,0 +1,13 @@
+{
+  // The React client: DOM lib, JSX, and Vite's bundler resolution. Vite
+  // transpiles the .tsx itself; this config only checks (see base).
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2024", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}

@@ -60,12 +60,11 @@ docker run --rm --network "$NET" -e BASE_URL=http://media-under-test:8080 \
 
 cleanup
 
-# The screenshots the README embeds go over (the phone view is captured but
-# not shown until its layout is fixed); the recording becomes a GIF for the
-# README and an MP4 for anyone who wants the full clip. The GIF is scaled to
+# The screenshots the README embeds go over; the recording becomes a GIF for
+# the README and an MP4 for anyone who wants the full clip. The GIF is scaled to
 # 720px wide at 10 fps with a 128-colour palette: readable, and a few
 # megabytes rather than the tens a raw conversion produces.
-for name in landing discover match profile calendar packfeed; do
+for name in landing discover match profile calendar packfeed discover-phone; do
   cp "$OUT/$name.png" docs/media/
 done
 docker run --rm -v "$PWD/$OUT":/in -v "$PWD/docs/media":/out "$FFMPEG_IMAGE" \

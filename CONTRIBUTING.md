@@ -41,7 +41,7 @@ make test-unit
 Add tests with your change — unit tests for server behavior
 (`tests/unit/`), Playwright tests for anything a browser can see
 (`tests/e2e/`). Unit test coverage is enforced with thresholds in
-`vite.config.mjs`, and `npm run typecheck` (part of `make check`) has to pass.
+`vite.config.ts`, and `npm run typecheck` (part of `make check`) has to pass.
 
 Changing an endpoint means changing its entry in `server/routes.ts` (the
 schemas live in `server/api/schemas.ts`), then regenerating the contract and
