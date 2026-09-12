@@ -1,5 +1,6 @@
 import { pool } from "./database.ts";
-import type { ProfileWithPhotos, UserRow } from "./rows.ts";
+import type { UserRow } from "./rows.ts";
+import type { ProfileWithPhotos } from "./shapes.ts";
 
 export const getCurrentUserPromise = (userId: number) =>
   pool.query<UserRow>("SELECT * FROM users WHERE user_id = $1", [userId]);

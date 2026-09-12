@@ -54,6 +54,15 @@ npm run openapi && npm run generate:api-types
 `make check` runs `scripts/check-contract.sh`, which fails if either file is
 stale.
 
+Adding a migration means regenerating the row types and committing them:
+
+```bash
+make rows
+```
+
+CI's smoke job runs `scripts/check-rows.sh` (`make check-rows` locally),
+which fails if `server/db/rows.ts` is not what the schema generates.
+
 ## What CI requires
 
 Every pull request must pass these required status checks before it can

@@ -12,3 +12,4 @@ export * from "./pack.ts";
 export * from "./packfeed.ts";
 export * from "./profile.ts";
 export type * from "./rows.ts";
+export type * from "./shapes.ts";

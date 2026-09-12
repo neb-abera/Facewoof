@@ -1,11 +1,6 @@
 import { pool } from "./database.ts";
-import type {
-  PackPostRow,
-  PackRow,
-  PlaydateRow,
-  PostRow,
-  ProfilePhotoRow,
-} from "./rows.ts";
+import type { PackRow, PlaydateRow, PostRow, ProfilePhotoRow } from "./rows.ts";
+import type { PackPostRow } from "./shapes.ts";
 
 // These took (req, res) and pulled values off req.query themselves, which put
 // knowledge of the HTTP layer in the database layer. They take plain arguments

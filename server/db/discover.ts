@@ -1,5 +1,5 @@
 import { pool } from "./database.ts";
-import type { FeedRow } from "./rows.ts";
+import type { FeedRow } from "./shapes.ts";
 
 /*
  * Build a page of the discover feed: users in the given zip codes that the

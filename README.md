@@ -84,6 +84,7 @@ runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
 | `server/openapi.json`   | the API contract, generated from the route table (`npm run openapi`)              |
 | `src/api-types.d.ts`    | the client's types, generated from the contract (`npm run generate:api-types`)    |
 | `server/db/`            | the queries, one module per feature                                               |
+| `server/db/rows.ts`     | the tables as TypeScript, generated from the schema (`make rows`)                 |
 | `server/db/migrations/` | the schema and the demo roster, applied in order by `server/db/migrate.ts`        |
 | `tests/unit/`           | vitest, for the decisions inside the server                                       |
 | `tests/e2e/`            | Playwright, against the production image                                          |
@@ -114,6 +115,13 @@ npm run openapi && npm run generate:api-types
 ```
 
 ### The database
+
+`server/db/rows.ts` is generated from the live schema by
+`server/db/generate-rows.ts` (`make rows`) and committed, so every query is
+typed against the real columns without needing a database to typecheck. The
+CI smoke job regenerates it against the migrated database and fails on any
+difference, so a migration that renames or retypes a column fails the build
+until the types, and the queries they check, catch up.
 
 The original database was never committed — no schema, no migrations, nothing
 but the queries that read it. `server/db/migrations/0001_schema.sql` is

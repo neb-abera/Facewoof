@@ -153,6 +153,17 @@ jobs:
             sleep 2
           done
 
+      - name: Row types match the schema
+        # server/db/rows.ts is generated from the schema and committed, so
+        # every query typed by it is checked without a database. Regenerate
+        # against the migrated database this job just built and diff: a
+        # migration that renames a column fails here until the types, and so
+        # the queries, are brought up to date.
+        env:
+          IMAGE: facewoof
+          DATABASE_URL: postgres://facewoof:facewoof@localhost:5432/facewoof
+        run: scripts/check-rows.sh
+
       - name: The demo actually shows dogs
         run: |
           set -euo pipefail

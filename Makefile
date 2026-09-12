@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql lint fmt e2e e2e-signin check test-unit image run logs down clean media
+.PHONY: help ports dev migrate reset-db psql lint fmt e2e e2e-signin check test-unit image run logs down clean media rows check-rows
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -54,6 +54,17 @@ reset-db: ## Throw the database away and rebuild it from the migrations
 	$(COMPOSE) down --volumes
 	$(COMPOSE) up -d db
 	$(COMPOSE) run --rm migrate
+
+rows: ## Regenerate server/db/rows.ts from this checkout's migrated database
+	$(COMPOSE) up -d --wait db
+	$(COMPOSE) run --rm migrate
+	$(COMPOSE) run --rm migrate node server/db/generate-rows.ts
+
+check-rows: image ## Fail if server/db/rows.ts is not what the schema generates (the CI gate)
+	$(COMPOSE) up -d --wait db
+	$(COMPOSE) run --rm migrate
+	IMAGE=$(IMAGE) DOCKER_NETWORK=$(NET) \
+	  DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof scripts/check-rows.sh
 
 psql: ## Open a psql shell against the development database
 	$(COMPOSE) exec db psql -U facewoof -d facewoof

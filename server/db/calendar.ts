@@ -1,5 +1,5 @@
 import { pool } from "./database.ts";
-import type { PackPlaydate } from "./rows.ts";
+import type { PackPlaydate } from "./shapes.ts";
 
 export interface NewPlaydate {
   packId: number;
