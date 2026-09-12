@@ -12,6 +12,9 @@ import { rateLimit } from "express-rate-limit";
  * Everything is keyed on IP, which is the only identifier available: there is
  * no authentication yet, and a user id is supplied by the caller and therefore
  * worthless as a key.
+ *
+ * A limiter answers 429 with the same `{ error }` JSON body every other
+ * refusal uses, so a client has one shape to read.
  */
 
 const minutes = (n: number) => n * 60 * 1000;
@@ -40,8 +43,10 @@ export const guestLimiter = rateLimit({
   ...shared,
   windowMs: minutes(60),
   limit: GUEST_LIMIT_PER_HOUR,
-  message:
-    "Too many demo sessions started from this address. Try again in an hour.",
+  message: {
+    error:
+      "Too many demo sessions started from this address. Try again in an hour.",
+  },
 });
 
 /*
@@ -53,7 +58,7 @@ export const swipeLimiter = rateLimit({
   ...shared,
   windowMs: minutes(1),
   limit: 120,
-  message: "Slow down a moment.",
+  message: { error: "Slow down a moment." },
 });
 
 /*
@@ -64,7 +69,7 @@ export const feedLimiter = rateLimit({
   ...shared,
   windowMs: minutes(1),
   limit: 60,
-  message: "Too many requests. Try again shortly.",
+  message: { error: "Too many requests. Try again shortly." },
 });
 
 /* Anything that writes content: posts, playdates, photos, profile edits. */
@@ -72,7 +77,7 @@ export const writeLimiter = rateLimit({
   ...shared,
   windowMs: minutes(10),
   limit: 100,
-  message: "Too many changes from this address. Try again shortly.",
+  message: { error: "Too many changes from this address. Try again shortly." },
 });
 
 /*
@@ -85,7 +90,7 @@ export const healthLimiter = rateLimit({
   ...shared,
   windowMs: minutes(1),
   limit: 60,
-  message: "Too many health checks.",
+  message: { error: "Too many health checks." },
 });
 
 /* A backstop over the whole API, generous enough never to catch normal use. */
@@ -93,5 +98,5 @@ export const apiLimiter = rateLimit({
   ...shared,
   windowMs: minutes(5),
   limit: 600,
-  message: "Too many requests. Try again shortly.",
+  message: { error: "Too many requests. Try again shortly." },
 });

@@ -1,9 +1,13 @@
 /*
- * Every request handler, re-exported from one place so routes.ts imports the
- * lot and nothing else needs to know how the handlers are filed.
+ * Every route, re-exported from one place so routes.ts assembles the table
+ * and nothing else needs to know how the handlers are filed.
  */
 export { guestLogin, logout, me } from "./auth.ts";
-export { AddPlaydate, getPlaydates } from "./calendar.ts";
+export {
+  AddPlaydate,
+  ctrlUserPlaydatesAllPacks,
+  getPlaydates,
+} from "./calendar.ts";
 export { discoverUsers, resolveLocation, userResponse } from "./discover.ts";
 export {
   callback as oidcCallback,
@@ -15,15 +19,18 @@ export {
   ctrlAllPostsFromAllPacks,
   ctrlMakePost,
   ctrlPackPosts,
-  ctrlPfp,
   ctrlSoloPosts,
-  ctrlUserPacksId,
-  ctrlUserPlaydatesAllPacks,
 } from "./packfeed.ts";
-export { addUserToPack, createNewPackAndAdd, getUserPacks } from "./packs.ts";
+export {
+  addUserToPack,
+  createNewPackAndAdd,
+  ctrlUserPacksId,
+  getUserPacks,
+} from "./packs.ts";
 export {
   createPack,
   createPhotos,
+  ctrlPfp,
   editProfile,
   getCurrentUser,
   getProfilePhoto,

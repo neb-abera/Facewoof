@@ -398,6 +398,13 @@ test("a pack feed is only readable and writable by its members", async ({
   );
   expect(read.status(), "a non-member is refused the feed").toBe(403);
 
+  // The same feed under the single-pack view's name. It used to skip the
+  // membership check its sibling has, so this path read any pack by id.
+  const readSolo = await stranger.request.get(
+    `/api/getSoloPosts?packId=${packId}`,
+  );
+  expect(readSolo.status(), "a non-member is refused the solo feed").toBe(403);
+
   const write = await stranger.request.post("/api/makePost", {
     headers: await csrfHeaders(stranger),
     data: { packet: { pack_id: packId, body: "should never land" } },

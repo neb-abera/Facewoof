@@ -1,113 +1,65 @@
-import express from "express";
+/*
+ * The route table: every HTTP endpoint, in the order the document lists them.
+ *
+ * Each entry is a defineRoute() from server/controllers, carrying its method,
+ * path, auth requirement, rate limiter, request schemas, response schemas and
+ * handler. server/api/express.ts mounts the table; server/api/openapi.ts
+ * documents it. Adding an endpoint is adding a line here.
+ *
+ * Everything lives under /api. Five routes used to sit at the root
+ * (/getFriends, /getCurrentUser, /getProfilePhoto, /editUser, /createPack),
+ * which meant the dev server needed a proxy rule per route and the production
+ * server could not tell an API path from a client route it should hand the
+ * single page app.
+ */
+import { buildRouter } from "./api/express.ts";
+import type { AnyRoute } from "./api/route.ts";
+import * as c from "./controllers/index.ts";
 
-import {
-  AddPlaydate,
-  addUserToPack,
-  createNewPackAndAdd,
-  createPack,
-  createPhotos,
-  ctrlAllPostsFromAllPacks,
-  ctrlMakePost,
-  ctrlPackPosts,
-  ctrlPfp,
-  ctrlSoloPosts,
-  ctrlUserPacksId,
-  ctrlUserPlaydatesAllPacks,
-  discoverUsers,
-  editProfile,
-  finishOnboarding,
-  getCurrentUser,
-  getPlaydates,
-  getProfilePhoto,
-  getUserFriends,
-  getUserPacks,
-  guestLogin,
-  logout,
-  me,
-  oidcCallback,
-  oidcProviders,
-  oidcStart,
-  resolveLocation,
-  updateLocation,
-  userResponse,
-} from "./controllers/index.ts";
-import {
-  feedLimiter,
-  guestLimiter,
-  swipeLimiter,
-  writeLimiter,
-} from "./limits.ts";
-import { requireUser } from "./middleware/requireUser.ts";
+export const routes: readonly AnyRoute[] = [
+  // --- auth ---
+  c.guestLogin,
+  c.me,
+  c.logout,
+  // Sign-in through Entra External ID. These are browser navigations rather
+  // than fetches, so they redirect.
+  c.oidcProviders,
+  c.oidcStart,
+  c.oidcCallback,
+  // Finishing setup after signing in: profile, location and a roster to see.
+  c.finishOnboarding,
 
-export const router = express.Router();
+  // --- discover ---
+  c.discoverUsers,
+  c.resolveLocation,
+  c.userResponse,
 
-// Everything lives under /api. Five routes used to sit at the root
-// (/getFriends, /getCurrentUser, /getProfilePhoto, /editUser, /createPack),
-// which meant the dev server needed a proxy rule per route and the production
-// server could not tell an API path from a client route it should hand the
-// single page app.
+  // --- profile ---
+  c.getCurrentUser,
+  c.updateLocation,
+  c.getUserFriends,
+  c.editProfile,
+  c.getProfilePhoto,
+  c.createPhotos,
+  c.ctrlPfp,
 
-// --- auth ---
+  // --- packs ---
+  c.getUserPacks,
+  c.ctrlUserPacksId,
+  c.addUserToPack,
+  c.createNewPackAndAdd,
+  c.createPack,
 
-// Sign a demo visitor in to their own throwaway account.
-router.post("/api/auth/guest", guestLimiter, guestLogin);
-router.get("/api/auth/me", requireUser, me);
-router.post("/api/auth/logout", logout);
+  // --- pack feed ---
+  c.ctrlPackPosts,
+  c.ctrlAllPostsFromAllPacks,
+  c.ctrlSoloPosts,
+  c.ctrlMakePost,
 
-// Sign-in through Entra External ID, which fronts Google and Microsoft.
-// These are browser navigations rather than fetches, so they redirect.
-router.get("/api/auth/providers", oidcProviders);
-router.get("/api/auth/oidc/start", guestLimiter, oidcStart);
-router.get("/api/auth/oidc/callback", oidcCallback);
+  // --- calendar ---
+  c.getPlaydates,
+  c.AddPlaydate,
+  c.ctrlUserPlaydatesAllPacks,
+];
 
-// Finishing setup after signing in: profile, location and a roster to see.
-router.put("/api/onboarding", writeLimiter, requireUser, finishOnboarding);
-
-// Everything past this point acts on behalf of a signed-in user, and takes
-// that user from the session. Before this, each endpoint accepted the acting
-// user's id as a parameter, so changing a number in a URL was enough to act as
-// somebody else.
-router.use("/api", requireUser);
-
-// --- discover ---
-
-// POST, not GET, on purpose: the payload is the caller's location, and a
-// query string would copy it into access logs, proxy logs, Referer headers
-// and browser history on every request (CodeQL js/sensitive-get-query).
-router.post("/api/discover", feedLimiter, discoverUsers);
-router.post("/api/resolve-location", resolveLocation);
-router.post("/api/response", swipeLimiter, userResponse);
-
-// --- profile ---
-
-router.get("/api/currentuser", getCurrentUser);
-
-// Move a user to where their device says they are, generating neighbours there
-// if the area is empty. How someone leaves the demo experience behind.
-router.put("/api/location", writeLimiter, updateLocation);
-router.get("/api/friends", getUserFriends);
-router.put("/api/edituser", writeLimiter, editProfile);
-router.get("/api/profilephoto", getProfilePhoto);
-router.post("/api/photos", writeLimiter, createPhotos);
-router.get("/api/getPfp", ctrlPfp);
-
-// --- packs ---
-
-router.get("/api/getpacks", getUserPacks);
-router.get("/api/getUserPacks", ctrlUserPacksId);
-router.put("/api/addtopack", writeLimiter, addUserToPack);
-router.put("/api/createpack", writeLimiter, createNewPackAndAdd);
-router.post("/api/pack", createPack);
-
-// --- pack feed ---
-
-router.get("/api/getAllPostsFromSpecificPack", ctrlPackPosts);
-router.get("/api/getAllPacksPostsForUser", ctrlAllPostsFromAllPacks);
-router.get("/api/getSoloPosts", ctrlSoloPosts);
-router.post("/api/makePost", writeLimiter, ctrlMakePost);
-
-// --- calendar ---
-
-router.get("/api/playdates", getPlaydates);
-router.post("/api/addplaydate", writeLimiter, AddPlaydate);
-router.get("/api/getUserPlaydates", ctrlUserPlaydatesAllPacks);
+export const router = buildRouter(routes);

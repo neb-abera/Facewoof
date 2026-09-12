@@ -41,9 +41,12 @@ CMD ["npm", "run", "server:dev"]
 # A leaf stage, so the production build never pays for it. Copies the tree in
 # rather than mounting it, which is what makes it hermetic: what CI checks is
 # what a reviewer would get from a fresh clone.
+# Lint, typecheck, and the API contract: the committed OpenAPI document and
+# the client types generated from it must be exactly what the route table
+# produces (scripts/check-contract.sh).
 FROM deps AS lint
 COPY . .
-RUN npx biome check . && npm run typecheck
+RUN npx biome check . && npm run typecheck && npm run check:contract
 
 # ---- unittest ---------------------------------------------------------------
 # The unit layer: fast checks on the decisions inside the server, hermetic

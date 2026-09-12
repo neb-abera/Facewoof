@@ -1,8 +1,8 @@
-import type { RequestHandler } from "express";
 import zipcodes from "zipcodes";
+import { defineRoute, noContent, reply } from "../api/route.ts";
+import { ErrorBody, User, Whereabouts } from "../api/schemas.ts";
 import { createGuestUser, getCurrentUserPromise } from "../db/index.ts";
-import { actingUser } from "../middleware/requireUser.ts";
-import { sessionOf } from "../session.ts";
+import { guestLimiter } from "../limits.ts";
 
 /*
  * Hand a demo visitor their own throwaway account, and the demo roster placed
@@ -12,51 +12,57 @@ import { sessionOf } from "../session.ts";
  * person looking. Neither is required: without them the demo lands on its
  * default city rather than failing.
  */
-export const guestLogin: RequestHandler = async (req, res) => {
-  const { zip, lat, lng } = req.body || {};
-  let originZip: string | undefined = zip ? String(zip) : undefined;
+export const guestLogin = defineRoute({
+  method: "post",
+  path: "/api/auth/guest",
+  summary: "Sign a demo visitor in to their own throwaway account",
+  auth: false,
+  limit: guestLimiter,
+  body: Whereabouts,
+  responses: { 201: User },
+  handler: async ({ body, session }) => {
+    let originZip = body.zip;
+    if (!originZip && body.lat !== undefined && body.lng !== undefined) {
+      const match = zipcodes.lookupByCoords(body.lat, body.lng);
+      if (match) originZip = match.zip;
+    }
 
-  if (
-    !originZip &&
-    Number.isFinite(Number(lat)) &&
-    Number.isFinite(Number(lng))
-  ) {
-    const match = zipcodes.lookupByCoords(Number(lat), Number(lng));
-    if (match) originZip = match.zip;
-  }
-
-  try {
     const user = await createGuestUser(originZip);
     // Signing in is what establishes the session. Everything after this
     // takes the caller's identity from the cookie rather than the request.
-    sessionOf(req).userId = user.user_id;
-    res.status(201).send(user);
-  } catch (err) {
-    console.error("unable to create guest account", err);
-    res.status(500).send("unable to create guest account");
-  }
-};
+    session.userId = user.user_id;
+    return reply(201, user);
+  },
+});
 
 /* Who the caller is, according to their session. */
-export const me: RequestHandler = async (req, res) => {
-  try {
-    const { rows } = await getCurrentUserPromise(actingUser(req));
+export const me = defineRoute({
+  method: "get",
+  path: "/api/auth/me",
+  summary: "The signed-in account",
+  auth: true,
+  responses: { 200: User, 401: ErrorBody },
+  handler: async ({ userId, clearSession }) => {
+    const { rows } = await getCurrentUserPromise(userId);
     const user = rows[0];
     if (!user) {
       // The account is gone: an expired guest swept up by the cleanup. Clear
       // the cookie rather than leaving them signed in to nothing.
-      req.session = null;
-      res.status(401).send("sign in first");
-      return;
+      clearSession();
+      return reply(401, { error: "sign in first" });
     }
-    res.status(200).send(user);
-  } catch (err) {
-    console.error("unable to load the current user", err);
-    res.status(500).send("unable to load the current user");
-  }
-};
+    return reply(200, user);
+  },
+});
 
-export const logout: RequestHandler = (req, res) => {
-  req.session = null;
-  res.status(204).end();
-};
+export const logout = defineRoute({
+  method: "post",
+  path: "/api/auth/logout",
+  summary: "Sign out",
+  auth: false,
+  responses: { 204: null },
+  handler: async ({ clearSession }) => {
+    clearSession();
+    return noContent(204);
+  },
+});

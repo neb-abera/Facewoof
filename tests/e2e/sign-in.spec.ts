@@ -149,10 +149,14 @@ test.describe("with a provider configured", () => {
   }) => {
     const subject = `returning-${Date.now()}`;
 
+    // This account never finishes setting up, so each sign-in lands on
+    // /discover and is sent on to /welcome; either is arrival. Waiting for
+    // /discover alone raced the client-side redirect and flaked.
+    const arrived = /\/(discover|welcome)$/;
     await signInAs(request, subject);
     await page.goto("/login");
     await page.getByRole("link", { name: /continue with email/i }).click();
-    await page.waitForURL("**/discover", { timeout: 30_000 });
+    await page.waitForURL(arrived, { timeout: 30_000 });
     const first = await (await page.request.get("/api/auth/me")).json();
 
     await page.request.post("/api/auth/logout", {
@@ -161,7 +165,7 @@ test.describe("with a provider configured", () => {
     await signInAs(request, subject);
     await page.goto("/login");
     await page.getByRole("link", { name: /continue with email/i }).click();
-    await page.waitForURL("**/discover", { timeout: 30_000 });
+    await page.waitForURL(arrived, { timeout: 30_000 });
     const second = await (await page.request.get("/api/auth/me")).json();
 
     // Matched on (issuer, subject), so the same person is the same account —

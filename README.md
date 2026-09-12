@@ -55,8 +55,11 @@ runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
 | Piece                   | What it is                                                                        |
 | ----------------------- | --------------------------------------------------------------------------------- |
 | `src/`                  | the React client, built by vite                                                   |
-| `server/routes.ts`      | every HTTP route, all under `/api`                                                |
-| `server/controllers/`   | request handling: unpack the request, call the database layer, shape the response |
+| `server/routes.ts`      | the route table: every HTTP endpoint, all under `/api`                            |
+| `server/controllers/`   | the routes themselves: schemas in, handler, schemas out                           |
+| `server/api/`           | the machinery: Zod schemas, the Express adapter, the OpenAPI generator            |
+| `server/openapi.json`   | the API contract, generated from the route table (`npm run openapi`)              |
+| `src/api-types.d.ts`    | the client's types, generated from the contract (`npm run generate:api-types`)    |
 | `server/db/`            | the queries, one module per feature                                               |
 | `server/db/migrations/` | the schema and the demo roster, applied in order by `server/db/migrate.ts`        |
 | `tests/unit/`           | vitest, for the decisions inside the server                                       |
@@ -65,6 +68,27 @@ runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
 In development the client is served by vite and proxies `/api` to the API
 container. In production a single container serves both: express serves the
 built bundle and the API on one port, so nothing is cross-origin.
+
+### The API contract
+
+Every endpoint is one entry in `server/routes.ts`: its method and path,
+whether it needs a signed-in user, its rate limiter, a Zod schema for the
+request body and query string, and a Zod schema for every status it can
+answer with. Requests are parsed against those schemas before a handler runs
+(a mismatch is a 400 that names the field), and replies are checked against
+them on the way out (a mismatch is a 500 in the log, never a surprise on the
+wire). Every error body is the same shape: `{ "error": "..." }`, with
+`issues` when a request failed to parse.
+
+The same table generates `server/openapi.json`, and openapi-typescript turns
+that into `src/api-types.d.ts` for the client. Both are committed, and
+`scripts/check-contract.sh` fails CI if either is not what the code
+produces, so a schema change reaches the client as a compile error rather
+than a runtime one. After changing a schema:
+
+```bash
+npm run openapi && npm run generate:api-types
+```
 
 ### The database
 

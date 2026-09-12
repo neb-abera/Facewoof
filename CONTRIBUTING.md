@@ -43,6 +43,17 @@ Add tests with your change — unit tests for server behavior
 (`tests/e2e/`). Unit test coverage is enforced with thresholds in
 `vite.config.mjs`, and `npm run typecheck` (part of `make check`) has to pass.
 
+Changing an endpoint means changing its entry in `server/routes.ts` (the
+schemas live in `server/api/schemas.ts`), then regenerating the contract and
+the client types and committing both:
+
+```bash
+npm run openapi && npm run generate:api-types
+```
+
+`make check` runs `scripts/check-contract.sh`, which fails if either file is
+stale.
+
 ## What CI requires
 
 Every pull request must pass these required status checks before it can

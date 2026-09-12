@@ -13,6 +13,9 @@
     "server": "node server/index.ts",
     "server:dev": "node --watch server/index.ts",
     "typecheck": "tsc -p tsconfig.server.json && tsc -p tsconfig.e2e.json",
+    "openapi": "node server/api/openapi.ts",
+    "generate:api-types": "openapi-typescript server/openapi.json --output src/api-types.d.ts",
+    "check:contract": "scripts/check-contract.sh",
     "lint": "biome check .",
     "format": "biome check --write .",
     "migrate": "node server/db/migrate.ts",
@@ -44,7 +47,8 @@
     "react-icons": "^5.7.0",
     "react-modal": "^3.16.3",
     "react-router-dom": "^7.18.3",
-    "zipcodes": "^8.0.0"
+    "zipcodes": "^8.0.0",
+    "zod": "^4.6.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
@@ -61,6 +65,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^5.0.0",
     "daisyui": "^5.7.28",
+    "openapi-typescript": "^6.7.6",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",

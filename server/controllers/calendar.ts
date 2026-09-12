@@ -1,37 +1,56 @@
-import type { RequestHandler } from "express";
-import { createPlaydate, getAllPlaydates } from "../db/index.ts";
-import { actingUser } from "../middleware/requireUser.ts";
+import { defineRoute, reply } from "../api/route.ts";
+import {
+  Message,
+  NewPlaydateBody,
+  PackPlaydate,
+  Playdate,
+} from "../api/schemas.ts";
+import {
+  createPlaydate,
+  getAllPlaydates,
+  getUserPlaydatesAllPacks,
+} from "../db/index.ts";
+import { writeLimiter } from "../limits.ts";
 
-export const getPlaydates: RequestHandler = async (req, res) => {
-  try {
-    const data = await getAllPlaydates(actingUser(req));
+export const getPlaydates = defineRoute({
+  method: "get",
+  path: "/api/playdates",
+  summary: "Every playdate in the caller's packs",
+  auth: true,
+  responses: { 200: PackPlaydate.array() },
+  handler: async ({ userId }) => {
+    const data = await getAllPlaydates(userId);
     // json_agg gives back one row holding NULL when the user is in no packs.
-    res.send(data.rows[0]?.pack_playdates ?? []);
-  } catch (err) {
-    console.error("unable to get playdates", err);
-    res.status(500).send("unable to get playdates");
-  }
-};
+    return reply(200, data.rows[0]?.pack_playdates ?? []);
+  },
+});
 
-export const AddPlaydate: RequestHandler = async (req, res) => {
-  const { packId, playdateBody, startTime, endTime } = req.body;
-
-  if (!packId || !startTime || !endTime) {
-    res.status(400).send("packId, startTime and endTime are required");
-    return;
-  }
-
-  try {
+export const AddPlaydate = defineRoute({
+  method: "post",
+  path: "/api/addplaydate",
+  summary: "Put a playdate on a pack's calendar",
+  auth: true,
+  limit: writeLimiter,
+  body: NewPlaydateBody,
+  responses: { 201: Message },
+  handler: async ({ userId, body }) => {
     await createPlaydate({
-      packId,
-      userId: actingUser(req),
-      playdateBody,
-      startTime,
-      endTime,
+      packId: body.packId,
+      userId,
+      playdateBody: body.playdateBody ?? null,
+      startTime: body.startTime,
+      endTime: body.endTime,
     });
-    res.status(201).send("playdate added");
-  } catch (err) {
-    console.error("unable to create playdate", err);
-    res.status(500).send("unable to create playdate");
-  }
-};
+    return reply(201, { message: "playdate added" });
+  },
+});
+
+export const ctrlUserPlaydatesAllPacks = defineRoute({
+  method: "get",
+  path: "/api/getUserPlaydates",
+  summary: "The playdates the caller created, soonest first",
+  auth: true,
+  responses: { 200: Playdate.array() },
+  handler: async ({ userId }) =>
+    reply(200, (await getUserPlaydatesAllPacks(userId)).rows),
+});

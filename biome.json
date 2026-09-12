@@ -6,7 +6,14 @@
     "useIgnoreFile": false
   },
   "files": {
-    "includes": ["**", "!**/dist", "!public", "!coverage"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!public",
+      "!coverage",
+      "!src/api-types.d.ts",
+      "!server/openapi.json"
+    ]
   },
   "formatter": {
     "enabled": true,
