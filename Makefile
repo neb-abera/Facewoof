@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql contract lint fmt e2e e2e-signin check test-unit image run logs down clean media rows check-rows
+.PHONY: help ports dev migrate reset-db psql contract lint fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -95,6 +95,17 @@ check: ## The gate CI runs: lint, format and the production image
 test-unit: ## Unit and component tests, hermetically, the way CI runs them
 	$(DOCKER) build --target unittest .
 	$(DOCKER) build --target final -t $(IMAGE) .
+
+test-db: ## Tests that need a real Postgres, against this checkout's migrated database
+	$(COMPOSE) up -d --wait db
+	$(COMPOSE) run --rm migrate
+	$(DOCKER) build --target dbtest -t $(IMAGE)-dbtest .
+	$(DOCKER) run --rm --name $(IMAGE)-dbtest --network $(NET) \
+	  -e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
+	  $(IMAGE)-dbtest
+
+budget: image ## Fail if the production bundle outgrew bundle-budget.json (the CI gate)
+	IMAGE=$(IMAGE) scripts/check-bundle-budget.sh
 
 image: ## Build the production image the deploy pipeline builds
 	$(DOCKER) build --target final -t $(IMAGE) .

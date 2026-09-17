@@ -60,7 +60,7 @@ const Navbar = () => {
           </ul>
         </div>
 
-        <img src={Logo} className="logo" alt="" />
+        <img src={Logo} className="logo" width={40} height={40} alt="" />
         {/* The wordmark is the first thing to go when the bar runs out of
             room. A guest carries two buttons on the right rather than one, and
             below sm those plus the brand overlapped — the same spilling the

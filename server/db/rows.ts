@@ -70,6 +70,14 @@ export interface ProfilePhotoRow {
   url: string;
 }
 
+/* rate_limit_hits */
+export interface RateLimitHitRow {
+  prefix: string;
+  key: string;
+  hits: number;
+  reset_at: Date;
+}
+
 /* schema_migrations */
 export interface SchemaMigrationRow {
   name: string;

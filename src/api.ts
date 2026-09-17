@@ -34,16 +34,33 @@ const readCookie = (name: string): string | null => {
 };
 
 /*
- * CSRF, double-submit style: the server sets a readable XSRF-TOKEN cookie and
+ * CSRF, double-submit style: the API sets a readable XSRF-TOKEN cookie and
  * refuses any request that is not a GET unless the same value comes back in
  * the x-xsrf-token header. axios did this by itself; now it is written down.
+ *
+ * Only /api responses carry the cookie - the document and the bundle are
+ * served without one so a CDN can cache them - and the app asks
+ * /api/auth/me as it loads, so the token is normally here long before anyone
+ * can click. "Normally" is a race, though: a fast click, a cleared jar, or a
+ * page restored from the back/forward cache can reach a write with no token,
+ * and that write would be a 403 the visitor sees as a dead button. So a
+ * write that finds the jar empty fetches a token first. The providers list
+ * is the cheapest GET the API has: no session needed, no database touched.
  */
+const TOKEN_SOURCE = "/api/auth/providers";
+
 const xsrf: Middleware = {
-  onRequest({ request }) {
-    if (request.method !== "GET" && request.method !== "HEAD") {
-      const token = readCookie("XSRF-TOKEN");
-      if (token) request.headers.set("x-xsrf-token", token);
+  async onRequest({ request }) {
+    if (request.method === "GET" || request.method === "HEAD") return;
+    if (!readCookie("XSRF-TOKEN")) {
+      // Best effort: if this fails the write goes out bare and the server's
+      // 403 is the error the caller already handles.
+      await globalThis
+        .fetch(base + TOKEN_SOURCE, { credentials: "same-origin" })
+        .catch(() => {});
     }
+    const token = readCookie("XSRF-TOKEN");
+    if (token) request.headers.set("x-xsrf-token", token);
   },
 };
 

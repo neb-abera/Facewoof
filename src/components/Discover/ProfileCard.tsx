@@ -1,3 +1,4 @@
+import { avatarUrl } from "../../images";
 import type { FeedCard } from "../../types";
 import "./profileCard.css";
 
@@ -5,9 +6,24 @@ interface ProfileCardProps {
   user: FeedCard;
   /* Miles from the search origin; 0 reads as "under half a mile". */
   distance: number | null | undefined;
+  /*
+   * Whether this is the card on top of the stack. Three cards are mounted at
+   * once with three photos each, and only the top card's avatar and first
+   * photo can be seen: those load now, everything else - the carousel frames
+   * scrolled out of view, the two cards underneath - is left to the browser
+   * to fetch lazily, off the main thread's critical path.
+   */
+  top?: boolean;
 }
 
-export default function ProfileCard({ user, distance }: ProfileCardProps) {
+// The avatar circle is w-24; placedog is asked for twice that.
+const AVATAR_PX = 96;
+
+export default function ProfileCard({
+  user,
+  distance,
+  top = true,
+}: ProfileCardProps) {
   const miles = distance === 0 ? "< .5" : String(distance ?? "?");
   const photos = user.photos ?? [];
   const interests = user.interests.filter(
@@ -24,7 +40,11 @@ export default function ProfileCard({ user, distance }: ProfileCardProps) {
                 {/* draggable={false}: a native image drag would swallow the
                     pointer events the card's swipe listens for. */}
                 <img
-                  src={photos[0]}
+                  src={avatarUrl(photos[0], AVATAR_PX)}
+                  width={AVATAR_PX}
+                  height={AVATAR_PX}
+                  loading={top ? "eager" : "lazy"}
+                  decoding="async"
                   draggable={false}
                   alt={`A dog named ${user.dog_name}`}
                 />
@@ -71,6 +91,12 @@ export default function ProfileCard({ user, distance }: ProfileCardProps) {
                   <img
                     className="w-full no-image-drag"
                     src={url}
+                    // The roster's photos are 500x400; an upload's own
+                    // ratio takes over once it has loaded.
+                    width={500}
+                    height={400}
+                    loading={top && index === 0 ? "eager" : "lazy"}
+                    decoding="async"
                     draggable={false}
                     alt={`A dog named ${user.dog_name}`}
                   />

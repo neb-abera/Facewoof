@@ -1,3 +1,4 @@
+import { avatarUrl } from "../../images";
 import type { Friend } from "../../types";
 import "./profileCardGeneral.css";
 
@@ -15,7 +16,14 @@ export default function ProfileCardGeneral({ user }: { user: Friend }) {
           <div className="card-header-title">
             <div className="avatar">
               <div className="w-24 rounded-contain profile-image drop-shadow-none">
-                <img src={photos[0]} alt="Dog profile" />
+                <img
+                  src={avatarUrl(photos[0], 96)}
+                  width={96}
+                  height={96}
+                  loading="lazy"
+                  decoding="async"
+                  alt="Dog profile"
+                />
               </div>
             </div>
 
@@ -56,7 +64,15 @@ export default function ProfileCardGeneral({ user }: { user: Friend }) {
                   id={`item${user.user_id}${index}`}
                   className="carousel-item w-full"
                 >
-                  <img className="w-full" src={url} alt="Doggy" />
+                  <img
+                    className="w-full"
+                    src={url}
+                    width={500}
+                    height={400}
+                    loading="lazy"
+                    decoding="async"
+                    alt="Doggy"
+                  />
                 </div>
               ))}
             </div>

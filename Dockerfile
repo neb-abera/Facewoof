@@ -7,6 +7,7 @@
 #   contract deps plus the client type generator (tools/api-types)
 #   dev     the vite dev server, source bind mounted at run time
 #   api     the express API in watch mode, source bind mounted at run time
+#   dbtest  the tests that need a real database, run against one
 #   build   the production client bundle
 #   final   express serving the API and the built bundle on one port
 
@@ -74,6 +75,16 @@ RUN npx biome check . && npm run typecheck && npm run check:contract
 FROM deps AS unittest
 COPY . .
 RUN npm run test:unit && echo "::client-tests::" && npm run test:client
+
+# ---- dbtest -----------------------------------------------------------------
+# The tests that need a real Postgres (tests/db): what the SQL does, which a
+# stand-in for the pool cannot show. Unlike the stages above this one only
+# builds the runner - the database is not there at build time - so it is run,
+# with DATABASE_URL pointing at a migrated database: `make test-db` locally,
+# the smoke job in CI. A leaf the production build never pays for.
+FROM deps AS dbtest
+COPY . .
+CMD ["npm", "run", "test:db"]
 
 # ---- build ------------------------------------------------------------------
 FROM deps AS build

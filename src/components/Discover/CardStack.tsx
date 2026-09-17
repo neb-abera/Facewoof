@@ -226,6 +226,7 @@ const CardStack = ({
                   <div className="card-wrapper">
                     <ProfileCard
                       user={card}
+                      top={false}
                       distance={
                         card.location ? distances[card.location] : undefined
                       }

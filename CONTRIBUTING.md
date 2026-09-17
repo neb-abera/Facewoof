@@ -22,6 +22,8 @@ by side. `make ports` prints yours. The ones you will use most:
 | `make dev`       | Database, API and hot-reloading client (`make ports` says where)|
 | `make check`     | The lint/format gate CI runs (biome, in-container)              |
 | `make test-unit` | Unit and component tests with coverage, the way CI runs them    |
+| `make test-db`   | Tests that need a real Postgres, against this copy's database   |
+| `make budget`    | Fail if the production bundle outgrew `bundle-budget.json`      |
 | `make fmt`       | Rewrite files to match biome                                    |
 | `make run`       | Build and run the production image on http://localhost:8080     |
 | `make e2e`       | Browser tests against a running instance                        |
@@ -39,7 +41,8 @@ make test-unit
 ```
 
 Add tests with your change — unit tests for server behavior
-(`tests/unit/`), component tests for client logic (`tests/client/`, in
+(`tests/unit/`), tests of what a query actually does against a real Postgres
+(`tests/db/`, run by `make test-db` and CI's smoke job), component tests for client logic (`tests/client/`, in
 jsdom with a fake fetch), Playwright tests for anything a browser can see
 (`tests/e2e/`). Unit test coverage is enforced with thresholds in
 `vite.config.ts`, and `npm run typecheck` (part of `make check`) has to pass.
@@ -63,6 +66,22 @@ make rows
 
 CI's smoke job runs `scripts/check-rows.sh` (`make check-rows` locally),
 which fails if `server/db/rows.ts` is not what the schema generates.
+
+## The bundle budget
+
+CI's `production image` job runs `scripts/check-bundle-budget.sh`
+(`make budget` locally): the gzip size of what a first visit downloads — the
+entry script, the entry stylesheet, and the first load as a whole — must stay
+within `bundle-budget.json`. The numbers are bytes, so the check gives the
+same answer on every machine.
+
+When it fails, it names the files that are over. Look for what grew first: a
+new dependency imported from the entry chunk rather than from the route that
+uses it is the usual cause, and a lazy `import()` is the usual fix. If the
+growth is what you meant, raise the budget deliberately: run `make budget`,
+set the budget in `bundle-budget.json` to about 10% above the size it
+prints, update the measured sizes and date in that file's note, and say why
+in the pull request. Raise only the budget that failed.
 
 ## What CI requires
 

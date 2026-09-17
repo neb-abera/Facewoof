@@ -23,7 +23,10 @@ const dog = (id: number, name: string, likesMe: boolean | null): FeedCard => ({
   owner_email: `${name}@example.com`,
   location: "10011",
   user1_choice: likesMe,
-  photos: [`https://placedog.net/400?${id}`],
+  photos: [
+    `https://placedog.net/500/400?id=${id}`,
+    `https://placedog.net/500/400?id=${id + 100}`,
+  ],
   interests: ["fetch", null, "naps"],
 });
 
@@ -98,4 +101,44 @@ test("a Pass records a no and never shows a match", async () => {
 test("an empty stack says so rather than rendering nothing", () => {
   renderStack([]);
   expect(screen.getByText(/that's all for now/i)).toBeInTheDocument();
+});
+
+test("only the top card's avatar and first photo load eagerly", async () => {
+  renderStack([
+    dog(1, "Rex", null),
+    dog(2, "Luna", null),
+    dog(3, "Moss", null),
+  ]);
+
+  // Read as attributes: jsdom does not implement the loading/decoding
+  // properties, and the attribute is what the browser acts on anyway.
+  const photosOf = async (name: string) =>
+    (await screen.findAllByAltText(
+      `A dog named ${name}`,
+    )) as HTMLImageElement[];
+
+  // Avatar first, then the carousel frames.
+  const [avatar, first, second] = await photosOf("Rex");
+  expect(avatar?.getAttribute("loading")).toBe("eager");
+  expect(first?.getAttribute("loading")).toBe("eager");
+  expect(second?.getAttribute("loading")).toBe("lazy");
+
+  // The avatar asks placedog for a 96px circle at 2x, not the 500x400
+  // original; the carousel keeps the original.
+  expect(avatar?.src).toBe("https://placedog.net/192/192?id=1");
+  expect(first?.src).toBe("https://placedog.net/500/400?id=1");
+
+  // The cards underneath can wait, all of them.
+  for (const name of ["Luna", "Moss"]) {
+    for (const img of await photosOf(name)) {
+      expect(img.getAttribute("loading"), `${name}: ${img.src}`).toBe("lazy");
+    }
+  }
+
+  // Nothing is left to find its size from the network.
+  for (const img of document.querySelectorAll("img")) {
+    expect(img.getAttribute("width"), img.src).toBeTruthy();
+    expect(img.getAttribute("height"), img.src).toBeTruthy();
+    expect(img.getAttribute("decoding")).toBe("async");
+  }
 });

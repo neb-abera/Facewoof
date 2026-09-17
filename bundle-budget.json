@@ -1,0 +1,8 @@
+{
+  "//": "gzip -9 bytes a first visit downloads, checked by scripts/check-bundle-budget.sh (make budget, and CI's production image job). Set about 10% above the measured build on 2026-09-17: entryJs 85488, entryCss 18344, initialTotal 119908. CONTRIBUTING.md says how to raise one deliberately.",
+  "budgets": {
+    "entryJs": 94000,
+    "entryCss": 20200,
+    "initialTotal": 132000
+  }
+}

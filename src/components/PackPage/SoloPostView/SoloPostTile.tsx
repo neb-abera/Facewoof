@@ -51,7 +51,15 @@ const SoloPostTile = ({
       <div className="card shadow-xl" style={styles.tile}>
         <figure style={styles.imageAndPostedOn}>
           {img ? (
-            <img style={styles.pfp} src={img} alt="What was posted" />
+            <img
+              style={styles.pfp}
+              src={img}
+              width={100}
+              height={80}
+              loading="lazy"
+              decoding="async"
+              alt="What was posted"
+            />
           ) : null}
           <div className="card">Posted On: {currentDate.toLocaleString()}</div>
           <div className="">Part Of: {parentGroup}</div>

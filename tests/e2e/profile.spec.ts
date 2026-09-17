@@ -31,15 +31,20 @@ test("the profile page shows the dog, not a blank card", async ({ page }) => {
 
   // Every image actually renders. naturalWidth is what distinguishes a
   // rendered photo from a blocked or broken one; the old default avatar
-  // failed exactly this.
+  // failed exactly this. The friends' cards and the gallery are
+  // loading="lazy" and may never be asked for while they are off-screen, so:
+  // everything eager must have arrived, and nothing that has arrived, eager
+  // or lazy, may be broken.
   await page.waitForFunction(
     () => {
       const imgs = [
         ...document.querySelectorAll<HTMLImageElement>(".profile img"),
       ];
+      const eager = imgs.filter((img) => img.loading !== "lazy");
       return (
-        imgs.length > 0 &&
-        imgs.every((img) => img.complete && img.naturalWidth > 0)
+        eager.length > 0 &&
+        eager.every((img) => img.complete) &&
+        imgs.every((img) => !img.complete || img.naturalWidth > 0)
       );
     },
     { timeout: 15_000 },
