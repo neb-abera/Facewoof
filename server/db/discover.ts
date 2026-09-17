@@ -46,7 +46,7 @@ export function discoverFeedPage(
       `
   WITH candidates AS (
     SELECT u.user_id, u.dog_name, u.owner_name, u.dog_breed, u.age, u.vaccination,
-           u.discoverable, u.owner_email, u.location, admirer.user1_choice,
+           u.location, admirer.user1_choice,
            ARRAY[u.likes_one, u.likes_two, u.likes_three] AS interests
     FROM public.users u
     LEFT JOIN pending_relationships admirer

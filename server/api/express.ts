@@ -49,11 +49,12 @@ const send = (route: AnyRoute, reply: unknown, res: Response) => {
     return;
   }
 
-  // Serialise once, validate the JSON that will actually leave, send the
-  // same string. Dates become ISO strings here, which is what the schema
-  // describes.
-  const json = JSON.stringify(body);
-  const checked = schema.safeParse(JSON.parse(json));
+  // Serialise, validate the JSON, and send what the schema parsed rather
+  // than what the handler returned. Dates become ISO strings here, which is
+  // what the schema describes — and Zod drops keys an object schema does not
+  // declare, so a `SELECT *` that picks up a new private column cannot put
+  // it on the wire: only declared fields ever leave.
+  const checked = schema.safeParse(JSON.parse(JSON.stringify(body)));
   if (!checked.success) {
     console.error(
       `${route.method.toUpperCase()} ${route.path} ${status} response did not match its contract:`,
@@ -62,7 +63,7 @@ const send = (route: AnyRoute, reply: unknown, res: Response) => {
     res.status(500).json({ error: "internal error" });
     return;
   }
-  res.status(status).type("json").send(json);
+  res.status(status).json(checked.data);
 };
 
 const handle =

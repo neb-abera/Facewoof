@@ -143,22 +143,25 @@ export const discoverUsers = defineRoute({
     const miles = body.radius ?? 5;
     const nearbyZips = zipcodes.radius(origin, miles) as string[];
 
-    const distances: Record<string, number | null> = {};
-    for (const zip of nearbyZips) {
-      distances[zip] = zipcodes.distance(origin, zip);
-    }
-
     // `remaining` is what is left after this page, so the client knows
     // whether to keep asking. Counted rather than inferred from a short page:
     // a full page can still be the last one.
-    const { users, remaining } = await discoverFeedPage(
+    const { users: rows, remaining } = await discoverFeedPage(
       userId,
       nearbyZips,
       pageSize,
       seen,
     );
 
-    return reply(200, { users, distances, origin, remaining });
+    // The card carries a whole-mile distance and never the zip code it was
+    // computed from: the number is all the UI shows, and a member's zip is
+    // theirs. (zipcodes.distance already rounds to whole miles.)
+    const users = rows.map(({ location, ...card }) => ({
+      ...card,
+      distance: location ? zipcodes.distance(origin, location) : null,
+    }));
+
+    return reply(200, { users, origin, remaining });
   },
 });
 

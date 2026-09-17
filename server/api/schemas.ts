@@ -76,25 +76,52 @@ export const User = named(
   }),
 );
 
-/* A friend: a user with their photos gathered up. */
+/*
+ * What one user may learn about another: the dog, the owner's first-hand
+ * description of it, and nothing that identifies or locates the person.
+ *
+ * Deliberately a closed list rather than `User` minus a few fields. `User`
+ * is the caller's own account and carries owner_email, the zip code, and
+ * bookkeeping columns; extending it is how the friends list and the discover
+ * feed came to publish every member's email address to any demo visitor.
+ * A column added to `users` later stays private until it is added here.
+ */
+const publicProfile = {
+  user_id: z.number().int(),
+  dog_name: z.string().nullable(),
+  owner_name: z.string().nullable(),
+  dog_breed: z.string().nullable(),
+  age: z.number().int().nullable(),
+  vaccination: z.boolean(),
+};
+
+/* A friend (a mutual match): the public profile, the playdate facts and photos. */
 export const Friend = named(
   "Friend",
-  User.extend({ photos: z.array(z.string()).nullable() }),
+  z.object({
+    ...publicProfile,
+    likes_one: z.string().nullable(),
+    likes_two: z.string().nullable(),
+    likes_three: z.string().nullable(),
+    size: z.string().nullable(),
+    energy: z.string().nullable(),
+    best_time: z.string().nullable(),
+    bio: z.string().nullable(),
+    photos: z.array(z.string()).nullable(),
+  }),
 );
 
 /* One card in the discover feed. */
 export const FeedCard = named(
   "FeedCard",
   z.object({
-    user_id: z.number().int(),
-    dog_name: z.string().nullable(),
-    owner_name: z.string().nullable(),
-    dog_breed: z.string().nullable(),
-    age: z.number().int().nullable(),
-    vaccination: z.boolean(),
-    discoverable: z.boolean(),
-    owner_email: z.string(),
-    location: z.string().nullable(),
+    ...publicProfile,
+    /*
+     * Whole miles from the search origin, or null when unknown. The card
+     * used to carry the dog's zip code and the page a zip-to-distance table;
+     * the UI only ever showed the number, so the number is what is sent.
+     */
+    distance: z.number().nullable(),
     /* Whether this dog has already swiped yes on the caller. */
     user1_choice: z.boolean().nullable(),
     photos: z.array(z.string()).nullable(),
@@ -218,8 +245,6 @@ export const DiscoverPage = named(
   "DiscoverPage",
   z.object({
     users: z.array(FeedCard),
-    /* Miles from the origin, by zip code. */
-    distances: z.record(z.string(), z.number().nullable()),
     origin: zip,
     remaining: z.number().int(),
   }),

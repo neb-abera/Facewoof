@@ -7,12 +7,15 @@ export const getCurrentUserPromise = (userId: number) =>
 
 export const getFriendsPromise = (userId: number) =>
   pool.query<ProfileWithPhotos>(
-    `SELECT * FROM (
-       (SELECT * FROM users WHERE user_id IN
-         (SELECT user2_id FROM friends WHERE user1_id = $1)) a
+    // Named columns, never `SELECT *`: this row describes somebody else, and
+    // `users` also holds their email address and zip code.
+    `SELECT a.user_id, a.dog_name, a.owner_name, a.dog_breed, a.age,
+            a.vaccination, a.likes_one, a.likes_two, a.likes_three,
+            a.size, a.energy, a.best_time, a.bio, b.photos
+       FROM users a
        LEFT JOIN (SELECT user_id, array_agg(url) AS photos FROM profile_photos GROUP BY user_id) b
-       ON (a.user_id = b.user_id)
-     )`,
+         ON a.user_id = b.user_id
+      WHERE a.user_id IN (SELECT user2_id FROM friends WHERE user1_id = $1)`,
     [userId],
   );
 

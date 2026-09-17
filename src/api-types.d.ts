@@ -503,9 +503,6 @@ export interface components {
     schemas: {
         DiscoverPage: {
             users: components["schemas"]["FeedCard"][];
-            distances: {
-                [key: string]: number | null;
-            };
             origin: string;
             remaining: number;
         };
@@ -520,9 +517,7 @@ export interface components {
             dog_breed: string | null;
             age: number | null;
             vaccination: boolean;
-            discoverable: boolean;
-            owner_email: string;
-            location: string | null;
+            distance: number | null;
             user1_choice: boolean | null;
             photos: string[] | null;
             interests: (string | null)[];
@@ -534,18 +529,9 @@ export interface components {
             dog_breed: string | null;
             age: number | null;
             vaccination: boolean;
-            discoverable: boolean;
-            owner_email: string;
-            location: string | null;
             likes_one: string | null;
             likes_two: string | null;
             likes_three: string | null;
-            is_guest: boolean;
-            /** Format: date-time */
-            created_at: string;
-            demo_of: number | null;
-            cloned_from: number | null;
-            onboarded_at: string | null;
             size: string | null;
             energy: string | null;
             best_time: string | null;

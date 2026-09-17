@@ -2115,18 +2115,6 @@
               "$ref": "#/components/schemas/FeedCard"
             }
           },
-          "distances": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "type": [
-                "number",
-                "null"
-              ]
-            }
-          },
           "origin": {
             "type": "string",
             "pattern": "^\\d{5}$"
@@ -2139,7 +2127,6 @@
         },
         "required": [
           "users",
-          "distances",
           "origin",
           "remaining"
         ],
@@ -2204,15 +2191,9 @@
           "vaccination": {
             "type": "boolean"
           },
-          "discoverable": {
-            "type": "boolean"
-          },
-          "owner_email": {
-            "type": "string"
-          },
-          "location": {
+          "distance": {
             "type": [
-              "string",
+              "number",
               "null"
             ]
           },
@@ -2252,9 +2233,7 @@
           "dog_breed",
           "age",
           "vaccination",
-          "discoverable",
-          "owner_email",
-          "location",
+          "distance",
           "user1_choice",
           "photos",
           "interests"
@@ -2302,18 +2281,6 @@
           "vaccination": {
             "type": "boolean"
           },
-          "discoverable": {
-            "type": "boolean"
-          },
-          "owner_email": {
-            "type": "string"
-          },
-          "location": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
           "likes_one": {
             "type": [
               "string",
@@ -2330,50 +2297,6 @@
             "type": [
               "string",
               "null"
-            ]
-          },
-          "is_guest": {
-            "type": "boolean"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-          },
-          "demo_of": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "cloned_from": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "onboarded_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-              },
-              {
-                "type": "null"
-              }
             ]
           },
           "size": {
@@ -2421,17 +2344,9 @@
           "dog_breed",
           "age",
           "vaccination",
-          "discoverable",
-          "owner_email",
-          "location",
           "likes_one",
           "likes_two",
           "likes_three",
-          "is_guest",
-          "created_at",
-          "demo_of",
-          "cloned_from",
-          "onboarded_at",
           "size",
           "energy",
           "best_time",

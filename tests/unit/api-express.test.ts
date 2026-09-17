@@ -53,6 +53,16 @@ const routes = [
   }),
   defineRoute({
     method: "get",
+    path: "/api/test/extra-field",
+    summary: "answer with a row that has a column the schema never declared",
+    auth: false,
+    responses: { 200: z.object({ dog_name: z.string() }) },
+    // What `SELECT *` does the day somebody adds a private column.
+    handler: async () =>
+      reply(200, { dog_name: "Biscuit", owner_email: "sam@example.com" }),
+  }),
+  defineRoute({
+    method: "get",
     path: "/api/test/undeclared",
     summary: "answer with a status the route does not declare",
     auth: false,
@@ -188,6 +198,12 @@ describe("the route-table adapter", () => {
     expect(await res.json()).toEqual({ error: "internal error" });
     expect(spy.mock.calls[0]?.[0]).toMatch(/did not match its contract/);
     spy.mockRestore();
+  });
+
+  it("sends only the fields the response schema declares", async () => {
+    const res = await fetch(`${base}/api/test/extra-field`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ dog_name: "Biscuit" });
   });
 
   it("treats a status the route did not declare as a bug", async () => {
