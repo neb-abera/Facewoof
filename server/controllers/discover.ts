@@ -11,9 +11,11 @@ import {
   SwipeBody,
 } from "../api/schemas.ts";
 import {
+  canSwipeOn,
   checkForMatchAndCreate,
   discoverFeedPage,
   getUserLocation,
+  hasLikedBack,
   setRelationship,
 } from "../db/index.ts";
 import { feedLimiter, swipeLimiter } from "../limits.ts";
@@ -143,22 +145,25 @@ export const discoverUsers = defineRoute({
     const miles = body.radius ?? 5;
     const nearbyZips = zipcodes.radius(origin, miles) as string[];
 
-    const distances: Record<string, number | null> = {};
-    for (const zip of nearbyZips) {
-      distances[zip] = zipcodes.distance(origin, zip);
-    }
-
     // `remaining` is what is left after this page, so the client knows
     // whether to keep asking. Counted rather than inferred from a short page:
     // a full page can still be the last one.
-    const { users, remaining } = await discoverFeedPage(
+    const { users: rows, remaining } = await discoverFeedPage(
       userId,
       nearbyZips,
       pageSize,
       seen,
     );
 
-    return reply(200, { users, distances, origin, remaining });
+    // The card carries a whole-mile distance and never the zip code it was
+    // computed from: the number is all the UI shows, and a member's zip is
+    // theirs. (zipcodes.distance already rounds to whole miles.)
+    const users = rows.map(({ location, ...card }) => ({
+      ...card,
+      distance: location ? zipcodes.distance(origin, location) : null,
+    }));
+
+    return reply(200, { users, origin, remaining });
   },
 });
 
@@ -169,7 +174,7 @@ export const userResponse = defineRoute({
   auth: true,
   limit: swipeLimiter,
   body: SwipeBody,
-  responses: { 200: MatchFound, 201: Message, 400: ErrorBody },
+  responses: { 200: MatchFound, 201: Message, 400: ErrorBody, 404: ErrorBody },
   handler: async ({ userId, body }) => {
     // The swiper is whoever holds the session. Only the dog being swiped on
     // comes from the request, and swiping on yourself is not a thing.
@@ -179,7 +184,20 @@ export const userResponse = defineRoute({
       });
     }
 
-    if (body.currentUserChoice !== body.otherUserChoice) {
+    // Only dogs the caller could have been shown: discoverable, and not part
+    // of somebody else's demo roster.
+    if (!(await canSwipeOn(userId, body.otherUserId))) {
+      return reply(404, { error: "no such dog" });
+    }
+
+    // Whether the other dog said yes is the database's to say. It used to be
+    // read from the request (`otherUserChoice`), so sending `true` for both
+    // made anyone a "match" of anyone: into their friends list, and from
+    // there into the packs they belong to. The field is still accepted so an
+    // older client's request parses, and is ignored.
+    const mutual =
+      body.currentUserChoice && (await hasLikedBack(userId, body.otherUserId));
+    if (!mutual) {
       await setRelationship(userId, body.otherUserId, body.currentUserChoice);
       return reply(201, { message: "Response updated" });
     }

@@ -34,7 +34,8 @@ const readCookie = (name: string): string | null => {
 };
 
 /*
- * CSRF, double-submit style: the API sets a readable XSRF-TOKEN cookie and
+ * CSRF, double-submit style: the API sets a readable XSRF-TOKEN cookie
+ * (named __Host-XSRF-TOKEN in production) and
  * refuses any request that is not a GET unless the same value comes back in
  * the x-xsrf-token header. axios did this by itself; now it is written down.
  *
@@ -49,17 +50,22 @@ const readCookie = (name: string): string | null => {
  */
 const TOKEN_SOURCE = "/api/auth/providers";
 
+// __Host- prefixed over HTTPS in production, bare over plain HTTP
+// (server/cookies.ts). Whichever this deployment sets.
+const readToken = (): string | null =>
+  readCookie("__Host-XSRF-TOKEN") ?? readCookie("XSRF-TOKEN");
+
 const xsrf: Middleware = {
   async onRequest({ request }) {
     if (request.method === "GET" || request.method === "HEAD") return;
-    if (!readCookie("XSRF-TOKEN")) {
+    if (!readToken()) {
       // Best effort: if this fails the write goes out bare and the server's
       // 403 is the error the caller already handles.
       await globalThis
         .fetch(base + TOKEN_SOURCE, { credentials: "same-origin" })
         .catch(() => {});
     }
-    const token = readCookie("XSRF-TOKEN");
+    const token = readToken();
     if (token) request.headers.set("x-xsrf-token", token);
   },
 };

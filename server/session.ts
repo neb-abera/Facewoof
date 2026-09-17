@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import cookieSession from "cookie-session";
 import type { Request } from "express";
-import { insecureTransport } from "./insecure-transport.ts";
+import { cookieName, secureCookies } from "./cookies.ts";
 
 /*
  * Who the caller is, held in a signed cookie.
@@ -25,8 +25,29 @@ if (isProduction && !process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET must be set in production");
 }
 
-const secret =
-  process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
+/*
+ * One key, or several separated by commas. The first signs; every one of
+ * them verifies. That is what makes rotation possible without signing
+ * everyone out: put the new key first, deploy, and take the old one away a
+ * session lifetime later (docs/OPERATIONS.md). A single key could only be
+ * replaced, which ended every session at once.
+ */
+const configured = (process.env.SESSION_SECRET ?? "")
+  .split(",")
+  .map((key) => key.trim())
+  .filter(Boolean);
+
+const keys = configured.length
+  ? configured
+  : [crypto.randomBytes(32).toString("hex")];
+
+/*
+ * How long a session lasts. The cookie's own maxAge only tells an honest
+ * browser when to forget it; a copied cookie has no such manners, so the
+ * session also records when it was issued and requireUser enforces the same
+ * limit on the server.
+ */
+export const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 /*
  * What the session can hold. cookie-session types its object as an open
@@ -39,16 +60,42 @@ export interface PendingOidc {
   nonce: string;
   provider: string;
   guestUserId: number | null;
+  /* When the sign-in was started, in epoch milliseconds. */
+  startedAt: number;
 }
 
+/*
+ * How long a started sign-in stays answerable. The verifier, state and nonce
+ * ride in the session cookie, and without a limit of their own they were
+ * good for as long as the cookie was: a callback URL could be completed a
+ * day after it was issued. Ten minutes is an unhurried sign-in.
+ */
+export const PENDING_OIDC_MAX_AGE_MS = 10 * 60 * 1000;
+
 export const session = cookieSession({
-  name: "facewoof.sid",
-  keys: [secret],
-  maxAge: 24 * 60 * 60 * 1000,
+  name: cookieName("facewoof.sid"),
+  keys,
+  maxAge: SESSION_MAX_AGE_MS,
   httpOnly: true, // not readable from JavaScript, so XSS cannot lift it
   sameSite: "lax", // sent on normal navigation, not on cross-site form posts
-  secure: isProduction && !insecureTransport, // HTTPS only once deployed
+  secure: secureCookies, // HTTPS only once deployed
 });
+
+/*
+ * Sign a caller in. The one place a session gets its user, so that it always
+ * also gets the two things that let the server end it: the account's session
+ * version at this moment (signing out bumps it; see requireUser) and the
+ * time of issue.
+ */
+export function establishSession(
+  target: CookieSessionInterfaces.CookieSessionObject,
+  userId: number,
+  sessionVersion: number,
+) {
+  target.userId = userId;
+  target.v = sessionVersion;
+  target.iat = Date.now();
+}
 
 /*
  * The session object, for a handler that needs to write to it.

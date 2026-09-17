@@ -33,6 +33,9 @@ const CLIENT_ID = process.env.CLIENT_ID || "facewoof-test";
 let identity = {
   subject: process.env.SUBJECT || "test-subject-1",
   email: process.env.EMAIL || "tester@example.com",
+  // Settable, because what the app does with an UNVERIFIED address is a
+  // security property with a test of its own.
+  emailVerified: true,
   name: process.env.NAME || "Test Owner",
 };
 
@@ -72,11 +75,13 @@ const server = http.createServer(async (req, res) => {
     const next = JSON.parse((await readBody(req)) || "{}") as {
       subject?: string;
       email?: string;
+      emailVerified?: boolean;
       name?: string;
     };
     identity = {
       subject: next.subject || identity.subject,
       email: next.email || `${next.subject}@example.com`,
+      emailVerified: next.emailVerified !== false,
       name: next.name || identity.name,
     };
     return json(res, identity);
@@ -112,6 +117,7 @@ const server = http.createServer(async (req, res) => {
     const idToken = await new SignJWT({
       nonce: entry.nonce,
       email: identity.email,
+      email_verified: identity.emailVerified,
       name: identity.name,
     })
       .setProtectedHeader({ alg: "RS256", kid: "test-key" })

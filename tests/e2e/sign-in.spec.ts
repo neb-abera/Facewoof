@@ -31,8 +31,14 @@ interface Providers {
  * A fresh subject is a person who has never signed in here; reusing one is
  * that same person coming back. The two behave differently on purpose.
  */
-const signInAs = (request: APIRequestContext, subject: string) =>
-  request.post(`${process.env.ENTRA_ISSUER}/subject`, { data: { subject } });
+const signInAs = (
+  request: APIRequestContext,
+  subject: string,
+  claims: { email?: string; emailVerified?: boolean } = {},
+) =>
+  request.post(`${process.env.ENTRA_ISSUER}/subject`, {
+    data: { subject, ...claims },
+  });
 
 async function csrfHeaders(page: Page) {
   const cookies = await page.context().cookies();
@@ -329,5 +335,72 @@ test.describe("with a provider configured", () => {
         "AADSTS90023",
       );
     }
+  });
+  /*
+   * An identity is (issuer, subject). Email is only a profile field — but it
+   * is a UNIQUE one, and creating the account used to be an upsert on it: a
+   * brand new identity that arrived carrying an existing member's address
+   * was handed that member's account.
+   */
+  test("a new identity with an existing member's email is refused, not given their account", async ({
+    page,
+    request,
+  }) => {
+    const arrived = /\/(discover|welcome)$/;
+    const stamp = Date.now();
+    const email = `owner-${stamp}@example.com`;
+
+    await signInAs(request, `owner-${stamp}`, { email });
+    await page.goto("/login");
+    await page.getByRole("link", { name: /continue with email/i }).click();
+    await page.waitForURL(arrived, { timeout: 30_000 });
+    const owner = await (await page.request.get("/api/auth/me")).json();
+    expect(owner.owner_email).toBe(email);
+    await page.request.post("/api/auth/logout", {
+      headers: await csrfHeaders(page),
+    });
+
+    // Somebody else, from the provider's point of view, asserting the same
+    // verified address.
+    await signInAs(request, `impostor-${stamp}`, { email });
+    await page.goto("/login");
+    await page.getByRole("link", { name: /continue with email/i }).click();
+    await page.waitForURL(/\/login\?error=email-in-use$/, { timeout: 30_000 });
+    await expect(
+      page.getByText(/already belongs to an account/i),
+    ).toBeVisible();
+    expect((await page.request.get("/api/auth/me")).status()).toBe(401);
+  });
+
+  test("an unverified email claim is not stored, and collides with nobody", async ({
+    page,
+    request,
+  }) => {
+    const arrived = /\/(discover|welcome)$/;
+    const stamp = Date.now();
+    const email = `verified-${stamp}@example.com`;
+
+    await signInAs(request, `verified-${stamp}`, { email });
+    await page.goto("/login");
+    await page.getByRole("link", { name: /continue with email/i }).click();
+    await page.waitForURL(arrived, { timeout: 30_000 });
+    const owner = await (await page.request.get("/api/auth/me")).json();
+    await page.request.post("/api/auth/logout", {
+      headers: await csrfHeaders(page),
+    });
+
+    await signInAs(request, `unverified-${stamp}`, {
+      email,
+      emailVerified: false,
+    });
+    await page.goto("/login");
+    await page.getByRole("link", { name: /continue with email/i }).click();
+    await page.waitForURL(arrived, { timeout: 30_000 });
+    const other = await (await page.request.get("/api/auth/me")).json();
+
+    // Their own account, under an address derived from the identity rather
+    // than the one they merely claimed.
+    expect(other.user_id).not.toBe(owner.user_id);
+    expect(other.owner_email).not.toBe(email);
   });
 });

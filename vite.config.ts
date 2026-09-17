@@ -60,6 +60,13 @@ export default defineConfig(({ mode }) => {
     },
 
     test: {
+      // The HTTP-level tests start a real express app, and some re-import
+      // the server under a different environment per case. On a busy
+      // machine (a CI runner, other suites in the next terminal) the first
+      // request in a file has been seen to take eight seconds, all of it
+      // module loading; the default five-second limit then fails tests that
+      // have nothing wrong with them.
+      testTimeout: 30_000,
       coverage: {
         provider: "v8",
         // Coverage counts the modules the unit tests actually load — the
