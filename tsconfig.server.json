@@ -10,6 +10,7 @@
   },
   "include": [
     "server/**/*.ts",
+    "scripts/*.ts",
     "tests/unit/**/*.ts",
     "tests/db/**/*.ts",
     "tests/oidc-mock/**/*.ts"

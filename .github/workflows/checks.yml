@@ -93,6 +93,14 @@ jobs:
       - name: Build the image the deploy pipeline builds
         run: docker build --target final -t facewoof .
 
+      - name: The bundle is within its budget
+        # gzip bytes of what a first visit downloads - the entry script, the
+        # stylesheet, the preloaded chunks and the document - against
+        # bundle-budget.json, measured inside the image just built. Bytes,
+        # not timings, so it cannot flake. The failure path is proved by
+        # tests/unit/bundle-budget.test.ts in the unit job.
+        run: IMAGE=facewoof scripts/check-bundle-budget.sh
+
       - name: The image runs as a non-root user
         # The Dockerfile drops to `node` before the CMD; assert it stayed
         # dropped so a refactor cannot silently ship a root container.
