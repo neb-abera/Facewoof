@@ -1,6 +1,6 @@
 import { type PointerEvent, useEffect, useRef, useState } from "react";
 import { api } from "../../api";
-import type { DiscoverPage, FeedCard, User } from "../../types";
+import type { FeedCard, User } from "../../types";
 import Blank from "./Blank";
 import Match from "./Match";
 import ProfileCard from "./ProfileCard";
@@ -12,7 +12,6 @@ const TOP_UP_AT = 4;
 
 interface CardStackProps {
   users: FeedCard[];
-  distances: DiscoverPage["distances"];
   userData: User | null;
   /* The signed-in user's own photos, for the match screen. */
   photos: string[];
@@ -24,7 +23,6 @@ interface CardStackProps {
 
 const CardStack = ({
   users,
-  distances,
   userData,
   photos,
   onRunningLow,
@@ -210,12 +208,7 @@ const CardStack = ({
                   className={cardClass(card, index)}
                 >
                   <div className="card-wrapper">
-                    <ProfileCard
-                      user={card}
-                      distance={
-                        card.location ? distances[card.location] : undefined
-                      }
-                    />
+                    <ProfileCard user={card} />
                   </div>
                 </div>
               ) : (
@@ -224,13 +217,7 @@ const CardStack = ({
                   className={cardClass(card, index)}
                 >
                   <div className="card-wrapper">
-                    <ProfileCard
-                      user={card}
-                      top={false}
-                      distance={
-                        card.location ? distances[card.location] : undefined
-                      }
-                    />
+                    <ProfileCard user={card} top={false} />
                   </div>
                 </div>
               ),

@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { api, unwrap } from "../api";
-import type { DiscoverPage, FeedCard } from "../types";
+import type { FeedCard } from "../types";
 import useUserContext from "./useUserContext";
 
 // The feed arrives a page at a time rather than all at once. Ten is enough to
@@ -24,10 +24,7 @@ const getCoordinates = () =>
     });
   });
 
-const useUserLocation = (
-  setUsers: Dispatch<SetStateAction<FeedCard[]>>,
-  setDistances: Dispatch<SetStateAction<DiscoverPage["distances"]>>,
-) => {
+const useUserLocation = (setUsers: Dispatch<SetStateAction<FeedCard[]>>) => {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -89,7 +86,6 @@ const useUserLocation = (
       try {
         const data = await fetchPage(location, radius);
         setUsers(data.users);
-        setDistances(data.distances);
         setHasMore(data.remaining > 0);
         setSearchKey((n) => n + 1);
       } catch (err) {
@@ -101,7 +97,7 @@ const useUserLocation = (
         setLoading(false);
       }
     },
-    [userId, fetchPage, setUsers, setDistances],
+    [userId, fetchPage, setUsers],
   );
 
   /*
@@ -119,7 +115,6 @@ const useUserLocation = (
       const { location, radius } = lastQuery.current;
       const data = await fetchPage(location, radius);
       setUsers((prev) => prev.concat(data.users));
-      setDistances((prev) => ({ ...prev, ...data.distances }));
       setHasMore(data.remaining > 0);
     } catch (err) {
       console.error("could not load more dogs", err);
@@ -128,7 +123,7 @@ const useUserLocation = (
       inFlight.current = false;
       setLoadingMore(false);
     }
-  }, [hasMore, fetchPage, setUsers, setDistances]);
+  }, [hasMore, fetchPage, setUsers]);
 
   return {
     loading,

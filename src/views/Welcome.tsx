@@ -2,12 +2,9 @@ import { type ChangeEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { api, unwrap } from "../api";
 import defaultDog from "../assets/default-dog.svg";
-import {
-  uploadsConfigured,
-  uploadToCloudinary,
-} from "../components/FileUploader/cloudinary";
+import { uploadToCloudinary } from "../components/FileUploader/cloudinary";
 import useUserContext from "../hooks/useUserContext";
-import { useAddPhoto } from "../queries";
+import { useAddPhoto, useUploadsOffered } from "../queries";
 import type { Whereabouts } from "../types";
 import "./welcome.css";
 
@@ -27,6 +24,7 @@ const Welcome = () => {
   const { userData, setUserData, loggedIn } = useUserContext();
   const navigate = useNavigate();
   const addPhoto = useAddPhoto();
+  const uploadsOffered = useUploadsOffered();
 
   const [dogName, setDogName] = useState("");
   const [dogBreed, setDogBreed] = useState("");
@@ -142,7 +140,7 @@ const Welcome = () => {
           dogs nearby.
         </p>
 
-        {uploadsConfigured && (
+        {uploadsOffered && (
           <div className="welcome__photo">
             <img
               className="welcome__photo-preview"

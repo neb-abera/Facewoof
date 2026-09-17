@@ -8,7 +8,8 @@ import path from "node:path";
 import { createApp } from "./app.ts";
 import { pool as db } from "./db/database.ts";
 import { purgeExpiredGuests } from "./db/index.ts";
-import { migrate } from "./db/migrate.ts";
+import { prepareSchema } from "./db/migrate.ts";
+import { warnIfUploadsUnsigned } from "./media.ts";
 import { purgeExpiredRateLimits } from "./rate-limit-store.ts";
 import { router } from "./routes.ts";
 import { registerShutdown } from "./shutdown.ts";
@@ -21,8 +22,11 @@ export const app = createApp({
   checkDatabase: () => db.query("SELECT 1"),
 });
 
-// Guest accounts are throwaway. Sweep the expired ones hourly rather than
-// letting the table grow for as long as the app is up.
+// Guest accounts are throwaway. Sweep the expired ones once at boot and then
+// hourly. The boot sweep is what keeps a crash loop honest: a process that
+// never lives an hour never reaches the timer, and the sweep itself deletes
+// in batches that each commit (server/db/guests.ts), so a backlog shrinks
+// even if the process dies partway through.
 const GUEST_SWEEP_INTERVAL_MS = 60 * 60 * 1000;
 const sweepGuests = () =>
   purgeExpiredGuests(Number(process.env.GUEST_TTL_HOURS) || 24)
@@ -40,11 +44,13 @@ const sweepRateLimits = () =>
 
 // Only listen when run directly, so tests can import the app without binding.
 if (import.meta.main) {
+  warnIfUploadsUnsigned();
   db.query("SELECT 1")
     // Bring the schema up to date before serving. The runner takes an advisory
     // lock, so several replicas starting at once on a deploy is safe: one
-    // applies, the rest wait and find nothing to do.
-    .then(() => migrate())
+    // applies, the rest wait and find nothing to do. With MIGRATE_ON_BOOT=false
+    // (a runtime role with no DDL rights) it only checks nothing is pending.
+    .then(() => prepareSchema())
     .then(() => {
       console.log("database connected");
       sweepGuests();
@@ -62,7 +68,7 @@ if (import.meta.main) {
     })
     .catch((err: unknown) => {
       const reason = err instanceof Error ? err.message : String(err);
-      console.error("could not reach the database:", reason);
+      console.error("could not prepare the database:", reason);
       process.exit(1);
     });
 }

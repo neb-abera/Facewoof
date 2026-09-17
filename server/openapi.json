@@ -76,6 +76,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Not available right now: sign-in is not configured, or the demo is at capacity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -242,7 +252,7 @@
             }
           },
           "503": {
-            "description": "Sign-in is not configured on this instance",
+            "description": "Not available right now: sign-in is not configured, or the demo is at capacity",
             "content": {
               "application/json": {
                 "schema": {
@@ -699,6 +709,16 @@
           },
           "401": {
             "description": "Sign in first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1172,6 +1192,113 @@
         ]
       }
     },
+    "/api/uploads/config": {
+      "get": {
+        "summary": "Whether photo uploads are signed by this server",
+        "operationId": "getUploadsConfig",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadConfig"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/uploads/signature": {
+      "post": {
+        "summary": "A short-lived signature for one direct-to-Cloudinary upload",
+        "operationId": "postUploadsSignature",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadTicket"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; see the RateLimit-* headers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [],
+            "xsrf": []
+          }
+        ]
+      }
+    },
     "/api/getPfp": {
       "get": {
         "summary": "The caller's photo rows",
@@ -1418,12 +1545,14 @@
                 "properties": {
                   "pack_name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "users": {
                     "anyOf": [
                       {
                         "minItems": 1,
+                        "maxItems": 50,
                         "type": "array",
                         "items": {
                           "type": "integer",
@@ -1433,6 +1562,7 @@
                       },
                       {
                         "minItems": 1,
+                        "maxItems": 50,
                         "type": "array",
                         "items": {
                           "type": "integer",
@@ -1484,6 +1614,16 @@
               }
             }
           },
+          "403": {
+            "description": "Not allowed for this account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limited; see the RateLimit-* headers",
             "content": {
@@ -1515,7 +1655,7 @@
     },
     "/api/pack": {
       "post": {
-        "summary": "Create an empty pack",
+        "summary": "Create a pack with the caller as its only member",
         "operationId": "postPack",
         "requestBody": {
           "required": true,
@@ -1526,7 +1666,8 @@
                 "properties": {
                   "packName": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 80
                   }
                 },
                 "required": [
@@ -1563,6 +1704,16 @@
           },
           "401": {
             "description": "Sign in first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; see the RateLimit-* headers",
             "content": {
               "application/json": {
                 "schema": {
@@ -1812,15 +1963,33 @@
                         "maximum": 9007199254740991
                       },
                       "body": {
-                        "type": [
-                          "string",
-                          "null"
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 5000
+                          },
+                          {
+                            "type": "null"
+                          }
                         ]
                       },
                       "photo_url": {
-                        "type": [
-                          "string",
-                          "null"
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              {
+                                "type": "string",
+                                "const": ""
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
                         ]
                       }
                     },
@@ -2028,6 +2197,16 @@
               }
             }
           },
+          "403": {
+            "description": "Not allowed for this account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limited; see the RateLimit-* headers",
             "content": {
@@ -2115,18 +2294,6 @@
               "$ref": "#/components/schemas/FeedCard"
             }
           },
-          "distances": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string"
-            },
-            "additionalProperties": {
-              "type": [
-                "number",
-                "null"
-              ]
-            }
-          },
           "origin": {
             "type": "string",
             "pattern": "^\\d{5}$"
@@ -2139,7 +2306,6 @@
         },
         "required": [
           "users",
-          "distances",
           "origin",
           "remaining"
         ],
@@ -2204,15 +2370,9 @@
           "vaccination": {
             "type": "boolean"
           },
-          "discoverable": {
-            "type": "boolean"
-          },
-          "owner_email": {
-            "type": "string"
-          },
-          "location": {
+          "distance": {
             "type": [
-              "string",
+              "number",
               "null"
             ]
           },
@@ -2252,9 +2412,7 @@
           "dog_breed",
           "age",
           "vaccination",
-          "discoverable",
-          "owner_email",
-          "location",
+          "distance",
           "user1_choice",
           "photos",
           "interests"
@@ -2302,18 +2460,6 @@
           "vaccination": {
             "type": "boolean"
           },
-          "discoverable": {
-            "type": "boolean"
-          },
-          "owner_email": {
-            "type": "string"
-          },
-          "location": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
           "likes_one": {
             "type": [
               "string",
@@ -2330,50 +2476,6 @@
             "type": [
               "string",
               "null"
-            ]
-          },
-          "is_guest": {
-            "type": "boolean"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-          },
-          "demo_of": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "cloned_from": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": -9007199254740991,
-                "maximum": 9007199254740991
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "onboarded_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-              },
-              {
-                "type": "null"
-              }
             ]
           },
           "size": {
@@ -2421,17 +2523,9 @@
           "dog_breed",
           "age",
           "vaccination",
-          "discoverable",
-          "owner_email",
-          "location",
           "likes_one",
           "likes_two",
           "likes_three",
-          "is_guest",
-          "created_at",
-          "demo_of",
-          "cloned_from",
-          "onboarded_at",
           "size",
           "energy",
           "best_time",
@@ -2802,6 +2896,47 @@
         ],
         "additionalProperties": false
       },
+      "UploadConfig": {
+        "type": "object",
+        "properties": {
+          "signed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "signed"
+        ],
+        "additionalProperties": false
+      },
+      "UploadTicket": {
+        "type": "object",
+        "properties": {
+          "uploadUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "fields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          }
+        },
+        "required": [
+          "uploadUrl",
+          "fields",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
       "User": {
         "type": "object",
         "properties": {
@@ -2973,13 +3108,13 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "facewoof.sid",
-        "description": "The signed session cookie set by POST /api/auth/guest or the OIDC callback."
+        "description": "The signed session cookie set by POST /api/auth/guest or the OIDC callback. Over HTTPS in production it is named __Host-facewoof.sid."
       },
       "xsrf": {
         "type": "apiKey",
         "in": "header",
         "name": "x-xsrf-token",
-        "description": "CSRF double-submit: the value of the XSRF-TOKEN cookie, echoed back on every request that is not a GET. A request without it is refused with 403 before any route runs."
+        "description": "CSRF double-submit: the value of the XSRF-TOKEN cookie (__Host-XSRF-TOKEN over HTTPS in production), echoed back on every request that is not a GET. A request without it is refused with 403 before any route runs."
       }
     }
   }

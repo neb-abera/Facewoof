@@ -8,6 +8,7 @@ import {
 } from "../api/schemas.ts";
 import {
   addToPack,
+  areAllFriends,
   createPackAndAdd,
   getPacks,
   getUserPacksId,
@@ -48,11 +49,19 @@ export const createNewPackAndAdd = defineRoute({
   auth: true,
   limit: writeLimiter,
   body: CreatePackBody,
-  responses: { 201: Message },
+  responses: { 201: Message, 403: ErrorBody },
   handler: async ({ userId, body }) => {
+    // Everyone else has to be one of the caller's matches. The ids used to be
+    // taken on trust, so anyone could put any account into a pack of their
+    // naming — and membership is what the feed and calendar gate on.
+    const others = Array.from(new Set(body.users)).filter((u) => u !== userId);
+    if (!(await areAllFriends(userId, others))) {
+      return reply(403, {
+        error: "you can only create a pack with your friends",
+      });
+    }
     // The creator is always in their own pack, whatever the client sent.
-    const members = Array.from(new Set([userId, ...body.users]));
-    await createPackAndAdd(body.pack_name, members);
+    await createPackAndAdd(body.pack_name, [userId, ...others]);
     return reply(201, { message: "Pack created" });
   },
 });

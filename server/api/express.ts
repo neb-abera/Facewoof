@@ -16,7 +16,12 @@ import express, {
   type Router,
 } from "express";
 import type { z } from "zod";
-import { actingUser, requireUser } from "../middleware/requireUser.ts";
+import {
+  actingUser,
+  liveSessionUser,
+  requireUser,
+} from "../middleware/requireUser.ts";
+import { securityEvent } from "../security-log.ts";
 import { sessionOf } from "../session.ts";
 import type { AnyRoute } from "./route.ts";
 
@@ -49,11 +54,12 @@ const send = (route: AnyRoute, reply: unknown, res: Response) => {
     return;
   }
 
-  // Serialise once, validate the JSON that will actually leave, send the
-  // same string. Dates become ISO strings here, which is what the schema
-  // describes.
-  const json = JSON.stringify(body);
-  const checked = schema.safeParse(JSON.parse(json));
+  // Serialise, validate the JSON, and send what the schema parsed rather
+  // than what the handler returned. Dates become ISO strings here, which is
+  // what the schema describes — and Zod drops keys an object schema does not
+  // declare, so a `SELECT *` that picks up a new private column cannot put
+  // it on the wire: only declared fields ever leave.
+  const checked = schema.safeParse(JSON.parse(JSON.stringify(body)));
   if (!checked.success) {
     console.error(
       `${route.method.toUpperCase()} ${route.path} ${status} response did not match its contract:`,
@@ -62,7 +68,7 @@ const send = (route: AnyRoute, reply: unknown, res: Response) => {
     res.status(500).json({ error: "internal error" });
     return;
   }
-  res.status(status).type("json").send(json);
+  res.status(status).json(checked.data);
 };
 
 const handle =
@@ -96,14 +102,27 @@ const handle =
 
     try {
       const reply = await route.handler({
-        userId: route.auth ? actingUser(req) : (req.session?.userId ?? null),
+        // Behind `auth` requireUser has already vouched for the session. A
+        // public route that still wants to know who is calling (sign-out,
+        // upgrading a guest at sign-in) gets the same answer, or null: a
+        // revoked cookie is nobody.
+        userId: route.auth
+          ? actingUser(req)
+          : await liveSessionUser(req.session),
         body,
         query,
         session: sessionOf(req),
         clearSession: () => {
           req.session = null;
         },
+        audit: (event, detail) => securityEvent(req, event, detail),
       });
+      // Every authorisation refusal in the table, recorded in one place: a
+      // handler says no by replying 403 (or 401 for a session whose account
+      // is gone), and never has to remember to log it.
+      const { status } = reply as { status: number };
+      if (status === 403) securityEvent(req, "authz.denied");
+      if (status === 401) securityEvent(req, "auth.required");
       send(route, reply, res);
     } catch (err) {
       console.error(

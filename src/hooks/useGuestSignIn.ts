@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ApiError } from "../api";
 import type { Whereabouts } from "../types";
 import useUserContext from "./useUserContext";
 
@@ -45,7 +46,13 @@ const useGuestSignIn = () => {
       navigate("/discover");
     } catch (err) {
       console.error("guest sign in failed", err);
-      setError("Could not start a demo session. Please try again.");
+      // A full demo (503) and a rate limit (429) come with a sentence written
+      // for the visitor; anything else gets the generic one.
+      setError(
+        err instanceof ApiError && (err.status === 503 || err.status === 429)
+          ? err.message
+          : "Could not start a demo session. Please try again.",
+      );
     }
   }, [signInAsGuest, navigate]);
 

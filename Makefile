@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql contract lint fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows
+.PHONY: help ports dev migrate reset-db psql contract lint fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows check-db-roles
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -65,6 +65,10 @@ check-rows: image ## Fail if server/db/rows.ts is not what the schema generates 
 	$(COMPOSE) run --rm migrate
 	IMAGE=$(IMAGE) DOCKER_NETWORK=$(NET) \
 	  DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof scripts/check-rows.sh
+
+check-db-roles: image ## Prove the app works as a no-DDL database role, and that the role has no DDL
+	$(COMPOSE) up -d --wait db
+	IMAGE=$(IMAGE) DOCKER_NETWORK=$(NET) scripts/check-db-roles.sh
 
 contract: ## Regenerate server/openapi.json and src/api-types.d.ts from the route table
 	$(COMPOSE) run --rm --build contract

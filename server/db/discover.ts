@@ -46,7 +46,7 @@ export function discoverFeedPage(
       `
   WITH candidates AS (
     SELECT u.user_id, u.dog_name, u.owner_name, u.dog_breed, u.age, u.vaccination,
-           u.discoverable, u.owner_email, u.location, admirer.user1_choice,
+           u.location, admirer.user1_choice,
            ARRAY[u.likes_one, u.likes_two, u.likes_three] AS interests
     FROM public.users u
     LEFT JOIN pending_relationships admirer
@@ -98,6 +98,32 @@ export function discoverFeedPage(
         remaining: total - rows.length,
       };
     });
+}
+
+/*
+ * Whether `target` is a dog `user` could have been dealt: discoverable, and
+ * not a demo copy generated for somebody else's feed.
+ */
+export function canSwipeOn(user: number, target: number): Promise<boolean> {
+  return pool
+    .query(
+      `SELECT 1 FROM users
+        WHERE user_id = $2 AND discoverable
+          AND (demo_of IS NULL OR demo_of = $1)`,
+      [user, target],
+    )
+    .then(({ rowCount }) => (rowCount ?? 0) > 0);
+}
+
+/* Whether `other` has an unanswered yes waiting on `user`. */
+export function hasLikedBack(user: number, other: number): Promise<boolean> {
+  return pool
+    .query(
+      `SELECT 1 FROM pending_relationships
+        WHERE user1_id = $2 AND user2_id = $1 AND user1_choice`,
+      [user, other],
+    )
+    .then(({ rowCount }) => (rowCount ?? 0) > 0);
 }
 
 /* Record the current user's swipe on another user. */

@@ -8,6 +8,7 @@ export * from "./auth.ts";
 export * from "./calendar.ts";
 export { pool as db } from "./database.ts";
 export * from "./discover.ts";
+export * from "./guests.ts";
 export * from "./pack.ts";
 export * from "./packfeed.ts";
 export * from "./profile.ts";

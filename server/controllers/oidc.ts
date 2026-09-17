@@ -5,9 +5,11 @@ import {
   OidcStartQuery,
   Providers,
 } from "../api/schemas.ts";
-import { findOrCreateExternalUser } from "../db/index.ts";
+import { EmailInUseError, findOrCreateExternalUser } from "../db/index.ts";
+import { sessionVersionOf } from "../db/sessions.ts";
 import { guestLimiter } from "../limits.ts";
 import * as oidc from "../oidc.ts";
+import { establishSession, PENDING_OIDC_MAX_AGE_MS } from "../session.ts";
 
 /*
  * What the sign-in page should offer.
@@ -42,7 +44,7 @@ export const start = defineRoute({
   limit: guestLimiter,
   query: OidcStartQuery,
   responses: { 302: null, 502: ErrorBody, 503: ErrorBody },
-  handler: async ({ query, session }) => {
+  handler: async ({ query, session, userId, audit }) => {
     if (!oidc.isConfigured) {
       return reply(503, { error: "sign-in is not configured" });
     }
@@ -63,12 +65,16 @@ export const start = defineRoute({
         state: request.state,
         nonce: request.nonce,
         provider: request.provider,
-        guestUserId: session.userId ?? null,
+        // The live session's user, not whatever the cookie claims: a revoked
+        // guest cookie must not be able to claim that guest account.
+        guestUserId: userId,
+        startedAt: Date.now(),
       };
 
       return redirect(302, await oidc.authorizeUrl(request));
     } catch (err) {
       console.error("could not start sign-in", err);
+      audit("oidc.failed", { reason: "start-failed" });
       return reply(502, { error: "could not reach the sign-in service" });
     }
   },
@@ -87,9 +93,12 @@ export const callback = defineRoute({
   auth: false,
   query: OidcCallbackQuery,
   responses: { 302: null },
-  handler: async ({ query, session }) => {
-    const fail = (reason: string) =>
-      redirect(302, `/login?error=${encodeURIComponent(reason)}`);
+  handler: async ({ query, session, audit }) => {
+    // `reason` is one of the fixed words below, never the provider's text.
+    const fail = (reason: string) => {
+      audit("oidc.failed", { reason });
+      return redirect(302, `/login?error=${encodeURIComponent(reason)}`);
+    };
 
     if (!oidc.isConfigured) return fail("not-configured");
 
@@ -97,12 +106,20 @@ export const callback = defineRoute({
     // Used once. Clearing first means a replayed callback finds nothing.
     session.oidc = null;
 
-    if (!pending) return fail("expired");
+    if (
+      !pending ||
+      typeof pending.startedAt !== "number" ||
+      Date.now() - pending.startedAt > PENDING_OIDC_MAX_AGE_MS
+    ) {
+      return fail("expired");
+    }
     if (query.error) {
+      // The provider's error code only, and only in the shape OAuth defines
+      // one. This URL can be requested by anyone, so its free-text
+      // error_description is a way to write into the log, not a diagnosis.
       console.error(
-        "sign-in was refused",
-        query.error,
-        query.error_description,
+        "sign-in was refused:",
+        /^[\w.-]{1,64}$/.test(query.error) ? query.error : "(unprintable)",
       );
       return fail("refused");
     }
@@ -129,14 +146,22 @@ export const callback = defineRoute({
         issuer: claims.iss ?? "",
         subject: claims.sub,
         provider: pending.provider,
-        email: claims.email || claims.preferred_username || null,
+        // Only an address the provider says it verified. An unverified
+        // `email` — or preferred_username, which is whatever the person
+        // typed — is a claim about somebody else's mailbox, and owner_email
+        // is a unique column other accounts already sit in.
+        email: claims.email_verified === true ? claims.email || null : null,
         name: claims.name || null,
         guestUserId: pending.guestUserId,
       });
 
-      session.userId = userId;
+      const version = await sessionVersionOf(userId);
+      if (version === null) return fail("failed");
+      establishSession(session, userId, version);
+      audit("oidc.signed_in", { userId });
       return redirect(302, "/discover");
     } catch (err) {
+      if (err instanceof EmailInUseError) return fail("email-in-use");
       console.error("sign-in failed", err);
       return fail("failed");
     }

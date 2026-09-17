@@ -292,6 +292,19 @@ jobs:
             ENTRA_PROVIDERS=email,google ENTRA_ISSUER=http://localhost:9000 \
             scripts/e2e.sh sign-in --workers=1
 
+      - name: Least-privilege database role
+        # The serving process is meant to run as a role with no DDL rights,
+        # with migrations applied separately by the owner (docs/DEPLOY.md).
+        # In a scratch database on the same Postgres: the runtime role is
+        # denied CREATE/ALTER/DROP/TRUNCATE (after the probe has been seen to
+        # fail against the owner), the image refuses to start on an
+        # unmigrated schema with MIGRATE_ON_BOOT=false, and the demo and
+        # authorisation specs pass against the image running as that role.
+        env:
+          IMAGE: facewoof
+          CI: "true"
+        run: scripts/check-db-roles.sh
+
       - name: Playwright report
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

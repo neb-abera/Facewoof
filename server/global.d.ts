@@ -16,6 +16,10 @@ declare global {
   namespace CookieSessionInterfaces {
     interface CookieSessionObject {
       userId?: number;
+      /* users.session_version when this session was issued. */
+      v?: number;
+      /* When it was issued, in epoch milliseconds. */
+      iat?: number;
       oidc?: PendingOidc | null;
     }
   }

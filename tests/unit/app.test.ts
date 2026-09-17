@@ -14,11 +14,20 @@ import fs from "node:fs";
 import type { Server } from "node:http";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+
+// A session is checked against the account's session version on every
+// request; the one column involved stands in for the database here.
+vi.mock("../../server/db/sessions.ts", () => ({
+  sessionVersionOf: vi.fn(async () => 0),
+  bumpSessionVersion: vi.fn(),
+}));
+
 import { buildRouter } from "../../server/api/express.ts";
 import { defineRoute, reply } from "../../server/api/route.ts";
 import { createApp } from "../../server/app.ts";
+import { establishSession } from "../../server/session.ts";
 
 const routes = [
   defineRoute({
@@ -37,7 +46,7 @@ const routes = [
     body: z.object({ as: z.number().int() }),
     responses: { 200: z.object({ userId: z.number() }) },
     handler: async ({ body, session }) => {
-      session.userId = body.as;
+      establishSession(session, body.as, 0);
       return reply(200, { userId: body.as });
     },
   }),
@@ -195,5 +204,87 @@ describe("the API still hands out, and demands, the CSRF token", () => {
     const res = await fetch(`${base}/api/nothing-here`);
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: "not found" });
+  });
+});
+
+/*
+ * The same two properties under the production cookie names. Over HTTPS the
+ * cookies carry the __Host- prefix (server/cookies.ts); the /api-only mount
+ * must hold for them too, or the prefix would have put cookies back on the
+ * bundle.
+ */
+describe("in production, behind TLS", () => {
+  let prodServer: Server;
+  let prodBase: string;
+
+  beforeAll(async () => {
+    vi.resetModules();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SESSION_SECRET", "test-only");
+    vi.stubEnv("TRUST_PROXY_HOPS", "1");
+    const fresh = await import("../../server/app.ts");
+    const adapter = await import("../../server/api/express.ts");
+    const app = fresh.createApp({
+      router: adapter.buildRouter(routes),
+      clientDir,
+      checkDatabase: async () => {},
+    });
+    await new Promise<void>((resolve) => {
+      prodServer = app.listen(0, () => resolve());
+    });
+    const address = prodServer.address();
+    if (!address || typeof address === "string") throw new Error("no port");
+    prodBase = `http://127.0.0.1:${address.port}`;
+  });
+
+  afterAll(() => {
+    prodServer.close();
+    vi.unstubAllEnvs();
+  });
+
+  const https = { "x-forwarded-proto": "https" };
+
+  it("static responses still set no cookie", async () => {
+    for (const route of ["/", "/discover", "/assets/index-abc123.js"]) {
+      const res = await fetch(prodBase + route, { headers: https });
+      expect(res.status, route).toBe(200);
+      expect(res.headers.getSetCookie(), route).toEqual([]);
+    }
+  });
+
+  it("the API sets __Host- cookies, and accepts the token back under that name", async () => {
+    const first = await fetch(`${prodBase}/api/test/whoami`, {
+      headers: https,
+    });
+    const cookies = first.headers.getSetCookie();
+    expect(cookies.map((c) => c.split("=")[0]).sort()).toEqual([
+      "__Host-XSRF-TOKEN",
+      "__Host-facewoof.sid",
+      "__Host-facewoof.sid.sig",
+    ]);
+    for (const cookie of cookies) {
+      expect(cookie).toMatch(/secure/i);
+      expect(cookie).toMatch(/path=\//i);
+      expect(cookie).not.toMatch(/domain=/i);
+    }
+
+    const cookie = jar(first);
+    const token = decodeURIComponent(
+      cookie
+        .split("; ")
+        .find((c) => c.startsWith("__Host-XSRF-TOKEN="))
+        ?.slice("__Host-XSRF-TOKEN=".length) ?? "",
+    );
+    const write = await fetch(`${prodBase}/api/test/sign-in`, {
+      method: "POST",
+      headers: {
+        ...https,
+        "content-type": "application/json",
+        cookie,
+        "x-xsrf-token": token,
+      },
+      body: JSON.stringify({ as: 42 }),
+    });
+    expect(write.status).toBe(200);
   });
 });

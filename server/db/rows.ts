@@ -107,4 +107,5 @@ export interface UserRow {
   energy: string | null;
   best_time: string | null;
   bio: string | null;
+  session_version: number;
 }

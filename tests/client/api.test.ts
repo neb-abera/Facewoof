@@ -56,6 +56,44 @@ test("a write with an empty jar fetches a token first, then echoes it", async ()
   expect(sent).toBe("fresh/token");
 });
 
+test("the production cookie name, __Host-XSRF-TOKEN, is found the same way", async () => {
+  clearToken();
+  // jsdom, like a browser, refuses a __Host- cookie on an http:// page, so
+  // the jar is stood in for: what document.cookie reads on the deployed site.
+  let cookies = "";
+  Object.defineProperty(document, "cookie", {
+    configurable: true,
+    get: () => cookies,
+    set: () => {},
+  });
+  try {
+    let sent: string | null = null;
+    const fake = fakeApi()
+      .on("GET", "/api/auth/providers", () => {
+        cookies = "other=1; __Host-XSRF-TOKEN=prefixed%2Ftoken";
+        return ok({ providers: [] });
+      })
+      .on("POST", "/api/auth/logout", ({ request }) => {
+        sent = request.headers.get("x-xsrf-token");
+        return noContent();
+      });
+
+    await api.POST("/api/auth/logout");
+    expect(sent).toBe("prefixed/token");
+
+    // And with it already in the jar, no second bootstrap request is made.
+    await api.POST("/api/auth/logout");
+    expect(fake.calls.map((c) => `${c.method} ${c.path}`)).toEqual([
+      "GET /api/auth/providers",
+      "POST /api/auth/logout",
+      "POST /api/auth/logout",
+    ]);
+  } finally {
+    // Back to jsdom's own accessor on Document.prototype.
+    Reflect.deleteProperty(document, "cookie");
+  }
+});
+
 test("a read never waits for a token", async () => {
   clearToken();
   const fake = fakeApi().on("GET", "/api/auth/providers", () =>

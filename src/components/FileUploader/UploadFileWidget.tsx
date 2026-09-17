@@ -1,13 +1,14 @@
 import { type ChangeEvent, useState } from "react";
-import { useAddPhoto } from "../../queries";
+import { useAddPhoto, useUploadsOffered } from "../../queries";
 import FileUploader from "./FileUploader";
 import "./UploadFileWidget.css";
-import { uploadsConfigured, uploadToCloudinary } from "./cloudinary";
+import { uploadToCloudinary } from "./cloudinary";
 
 const UploadFileWidget = () => {
   const [urls, setUrls] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const addPhoto = useAddPhoto();
+  const uploadsOffered = useUploadsOffered();
 
   const uploadImage = (img: File) => {
     setError(null);
@@ -38,7 +39,7 @@ const UploadFileWidget = () => {
    * using it. Someone trying the demo cannot act on it and should not be asked
    * to read it.
    */
-  if (!uploadsConfigured) return null;
+  if (!uploadsOffered) return null;
 
   return (
     <div className="widget-container space-y-4">

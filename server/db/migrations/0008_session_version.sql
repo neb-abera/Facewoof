@@ -1,0 +1,12 @@
+-- Server-side session revocation, without a session store.
+--
+-- Sessions are a signed cookie holding a user id, so signing out only ever
+-- deleted the browser's copy: a cookie that had been copied elsewhere kept
+-- working until... forever, since the signature has no expiry of its own.
+-- The session now also carries the version it was issued under, and
+-- requireUser refuses one whose version is no longer current. Signing out
+-- increments it, which ends every session that account has, everywhere.
+--
+-- A counter rather than a timestamp: a comparison for equality has no clock
+-- skew between replicas to think about.
+ALTER TABLE users ADD COLUMN session_version integer NOT NULL DEFAULT 0;

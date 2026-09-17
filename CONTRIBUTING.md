@@ -29,6 +29,7 @@ by side. `make ports` prints yours. The ones you will use most:
 | `make e2e`       | Browser tests against a running instance                        |
 | `make e2e-signin`| Sign-in tests against a mock OIDC provider (no Azure needed)    |
 | `make migrate`   | Apply pending database migrations                               |
+| `make check-db-roles` | The app as a no-DDL database role, end to end (a CI gate)  |
 | `make clean`     | Stop the containers and delete the database volume              |
 
 ## Before you open a pull request

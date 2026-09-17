@@ -51,12 +51,15 @@ export const getCurrentUser = defineRoute({
 export const createPack = defineRoute({
   method: "post",
   path: "/api/pack",
-  summary: "Create an empty pack",
+  summary: "Create a pack with the caller as its only member",
   auth: true,
+  limit: writeLimiter,
   body: NewPackBody,
   responses: { 200: PackId.array() },
-  handler: async ({ body }) =>
-    reply(200, (await createPackPromise(body.packName)).rows),
+  // The pack used to be created with nobody in it: a row no one could see,
+  // post to or ever clean up, and an unlimited way to make them.
+  handler: async ({ userId, body }) =>
+    reply(200, (await createPackPromise(body.packName, userId)).rows),
 });
 
 export const createPhotos = defineRoute({

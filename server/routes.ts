@@ -41,6 +41,8 @@ export const routes: readonly AnyRoute[] = [
   c.editProfile,
   c.getProfilePhoto,
   c.createPhotos,
+  c.uploadConfig,
+  c.uploadSignature,
   c.ctrlPfp,
 
   // --- packs ---

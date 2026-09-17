@@ -19,9 +19,7 @@ const dog = (id: number, name: string, likesMe: boolean | null): FeedCard => ({
   dog_breed: "Pug",
   age: 3,
   vaccination: true,
-  discoverable: true,
-  owner_email: `${name}@example.com`,
-  location: "10011",
+  distance: 0,
   user1_choice: likesMe,
   photos: [
     `https://placedog.net/500/400?id=${id}`,
@@ -35,7 +33,6 @@ const renderStack = (users: FeedCard[], api = fakeApi()) => {
     withUser(
       <CardStack
         users={users}
-        distances={{ "10011": 0 }}
         userData={me}
         photos={["https://placedog.net/400?me"]}
         onRunningLow={() => {}}

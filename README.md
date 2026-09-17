@@ -172,12 +172,15 @@ needs no `.env` at all.
 | `DATABASE_URL`                          | the database. Set by compose locally; the only one that matters in production                             |
 | `PGHOST` etc.                           | used instead of `DATABASE_URL` when it is not set                                                         |
 | `PGSSL`                                 | `true` for Azure Database for PostgreSQL, which requires TLS                                              |
+| `MIGRATE_ON_BOOT`                       | `false` when migrations run separately and the server's database role has no DDL (docs/DEPLOY.md)         |
 | `PORT`                                  | what the server listens on (8080 in the production image)                                                 |
 | `BASE_PATH`                             | mount the whole app under a path, e.g. `/facewoof`                                                        |
 | `GUEST_TTL_HOURS`                       | how long a demo account lives                                                                             |
 | `CORS_ORIGIN`                           | comma separated. Unset means no cross-origin requests are allowed                                         |
 | `VITE_BASE_PATH`                        | build time. Must match `BASE_PATH`                                                                        |
-| `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` | Cloudinary, for photo uploads. Optional: without them the upload widget says so and everything else works |
+| `TRUST_PROXY_HOPS`                      | reverse proxies in front of the server, for the rate limits' client address. 2 behind Cloudflare + ingress |
+| `CLOUDINARY_CLOUD_NAME`, `_API_KEY`, `_API_SECRET` | signed photo uploads (docs/DEPLOY.md). Optional                                                |
+| `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` | build time. Cloudinary's unsigned preset, the fallback when uploads are not signed. Optional              |
 | `ENTRA_ISSUER` etc.                     | sign-in through Entra External ID. Optional: see below                                                    |
 
 ### Sign-in

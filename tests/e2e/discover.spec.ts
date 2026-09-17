@@ -19,13 +19,12 @@ interface Card {
   user_id: number;
   user1_choice: boolean | null;
   photos: string[] | null;
-  location: string | null;
+  distance: number | null;
 }
 interface FeedPage {
   users: Card[];
   remaining: number;
   origin: string;
-  distances: Record<string, number | null>;
 }
 
 /* A fresh demo account at `zip`, and the header its writes need. */
@@ -74,11 +73,13 @@ test("admirers come first, then everyone else, each in id order", async ({
   // passed, and those are not dealt at all.
   for (const u of page.users.slice(6)) expect(u.user1_choice).toBeNull();
 
-  // Every card comes with its own photos, in a stable order, and every zip a
-  // card is in has a distance.
+  // Every card comes with its own photos, in a stable order, and says how
+  // far away it is — inside the radius asked for — and not where it lives.
   for (const u of page.users) {
     expect(u.photos?.length, `dog ${u.user_id} has photos`).toBeGreaterThan(0);
-    expect(page.distances).toHaveProperty(String(u.location));
+    expect(u.distance, `dog ${u.user_id} has a distance`).not.toBeNull();
+    expect(u.distance ?? 0).toBeLessThanOrEqual(25);
+    expect(u).not.toHaveProperty("location");
   }
   const again = await feed({ zipcode: "60601", radius: 25, limit: 30 });
   expect(again.users).toEqual(page.users);

@@ -4,8 +4,6 @@ import "./profileCard.css";
 
 interface ProfileCardProps {
   user: FeedCard;
-  /* Miles from the search origin; 0 reads as "under half a mile". */
-  distance: number | null | undefined;
   /*
    * Whether this is the card on top of the stack. Three cards are mounted at
    * once with three photos each, and only the top card's avatar and first
@@ -19,12 +17,9 @@ interface ProfileCardProps {
 // The avatar circle is w-24; placedog is asked for twice that.
 const AVATAR_PX = 96;
 
-export default function ProfileCard({
-  user,
-  distance,
-  top = true,
-}: ProfileCardProps) {
-  const miles = distance === 0 ? "< .5" : String(distance ?? "?");
+export default function ProfileCard({ user, top = true }: ProfileCardProps) {
+  // Whole miles from the search origin; 0 reads as "under half a mile".
+  const miles = user.distance === 0 ? "< .5" : String(user.distance ?? "?");
   const photos = user.photos ?? [];
   const interests = user.interests.filter(
     (interest): interest is string => interest !== null,

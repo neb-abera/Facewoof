@@ -276,6 +276,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/uploads/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whether photo uploads are signed by this server */
+        get: operations["getUploadsConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/uploads/signature": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A short-lived signature for one direct-to-Cloudinary upload */
+        post: operations["postUploadsSignature"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/getPfp": {
         parameters: {
             query?: never;
@@ -370,7 +404,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create an empty pack */
+        /** Create a pack with the caller as its only member */
         post: operations["postPack"];
         delete?: never;
         options?: never;
@@ -503,9 +537,6 @@ export interface components {
     schemas: {
         DiscoverPage: {
             users: components["schemas"]["FeedCard"][];
-            distances: {
-                [key: string]: number | null;
-            };
             origin: string;
             remaining: number;
         };
@@ -520,9 +551,7 @@ export interface components {
             dog_breed: string | null;
             age: number | null;
             vaccination: boolean;
-            discoverable: boolean;
-            owner_email: string;
-            location: string | null;
+            distance: number | null;
             user1_choice: boolean | null;
             photos: string[] | null;
             interests: (string | null)[];
@@ -534,18 +563,9 @@ export interface components {
             dog_breed: string | null;
             age: number | null;
             vaccination: boolean;
-            discoverable: boolean;
-            owner_email: string;
-            location: string | null;
             likes_one: string | null;
             likes_two: string | null;
             likes_three: string | null;
-            is_guest: boolean;
-            /** Format: date-time */
-            created_at: string;
-            demo_of: number | null;
-            cloned_from: number | null;
-            onboarded_at: string | null;
             size: string | null;
             energy: string | null;
             best_time: string | null;
@@ -629,6 +649,18 @@ export interface components {
             city: string;
             state: string;
         };
+        UploadConfig: {
+            signed: boolean;
+        };
+        UploadTicket: {
+            /** Format: uri */
+            uploadUrl: string;
+            fields: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            expiresAt: string;
+        };
         User: {
             user_id: number;
             dog_name: string | null;
@@ -708,6 +740,15 @@ export interface operations {
             };
             /** @description Internal error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not available right now: sign-in is not configured, or the demo is at capacity */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -865,7 +906,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Sign-in is not configured on this instance */
+            /** @description Not available right now: sign-in is not configured, or the demo is at capacity */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -1159,6 +1200,15 @@ export interface operations {
             };
             /** @description Sign in first */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1508,6 +1558,100 @@ export interface operations {
             };
         };
     };
+    getUploadsConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadConfig"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postUploadsSignature: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadTicket"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     getGetPfp: {
         parameters: {
             query?: never;
@@ -1737,6 +1881,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description Not allowed for this account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             /** @description Rate limited; see the RateLimit-* headers */
             429: {
                 headers: {
@@ -1792,6 +1945,15 @@ export interface operations {
             };
             /** @description Sign in first */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1977,7 +2139,7 @@ export interface operations {
                     packet: {
                         pack_id: number;
                         body?: string | null;
-                        photo_url?: string | null;
+                        photo_url?: (string | "") | null;
                     };
                 };
             };
@@ -2117,6 +2279,15 @@ export interface operations {
             };
             /** @description Sign in first */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not allowed for this account */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -15,6 +15,7 @@
  */
 import type { RequestHandler } from "express";
 import type { z } from "zod";
+import type { SecurityDetail, SecurityEventName } from "../security-log.ts";
 
 export type Method = "get" | "post" | "put" | "delete";
 
@@ -67,6 +68,12 @@ export interface Context<
   session: CookieSessionInterfaces.CookieSessionObject;
   /* Drop the session cookie: sign-out, and an account that no longer exists. */
   clearSession: () => void;
+  /*
+   * Record a security event against this request (server/security-log.ts).
+   * A 403 reply is recorded by the adapter; this is for the events only a
+   * handler knows happened: a sign-in, a sign-out, a refused provider.
+   */
+  audit: (event: SecurityEventName, detail?: SecurityDetail) => void;
 }
 
 export interface RouteDef<

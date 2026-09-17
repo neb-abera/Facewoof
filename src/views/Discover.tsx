@@ -6,7 +6,7 @@ import SearchBar from "../components/Discover/SearchBar";
 import useUserContext from "../hooks/useUserContext";
 import useUserLocation from "../hooks/useUserLocation";
 import { usePhotos } from "../queries";
-import type { DiscoverPage, FeedCard, Whereabouts } from "../types";
+import type { FeedCard, Whereabouts } from "../types";
 import "./discover.css";
 
 // Where to look when the browser will not say and the profile has no zip
@@ -17,7 +17,6 @@ export default function Discover() {
   const [users, setUsers] = useState<FeedCard[]>([]);
   const [searchLocation, setSearchLocation] = useState("");
   const [radius, setRadius] = useState(5);
-  const [distances, setDistances] = useState<DiscoverPage["distances"]>({});
   const [resolving, setResolving] = useState(true);
 
   const { userId, userData, locationSource, provideLocation } =
@@ -34,7 +33,7 @@ export default function Discover() {
     loadMore,
     hasMore,
     searchKey,
-  } = useUserLocation(setUsers, setDistances);
+  } = useUserLocation(setUsers);
 
   /*
    * Work out where to search, once, when the user is known.
@@ -113,7 +112,6 @@ export default function Discover() {
           {error && <p className="text-error text-center py-2">{error}</p>}
           <CardStack
             users={users}
-            distances={distances}
             userData={userData}
             photos={photos}
             onRunningLow={loadMore}

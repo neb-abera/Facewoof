@@ -267,6 +267,8 @@ export interface IdTokenClaims extends JWTPayload {
   sub: string;
   nonce?: string;
   email?: string;
+  /* Standard OIDC: whether the provider verified `email` belongs to them. */
+  email_verified?: boolean;
   preferred_username?: string;
   name?: string;
 }
