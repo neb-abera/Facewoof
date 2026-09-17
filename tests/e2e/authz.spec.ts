@@ -37,8 +37,9 @@ async function csrfToken(context: BrowserContext): Promise<string> {
 async function demoAccount(browser: Browser): Promise<Account> {
   const context = await browser.newContext();
   const api = context.request;
-  // Any page sets the CSRF cookie the sign-in POST has to echo.
-  await api.get("/");
+  // Only /api responses set the CSRF cookie the sign-in POST has to echo;
+  // the providers list is the cheapest of them.
+  await api.get("/api/auth/providers");
   const headers = { "x-xsrf-token": await csrfToken(context) };
   const res = await api.post("/api/auth/guest", {
     headers,

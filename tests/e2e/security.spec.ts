@@ -143,10 +143,25 @@ test("the CSP allows no inline or third-party styles and fonts, and blocks nothi
     "img-src 'self' data: https://res.cloudinary.com https://placedog.net",
   );
 
+  // The two signed-out pages carry the <picture> hero (avif/webp/jpg from
+  // this origin) and the document's preconnect hints to the photo hosts.
+  await expect(page.locator("picture img").first()).toBeVisible();
+  await page.goto("/login");
+  await expect(page.locator("picture img").first()).toBeVisible();
+  const heroLoaded = await page
+    .locator("picture img")
+    .first()
+    .evaluate((img) => (img as HTMLImageElement).naturalWidth > 0);
+  expect(heroLoaded, "the hero photo loaded under the policy").toBe(true);
+  await page.goto("/");
+
   // Every page, signed in, with the interactions that build DOM on the fly.
   await page.getByRole("button", { name: /try the demo/i }).click();
   await page.waitForURL("**/discover", { timeout: 30_000 });
-  await expect(page.locator(".card-stack, .profile-card").first()).toBeVisible({
+  // The page, not the cards: the feed is rate limited per address and the
+  // whole suite arrives from one, so by this point in a full run it may be
+  // answering 429. demo.spec.ts is what proves the cards' photos load.
+  await expect(page.getByPlaceholder(/city or zip code/i)).toBeVisible({
     timeout: 20_000,
   });
 
@@ -194,10 +209,15 @@ test("the CSP allows no inline or third-party styles and fonts, and blocks nothi
   // And the events really are laid out: a blocked inline style would leave
   // the week view's events unpositioned at the top of their column.
   await page.getByRole("button", { name: "Week", exact: true }).click();
-  const event = page.locator(".rbc-time-view .rbc-event").first();
+  // (Timed events only: an all-day event in the header row is laid out by
+  // the stylesheet and has no inline position to lose.)
+  const event = page.locator(".rbc-day-slot .rbc-event").first();
   if ((await event.count()) > 0) {
-    const top = await event.evaluate((el) => (el as HTMLElement).style.top);
-    expect(top, "the event carries its inline position").not.toBe("");
+    const placed = await event.evaluate((el) => {
+      const { top, height } = (el as HTMLElement).style;
+      return top !== "" && height !== "";
+    });
+    expect(placed, "the event carries its inline position").toBe(true);
   }
 
   expect(violations, violations.join("\n")).toEqual([]);
