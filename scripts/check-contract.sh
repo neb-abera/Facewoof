@@ -11,9 +11,13 @@
 # which means CI cannot merge a schema change whose document or client types
 # were not regenerated. Locally:
 #
-#   npm run openapi && npm run generate:api-types
+#   make contract
 #
 # then commit both files.
+#
+# openapi-typescript is not in the root manifest: it lives in tools/api-types
+# with a TypeScript 5 of its own (see that package.json for why), and the
+# Dockerfile's apitypes stage installs it.
 set -eu
 
 cd "$(dirname "$0")/.."
@@ -22,15 +26,15 @@ out="$(mktemp -d)"
 trap 'rm -rf "$out"' EXIT
 
 node server/api/openapi.ts "$out/openapi.json" >/dev/null
-npx openapi-typescript "$out/openapi.json" --output "$out/api-types.d.ts" >/dev/null
+tools/api-types/node_modules/.bin/openapi-typescript "$out/openapi.json" --output "$out/api-types.d.ts" >/dev/null
 
 status=0
 if ! diff -u server/openapi.json "$out/openapi.json"; then
-  echo "error: server/openapi.json is not what server/api/openapi.ts generates; run 'npm run openapi' and commit" >&2
+  echo "error: server/openapi.json is not what server/api/openapi.ts generates; run 'make contract' and commit" >&2
   status=1
 fi
 if ! diff -u src/api-types.d.ts "$out/api-types.d.ts"; then
-  echo "error: src/api-types.d.ts is not what openapi-typescript generates from the document; run 'npm run generate:api-types' and commit" >&2
+  echo "error: src/api-types.d.ts is not what openapi-typescript generates from the document; run 'make contract' and commit" >&2
   status=1
 fi
 

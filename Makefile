@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql lint fmt e2e e2e-signin check test-unit image run logs down clean media rows check-rows
+.PHONY: help ports dev migrate reset-db psql contract lint fmt e2e e2e-signin check test-unit image run logs down clean media rows check-rows
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -65,6 +65,9 @@ check-rows: image ## Fail if server/db/rows.ts is not what the schema generates 
 	$(COMPOSE) run --rm migrate
 	IMAGE=$(IMAGE) DOCKER_NETWORK=$(NET) \
 	  DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof scripts/check-rows.sh
+
+contract: ## Regenerate server/openapi.json and src/api-types.d.ts from the route table
+	$(COMPOSE) run --rm --build contract
 
 psql: ## Open a psql shell against the development database
 	$(COMPOSE) exec db psql -U facewoof -d facewoof

@@ -49,7 +49,7 @@ schemas live in `server/api/schemas.ts`), then regenerating the contract and
 the client types and committing both:
 
 ```bash
-npm run openapi && npm run generate:api-types
+make contract
 ```
 
 `make check` runs `scripts/check-contract.sh`, which fails if either file is

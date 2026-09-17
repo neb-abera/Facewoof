@@ -4,6 +4,7 @@
 # be installed on the machine.
 #
 #   deps    the dependency tree, installed from the lockfile
+#   contract deps plus the client type generator (tools/api-types)
 #   dev     the vite dev server, source bind mounted at run time
 #   api     the express API in watch mode, source bind mounted at run time
 #   build   the production client bundle
@@ -21,6 +22,23 @@ FROM nodebase AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
+
+# ---- apitypes ---------------------------------------------------------------
+# openapi-typescript and the TypeScript 5 it needs, from their own manifest
+# and lockfile (tools/api-types/package.json says why they cannot share the
+# root's). Only node_modules leaves this stage.
+FROM nodebase AS apitypes
+WORKDIR /app/tools/api-types
+COPY tools/api-types/package.json tools/api-types/package-lock.json ./
+RUN npm ci
+
+# ---- contract ---------------------------------------------------------------
+# Everything that regenerates the API contract: the root tree for
+# server/api/openapi.ts, the generator's tree for the client types. `make
+# contract` runs this with the checkout mounted; lint builds on it.
+FROM deps AS contract
+COPY --from=apitypes /app/tools/api-types/node_modules ./tools/api-types/node_modules
+CMD ["sh", "-c", "npm run openapi && npm run generate:api-types"]
 
 # ---- dev --------------------------------------------------------------------
 FROM deps AS dev
@@ -44,7 +62,7 @@ CMD ["npm", "run", "server:dev"]
 # Lint, typecheck, and the API contract: the committed OpenAPI document and
 # the client types generated from it must be exactly what the route table
 # produces (scripts/check-contract.sh).
-FROM deps AS lint
+FROM contract AS lint
 COPY . .
 RUN npx biome check . && npm run typecheck && npm run check:contract
 
