@@ -112,6 +112,11 @@ before moving on. If you lose it, reset it with
 The application applies its own migrations at start-up, so there is nothing to
 load by hand. The first revision creates the schema and the demo roster.
 
+That convenience is also a liability: to migrate at boot the serving process
+has to connect as the role that owns the schema, so anything that reaches the
+database through the app can `DROP` and `ALTER` as well as read. "Database
+roles" below is the owner-run procedure that ends it.
+
 ## 3. Container app
 
 ```bash
@@ -383,6 +388,128 @@ With neither mode configured the app simply hides photo upload.
     WHERE photo_url IS NOT NULL
       AND photo_url !~ '^https://(res\.cloudinary\.com|placedog\.net)/';
    ```
+
+## Database roles: a runtime identity with no DDL
+
+Two roles instead of one. The **owner** role owns the tables and runs
+migrations (`node server/db/migrate.ts`, which the image can run as a
+one-off). The **runtime** role is what the container app connects as:
+`SELECT/INSERT/UPDATE/DELETE` and sequence use, nothing else — no `CREATE` on
+the schema, no `TRUNCATE`, no ownership, a read-only view of
+`schema_migrations`. The grants are `server/db/roles/runtime.sql`; CI proves
+on every pull request that the app works end to end as such a role and that
+the role cannot change the schema (`scripts/check-db-roles.sh`,
+`make check-db-roles`).
+
+The code half ships dark: `MIGRATE_ON_BOOT` defaults to today's behaviour, so
+nothing changes until the steps below are done. With `MIGRATE_ON_BOOT=false`
+the server runs no DDL at boot and **refuses to start** if a migration is
+pending, so a revision deployed ahead of its migration never takes traffic.
+
+All of this is owner-run; none of it is in the deploy workflow yet.
+
+**1. A second managed identity, for migrations.** Today the container app's
+identity (`facewoof-mi`) owns the schema. It becomes the runtime role; a new
+user-assigned identity becomes the owner.
+
+```bash
+az identity create -g "$RG" -n facewoof-migrate-mi
+MIGRATE_CLIENT_ID=$(az identity show -g "$RG" -n facewoof-migrate-mi --query clientId -o tsv)
+MIGRATE_ID=$(az identity show -g "$RG" -n facewoof-migrate-mi --query id -o tsv)
+```
+
+**2. Its database role, and ownership.** As the server's Entra admin, against
+the `postgres` database and then `facewoof` (token as in docs/OPERATIONS.md):
+
+```sql
+-- dbname=postgres
+SELECT * FROM pgaadauth_create_principal('facewoof-migrate-mi', false, false);
+
+-- dbname=facewoof
+GRANT CONNECT ON DATABASE facewoof TO "facewoof-migrate-mi";
+GRANT USAGE, CREATE ON SCHEMA public TO "facewoof-migrate-mi";
+-- Everything facewoof-mi created so far changes hands. REASSIGN needs
+-- membership in both roles; azure_pg_admin has it.
+REASSIGN OWNED BY "facewoof-mi" TO "facewoof-migrate-mi";
+```
+
+**3. The runtime grants**, same session, same database:
+
+```bash
+psql "host=$PG.postgres.database.azure.com dbname=facewoof user=<entra admin> sslmode=require" \
+  -v ON_ERROR_STOP=1 -v runtime=facewoof-mi -v owner=facewoof-migrate-mi \
+  -f server/db/roles/runtime.sql
+```
+
+Check it took, as the admin: `\dp users` shows `facewoof-mi=arwd/…` and
+nothing more, and `SELECT has_schema_privilege('facewoof-mi','public','CREATE')`
+is `f`.
+
+**4. A Container Apps job that migrates**, from the same image, as the owner
+identity:
+
+```bash
+az containerapp job create -g "$RG" -n facewoof-migrate --environment "$ENVIRONMENT" \
+  --trigger-type Manual --replica-timeout 600 --replica-retry-limit 0 \
+  --image "$ACR.azurecr.io/facewoof:latest" \
+  --registry-server "$ACR.azurecr.io" --registry-identity "$MIGRATE_ID" \
+  --mi-user-assigned "$MIGRATE_ID" \
+  --command node --args server/db/migrate.ts \
+  --env-vars DATABASE_AUTH=entra PGSSL=true PGHOST="$PG.postgres.database.azure.com" \
+             PGDATABASE=facewoof PGUSER=facewoof-migrate-mi AZURE_CLIENT_ID="$MIGRATE_CLIENT_ID"
+az role assignment create --assignee "$(az identity show --ids "$MIGRATE_ID" --query principalId -o tsv)" \
+  --role AcrPull --scope "$(az acr show -n "$ACR" --query id -o tsv)"
+```
+
+Run it once by hand (`az containerapp job start -g "$RG" -n facewoof-migrate`)
+and read its logs: it should say `database is up to date`.
+
+**5. The deploy workflow migrates before it rolls out.** A sketch of the step
+to add to `.github/workflows/deploy.yml` between "Build and push" and "Deploy
+the revision" — not merged, because it fails until step 4 exists:
+
+```yaml
+      - name: Migrate, as the owner identity
+        run: |
+          set -euo pipefail
+          az containerapp job update -g "$RESOURCE_GROUP" -n facewoof-migrate \
+            --image "$REGISTRY/$IMAGE:run-${{ github.run_id }}"
+          execution=$(az containerapp job start -g "$RESOURCE_GROUP" -n facewoof-migrate \
+            --query name -o tsv)
+          for _ in $(seq 1 60); do
+            status=$(az containerapp job execution show -g "$RESOURCE_GROUP" \
+              -n facewoof-migrate --job-execution-name "$execution" \
+              --query properties.status -o tsv)
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed|Degraded|Stopped) echo "migration $status"; exit 1 ;;
+            esac
+            sleep 5
+          done
+          echo "migration did not finish"; exit 1
+```
+
+Migrations must then be backwards compatible with the revision still
+serving (add before use, remove after), because the old revision runs
+against the new schema for the length of the rollout. They already had to
+be: replicas of the old revision were serving while the first new replica
+migrated at boot.
+
+**6. Switch the app over**, only after 2–5:
+
+```bash
+az containerapp update -g "$RG" -n "$APP" --set-env-vars MIGRATE_ON_BOOT=false
+```
+
+The revision's log should say `database is up to date (migrations are not
+run at boot)`. To back out, set `MIGRATE_ON_BOOT=true` and, as the admin,
+`GRANT "facewoof-migrate-mi" TO "facewoof-mi"` — the app then inherits the
+owner's rights again until the cause is fixed.
+
+If `DATABASE_URL` is still wired to the Postgres **admin** password anywhere
+(section 3 above predates managed identities), that is the same problem in a
+worse form: remove the secret once `DATABASE_AUTH=entra` is confirmed in use
+(docs/OPERATIONS.md, "Secret lifecycle").
 
 ## Deploying
 

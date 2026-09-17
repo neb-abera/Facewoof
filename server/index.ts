@@ -8,7 +8,7 @@ import path from "node:path";
 import { createApp } from "./app.ts";
 import { pool as db } from "./db/database.ts";
 import { purgeExpiredGuests } from "./db/index.ts";
-import { migrate } from "./db/migrate.ts";
+import { prepareSchema } from "./db/migrate.ts";
 import { warnIfUploadsUnsigned } from "./media.ts";
 import { purgeExpiredRateLimits } from "./rate-limit-store.ts";
 import { router } from "./routes.ts";
@@ -45,8 +45,9 @@ if (import.meta.main) {
   db.query("SELECT 1")
     // Bring the schema up to date before serving. The runner takes an advisory
     // lock, so several replicas starting at once on a deploy is safe: one
-    // applies, the rest wait and find nothing to do.
-    .then(() => migrate())
+    // applies, the rest wait and find nothing to do. With MIGRATE_ON_BOOT=false
+    // (a runtime role with no DDL rights) it only checks nothing is pending.
+    .then(() => prepareSchema())
     .then(() => {
       console.log("database connected");
       sweepGuests();
@@ -64,7 +65,7 @@ if (import.meta.main) {
     })
     .catch((err: unknown) => {
       const reason = err instanceof Error ? err.message : String(err);
-      console.error("could not reach the database:", reason);
+      console.error("could not prepare the database:", reason);
       process.exit(1);
     });
 }

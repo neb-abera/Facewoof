@@ -172,6 +172,7 @@ needs no `.env` at all.
 | `DATABASE_URL`                          | the database. Set by compose locally; the only one that matters in production                             |
 | `PGHOST` etc.                           | used instead of `DATABASE_URL` when it is not set                                                         |
 | `PGSSL`                                 | `true` for Azure Database for PostgreSQL, which requires TLS                                              |
+| `MIGRATE_ON_BOOT`                       | `false` when migrations run separately and the server's database role has no DDL (docs/DEPLOY.md)         |
 | `PORT`                                  | what the server listens on (8080 in the production image)                                                 |
 | `BASE_PATH`                             | mount the whole app under a path, e.g. `/facewoof`                                                        |
 | `GUEST_TTL_HOURS`                       | how long a demo account lives                                                                             |
