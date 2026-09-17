@@ -21,6 +21,7 @@
     "migrate": "node server/db/migrate.ts",
     "test:e2e": "playwright test",
     "test:unit": "vitest run --coverage tests/unit",
+    "test:db": "vitest run tests/db",
     "test:client": "vitest run --coverage --config vitest.client.config.ts"
   },
   "dependencies": {

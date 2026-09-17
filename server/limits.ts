@@ -1,4 +1,6 @@
 import { rateLimit } from "express-rate-limit";
+import { pool } from "./db/database.ts";
+import { PostgresStore } from "./rate-limit-store.ts";
 
 /*
  * Rate limits.
@@ -15,6 +17,27 @@ import { rateLimit } from "express-rate-limit";
  *
  * A limiter answers 429 with the same `{ error }` JSON body every other
  * refusal uses, so a client has one shape to read.
+ *
+ * Where the counts live. Production runs one to three replicas, and a count
+ * kept in a process's memory is per replica and gone with the revision: a
+ * limit of N is up to 3N, reset by every deploy. The guest limiter keeps its
+ * counts in Postgres (server/rate-limit-store.ts) so that it means what it
+ * says. The others deliberately do not:
+ *
+ *   - they guard the hot paths - every swipe, every page of the feed, every
+ *     API request at all for the backstop - and a shared count is a database
+ *     write in front of each of those, two for most, to protect reads that
+ *     cost less than the write would;
+ *   - their windows are a minute to ten, so what a deploy forgets is minutes
+ *     of counting, and 3x a limit set far above human use is still far below
+ *     what a loop needs;
+ *   - the health probe must answer when the database is down, which is the
+ *     one thing it exists to report.
+ *
+ * The guest limiter is the opposite on every count: an hour's window, a
+ * limit of ten where thirty matters, and in front of the most expensive
+ * thing an anonymous caller can ask for - which writes four hundred rows, so
+ * one more is nothing.
  */
 
 const minutes = (n: number) => n * 60 * 1000;
@@ -43,6 +66,10 @@ export const guestLimiter = rateLimit({
   ...shared,
   windowMs: minutes(60),
   limit: GUEST_LIMIT_PER_HOUR,
+  // Shared by every replica, and kept across deploys. If the database cannot
+  // be reached the limiter refuses (the default, passOnStoreError: false),
+  // which costs nothing: the route behind it needs the database too.
+  store: new PostgresStore(pool, "guest"),
   message: {
     error:
       "Too many demo sessions started from this address. Try again in an hour.",

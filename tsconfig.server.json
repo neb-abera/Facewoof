@@ -8,5 +8,10 @@
     "lib": ["es2024"],
     "types": ["node"]
   },
-  "include": ["server/**/*.ts", "tests/unit/**/*.ts", "tests/oidc-mock/**/*.ts"]
+  "include": [
+    "server/**/*.ts",
+    "tests/unit/**/*.ts",
+    "tests/db/**/*.ts",
+    "tests/oidc-mock/**/*.ts"
+  ]
 }

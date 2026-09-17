@@ -9,6 +9,7 @@ import { createApp } from "./app.ts";
 import { pool as db } from "./db/database.ts";
 import { purgeExpiredGuests } from "./db/index.ts";
 import { migrate } from "./db/migrate.ts";
+import { purgeExpiredRateLimits } from "./rate-limit-store.ts";
 import { router } from "./routes.ts";
 import { registerShutdown } from "./shutdown.ts";
 
@@ -30,6 +31,13 @@ const sweepGuests = () =>
     })
     .catch((err: unknown) => console.error("guest sweep failed", err));
 
+// The same hour, the same broom: rate limit windows that closed and whose
+// caller never came back to overwrite them.
+const sweepRateLimits = () =>
+  purgeExpiredRateLimits(db).catch((err: unknown) =>
+    console.error("rate limit sweep failed", err),
+  );
+
 // Only listen when run directly, so tests can import the app without binding.
 if (import.meta.main) {
   db.query("SELECT 1")
@@ -40,7 +48,11 @@ if (import.meta.main) {
     .then(() => {
       console.log("database connected");
       sweepGuests();
-      setInterval(sweepGuests, GUEST_SWEEP_INTERVAL_MS).unref();
+      sweepRateLimits();
+      setInterval(() => {
+        sweepGuests();
+        sweepRateLimits();
+      }, GUEST_SWEEP_INTERVAL_MS).unref();
       const server = app.listen(port, () =>
         console.log(`Server started on port ${port}`),
       );
