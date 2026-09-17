@@ -180,11 +180,13 @@ jobs:
           curl -sf http://localhost:8080/healthz
 
           # Signing in sets the session cookie, and every /api route needs it.
-          # A state-changing request also needs the CSRF token: fetch a page
-          # first to receive the XSRF-TOKEN cookie, then echo it back in the
-          # header, exactly as the in-app client does (the jar stores the
-          # value percent-encoded, so decode it).
-          curl -sf -c /tmp/jar http://localhost:8080/ > /dev/null
+          # A state-changing request also needs the CSRF token: make an API
+          # GET first to receive the XSRF-TOKEN cookie, then echo it back in
+          # the header, exactly as the in-app client does (the jar stores the
+          # value percent-encoded, so decode it). An API GET, not the page:
+          # the document and the bundle are served without cookies so the CDN
+          # can cache them.
+          curl -sf -c /tmp/jar http://localhost:8080/api/auth/providers > /dev/null
           TOKEN=$(python3 -c "import urllib.parse; print(urllib.parse.unquote(next(l.split()[-1] for l in open('/tmp/jar') if 'XSRF-TOKEN' in l)))")
           curl -sf -b /tmp/jar -c /tmp/jar -X POST http://localhost:8080/api/auth/guest \
             -H "x-xsrf-token: $TOKEN" \
@@ -202,7 +204,7 @@ jobs:
           set -euo pipefail
           # A fresh jar gets its own CSRF token so the refusal proves the
           # missing session, not the missing token.
-          curl -sf -c /tmp/anonjar http://localhost:8080/ > /dev/null
+          curl -sf -c /tmp/anonjar http://localhost:8080/api/auth/providers > /dev/null
           ANON=$(python3 -c "import urllib.parse; print(urllib.parse.unquote(next(l.split()[-1] for l in open('/tmp/anonjar') if 'XSRF-TOKEN' in l)))")
           code=$(curl -s -o /dev/null -w '%{http_code}' \
             -b /tmp/anonjar -X POST http://localhost:8080/api/discover \

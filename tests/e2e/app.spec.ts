@@ -424,9 +424,11 @@ test("a pack feed is only readable and writable by its members", async ({
 });
 
 test("there is no unauthenticated account endpoint", async ({ page }) => {
-  // Load a page first so the CSRF cookie exists: the point here is that the
-  // endpoint refuses an unauthenticated caller, not that CSRF got there first.
-  await page.goto("/");
+  // Ask the API for anything first so the CSRF cookie exists: the point here
+  // is that the endpoint refuses an unauthenticated caller, not that CSRF got
+  // there first. An API GET rather than a page load - the document is served
+  // without cookies, and only /api hands out the token.
+  await page.request.get("/api/auth/providers");
   const res = await page.request.put("/api/authuser", {
     headers: await csrfHeaders(page),
     data: { email: "nobody@example.com", name: "nobody" },

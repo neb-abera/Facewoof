@@ -60,6 +60,45 @@ test("hashed assets are cacheable, the document is not", async ({ page }) => {
   expect((await doc.headerValue("cache-control")) || "").toContain("no-cache");
 });
 
+test("the document and its assets set no cookies, so a CDN can cache them", async ({
+  page,
+}) => {
+  const responses = await loadLanding(page);
+
+  // Measured against production: every response carried XSRF-TOKEN and the
+  // session cookie, hashed assets included, and Cloudflare will not store a
+  // response that sets a cookie (cf-cache-status: BYPASS). Only /api may.
+  const served = responses.filter(
+    (res) => !new URL(res.url()).pathname.includes("/api/"),
+  );
+  expect(served.length).toBeGreaterThan(1);
+  for (const res of served) {
+    const cookies = (await res.headersArray()).filter(
+      (h) => h.name.toLowerCase() === "set-cookie",
+    );
+    expect(cookies, `${res.url()} sets a cookie`).toEqual([]);
+  }
+
+  // The token still arrives before anyone can click: the app asks the API
+  // who is signed in as it loads.
+  await expect
+    .poll(async () =>
+      (await page.context().cookies()).some((c) => c.name === "XSRF-TOKEN"),
+    )
+    .toBe(true);
+});
+
+test("the demo starts even when the CSRF cookie is gone at click time", async ({
+  page,
+}) => {
+  await loadLanding(page);
+  // A cleared jar, or a click that beat /api/auth/me: the client fetches a
+  // token before the write rather than sending it bare into a 403.
+  await page.context().clearCookies();
+  await page.getByRole("button", { name: /try the demo/i }).click();
+  await page.waitForURL("**/discover", { timeout: 30_000 });
+});
+
 test("the hero photo is sized for the page, not the camera", async ({
   page,
 }) => {
