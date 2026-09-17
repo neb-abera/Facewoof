@@ -81,8 +81,9 @@ runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
 | `server/routes.ts`      | the route table: every HTTP endpoint, all under `/api`                            |
 | `server/controllers/`   | the routes themselves: schemas in, handler, schemas out                           |
 | `server/api/`           | the machinery: Zod schemas, the Express adapter, the OpenAPI generator            |
-| `server/openapi.json`   | the API contract, generated from the route table (`npm run openapi`)              |
-| `src/api-types.d.ts`    | the client's types, generated from the contract (`npm run generate:api-types`)    |
+| `server/openapi.json`   | the API contract, generated from the route table (`make contract`)                |
+| `src/api-types.d.ts`    | the client's types, generated from the contract (`make contract`)                 |
+| `tools/api-types/`      | openapi-typescript and the TypeScript 5 it needs, in a manifest of their own      |
 | `server/db/`            | the queries, one module per feature                                               |
 | `server/db/rows.ts`     | the tables as TypeScript, generated from the schema (`make rows`)                 |
 | `server/db/migrations/` | the schema and the demo roster, applied in order by `server/db/migrate.ts`        |
@@ -111,7 +112,7 @@ produces, so a schema change reaches the client as a compile error rather
 than a runtime one. After changing a schema:
 
 ```bash
-npm run openapi && npm run generate:api-types
+make contract
 ```
 
 ### The database

@@ -105,5 +105,17 @@ services:
       - /app/node_modules
     command: ["npx", "biome", "check", "."]
 
+  # One-shot: regenerate server/openapi.json and src/api-types.d.ts into the
+  # checkout (`make contract`). Both node_modules trees stay the image's.
+  contract:
+    build:
+      context: .
+      target: contract
+    profiles: ["tools"]
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/tools/api-types/node_modules
+
 volumes:
   pgdata:

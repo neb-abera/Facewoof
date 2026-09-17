@@ -3,1305 +3,2183 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
-  "/api/auth/guest": {
-    /** Sign a demo visitor in to their own throwaway account */
-    post: operations["postAuthGuest"];
-  };
-  "/api/auth/me": {
-    /** The signed-in account */
-    get: operations["getAuthMe"];
-  };
-  "/api/auth/logout": {
-    /** Sign out */
-    post: operations["postAuthLogout"];
-  };
-  "/api/auth/providers": {
-    /** The sign-in providers this instance offers */
-    get: operations["getAuthProviders"];
-  };
-  "/api/auth/oidc/start": {
-    /** Begin sign-in through the identity provider (a browser navigation) */
-    get: operations["getAuthOidcStart"];
-  };
-  "/api/auth/oidc/callback": {
-    /** Finish sign-in: exchange the provider's code for a session */
-    get: operations["getAuthOidcCallback"];
-  };
-  "/api/onboarding": {
-    /** Finish setting up a newly signed-in account */
-    put: operations["putOnboarding"];
-  };
-  "/api/discover": {
-    /** A page of dogs near a zip code or place */
-    post: operations["postDiscover"];
-  };
-  "/api/resolve-location": {
-    /** The US zip code nearest a pair of coordinates */
-    post: operations["postResolveLocation"];
-  };
-  "/api/response": {
-    /** Record a swipe; a reciprocated yes becomes a match */
-    post: operations["postResponse"];
-  };
-  "/api/currentuser": {
-    /** The signed-in account, as a one-element list */
-    get: operations["getCurrentuser"];
-  };
-  "/api/location": {
-    /** Move the caller to a zip code or to their device's coordinates */
-    put: operations["putLocation"];
-  };
-  "/api/friends": {
-    /** The caller's matches, with their photos */
-    get: operations["getFriends"];
-  };
-  "/api/edituser": {
-    /** Update the caller's profile */
-    put: operations["putEdituser"];
-  };
-  "/api/profilephoto": {
-    /** The caller's photo URLs, profile photo first */
-    get: operations["getProfilephoto"];
-  };
-  "/api/photos": {
-    /** Add a photo to the caller's own profile */
-    post: operations["postPhotos"];
-  };
-  "/api/getPfp": {
-    /** The caller's photo rows */
-    get: operations["getGetPfp"];
-  };
-  "/api/getpacks": {
-    /** The packs the caller is in */
-    get: operations["getGetpacks"];
-  };
-  "/api/getUserPacks": {
-    /** The packs the caller is in */
-    get: operations["getGetUserPacks"];
-  };
-  "/api/addtopack": {
-    /** Join a pack one of the caller's friends is in */
-    put: operations["putAddtopack"];
-  };
-  "/api/createpack": {
-    /** Create a pack with the given members; the caller is always one */
-    put: operations["putCreatepack"];
-  };
-  "/api/pack": {
-    /** Create an empty pack */
-    post: operations["postPack"];
-  };
-  "/api/getAllPostsFromSpecificPack": {
-    /** A pack's posts, newest first (members only) */
-    get: operations["getGetAllPostsFromSpecificPack"];
-  };
-  "/api/getAllPacksPostsForUser": {
-    /** Every post in every pack the caller is in, newest first */
-    get: operations["getGetAllPacksPostsForUser"];
-  };
-  "/api/getSoloPosts": {
-    /** A pack's posts, newest first (members only) */
-    get: operations["getGetSoloPosts"];
-  };
-  "/api/makePost": {
-    /** Post to a pack the caller is a member of */
-    post: operations["postMakePost"];
-  };
-  "/api/playdates": {
-    /** Every playdate in the caller's packs */
-    get: operations["getPlaydates"];
-  };
-  "/api/addplaydate": {
-    /** Put a playdate on a pack's calendar */
-    post: operations["postAddplaydate"];
-  };
-  "/api/getUserPlaydates": {
-    /** The playdates the caller created, soonest first */
-    get: operations["getGetUserPlaydates"];
-  };
+    "/api/auth/guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign a demo visitor in to their own throwaway account */
+        post: operations["postAuthGuest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in account */
+        get: operations["getAuthMe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign out */
+        post: operations["postAuthLogout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The sign-in providers this instance offers */
+        get: operations["getAuthProviders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/oidc/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Begin sign-in through the identity provider (a browser navigation) */
+        get: operations["getAuthOidcStart"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/oidc/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Finish sign-in: exchange the provider's code for a session */
+        get: operations["getAuthOidcCallback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Finish setting up a newly signed-in account */
+        put: operations["putOnboarding"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/discover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A page of dogs near a zip code or place */
+        post: operations["postDiscover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resolve-location": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The US zip code nearest a pair of coordinates */
+        post: operations["postResolveLocation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record a swipe; a reciprocated yes becomes a match */
+        post: operations["postResponse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/currentuser": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in account, as a one-element list */
+        get: operations["getCurrentuser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/location": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Move the caller to a zip code or to their device's coordinates */
+        put: operations["putLocation"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/friends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's matches, with their photos */
+        get: operations["getFriends"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/edituser": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update the caller's profile */
+        put: operations["putEdituser"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profilephoto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's photo URLs, profile photo first */
+        get: operations["getProfilephoto"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a photo to the caller's own profile */
+        post: operations["postPhotos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getPfp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's photo rows */
+        get: operations["getGetPfp"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getpacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The packs the caller is in */
+        get: operations["getGetpacks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getUserPacks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The packs the caller is in */
+        get: operations["getGetUserPacks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/addtopack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Join a pack one of the caller's friends is in */
+        put: operations["putAddtopack"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/createpack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Create a pack with the given members; the caller is always one */
+        put: operations["putCreatepack"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an empty pack */
+        post: operations["postPack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getAllPostsFromSpecificPack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A pack's posts, newest first (members only) */
+        get: operations["getGetAllPostsFromSpecificPack"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getAllPacksPostsForUser": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every post in every pack the caller is in, newest first */
+        get: operations["getGetAllPacksPostsForUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getSoloPosts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A pack's posts, newest first (members only) */
+        get: operations["getGetSoloPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/makePost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post to a pack the caller is a member of */
+        post: operations["postMakePost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/playdates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every playdate in the caller's packs */
+        get: operations["getPlaydates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/addplaydate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Put a playdate on a pack's calendar */
+        post: operations["postAddplaydate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/getUserPlaydates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The playdates the caller created, soonest first */
+        get: operations["getGetUserPlaydates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
-
 export type webhooks = Record<string, never>;
-
 export interface components {
-  schemas: {
-    DiscoverPage: {
-      users: components["schemas"]["FeedCard"][];
-      distances: {
-        [key: string]: number | null;
-      };
-      origin: string;
-      remaining: number;
-    };
-    Error: {
-      error: string;
-      issues?: string[];
-    };
-    FeedCard: {
-      user_id: number;
-      dog_name: string | null;
-      owner_name: string | null;
-      dog_breed: string | null;
-      age: number | null;
-      vaccination: boolean;
-      discoverable: boolean;
-      owner_email: string;
-      location: string | null;
-      user1_choice: boolean | null;
-      photos: string[] | null;
-      interests: (string | null)[];
-    };
-    Friend: {
-      user_id: number;
-      dog_name: string | null;
-      owner_name: string | null;
-      dog_breed: string | null;
-      age: number | null;
-      vaccination: boolean;
-      discoverable: boolean;
-      owner_email: string;
-      location: string | null;
-      likes_one: string | null;
-      likes_two: string | null;
-      likes_three: string | null;
-      is_guest: boolean;
-      /** Format: date-time */
-      created_at: string;
-      demo_of: number | null;
-      cloned_from: number | null;
-      onboarded_at: string | null;
-      size: string | null;
-      energy: string | null;
-      best_time: string | null;
-      bio: string | null;
-      photos: string[] | null;
-    };
-    MatchFound: {
-      message: string;
-      matchedUserId: number;
-    };
-    Message: {
-      message: string;
-    };
-    Pack: {
-      pack_id: number;
-      name: string;
-    };
-    PackId: {
-      pack_id: number;
-    };
-    PackPlaydate: {
-      pack_id: number;
-      pack_name: string;
-      /** Format: date-time */
-      playdate_start_date: string;
-      /** Format: date-time */
-      playdate_end_date: string;
-      playdate_body: string | null;
-    };
-    PackPost: {
-      post_id: number;
-      user_id: number;
-      pack_id: number;
-      body: string | null;
-      /** Format: date-time */
-      date: string;
-      photo_url: string | null;
-      name: string;
-      owner_name: string | null;
-    };
-    PhotoUrl: {
-      url: string;
-    };
-    Placed: {
-      location: string | null;
-      nearby: number;
-    };
-    Playdate: {
-      playdate_id: number;
-      pack_id: number;
-      user_id: number;
-      body: string | null;
-      /** Format: date-time */
-      start_date: string;
-      /** Format: date-time */
-      end_date: string;
-    };
-    Post: {
-      post_id: number;
-      user_id: number;
-      pack_id: number;
-      body: string | null;
-      /** Format: date-time */
-      date: string;
-      photo_url: string | null;
-    };
-    ProfilePhoto: {
-      photo_id: number;
-      user_id: number;
-      url: string;
-    };
-    Providers: {
-      configured: boolean;
-      providers: {
-          id: string;
-          label: string;
-        }[];
-    };
-    ResolvedLocation: {
-      zip: string;
-      city: string;
-      state: string;
-    };
-    User: {
-      user_id: number;
-      dog_name: string | null;
-      owner_name: string | null;
-      dog_breed: string | null;
-      age: number | null;
-      vaccination: boolean;
-      discoverable: boolean;
-      owner_email: string;
-      location: string | null;
-      likes_one: string | null;
-      likes_two: string | null;
-      likes_three: string | null;
-      is_guest: boolean;
-      /** Format: date-time */
-      created_at: string;
-      demo_of: number | null;
-      cloned_from: number | null;
-      onboarded_at: string | null;
-      size: string | null;
-      energy: string | null;
-      best_time: string | null;
-      bio: string | null;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
-}
-
-export type $defs = Record<string, never>;
-
-export type external = Record<string, never>;
-
-export interface operations {
-
-  /** Sign a demo visitor in to their own throwaway account */
-  postAuthGuest: {
-    requestBody: {
-      content: {
-        "application/json": {
-          zip?: string;
-          lat?: number;
-          lng?: number;
-        };
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["User"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The signed-in account */
-  getAuthMe: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Sign out */
-  postAuthLogout: {
-    responses: {
-      /** @description No content */
-      204: {
-        content: never;
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The sign-in providers this instance offers */
-  getAuthProviders: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Providers"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Begin sign-in through the identity provider (a browser navigation) */
-  getAuthOidcStart: {
-    parameters: {
-      query?: {
-        provider?: string;
-      };
-    };
-    responses: {
-      /** @description Redirect */
-      302: {
-        content: never;
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description The sign-in provider could not be reached */
-      502: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign-in is not configured on this instance */
-      503: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Finish sign-in: exchange the provider's code for a session */
-  getAuthOidcCallback: {
-    parameters: {
-      query?: {
-        code?: string;
-        state?: string;
-        error?: string;
-        error_description?: string;
-      };
-    };
-    responses: {
-      /** @description Redirect */
-      302: {
-        content: never;
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Finish setting up a newly signed-in account */
-  putOnboarding: {
-    requestBody: {
-      content: {
-        "application/json": {
-          dogName: string;
-          dogBreed?: string | null;
-          age?: number | null;
-          vaccination?: boolean | null;
-          zip?: string | null;
-          lat?: number;
-          lng?: number;
-        };
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Placed"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** A page of dogs near a zip code or place */
-  postDiscover: {
-    requestBody: {
-      content: {
-        "application/json": {
-          zipcode: string;
-          radius?: number;
-          limit?: number;
-          seen?: string;
-        };
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["DiscoverPage"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The US zip code nearest a pair of coordinates */
-  postResolveLocation: {
-    requestBody: {
-      content: {
-        "application/json": {
-          lat: number;
-          lng: number;
-        };
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["ResolvedLocation"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Not found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Record a swipe; a reciprocated yes becomes a match */
-  postResponse: {
-    requestBody: {
-      content: {
-        "application/json": {
-          otherUserId: number;
-          currentUserChoice: boolean;
-          otherUserChoice?: boolean | null;
-        };
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["MatchFound"];
-        };
-      };
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["Message"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The signed-in account, as a one-element list */
-  getCurrentuser: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["User"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Move the caller to a zip code or to their device's coordinates */
-  putLocation: {
-    requestBody: {
-      content: {
-        "application/json": {
-          zip?: string;
-          lat?: number;
-          lng?: number;
-        };
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Placed"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The caller's matches, with their photos */
-  getFriends: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Friend"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Update the caller's profile */
-  putEdituser: {
-    requestBody: {
-      content: {
-        "application/json": {
-          dogName: string;
-          ownerName: unknown;
-          dogBreed: unknown;
-          age?: number | null;
-          vaccination?: boolean;
-          discoverable?: boolean;
-          likesOne: unknown;
-          likesTwo: unknown;
-          likesThree: unknown;
-          size: unknown;
-          energy: unknown;
-          bestTime: unknown;
-          bio: unknown;
-        };
-      };
-    };
-    responses: {
-      /** @description No content */
-      204: {
-        content: never;
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The caller's photo URLs, profile photo first */
-  getProfilephoto: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PhotoUrl"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Not found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Add a photo to the caller's own profile */
-  postPhotos: {
-    requestBody: {
-      content: {
-        "application/json": {
-          /** Format: uri */
-          photoUrl: string;
-        };
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["Message"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The caller's photo rows */
-  getGetPfp: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["ProfilePhoto"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The packs the caller is in */
-  getGetpacks: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Pack"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** The packs the caller is in */
-  getGetUserPacks: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Pack"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Join a pack one of the caller's friends is in */
-  putAddtopack: {
-    requestBody: {
-      content: {
-        "application/json": {
-          pack_id: number;
-        };
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["Message"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Not allowed for this account */
-      403: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Create a pack with the given members; the caller is always one */
-  putCreatepack: {
-    requestBody: {
-      content: {
-        "application/json": {
-          pack_name: string;
-          /** @description the members to add; the creator is always included */
-          users: number[];
-        };
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["Message"];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Create an empty pack */
-  postPack: {
-    requestBody: {
-      content: {
-        "application/json": {
-          packName: string;
-        };
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PackId"][];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** A pack's posts, newest first (members only) */
-  getGetAllPostsFromSpecificPack: {
-    parameters: {
-      query: {
-        packId: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Post"][];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Not allowed for this account */
-      403: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Every post in every pack the caller is in, newest first */
-  getGetAllPacksPostsForUser: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PackPost"][];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** A pack's posts, newest first (members only) */
-  getGetSoloPosts: {
-    parameters: {
-      query: {
-        packId: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Post"][];
-        };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Not allowed for this account */
-      403: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-  };
-  /** Post to a pack the caller is a member of */
-  postMakePost: {
-    requestBody: {
-      content: {
-        "application/json": {
-          packet: {
+    schemas: {
+        DiscoverPage: {
+            users: components["schemas"]["FeedCard"][];
+            distances: {
+                [key: string]: number | null;
+            };
+            origin: string;
+            remaining: number;
+        };
+        Error: {
+            error: string;
+            issues?: string[];
+        };
+        FeedCard: {
+            user_id: number;
+            dog_name: string | null;
+            owner_name: string | null;
+            dog_breed: string | null;
+            age: number | null;
+            vaccination: boolean;
+            discoverable: boolean;
+            owner_email: string;
+            location: string | null;
+            user1_choice: boolean | null;
+            photos: string[] | null;
+            interests: (string | null)[];
+        };
+        Friend: {
+            user_id: number;
+            dog_name: string | null;
+            owner_name: string | null;
+            dog_breed: string | null;
+            age: number | null;
+            vaccination: boolean;
+            discoverable: boolean;
+            owner_email: string;
+            location: string | null;
+            likes_one: string | null;
+            likes_two: string | null;
+            likes_three: string | null;
+            is_guest: boolean;
+            /** Format: date-time */
+            created_at: string;
+            demo_of: number | null;
+            cloned_from: number | null;
+            onboarded_at: string | null;
+            size: string | null;
+            energy: string | null;
+            best_time: string | null;
+            bio: string | null;
+            photos: string[] | null;
+        };
+        MatchFound: {
+            message: string;
+            matchedUserId: number;
+        };
+        Message: {
+            message: string;
+        };
+        Pack: {
             pack_id: number;
-            body?: string | null;
-            photo_url?: string | null;
-          };
+            name: string;
         };
-      };
+        PackId: {
+            pack_id: number;
+        };
+        PackPlaydate: {
+            pack_id: number;
+            pack_name: string;
+            /** Format: date-time */
+            playdate_start_date: string;
+            /** Format: date-time */
+            playdate_end_date: string;
+            playdate_body: string | null;
+        };
+        PackPost: {
+            post_id: number;
+            user_id: number;
+            pack_id: number;
+            body: string | null;
+            /** Format: date-time */
+            date: string;
+            photo_url: string | null;
+            name: string;
+            owner_name: string | null;
+        };
+        PhotoUrl: {
+            url: string;
+        };
+        Placed: {
+            location: string | null;
+            nearby: number;
+        };
+        Playdate: {
+            playdate_id: number;
+            pack_id: number;
+            user_id: number;
+            body: string | null;
+            /** Format: date-time */
+            start_date: string;
+            /** Format: date-time */
+            end_date: string;
+        };
+        Post: {
+            post_id: number;
+            user_id: number;
+            pack_id: number;
+            body: string | null;
+            /** Format: date-time */
+            date: string;
+            photo_url: string | null;
+        };
+        ProfilePhoto: {
+            photo_id: number;
+            user_id: number;
+            url: string;
+        };
+        Providers: {
+            configured: boolean;
+            providers: {
+                id: string;
+                label: string;
+            }[];
+        };
+        ResolvedLocation: {
+            zip: string;
+            city: string;
+            state: string;
+        };
+        User: {
+            user_id: number;
+            dog_name: string | null;
+            owner_name: string | null;
+            dog_breed: string | null;
+            age: number | null;
+            vaccination: boolean;
+            discoverable: boolean;
+            owner_email: string;
+            location: string | null;
+            likes_one: string | null;
+            likes_two: string | null;
+            likes_three: string | null;
+            is_guest: boolean;
+            /** Format: date-time */
+            created_at: string;
+            demo_of: number | null;
+            cloned_from: number | null;
+            onboarded_at: string | null;
+            size: string | null;
+            energy: string | null;
+            best_time: string | null;
+            bio: string | null;
+        };
     };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["Message"];
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
+}
+export type $defs = Record<string, never>;
+export interface operations {
+    postAuthGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
+        requestBody: {
+            content: {
+                "application/json": {
+                    zip?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+            };
         };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
-      };
-      /** @description Not allowed for this account */
-      403: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
     };
-  };
-  /** Every playdate in the caller's packs */
-  getPlaydates: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PackPlaydate"][];
+    getAuthMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
     };
-  };
-  /** Put a playdate on a pack's calendar */
-  postAddplaydate: {
-    requestBody: {
-      content: {
-        "application/json": {
-          packId: number;
-          playdateBody?: string | null;
-          /** Format: date-time */
-          startTime: string;
-          /** Format: date-time */
-          endTime: string;
+    postAuthLogout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
     };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["Message"];
+    getAuthProviders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      /** @description The request did not match its schema; `issues` says where */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Providers"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Rate limited; see the RateLimit-* headers */
-      429: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
     };
-  };
-  /** The playdates the caller created, soonest first */
-  getGetUserPlaydates: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Playdate"][];
+    getAuthOidcStart: {
+        parameters: {
+            query?: {
+                provider?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      /** @description Sign in first */
-      401: {
-        content: {
-          "application/json": components["schemas"]["Error"];
+        requestBody?: never;
+        responses: {
+            /** @description Redirect */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description The sign-in provider could not be reached */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign-in is not configured on this instance */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
-      };
-      /** @description Internal error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
     };
-  };
+    getAuthOidcCallback: {
+        parameters: {
+            query?: {
+                code?: string;
+                state?: string;
+                error?: string;
+                error_description?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirect */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    putOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    dogName: string;
+                    dogBreed?: string | null;
+                    age?: number | null;
+                    vaccination?: boolean | null;
+                    zip?: string | null;
+                    lat?: number;
+                    lng?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Placed"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postDiscover: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    zipcode: string;
+                    radius?: number;
+                    limit?: number;
+                    seen?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverPage"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postResolveLocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    lat: number;
+                    lng: number;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolvedLocation"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postResponse: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    otherUserId: number;
+                    currentUserChoice: boolean;
+                    otherUserChoice?: boolean | null;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchFound"];
+                };
+            };
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getCurrentuser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    putLocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    zip?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Placed"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getFriends: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Friend"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    putEdituser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    dogName: string;
+                    ownerName: unknown;
+                    dogBreed: unknown;
+                    age?: number | null;
+                    vaccination?: boolean;
+                    discoverable?: boolean;
+                    likesOne: unknown;
+                    likesTwo: unknown;
+                    likesThree: unknown;
+                    size: unknown;
+                    energy: unknown;
+                    bestTime: unknown;
+                    bio: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getProfilephoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoUrl"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postPhotos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uri */
+                    photoUrl: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetPfp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfilePhoto"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetpacks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pack"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetUserPacks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pack"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    putAddtopack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    pack_id: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not allowed for this account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    putCreatepack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    pack_name: string;
+                    /** @description the members to add; the creator is always included */
+                    users: number[] | number[];
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postPack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    packName: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PackId"][];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetAllPostsFromSpecificPack: {
+        parameters: {
+            query: {
+                packId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"][];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not allowed for this account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetAllPacksPostsForUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PackPost"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetSoloPosts: {
+        parameters: {
+            query: {
+                packId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"][];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not allowed for this account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postMakePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    packet: {
+                        pack_id: number;
+                        body?: string | null;
+                        photo_url?: string | null;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not allowed for this account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getPlaydates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PackPlaydate"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    postAddplaydate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    packId: number;
+                    playdateBody?: string | null;
+                    /** Format: date-time */
+                    startTime: string;
+                    /** Format: date-time */
+                    endTime: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGetUserPlaydates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Playdate"][];
+                };
+            };
+            /** @description Sign in first */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Internal error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
 }
