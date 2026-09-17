@@ -1,7 +1,7 @@
 import { FaDog } from "react-icons/fa";
 import { Link, Navigate } from "react-router-dom";
-import dogImage from "../assets/dog.jpg";
 import "../components/Login/Login.css";
+import HeroPhoto from "../components/Shared/HeroPhoto";
 import useGuestSignIn from "../hooks/useGuestSignIn";
 import useUserContext from "../hooks/useUserContext";
 import { useProviders } from "../queries";
@@ -36,11 +36,7 @@ const Login = () => {
         >
           Facewoof
         </Link>
-        <img
-          className="w-full h-full object-cover"
-          src={dogImage}
-          alt="A dog in a park"
-        />
+        <HeroPhoto />
       </div>
 
       <div className="flex flex-col flex-1 space-y-6 px-12 items-center justify-center">

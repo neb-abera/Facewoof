@@ -1,3 +1,5 @@
+import { avatarUrl } from "../../../images";
+
 interface PostTileProps {
   img?: string | null;
   content?: string | null;
@@ -20,7 +22,17 @@ const PostTile = ({ img, content, postedOn, parentGroup }: PostTileProps) => {
 
   return (
     <article className="post-tile">
-      {img ? <img className="post-tile__photo" src={img} alt="" /> : null}
+      {img ? (
+        <img
+          className="post-tile__photo"
+          src={avatarUrl(img, 72)}
+          width={72}
+          height={72}
+          loading="lazy"
+          decoding="async"
+          alt=""
+        />
+      ) : null}
       <div className="post-tile__body">
         <p className="post-tile__content">{content}</p>
         <p className="post-tile__meta">

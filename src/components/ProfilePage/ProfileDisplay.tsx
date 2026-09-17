@@ -2,6 +2,7 @@ import { FaPen } from "react-icons/fa";
 import "./profile.css";
 import defaultDog from "../../assets/default-dog.svg";
 import useUserContext from "../../hooks/useUserContext";
+import { avatarUrl } from "../../images";
 import { usePhotos } from "../../queries";
 import FriendsList from "./FriendsList";
 
@@ -69,7 +70,10 @@ const ProfileDisplay = () => {
             <div className="profile__header">
               <img
                 className="profile__avatar"
-                src={avatar || defaultDog}
+                src={avatarUrl(avatar, 112) || defaultDog}
+                width={112}
+                height={112}
+                decoding="async"
                 alt={
                   avatar ? `${userData.dog_name || "Your dog"}` : "No photo yet"
                 }
@@ -165,6 +169,10 @@ const ProfileDisplay = () => {
                     <img
                       src={url}
                       className="profile__gallery-photo"
+                      width={280}
+                      height={224}
+                      loading="lazy"
+                      decoding="async"
                       alt="A dog"
                     />
                   </div>

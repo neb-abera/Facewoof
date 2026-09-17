@@ -1,4 +1,5 @@
 import { type CSSProperties, useState } from "react";
+import { avatarUrl } from "../../../images";
 import { useMakePost } from "../../../queries";
 
 interface PostMakerProps {
@@ -50,7 +51,13 @@ const PostMaker = ({ viewing, viewingName, pfp }: PostMakerProps) => {
       <div style={styles.postMakerImg}>
         <div className="avatar">
           <div className="w-24 rounded-full">
-            <img src={pfp ?? undefined} alt="Your avatar" />
+            <img
+              src={avatarUrl(pfp, 96)}
+              width={96}
+              height={96}
+              decoding="async"
+              alt="Your avatar"
+            />
           </div>
         </div>
         <div className="card" style={styles.poster}>

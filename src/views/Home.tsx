@@ -1,7 +1,7 @@
 import type { IconType } from "react-icons";
 import { FaBone, FaDog, FaRegCalendarAlt } from "react-icons/fa";
 import { Link, Navigate } from "react-router-dom";
-import dogImage from "../assets/dog.jpg";
+import HeroPhoto from "../components/Shared/HeroPhoto";
 import useGuestSignIn from "../hooks/useGuestSignIn";
 import useUserContext from "../hooks/useUserContext";
 
@@ -37,11 +37,7 @@ const Home = () => {
   return (
     <div className="flex min-h-screen w-screen max-lg:flex-col">
       <div className="relative w-[600px] shrink-0 max-lg:w-full max-lg:h-64">
-        <img
-          className="w-full h-full object-cover"
-          src={dogImage}
-          alt="A dog in a park"
-        />
+        <HeroPhoto priority />
       </div>
 
       <div className="flex flex-col flex-1 justify-center px-12 py-16 space-y-8">

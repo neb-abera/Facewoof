@@ -40,6 +40,13 @@ function memoryStorage(): Storage {
 }
 
 beforeEach(() => {
+  // A browser that has loaded the app already holds the CSRF token (the API
+  // sets it on the first GET). Without it every write would first fetch one
+  // (src/api.ts), and each test would have to expect that extra request;
+  // tests/client/api.test.ts covers the empty-jar path on its own.
+  // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store API
+  document.cookie = "XSRF-TOKEN=test-token; path=/";
+
   const storage = memoryStorage();
   Object.defineProperty(globalThis, "localStorage", {
     value: storage,

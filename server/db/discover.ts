@@ -2,9 +2,10 @@ import { pool } from "./database.ts";
 import type { FeedRow } from "./shapes.ts";
 
 /*
- * Build a page of the discover feed: users in the given zip codes that the
- * current user has not already matched with or passed on, sorted so anyone who
- * has already swiped yes on them appears first.
+ * A page of the discover feed, and how many dogs are left after it: users in
+ * the given zip codes that the current user has not already matched with or
+ * passed on, sorted so anyone who has already swiped yes on them appears
+ * first.
  *
  * Paged by exclusion rather than OFFSET. Swiping writes to
  * pending_relationships, which removes that dog from this very query, so the
@@ -12,90 +13,91 @@ import type { FeedRow } from "./shapes.ts";
  * moved up to fill the gap. Passing the ids already delivered is immune to
  * that, and `seen` stays small because it only has to cover one session's
  * swiping.
+ *
+ * One query, in three steps:
+ *
+ *   candidates  everyone the predicate admits. This is the expensive part,
+ *               and it used to run twice per request - once for the page and
+ *               once more, serially, in a second query that only counted.
+ *   page        the first $3 of them, each carrying count(*) OVER (): a
+ *               window function is evaluated over the whole candidate set
+ *               before LIMIT cuts it, so every row knows the total.
+ *   photos      aggregated per dealt card, after the LIMIT. It used to be a
+ *               join against `SELECT ... FROM profile_photos GROUP BY
+ *               user_id`, which aggregated the photos of every account in
+ *               the table to decorate at most thirty rows. Ordered by
+ *               photo_id, the order the profile page shows them in.
+ *
+ * An empty page has no row to carry the total, and needs none: if nothing
+ * was dealt, nothing is left.
+ *
+ * NOT EXISTS rather than the NOT IN these were written with: the same answer
+ * here, since none of the id columns is nullable, but the planner can run it
+ * as an anti-join against the indexes on friends and pending_relationships.
  */
-export function generateDiscoverFeed(
+export function discoverFeedPage(
   user1: number,
   zipcodes: string[],
   limit: number,
   seen: number[] = [],
-): Promise<FeedRow[]> {
+): Promise<{ users: FeedRow[]; remaining: number }> {
   return pool
-    .query<FeedRow>(
+    .query<FeedRow & { total: number }>(
       `
-  SELECT * FROM (
+  WITH candidates AS (
     SELECT u.user_id, u.dog_name, u.owner_name, u.dog_breed, u.age, u.vaccination,
-           u.discoverable, u.owner_email, u.location, u.user1_choice, p.photos,
+           u.discoverable, u.owner_email, u.location, admirer.user1_choice,
            ARRAY[u.likes_one, u.likes_two, u.likes_three] AS interests
-    FROM (
-      SELECT * FROM (
-        SELECT * FROM public.users
-          WHERE users.location = ANY($2)
-          AND user_id <> $1
-          -- Dogs generated to fill out one person's feed belong only to that
-          -- person. Without this, two demos in the same city show each other's
-          -- copies of the same roster and every dog appears twice.
-          AND (demo_of IS NULL OR demo_of = $1)
-          AND user_id <> ALL($4)
-          AND user_id NOT IN (SELECT friends.user1_id FROM friends WHERE friends.user2_id = $1)
-          AND user_id NOT IN (SELECT friends.user2_id FROM friends WHERE friends.user1_id = $1)
-      ) users
-      LEFT JOIN (
-        SELECT * FROM pending_relationships
-        WHERE user2_id = $1 AND user1_choice = true
-      ) AS relationships
-      ON users.user_id = relationships.user1_id
-      WHERE user_id NOT IN (
-        SELECT a.user1_id FROM pending_relationships a
-        WHERE a.user2_id = $1 AND a.user1_choice = false
+    FROM public.users u
+    LEFT JOIN pending_relationships admirer
+      ON admirer.user1_id = u.user_id
+      AND admirer.user2_id = $1
+      AND admirer.user1_choice = true
+    WHERE u.discoverable = true
+      AND u.location = ANY($2)
+      AND u.user_id <> $1
+      -- Dogs generated to fill out one person's feed belong only to that
+      -- person. Without this, two demos in the same city show each other's
+      -- copies of the same roster and every dog appears twice.
+      AND (u.demo_of IS NULL OR u.demo_of = $1)
+      AND u.user_id <> ALL($4)
+      AND NOT EXISTS (
+        SELECT 1 FROM friends f
+        WHERE (f.user2_id = $1 AND f.user1_id = u.user_id)
+           OR (f.user1_id = $1 AND f.user2_id = u.user_id)
       )
-      AND user_id NOT IN (
-        SELECT a.user2_id FROM public.pending_relationships a
-        WHERE a.user1_id = $1 AND a.user1_choice = false
+      -- Either of them has passed on the other.
+      AND NOT EXISTS (
+        SELECT 1 FROM pending_relationships p
+        WHERE p.user1_choice = false
+          AND ((p.user2_id = $1 AND p.user1_id = u.user_id)
+            OR (p.user1_id = $1 AND p.user2_id = u.user_id))
       )
-    ) u
-    LEFT JOIN (
-      SELECT user_id, array_agg(url) AS photos
-      FROM profile_photos
-      GROUP BY user_id
-    ) p
-    ON u.user_id = p.user_id
-    WHERE discoverable = true
-  ) feed
-  ORDER BY (user1_choice IS TRUE) DESC, user_id
-  LIMIT $3;
+  ),
+  page AS (
+    SELECT *, (count(*) OVER ())::int AS total
+    FROM candidates
+    ORDER BY (user1_choice IS TRUE) DESC, user_id
+    LIMIT $3
+  )
+  SELECT page.*,
+         (SELECT array_agg(ph.url ORDER BY ph.photo_id)
+            FROM profile_photos ph
+           WHERE ph.user_id = page.user_id) AS photos
+  FROM page
+  ORDER BY (user1_choice IS TRUE) DESC, user_id;
   `,
       [user1, zipcodes, limit, seen],
     )
-    .then((results) => results.rows);
-}
-
-/* How many are left to serve after this page, so the client knows to stop. */
-export function countRemainingFeed(
-  user1: number,
-  zipcodes: string[],
-  seen: number[] = [],
-): Promise<number> {
-  return pool
-    .query<{ n: number }>(
-      `SELECT count(*)::int AS n FROM public.users
-       WHERE discoverable
-         AND location = ANY($2)
-         AND user_id <> $1
-         AND (demo_of IS NULL OR demo_of = $1)
-         AND user_id <> ALL($3)
-         AND user_id NOT IN (SELECT user1_id FROM friends WHERE user2_id = $1)
-         AND user_id NOT IN (SELECT user2_id FROM friends WHERE user1_id = $1)
-         AND user_id NOT IN (
-           SELECT user1_id FROM pending_relationships
-           WHERE user2_id = $1 AND user1_choice = false
-         )
-         AND user_id NOT IN (
-           SELECT user2_id FROM pending_relationships
-           WHERE user1_id = $1 AND user1_choice = false
-         )`,
-      [user1, zipcodes, seen],
-    )
-    .then(({ rows }) => rows[0]?.n ?? 0);
+    .then(({ rows }) => {
+      const total = rows[0]?.total ?? 0;
+      return {
+        // `total` is bookkeeping, not part of a card: the reply is sent as
+        // serialised, so anything left on the row would reach the client.
+        users: rows.map(({ total: _total, ...card }) => card),
+        remaining: total - rows.length,
+      };
+    });
 }
 
 /* Record the current user's swipe on another user. */
