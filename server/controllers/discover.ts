@@ -12,8 +12,7 @@ import {
 } from "../api/schemas.ts";
 import {
   checkForMatchAndCreate,
-  countRemainingFeed,
-  generateDiscoverFeed,
+  discoverFeedPage,
   getUserLocation,
   setRelationship,
 } from "../db/index.ts";
@@ -50,6 +49,16 @@ const parseSeen = (raw: string | undefined): number[] =>
 // zipcodes.states is { full, abbr, normalize }, not a map of codes: `abbr` is
 // the one keyed by the two letter abbreviations.
 const STATES = Object.keys(zipcodes.states.abbr);
+
+/*
+ * Whether resolveZip() will consult `nearZip` for this query: only for a
+ * place name with no state. A zip code or "City, ST" is settled without it.
+ */
+export const needsOrigin = (location: string): boolean => {
+  const query = location.trim();
+  if (!query || /^\d{5}$/.test(query)) return false;
+  return !query.split(",")[1]?.trim();
+};
 
 export function resolveZip(
   location: string,
@@ -114,9 +123,13 @@ export const discoverUsers = defineRoute({
     const seen = parseSeen(body.seen);
     const pageSize = Math.min(body.limit ?? DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
 
-    // Only needed to settle an ambiguous city name, but it is a primary key
-    // lookup and the feed query that follows dwarfs it.
-    const nearZip = await getUserLocation(userId);
+    // Where the searcher is only matters for settling a bare city name that
+    // exists in several states. The client sends a zip code on every page of
+    // the feed, so asking the database first was a round trip per request
+    // for an answer resolveZip() then ignored.
+    const nearZip = needsOrigin(body.zipcode)
+      ? await getUserLocation(userId)
+      : null;
     const origin = resolveZip(body.zipcode, nearZip);
     if (!origin) {
       // The input is deliberately not echoed back: the old template string
@@ -135,18 +148,15 @@ export const discoverUsers = defineRoute({
       distances[zip] = zipcodes.distance(origin, zip);
     }
 
-    const users = await generateDiscoverFeed(
+    // `remaining` is what is left after this page, so the client knows
+    // whether to keep asking. Counted rather than inferred from a short page:
+    // a full page can still be the last one.
+    const { users, remaining } = await discoverFeedPage(
       userId,
       nearbyZips,
       pageSize,
       seen,
     );
-
-    // What is left after this page, so the client knows whether to keep
-    // asking. Counted rather than inferred from a short page: a full page can
-    // still be the last one.
-    const delivered = seen.concat(users.map((u) => u.user_id));
-    const remaining = await countRemainingFeed(userId, nearbyZips, delivered);
 
     return reply(200, { users, distances, origin, remaining });
   },
