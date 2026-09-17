@@ -101,3 +101,104 @@ test("the health endpoint is rate limited", async ({ page }) => {
   }
   expect(limited, "80 rapid probes should trip the limiter").toBe(true);
 });
+
+/*
+ * The Content-Security-Policy, tightened past helmet's defaults — which
+ * allow any https stylesheet or font and any inline style — and then proven
+ * not to break the app, by walking every page with a listener on the
+ * browser's own violation reports. The calendar is the page to worry about:
+ * react-big-calendar positions every event with inline styles.
+ */
+test("the CSP allows no inline or third-party styles and fonts, and blocks nothing the app uses", async ({
+  page,
+}) => {
+  const violations: string[] = [];
+  await page.addInitScript(() => {
+    document.addEventListener("securitypolicyviolation", (event) => {
+      console.error(
+        `CSP-VIOLATION ${event.effectiveDirective} ${event.blockedURI} ${event.sourceFile ?? ""}:${event.lineNumber}`,
+      );
+    });
+  });
+  page.on("console", (message) => {
+    const text = message.text();
+    if (/CSP-VIOLATION|Content Security Policy/i.test(text)) {
+      violations.push(text);
+    }
+  });
+
+  const landing = await page.goto("/");
+  const policy = landing?.headers()["content-security-policy"] ?? "";
+  const directive = (name: string) =>
+    policy
+      .split(";")
+      .map((part) => part.trim())
+      .find((part) => part.startsWith(`${name} `)) ?? "";
+
+  expect(directive("font-src")).toBe("font-src 'self'");
+  expect(directive("style-src")).toBe("style-src 'self'");
+  expect(policy, "no inline styles anywhere").not.toContain("'unsafe-inline'");
+  expect(directive("script-src")).toBe("script-src 'self'");
+  expect(directive("img-src")).toBe(
+    "img-src 'self' data: https://res.cloudinary.com https://placedog.net",
+  );
+
+  // Every page, signed in, with the interactions that build DOM on the fly.
+  await page.getByRole("button", { name: /try the demo/i }).click();
+  await page.waitForURL("**/discover", { timeout: 30_000 });
+  await expect(page.locator(".card-stack, .profile-card").first()).toBeVisible({
+    timeout: 20_000,
+  });
+
+  await page.locator('a[href="/profile"]:visible').first().click();
+  await expect(page.locator(".profile__avatar")).toBeVisible({
+    timeout: 20_000,
+  });
+
+  await page.locator('a[href="/packFeed"]:visible').first().click();
+  await expect(page.getByRole("button", { name: /create pack/i })).toBeVisible({
+    timeout: 20_000,
+  });
+
+  await page.locator('a[href="/calendar"]:visible').first().click();
+  await expect(page.locator(".rbc-calendar")).toBeVisible({ timeout: 20_000 });
+  // The seeded playdates are drawn as absolutely positioned events.
+  for (const view of ["Month", "Week", "Day", "Agenda", "Week"]) {
+    await page.getByRole("button", { name: view, exact: true }).click();
+  }
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("button", { name: "Today", exact: true }).click();
+
+  // The add-playdate dialog: react-modal, and the date-time picker with its
+  // pop-up calendar and clock.
+  await page.getByRole("button", { name: /add playdate/i }).click();
+  const modal = page.locator(".app-modal");
+  await expect(modal).toBeVisible();
+  const opener = modal.locator(".react-datetime-picker__calendar-button");
+  if ((await opener.count()) > 0) {
+    await opener.first().click();
+    await expect(page.locator(".react-calendar").first()).toBeVisible();
+    // Closed with its own button: Escape would close the dialog around it.
+    await opener.first().click();
+  }
+  await modal.locator("select").first().selectOption({ index: 1 });
+  await modal.locator("textarea").fill("CSP walk");
+  await modal.getByRole("button", { name: /add playdate/i }).click();
+  await expect(modal).toBeHidden({ timeout: 15_000 });
+  await page.getByRole("button", { name: "Agenda" }).click();
+  await expect(page.getByText("CSP walk").first()).toBeVisible({
+    timeout: 20_000,
+  });
+
+  // And the events really are laid out: a blocked inline style would leave
+  // the week view's events unpositioned at the top of their column.
+  await page.getByRole("button", { name: "Week", exact: true }).click();
+  const event = page.locator(".rbc-time-view .rbc-event").first();
+  if ((await event.count()) > 0) {
+    const top = await event.evaluate((el) => (el as HTMLElement).style.top);
+    expect(top, "the event carries its inline position").not.toBe("");
+  }
+
+  expect(violations, violations.join("\n")).toEqual([]);
+});

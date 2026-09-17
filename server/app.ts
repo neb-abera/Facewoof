@@ -99,6 +99,19 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
       contentSecurityPolicy: {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          // helmet's defaults here are `style-src 'self' https: 'unsafe-inline'`
+          // and `font-src 'self' https: data:` — any stylesheet or font from
+          // any https origin, and any inline style, which is what a markup
+          // injection needs to restyle the page or exfiltrate through CSS.
+          // The app ships one bundled stylesheet per route and no web fonts,
+          // so both are 'self'. No 'unsafe-inline' and no style-src-attr
+          // carve-out is needed: React, react-big-calendar and react-modal
+          // set styles through the CSSOM (element.style), which CSP does not
+          // govern; only style ATTRIBUTES in markup and <style> elements are,
+          // and the app has neither. tests/e2e/security.spec.ts walks every
+          // page, the calendar included, listening for violations.
+          "style-src": ["'self'"],
+          "font-src": ["'self'"],
           // The same list the API holds stored photo URLs to.
           "img-src": ["'self'", "data:", ...IMAGE_SOURCES],
           // Photo uploads POST from the browser straight to Cloudinary. The
