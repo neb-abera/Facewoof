@@ -316,21 +316,73 @@ stops the server at start-up rather than guessing.
 
 ## Photo uploads (Cloudinary)
 
-Uploads go straight from the browser to Cloudinary with an unsigned preset;
-the app stores only the returned URL. The two identifiers are baked into the
-client bundle at build time, so they are passed to the deploy build as GitHub
-repository **variables** (Settings → Secrets and variables → Actions →
-Variables) — not secrets, since every browser receives them in the bundle
-anyway:
+Uploads go straight from the browser to Cloudinary; the app stores only the
+returned URL, and only accepts one that is `https://res.cloudinary.com/` under
+an `image/upload` path — under *your* cloud once `CLOUDINARY_CLOUD_NAME` is
+set (`server/media.ts`, the same list the CSP's `img-src` is built from).
 
-- `VITE_CLOUD_NAME` — the Cloudinary cloud name
-- `VITE_UPLOAD_PRESET` — an **unsigned** upload preset (create it in the
-  Cloudinary console under Settings → Upload; restrict it to image files and
-  a folder)
+There are two modes, and the server picks by what it has been given.
 
-While they are unset the app simply hides photo upload, in onboarding and on
-the profile page alike. After setting them, re-run the deploy workflow (or
-merge anything) so a new bundle is built.
+### Signed (what production should run)
+
+The server hands a signed-in caller a ten-minute signature
+(`POST /api/uploads/signature`, rate limited) that fixes the folder
+(`Facewoof`), the accepted formats and an incoming size limit. Nobody without
+a session can upload, and nobody can change those parameters. It turns on
+when all three of these are set on the container app:
+
+```bash
+# Cloudinary console -> Settings -> API Keys. The secret goes in as a
+# container-app secret, never a plain variable and never a VITE_ build arg.
+az containerapp secret set -g "$RG" -n "$APP" \
+  --secrets cloudinary-api-secret="<api secret>"
+az containerapp update -g "$RG" -n "$APP" --set-env-vars \
+  CLOUDINARY_CLOUD_NAME="<cloud name>" \
+  CLOUDINARY_API_KEY="<api key>" \
+  CLOUDINARY_API_SECRET=secretref:cloudinary-api-secret
+```
+
+(`CLOUDINARY_SIGNATURE_ALGORITHM=sha256` only if the Cloudinary product
+environment has been switched to SHA-256 signatures; the default is SHA-1,
+which is Cloudinary's.)
+
+### Unsigned (the fallback, and what ran before)
+
+While those are unset the endpoint answers 404 and the client falls back to
+an **unsigned** upload preset, whose two identifiers are baked into the
+bundle at build time as GitHub repository **variables** (Settings → Secrets
+and variables → Actions → Variables): `VITE_CLOUD_NAME` and
+`VITE_UPLOAD_PRESET`. An unsigned preset is a public write endpoint — its
+name ships to every browser and anyone can upload to it — so in production
+the server logs a warning at start-up for as long as it is in this mode.
+With neither mode configured the app simply hides photo upload.
+
+### Switching over
+
+1. Set the three `CLOUDINARY_*` values as above and let the new revision
+   start. The start-up warning about the unsigned preset should be gone from
+   the logs.
+2. Upload a photo from the profile page while signed in. In the browser's
+   network tab the request to `api.cloudinary.com` now carries `signature`
+   and `api_key` and no `upload_preset`.
+3. Delete the repository variable `VITE_UPLOAD_PRESET` (keep
+   `VITE_CLOUD_NAME` or not; signed mode does not read it) and redeploy so
+   the bundle stops carrying the preset name.
+4. In the Cloudinary console (Settings → Upload → Upload presets) **delete
+   the unsigned preset**, or switch it to Signed. Until this step the old
+   public endpoint still works for anyone who saved its name, whatever the
+   app does.
+5. Optional, once: look for stored URLs that predate validation. Nothing is
+   deleted by the app; rows that match are not rendered anyway (the CSP
+   blocks them), so review and remove by hand if any turn up.
+
+   ```sql
+   SELECT photo_id, user_id, url FROM profile_photos
+    WHERE url !~ '^https://(res\.cloudinary\.com|placedog\.net)/';
+   SELECT post_id, user_id, photo_url FROM posts
+    WHERE photo_url IS NOT NULL
+      AND photo_url !~ '^https://(res\.cloudinary\.com|placedog\.net)/';
+   ```
 
 ## Deploying
 

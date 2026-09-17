@@ -37,3 +37,4 @@ export {
   getUserFriends,
   updateLocation,
 } from "./profile.ts";
+export { uploadConfig, uploadSignature } from "./uploads.ts";

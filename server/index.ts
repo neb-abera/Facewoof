@@ -9,6 +9,7 @@ import { createApp } from "./app.ts";
 import { pool as db } from "./db/database.ts";
 import { purgeExpiredGuests } from "./db/index.ts";
 import { migrate } from "./db/migrate.ts";
+import { warnIfUploadsUnsigned } from "./media.ts";
 import { purgeExpiredRateLimits } from "./rate-limit-store.ts";
 import { router } from "./routes.ts";
 import { registerShutdown } from "./shutdown.ts";
@@ -40,6 +41,7 @@ const sweepRateLimits = () =>
 
 // Only listen when run directly, so tests can import the app without binding.
 if (import.meta.main) {
+  warnIfUploadsUnsigned();
   db.query("SELECT 1")
     // Bring the schema up to date before serving. The runner takes an advisory
     // lock, so several replicas starting at once on a deploy is safe: one

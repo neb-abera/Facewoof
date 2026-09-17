@@ -15,6 +15,7 @@
  * receives, so a timestamp is an ISO string here.
  */
 import { z } from "zod";
+import { isAllowedImageUrl, isUploadedImageUrl } from "../media.ts";
 
 // ---- building blocks --------------------------------------------------------
 
@@ -317,7 +318,35 @@ export const EditProfileBody = z.object({
   bio: text(400),
 });
 
-export const PhotoBody = z.object({ photoUrl: z.url() });
+/*
+ * A photo URL is stored and later rendered to other people, so it is not
+ * "any URL": https, on a host the CSP's img-src also allows (server/media.ts
+ * is the one list), and for a new profile photo, under this deployment's own
+ * Cloudinary cloud — the only thing an upload can produce.
+ */
+const uploadedImageUrl = z
+  .url()
+  .refine((url) => isUploadedImageUrl(url), "must be an uploaded photo's URL");
+
+const allowedImageUrl = z
+  .url()
+  .refine((url) => isAllowedImageUrl(url), "must be a photo this app hosts");
+
+export const PhotoBody = z.object({ photoUrl: uploadedImageUrl });
+
+export const UploadConfig = named(
+  "UploadConfig",
+  z.object({ signed: z.boolean() }),
+);
+
+export const UploadTicket = named(
+  "UploadTicket",
+  z.object({
+    uploadUrl: z.url(),
+    fields: z.record(z.string(), z.string()),
+    expiresAt: timestamp,
+  }),
+);
 
 export const PhotoUrl = named("PhotoUrl", z.object({ url: z.string() }));
 
@@ -368,8 +397,9 @@ export const PackIdQuery = z.object({ packId: id });
 export const MakePostBody = z.object({
   packet: z.object({
     pack_id: id,
-    body: z.string().nullish(),
-    photo_url: z.string().nullish(),
+    body: z.string().max(5000).nullish(),
+    /* The author's profile photo; "" from an older client means none. */
+    photo_url: allowedImageUrl.or(z.literal("")).nullish(),
   }),
 });
 

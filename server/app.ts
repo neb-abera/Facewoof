@@ -17,6 +17,7 @@ import lusca from "lusca";
 import { applyTrustProxy } from "./client-ip.ts";
 import { insecureTransport } from "./insecure-transport.ts";
 import { apiLimiter, healthLimiter } from "./limits.ts";
+import { IMAGE_SOURCES } from "./media.ts";
 import { session } from "./session.ts";
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -100,12 +101,8 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
       contentSecurityPolicy: {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          "img-src": [
-            "'self'",
-            "data:",
-            "https://placedog.net",
-            "https://res.cloudinary.com",
-          ],
+          // The same list the API holds stored photo URLs to.
+          "img-src": ["'self'", "data:", ...IMAGE_SOURCES],
           // Photo uploads POST from the browser straight to Cloudinary. The
           // default connect-src 'self' silently blocked that request, so even a
           // correctly configured uploader could never have worked in

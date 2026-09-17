@@ -177,7 +177,9 @@ needs no `.env` at all.
 | `GUEST_TTL_HOURS`                       | how long a demo account lives                                                                             |
 | `CORS_ORIGIN`                           | comma separated. Unset means no cross-origin requests are allowed                                         |
 | `VITE_BASE_PATH`                        | build time. Must match `BASE_PATH`                                                                        |
-| `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` | Cloudinary, for photo uploads. Optional: without them the upload widget says so and everything else works |
+| `TRUST_PROXY_HOPS`                      | reverse proxies in front of the server, for the rate limits' client address. 2 behind Cloudflare + ingress |
+| `CLOUDINARY_CLOUD_NAME`, `_API_KEY`, `_API_SECRET` | signed photo uploads (docs/DEPLOY.md). Optional                                                |
+| `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` | build time. Cloudinary's unsigned preset, the fallback when uploads are not signed. Optional              |
 | `ENTRA_ISSUER` etc.                     | sign-in through Entra External ID. Optional: see below                                                    |
 
 ### Sign-in

@@ -268,3 +268,45 @@ test("a match cannot be claimed by telling the server the other dog said yes", a
   await attacker.context.close();
   await victim.context.close();
 });
+
+test("only a photo this app hosts can be stored on a profile or a post", async ({
+  browser,
+}) => {
+  const me = await demoAccount(browser);
+  const [pack] = await packs(me);
+  if (!pack) throw new Error("the demo account arrives in a pack");
+
+  for (const url of [
+    "https://evil.example/tracker.gif",
+    "http://res.cloudinary.com/demo/image/upload/a.jpg",
+    "javascript:alert(1)",
+  ]) {
+    const photo = await me.api.post("/api/photos", {
+      headers: me.headers,
+      data: { photoUrl: url },
+    });
+    expect(photo.status(), `profile photo ${url}`).toBe(400);
+    const post = await me.api.post("/api/makePost", {
+      headers: me.headers,
+      data: { packet: { pack_id: pack.pack_id, body: "hi", photo_url: url } },
+    });
+    expect(post.status(), `post photo ${url}`).toBe(400);
+  }
+  const stored = await (await me.api.get("/api/profilephoto")).text();
+  expect(stored).not.toContain("evil.example");
+
+  // What the app itself sends still works: a post carrying the author's own
+  // (demo roster) profile photo.
+  const [own] = (await (await me.api.get("/api/profilephoto")).json()) as {
+    url: string;
+  }[];
+  const fine = await me.api.post("/api/makePost", {
+    headers: me.headers,
+    data: {
+      packet: { pack_id: pack.pack_id, body: "hi", photo_url: own?.url },
+    },
+  });
+  expect(fine.status()).toBe(201);
+
+  await me.context.close();
+});

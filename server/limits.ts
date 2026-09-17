@@ -108,6 +108,18 @@ export const writeLimiter = rateLimit({
 });
 
 /*
+ * Upload signatures. Each one is a permission to store a file on the
+ * deployment's Cloudinary account, so it is held far tighter than writes in
+ * general: nobody adds twenty photos in ten minutes.
+ */
+export const uploadLimiter = rateLimit({
+  ...shared,
+  windowMs: minutes(10),
+  limit: 20,
+  message: { error: "Too many uploads from this address. Try again shortly." },
+});
+
+/*
  * The health probe is deliberately outside the /api limiter so the platform
  * can never be throttled into reporting a healthy revision as sick — but it
  * does hit the database, so it gets its own ceiling far above any poller
