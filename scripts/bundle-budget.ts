@@ -61,9 +61,13 @@ function measure(dist: string) {
     throw new Unusable(`no index.html in ${dist}: is this a build output?`);
   }
   // Comments can mention tags; the browser ignores them and so does this.
-  const html = fs
-    .readFileSync(document, "utf8")
-    .replace(/<!--[\s\S]*?-->/g, "");
+  // Repeated until nothing changes, so removing one comment cannot splice
+  // the text around it into another.
+  let html = fs.readFileSync(document, "utf8");
+  for (let before = ""; before !== html; ) {
+    before = html;
+    html = html.replace(/<!--[\s\S]*?-->/g, "");
+  }
 
   // A URL in the document is under the app's base path ("/" or
   // "/facewoof/"); on disk the same file is under dist/assets.
