@@ -11,9 +11,11 @@ import {
   SwipeBody,
 } from "../api/schemas.ts";
 import {
+  canSwipeOn,
   checkForMatchAndCreate,
   discoverFeedPage,
   getUserLocation,
+  hasLikedBack,
   setRelationship,
 } from "../db/index.ts";
 import { feedLimiter, swipeLimiter } from "../limits.ts";
@@ -172,7 +174,7 @@ export const userResponse = defineRoute({
   auth: true,
   limit: swipeLimiter,
   body: SwipeBody,
-  responses: { 200: MatchFound, 201: Message, 400: ErrorBody },
+  responses: { 200: MatchFound, 201: Message, 400: ErrorBody, 404: ErrorBody },
   handler: async ({ userId, body }) => {
     // The swiper is whoever holds the session. Only the dog being swiped on
     // comes from the request, and swiping on yourself is not a thing.
@@ -182,7 +184,20 @@ export const userResponse = defineRoute({
       });
     }
 
-    if (body.currentUserChoice !== body.otherUserChoice) {
+    // Only dogs the caller could have been shown: discoverable, and not part
+    // of somebody else's demo roster.
+    if (!(await canSwipeOn(userId, body.otherUserId))) {
+      return reply(404, { error: "no such dog" });
+    }
+
+    // Whether the other dog said yes is the database's to say. It used to be
+    // read from the request (`otherUserChoice`), so sending `true` for both
+    // made anyone a "match" of anyone: into their friends list, and from
+    // there into the packs they belong to. The field is still accepted so an
+    // older client's request parses, and is ignored.
+    const mutual =
+      body.currentUserChoice && (await hasLikedBack(userId, body.otherUserId));
+    if (!mutual) {
       await setRelationship(userId, body.otherUserId, body.currentUserChoice);
       return reply(201, { message: "Response updated" });
     }

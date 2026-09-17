@@ -1152,6 +1152,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             /** @description Rate limited; see the RateLimit-* headers */
             429: {
                 headers: {
@@ -2103,6 +2112,15 @@ export interface operations {
             };
             /** @description Sign in first */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not allowed for this account */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
