@@ -44,6 +44,9 @@
 
 .profile__gallery-photo {
   height: 14rem;
+  /* The width attribute reserves 5:4 before the photo loads; auto lets the
+     photo's own ratio decide once it has. */
+  width: auto;
   border-radius: 0.75rem;
   object-fit: cover;
 }

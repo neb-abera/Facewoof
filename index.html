@@ -15,6 +15,16 @@
       name="description"
       content="Facewoof helps dog owners find nearby dogs to meet, form packs and schedule playdates."
     />
+    <!--
+      Every dog photo comes from one of these two hosts (the same two the
+      CSP's img-src allows): the demo roster from placedog.net, uploads from
+      Cloudinary. Opening the connection while the bundle is still parsing
+      takes DNS, TCP and TLS off the first photo's critical path. No
+      crossorigin attribute: <img> fetches are not CORS requests, and a
+      CORS-mode preconnect would open a socket they cannot reuse.
+    -->
+    <link rel="preconnect" href="https://placedog.net" />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
     <title>Facewoof</title>
   </head>
   <body>

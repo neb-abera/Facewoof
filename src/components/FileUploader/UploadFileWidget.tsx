@@ -54,7 +54,11 @@ const UploadFileWidget = () => {
             <img
               key={url}
               src={url}
-              className="h-[80px]"
+              // Height is fixed; the width follows the photo's own ratio,
+              // which is not known until it arrives.
+              height={80}
+              className="h-[80px] w-auto"
+              decoding="async"
               alt="Newly uploaded"
             />
           ))}

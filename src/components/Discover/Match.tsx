@@ -11,7 +11,16 @@ interface AvatarProps {
 /* An image when there is one, and a labelled circle when there is not. */
 const Avatar = ({ className, src, name }: AvatarProps) =>
   src ? (
-    <img className={`w-full ${className}`} src={src} alt={name || "A dog"} />
+    // Square by CSS (max(25vh, 25vw) each way); the attributes only say so
+    // before the stylesheet does.
+    <img
+      className={`w-full ${className}`}
+      src={src}
+      width={400}
+      height={400}
+      decoding="async"
+      alt={name || "A dog"}
+    />
   ) : (
     <div
       className={`${className} flex items-center justify-center bg-base-300 text-4xl font-bold`}

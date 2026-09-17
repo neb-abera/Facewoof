@@ -147,6 +147,9 @@ const Welcome = () => {
             <img
               className="welcome__photo-preview"
               src={photoUrl || defaultDog}
+              width={72}
+              height={72}
+              decoding="async"
               alt={photoUrl ? "Your dog" : "No photo yet"}
             />
             <label className="btn btn-outline btn-sm">

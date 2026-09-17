@@ -104,15 +104,50 @@ test("the hero photo is sized for the page, not the camera", async ({
 }) => {
   const responses = await loadLanding(page);
 
-  // The original was 2400×3595 and 773 KB, displayed 600 px wide. The
-  // committed asset is a fraction of that; the bound leaves room to swap the
-  // photo without re-admitting the original.
-  const hero = responses.find((res) =>
+  // The original was 2400×3595 and 773 KB, then a 212 KB JPEG at 1200×1797,
+  // for a column 600 px wide - and it is the landing page's largest paint.
+  // <picture> now offers AVIF and WebP at 600 and 1200 wide; a desktop
+  // Chromium at 1x takes the 600 px AVIF, which is about 24 KB. The bound
+  // leaves room to swap the photo without re-admitting an original.
+  const heroes = responses.filter((res) =>
     /\.(jpe?g|webp|avif|png)$/.test(new URL(res.url()).pathname),
   );
-  expect(hero, "the landing page shows a hero photo").toBeTruthy();
+  expect(heroes, "exactly one hero variant is downloaded").toHaveLength(1);
+  const hero = heroes[0];
   if (!hero) return;
-  expect((await hero.body()).length).toBeLessThan(250_000);
+  expect(new URL(hero.url()).pathname).toMatch(/\.(avif|webp)$/);
+  expect((await hero.body()).length).toBeLessThan(60_000);
+
+  // Its box is reserved before it arrives, and it does not queue behind
+  // the script.
+  const img = page.getByAltText("A dog in a park");
+  await expect(img).toHaveAttribute("width", "600");
+  await expect(img).toHaveAttribute("height", "899");
+  await expect(img).toHaveAttribute("fetchpriority", "high");
+  expect(
+    await img.evaluate((el: HTMLImageElement) => el.naturalWidth),
+  ).toBeGreaterThan(0);
+  // Still fills its column: <picture> must not have collapsed the layout.
+  const box = await img.boundingBox();
+  expect(box?.width).toBe(600);
+  expect(box?.height).toBeGreaterThan(400);
+});
+
+test("the document opens connections to the photo hosts early", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const hosts = await page
+    .locator('link[rel="preconnect"]')
+    .evaluateAll((links) => links.map((l) => l.getAttribute("href")));
+  expect(hosts).toEqual(["https://placedog.net", "https://res.cloudinary.com"]);
+
+  // The same two hosts the CSP lets images come from; a third would be a
+  // preconnect to somewhere no image can load from.
+  const csp =
+    (await page.request.get("/")).headers()["content-security-policy"] ?? "";
+  const imgSrc = csp.split(";").find((d) => d.trim().startsWith("img-src"));
+  for (const host of hosts) expect(imgSrc).toContain(host);
 });
 
 test("the landing page does not download the calendar", async ({ page }) => {

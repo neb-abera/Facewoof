@@ -54,24 +54,33 @@ test("the discover feed shows dogs, and their photos actually load", async ({
   // photo. The markup was correct and the page was full of broken images, so
   // an assertion on the <img> tags alone would have passed. naturalWidth is
   // what distinguishes "rendered" from "refused".
+  // Only the top card's avatar and first photo are eager; the rest are
+  // loading="lazy", and when a lazy image loads is the browser's business.
+  // So: every eager image must finish, and then no image that has finished,
+  // eager or lazy, may be broken.
   await page.waitForFunction(
     () => {
-      const imgs = [
+      const eager = [
         ...document.querySelectorAll<HTMLImageElement>(".card-stack img"),
-      ];
-      return imgs.length > 0 && imgs.every((i) => i.complete);
+      ].filter((i) => i.loading !== "lazy");
+      return eager.length >= 2 && eager.every((i) => i.complete);
     },
     null,
     { timeout: 30_000 },
   );
 
   const images = await page.evaluate(() =>
-    [...document.querySelectorAll<HTMLImageElement>(".card-stack img")].map(
-      (i) => ({
+    [...document.querySelectorAll<HTMLImageElement>(".card-stack img")]
+      .filter((i) => i.complete)
+      .map((i) => ({
         src: i.src,
         loaded: i.naturalWidth > 0,
-      }),
-    ),
+      })),
+  );
+
+  // The avatar is the avatar-sized variant, not the 500x400 original.
+  expect(images.some((i) => /placedog\.net\/192\/192\?id=/.test(i.src))).toBe(
+    true,
   );
 
   expect(images.length).toBeGreaterThan(0);
