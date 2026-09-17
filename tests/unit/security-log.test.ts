@@ -55,16 +55,42 @@ vi.mock("../../server/db/index.ts", () => ({
     session_version: 0,
   })),
   getCurrentUserPromise: vi.fn(async () => ({ rows: [] })),
-  findOrCreateExternalUser: vi.fn(),
+  findOrCreateExternalUser: vi.fn(async () => ({ userId: 55, created: true })),
+}));
+
+// A configured provider, without the network behind it.
+vi.mock("../../server/oidc.ts", () => ({
+  isConfigured: true,
+  PROVIDERS: { email: { label: "Email", domainHint: null } },
+  createAuthRequest: vi.fn(() => ({
+    verifier: "verifier-secret",
+    challenge: "challenge",
+    state: "the-state",
+    nonce: "nonce-secret",
+    provider: "email",
+  })),
+  authorizeUrl: vi.fn(async () => "https://login.example/authorize"),
+  exchangeCode: vi.fn(async () => ({ id_token: "id-token-secret" })),
+  verifyIdToken: vi.fn(async () => ({
+    iss: "https://login.example",
+    sub: "subject-1",
+    email: "owner-secret-address@example.com",
+    email_verified: true,
+    name: "Sam",
+  })),
+}));
+
+vi.mock("../../server/db/sessions.ts", () => ({
   sessionVersionOf: vi.fn(async () => 0),
-  bumpSessionVersion: vi.fn(async () => 1),
-  countLiveGuests: vi.fn(async () => 0),
+  bumpSessionVersion: vi.fn(),
 }));
 
 const { buildRouter } = await import("../../server/api/express.ts");
 const { defineRoute, reply } = await import("../../server/api/route.ts");
-const { guestLogin, logout } = await import("../../server/controllers/auth.ts");
-const { callback } = await import("../../server/controllers/oidc.ts");
+const { guestLogin, logout, me } = await import(
+  "../../server/controllers/auth.ts"
+);
+const { callback, start } = await import("../../server/controllers/oidc.ts");
 const { csrf } = await import("../../server/csrf.ts");
 const { applyTrustProxy } = await import("../../server/client-ip.ts");
 const { writeLimiter } = await import("../../server/limits.ts");
@@ -73,6 +99,8 @@ const { session } = await import("../../server/session.ts");
 const routes = [
   guestLogin,
   logout,
+  me,
+  start,
   callback,
   defineRoute({
     method: "get",
@@ -280,7 +308,52 @@ describe("security events", () => {
     const event = events().at(-1);
     expect(event?.event).toBe("oidc.failed");
     expect(event?.route).toBe("GET /api/auth/oidc/callback");
-    expect(["not-configured", "expired"]).toContain(event?.reason);
+    // No sign-in was started from this browser, so there is nothing pending.
+    expect(event?.reason).toBe("expired");
+  });
+
+  it("records a provider sign-in, and a callback whose state does not match", async () => {
+    const v = visitor();
+    expect((await v.call("/api/auth/oidc/start")).status).toBe(302);
+    const forged = await v.call(
+      "/api/auth/oidc/callback?code=authorization-code-secret&state=not-the-state",
+    );
+    expect(forged.headers.get("location")).toBe("/login?error=state-mismatch");
+    expect(events().at(-1)).toMatchObject({
+      event: "oidc.failed",
+      reason: "state-mismatch",
+    });
+
+    expect((await v.call("/api/auth/oidc/start")).status).toBe(302);
+    const back = await v.call(
+      "/api/auth/oidc/callback?code=authorization-code-secret&state=the-state",
+    );
+    expect(back.headers.get("location")).toBe("/discover");
+    expect(events().at(-1)).toMatchObject({
+      event: "oidc.signed_in",
+      userId: 55,
+    });
+    const written = lines().join("\n");
+    for (const secret of [
+      "authorization-code-secret",
+      "id-token-secret",
+      "verifier-secret",
+      "nonce-secret",
+      "owner-secret-address",
+    ]) {
+      expect(written).not.toContain(secret);
+    }
+  });
+
+  it("records a session whose account has gone", async () => {
+    const v = await signedIn();
+    // getCurrentUserPromise finds no row: a guest the sweep has deleted.
+    const res = await v.call("/api/auth/me");
+    expect(res.status).toBe(401);
+    expect(events().at(-1)).toMatchObject({
+      event: "auth.required",
+      route: "GET /api/auth/me",
+    });
   });
 
   it("never writes a cookie, a token, an address, a body or a query string", async () => {

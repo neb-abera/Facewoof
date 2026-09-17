@@ -43,8 +43,8 @@ these are log-search alerts the owner would create):
 - `auth.session_revoked` — a cookie presented after its owner signed out.
   Occasional is a second tab; repeated from a new address is a stolen cookie
   being tried.
-- `auth.required`, `guest.created`, `oidc.signed_in`, `auth.logout`,
-  `auth.logout_everywhere` — context for the above, not alerts.
+- `auth.required`, `guest.created`, `oidc.signed_in`, `auth.logout` —
+  context for the above, not alerts.
 
 ## Backup restore drill (quarterly)
 
@@ -78,12 +78,40 @@ Delete any temporary firewall rules you created, on both servers.
   (`DATABASE_AUTH=entra`, role `facewoof-mi`) — no DB password in use. The
   legacy `facewoof` password role and the parked `DATABASE_URL` secret are
   scheduled for deletion after 2026-09-06 given a week of clean traffic.
-- **SESSION_SECRET**: cookie-session accepts a `keys` array; rotate by
-  prepending a new key (new cookies sign with it, old cookies still
-  verify), deploying, then removing the old key one session-lifetime
-  (24 h) later. Rotate annually or on suspicion.
+- **SESSION_SECRET**: a comma-separated, ordered list of keys. The first
+  signs new cookies; all of them verify. Rotate by prepending:
+  `SESSION_SECRET="<new>,<old>"`, deploy, and one session lifetime (24 h)
+  later set it to `<new>` alone. Nobody is signed out at either step.
+  Rotate annually. **On suspicion of a leaked key** skip the overlap: set
+  the new key alone, which ends every session at once — that is the point.
+  (Until 2026-09 the server passed the whole variable as a single key, so
+  this procedure could not actually be performed.)
 - **Cloudflare purge token**: scoped to Zone → Cache Purge only; rotate
   from the Cloudflare dashboard and update the repo secret in one sitting.
+
+## Sessions
+
+Sessions are a signed cookie, not a store, and three things end one on the
+server side (`server/middleware/requireUser.ts`):
+
+- **Signing out** increments `users.session_version`; a session issued under
+  an older version is refused everywhere. There is one version per account,
+  so signing out on one device signs out all of them, and a copied cookie
+  dies with it. To end one account's sessions by hand:
+  `UPDATE users SET session_version = session_version + 1 WHERE user_id = …`.
+- **Age**: a session is refused 24 h after it was issued, whatever expiry
+  the cookie claims.
+- **The account being deleted** (the guest sweep).
+
+The check is one primary-key lookup per authenticated request. Measured
+locally against the previous image (400 sequential requests per route, same
+database): `/api/getpacks` median 4.7 ms before and 5.1 ms after,
+`/api/friends` 2.9 ms and 2.4 ms — inside the run-to-run noise. In Azure it
+is one same-region round trip to Postgres.
+
+In production the cookies are `__Host-facewoof.sid` and
+`__Host-XSRF-TOKEN`. The release that introduced the prefix (2026-09) signed
+everyone out once, because cookies under the old names are not read.
 
 ## Origin lockdown
 

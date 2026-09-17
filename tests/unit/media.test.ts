@@ -17,6 +17,12 @@ import {
   vi,
 } from "vitest";
 import { z } from "zod";
+
+vi.mock("../../server/db/sessions.ts", () => ({
+  sessionVersionOf: vi.fn(async () => 0),
+  bumpSessionVersion: vi.fn(),
+}));
+
 import { buildRouter } from "../../server/api/express.ts";
 import { defineRoute, reply } from "../../server/api/route.ts";
 import { MakePostBody, PhotoBody } from "../../server/api/schemas.ts";
@@ -31,6 +37,7 @@ import {
   isUploadedImageUrl,
   warnIfUploadsUnsigned,
 } from "../../server/media.ts";
+import { establishSession } from "../../server/session.ts";
 
 const Ok = z.object({ stored: z.string().nullable() });
 
@@ -42,7 +49,7 @@ const routes = [
     auth: false,
     responses: { 200: z.object({}) },
     handler: async ({ session }) => {
-      session.userId = 7;
+      establishSession(session, 7, 0);
       return reply(200, {});
     },
   }),

@@ -12,12 +12,10 @@
  */
 import type { RequestHandler } from "express";
 import lusca from "lusca";
-import { insecureTransport } from "./insecure-transport.ts";
+import { cookieName, secureCookies } from "./cookies.ts";
 import { securityEvent } from "./security-log.ts";
 
-const isProduction = process.env.NODE_ENV === "production";
-
-export const CSRF_COOKIE = "XSRF-TOKEN";
+export const CSRF_COOKIE = cookieName("XSRF-TOKEN");
 
 const check = lusca.csrf({
   cookie: {
@@ -29,7 +27,7 @@ const check = lusca.csrf({
     // on whatever page it is on.
     options: {
       sameSite: "lax",
-      secure: isProduction && !insecureTransport,
+      secure: secureCookies,
     },
   },
   header: "x-xsrf-token",

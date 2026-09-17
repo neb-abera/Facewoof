@@ -2,7 +2,9 @@ import zipcodes from "zipcodes";
 import { defineRoute, noContent, reply } from "../api/route.ts";
 import { ErrorBody, User, Whereabouts } from "../api/schemas.ts";
 import { createGuestUser, getCurrentUserPromise } from "../db/index.ts";
+import { bumpSessionVersion } from "../db/sessions.ts";
 import { guestLimiter } from "../limits.ts";
+import { establishSession } from "../session.ts";
 
 /*
  * Hand a demo visitor their own throwaway account, and the demo roster placed
@@ -30,7 +32,7 @@ export const guestLogin = defineRoute({
     const user = await createGuestUser(originZip);
     // Signing in is what establishes the session. Everything after this
     // takes the caller's identity from the cookie rather than the request.
-    session.userId = user.user_id;
+    establishSession(session, user.user_id, user.session_version);
     audit("guest.created", { userId: user.user_id });
     return reply(201, user);
   },
@@ -63,7 +65,16 @@ export const logout = defineRoute({
   auth: false,
   responses: { 204: null },
   handler: async ({ userId, clearSession, audit }) => {
-    if (userId !== null) audit("auth.logout", { userId });
+    // Clearing the cookie only signs out the browser that asked. Bumping the
+    // account's session version is what signs out a copy of that cookie held
+    // anywhere else — and, there being one version per account, every other
+    // device too: sign-out here is sign-out everywhere. Only a live session
+    // may do it (userId is null for a revoked one), so a dead cookie cannot
+    // be replayed to keep signing its owner out.
+    if (userId !== null) {
+      await bumpSessionVersion(userId);
+      audit("auth.logout", { userId });
+    }
     clearSession();
     return noContent(204);
   },

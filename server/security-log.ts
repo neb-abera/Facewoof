@@ -32,8 +32,8 @@ export type SecurityEventName =
   | "oidc.signed_in"
   | "guest.created"
   | "guest.refused"
-  | "auth.logout"
-  | "auth.logout_everywhere";
+  /* Sign-out: ends every session the account has (users.session_version). */
+  | "auth.logout";
 
 export interface SecurityDetail {
   /* Overrides the session's user: the account just created or signed in to. */

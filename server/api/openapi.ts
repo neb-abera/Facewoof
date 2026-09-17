@@ -170,14 +170,14 @@ export function buildOpenApi(routes: readonly AnyRoute[]): JsonObject {
           in: "cookie",
           name: "facewoof.sid",
           description:
-            "The signed session cookie set by POST /api/auth/guest or the OIDC callback.",
+            "The signed session cookie set by POST /api/auth/guest or the OIDC callback. Over HTTPS in production it is named __Host-facewoof.sid.",
         },
         xsrf: {
           type: "apiKey",
           in: "header",
           name: "x-xsrf-token",
           description:
-            "CSRF double-submit: the value of the XSRF-TOKEN cookie, echoed back on every request that is not a GET. A request without it is refused with 403 before any route runs.",
+            "CSRF double-submit: the value of the XSRF-TOKEN cookie (__Host-XSRF-TOKEN over HTTPS in production), echoed back on every request that is not a GET. A request without it is refused with 403 before any route runs.",
         },
       },
     },

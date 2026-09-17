@@ -6,8 +6,10 @@ import {
   Providers,
 } from "../api/schemas.ts";
 import { findOrCreateExternalUser } from "../db/index.ts";
+import { sessionVersionOf } from "../db/sessions.ts";
 import { guestLimiter } from "../limits.ts";
 import * as oidc from "../oidc.ts";
+import { establishSession } from "../session.ts";
 
 /*
  * What the sign-in page should offer.
@@ -42,7 +44,7 @@ export const start = defineRoute({
   limit: guestLimiter,
   query: OidcStartQuery,
   responses: { 302: null, 502: ErrorBody, 503: ErrorBody },
-  handler: async ({ query, session, audit }) => {
+  handler: async ({ query, session, userId, audit }) => {
     if (!oidc.isConfigured) {
       return reply(503, { error: "sign-in is not configured" });
     }
@@ -63,7 +65,9 @@ export const start = defineRoute({
         state: request.state,
         nonce: request.nonce,
         provider: request.provider,
-        guestUserId: session.userId ?? null,
+        // The live session's user, not whatever the cookie claims: a revoked
+        // guest cookie must not be able to claim that guest account.
+        guestUserId: userId,
       };
 
       return redirect(302, await oidc.authorizeUrl(request));
@@ -140,7 +144,9 @@ export const callback = defineRoute({
         guestUserId: pending.guestUserId,
       });
 
-      session.userId = userId;
+      const version = await sessionVersionOf(userId);
+      if (version === null) return fail("failed");
+      establishSession(session, userId, version);
       audit("oidc.signed_in", { userId });
       return redirect(302, "/discover");
     } catch (err) {

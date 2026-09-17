@@ -310,3 +310,28 @@ test("only a photo this app hosts can be stored on a profile or a post", async (
 
   await me.context.close();
 });
+
+test("signing out kills a copy of the session cookie held elsewhere", async ({
+  browser,
+}) => {
+  const me = await demoAccount(browser);
+  // What someone who lifted the cookie would hold: the same cookies, in a
+  // browser of their own.
+  const thief = await browser.newContext({
+    storageState: await me.context.storageState(),
+  });
+  expect((await thief.request.get("/api/auth/me")).status()).toBe(200);
+
+  const out = await me.api.post("/api/auth/logout", { headers: me.headers });
+  expect(out.status()).toBe(204);
+
+  // Sessions are stateless cookies; before this the copy worked forever.
+  expect(
+    (await thief.request.get("/api/auth/me")).status(),
+    "the copied cookie died with the sign-out",
+  ).toBe(401);
+  expect((await thief.request.get("/api/friends")).status()).toBe(401);
+
+  await me.context.close();
+  await thief.close();
+});

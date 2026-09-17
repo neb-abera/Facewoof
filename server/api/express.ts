@@ -16,7 +16,11 @@ import express, {
   type Router,
 } from "express";
 import type { z } from "zod";
-import { actingUser, requireUser } from "../middleware/requireUser.ts";
+import {
+  actingUser,
+  liveSessionUser,
+  requireUser,
+} from "../middleware/requireUser.ts";
 import { securityEvent } from "../security-log.ts";
 import { sessionOf } from "../session.ts";
 import type { AnyRoute } from "./route.ts";
@@ -98,7 +102,13 @@ const handle =
 
     try {
       const reply = await route.handler({
-        userId: route.auth ? actingUser(req) : (req.session?.userId ?? null),
+        // Behind `auth` requireUser has already vouched for the session. A
+        // public route that still wants to know who is calling (sign-out,
+        // upgrading a guest at sign-in) gets the same answer, or null: a
+        // revoked cookie is nobody.
+        userId: route.auth
+          ? actingUser(req)
+          : await liveSessionUser(req.session),
         body,
         query,
         session: sessionOf(req),

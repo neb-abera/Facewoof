@@ -12,6 +12,14 @@ import cookieSession from "cookie-session";
 import express from "express";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+
+// requireUser checks the account's session version on every request; the one
+// column it reads stands in for the database here.
+vi.mock("../../server/db/sessions.ts", () => ({
+  sessionVersionOf: vi.fn(async () => 0),
+  bumpSessionVersion: vi.fn(),
+}));
+
 import { buildRouter } from "../../server/api/express.ts";
 import {
   defineRoute,
@@ -20,6 +28,7 @@ import {
   reply,
 } from "../../server/api/route.ts";
 import { actingUser } from "../../server/middleware/requireUser.ts";
+import { establishSession } from "../../server/session.ts";
 
 const Echo = z.object({ name: z.string(), count: z.coerce.number().int() });
 
@@ -85,7 +94,7 @@ const routes = [
     body: z.object({ as: z.number().int() }),
     responses: { 200: z.object({ wasSignedIn: z.boolean() }) },
     handler: async ({ body, session, userId }) => {
-      session.userId = body.as;
+      establishSession(session, body.as, 0);
       return reply(200, { wasSignedIn: userId !== null });
     },
   }),
