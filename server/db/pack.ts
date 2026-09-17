@@ -16,6 +16,20 @@ export function createPackAndAdd(packName: string, users: number[]) {
 }
 
 /*
+ * Whether every id given is one of the user's friends (mutual matches).
+ * Friendships are stored once per direction, so one lookup side is enough.
+ */
+export async function areAllFriends(userId: number, others: number[]) {
+  if (!others.length) return true;
+  const { rows } = await pool.query<{ n: number }>(
+    `SELECT count(*)::int AS n FROM friends
+      WHERE user1_id = $1 AND user2_id = ANY($2::int[])`,
+    [userId, others],
+  );
+  return (rows[0]?.n ?? 0) === others.length;
+}
+
+/*
  * Add a user to a pack, ignoring a repeat.
  *
  * The original inserted the arguments the wrong way round: it selected

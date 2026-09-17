@@ -178,6 +178,48 @@ test("a playdate can only be put on the calendar of a pack you belong to", async
   await outsider.context.close();
 });
 
+test("a pack can only be created with your own friends in it", async ({
+  browser,
+}) => {
+  const attacker = await demoAccount(browser);
+  const victim = await demoAccount(browser);
+  const name = unique("Press-ganged");
+
+  const refused = await attacker.api.put("/api/createpack", {
+    headers: attacker.headers,
+    data: { pack_name: name, users: [victim.userId] },
+  });
+  expect(refused.status(), "a stranger cannot be added").toBe(403);
+  expect((await packs(victim)).map((p) => p.name)).not.toContain(name);
+  expect((await packs(attacker)).map((p) => p.name)).not.toContain(name);
+
+  // One stranger among real friends refuses the whole request.
+  const [friend] = await friendIds(attacker);
+  const mixed = await attacker.api.put("/api/createpack", {
+    headers: attacker.headers,
+    data: { pack_name: name, users: [friend, victim.userId] },
+  });
+  expect(mixed.status()).toBe(403);
+
+  await attacker.context.close();
+  await victim.context.close();
+});
+
+test("a pack made through /api/pack has its creator in it", async ({
+  browser,
+}) => {
+  const me = await demoAccount(browser);
+  const name = unique("Solo");
+  const res = await me.api.post("/api/pack", {
+    headers: me.headers,
+    data: { packName: name },
+  });
+  expect(res.status()).toBe(200);
+  const [created] = (await res.json()) as { pack_id: number }[];
+  expect((await packs(me)).map((p) => p.pack_id)).toContain(created?.pack_id);
+  await me.context.close();
+});
+
 test("a match cannot be claimed by telling the server the other dog said yes", async ({
   browser,
 }) => {

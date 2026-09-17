@@ -1428,12 +1428,14 @@
                 "properties": {
                   "pack_name": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 80
                   },
                   "users": {
                     "anyOf": [
                       {
                         "minItems": 1,
+                        "maxItems": 50,
                         "type": "array",
                         "items": {
                           "type": "integer",
@@ -1443,6 +1445,7 @@
                       },
                       {
                         "minItems": 1,
+                        "maxItems": 50,
                         "type": "array",
                         "items": {
                           "type": "integer",
@@ -1494,6 +1497,16 @@
               }
             }
           },
+          "403": {
+            "description": "Not allowed for this account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate limited; see the RateLimit-* headers",
             "content": {
@@ -1525,7 +1538,7 @@
     },
     "/api/pack": {
       "post": {
-        "summary": "Create an empty pack",
+        "summary": "Create a pack with the caller as its only member",
         "operationId": "postPack",
         "requestBody": {
           "required": true,
@@ -1536,7 +1549,8 @@
                 "properties": {
                   "packName": {
                     "type": "string",
-                    "minLength": 1
+                    "minLength": 1,
+                    "maxLength": 80
                   }
                 },
                 "required": [
@@ -1573,6 +1587,16 @@
           },
           "401": {
             "description": "Sign in first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; see the RateLimit-* headers",
             "content": {
               "application/json": {
                 "schema": {

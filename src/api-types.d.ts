@@ -370,7 +370,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create an empty pack */
+        /** Create a pack with the caller as its only member */
         post: operations["postPack"];
         delete?: never;
         options?: never;
@@ -1732,6 +1732,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description Not allowed for this account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             /** @description Rate limited; see the RateLimit-* headers */
             429: {
                 headers: {
@@ -1787,6 +1796,15 @@ export interface operations {
             };
             /** @description Sign in first */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

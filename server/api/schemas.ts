@@ -325,15 +325,18 @@ export const PhotoUrl = named("PhotoUrl", z.object({ url: z.string() }));
 
 export const JoinPackBody = z.object({ pack_id: id });
 
+/* More than anyone has friends for; a ceiling on what one request can write. */
+const MAX_PACK_MEMBERS = 50;
+
 /*
  * `users` arrives as a JSON array, or — from the older client — as a string
  * holding one. The original always JSON.parse'd and threw on a real array.
  */
 export const CreatePackBody = z.object({
-  pack_name: z.string().trim().min(1),
+  pack_name: z.string().trim().min(1).max(80),
   users: z
     .union([
-      z.array(id).min(1),
+      z.array(id).min(1).max(MAX_PACK_MEMBERS),
       z
         .string()
         .transform((raw, ctx) => {
@@ -347,12 +350,14 @@ export const CreatePackBody = z.object({
             return z.NEVER;
           }
         })
-        .pipe(z.array(id).min(1)),
+        .pipe(z.array(id).min(1).max(MAX_PACK_MEMBERS)),
     ])
     .describe("the members to add; the creator is always included"),
 });
 
-export const NewPackBody = z.object({ packName: z.string().trim().min(1) });
+export const NewPackBody = z.object({
+  packName: z.string().trim().min(1).max(80),
+});
 
 export const PackId = named("PackId", z.object({ pack_id: z.number().int() }));
 

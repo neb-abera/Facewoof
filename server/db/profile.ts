@@ -19,10 +19,16 @@ export const getFriendsPromise = (userId: number) =>
     [userId],
   );
 
-export const createPackPromise = (packName: string) =>
+/* A new pack and its creator's membership, in one statement. */
+export const createPackPromise = (packName: string, creatorId: number) =>
   pool.query<{ pack_id: number }>(
-    "INSERT INTO packs (name) VALUES ($1) RETURNING pack_id",
-    [packName],
+    `WITH ins AS (
+       INSERT INTO packs (name) VALUES ($1) RETURNING pack_id
+     ), member AS (
+       INSERT INTO pack_users (pack_id, user_id) SELECT pack_id, $2 FROM ins
+     )
+     SELECT pack_id FROM ins`,
+    [packName, creatorId],
   );
 
 export const addPhoto = (userId: number, photo: string) =>
