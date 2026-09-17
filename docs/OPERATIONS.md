@@ -58,3 +58,9 @@ Both container apps' ingress is restricted to Cloudflare's IPv4 ranges
 needed). If Cloudflare publishes new ranges (rare), sync the rules or
 users on new edges get 403s. Deploy health gates poll the public domains,
 not origin FQDNs, for this reason.
+
+The lockdown is also what the app's client-address logic rests on:
+`TRUST_PROXY_HOPS=2` (docs/DEPLOY.md) reads the address Cloudflare appended
+to `X-Forwarded-For`, which is only trustworthy while nothing but Cloudflare
+can reach the ingress. Lifting the restriction, even briefly, means setting
+the variable back to 1 first.

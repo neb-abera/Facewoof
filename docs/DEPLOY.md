@@ -288,6 +288,32 @@ certificate with a Cloudflare Origin CA certificate (15-year validity,
 SSL/TLS → Origin Server → Create Certificate, then
 `az containerapp ssl upload`), which ends the dance permanently.
 
+### Tell the app how many proxies are in front of it
+
+Every rate limit is keyed on the caller's address, which behind proxies has
+to be read out of `X-Forwarded-For`. The app trusts a **number of hops**
+(`TRUST_PROXY_HOPS`), counted from itself outwards, and takes the entry just
+beyond them; anything a caller forges in the header sits further left and is
+never read. `server/client-ip.ts` has the full reasoning, including why it
+is not `CF-Connecting-IP`.
+
+With the subdomain proxied the chain is visitor → Cloudflare → Container Apps
+ingress → app, so production needs **2**. Left at the default of 1 the app
+keys on the Cloudflare edge address and everyone behind one PoP shares a
+rate-limit bucket (one visitor's demo sign-ins can lock out a city).
+
+```bash
+az containerapp update -g "$RG" -n "$APP" --set-env-vars TRUST_PROXY_HOPS=2
+```
+
+Set it **only while the origin accepts Cloudflare alone** (the `cf-v4-*`
+ingress rules in docs/OPERATIONS.md). The count is what makes the address
+unforgeable, and it is only right for traffic that really crossed both
+proxies: if the subdomain is ever switched back to "DNS only", or the ingress
+restriction is lifted, set it back to 1 first — too low merely coarsens the
+buckets, too high lets a caller choose their own address. An invalid value
+stops the server at start-up rather than guessing.
+
 ## Photo uploads (Cloudinary)
 
 Uploads go straight from the browser to Cloudinary with an unsigned preset;

@@ -14,6 +14,7 @@ import express, { type Router } from "express";
 import helmet from "helmet";
 import lusca from "lusca";
 
+import { applyTrustProxy } from "./client-ip.ts";
 import { insecureTransport } from "./insecure-transport.ts";
 import { apiLimiter, healthLimiter } from "./limits.ts";
 import { session } from "./session.ts";
@@ -54,16 +55,13 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
     app.use(cors({ origin: process.env.CORS_ORIGIN.split(",") }));
   }
 
-  /*
-   * Trust exactly one proxy hop.
-   *
-   * Container Apps terminates TLS and forwards, so without this every request
-   * appears to come from the ingress and the rate limits below would be shared
-   * by everyone at once. `true` would be worse than nothing: it makes express
-   * believe whatever X-Forwarded-For a caller sends, which hands anyone a way to
-   * forge a fresh identity per request and walk straight through the limits.
-   */
-  app.set("trust proxy", 1);
+  // How many proxy hops to believe when working out the caller's address,
+  // which every rate limit is keyed on — the in-memory ones and the Postgres
+  // store alike, since both take express-rate-limit's default key, req.ip.
+  // TRUST_PROXY_HOPS; server/client-ip.ts has the reasoning. Never `true`:
+  // that believes whatever X-Forwarded-For a caller sends and hands anyone a
+  // fresh identity per request.
+  applyTrustProxy(app);
 
   /*
    * Compress everything compressible on the way out.
