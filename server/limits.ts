@@ -1,6 +1,7 @@
-import { rateLimit } from "express-rate-limit";
+import { type Options, rateLimit } from "express-rate-limit";
 import { pool } from "./db/database.ts";
 import { PostgresStore } from "./rate-limit-store.ts";
+import { securityEvent } from "./security-log.ts";
 
 /*
  * Rate limits.
@@ -45,7 +46,13 @@ const minutes = (n: number) => n * 60 * 1000;
 const shared = {
   standardHeaders: "draft-7", // RateLimit-* response headers
   legacyHeaders: false,
-} as const;
+  // The library's own reply, plus a security event: a limiter firing is the
+  // first sign of a loop, a scraper or a guessing attack.
+  handler: (req, res, _next, options) => {
+    securityEvent(req, "rate_limit.hit");
+    res.status(options.statusCode).json(options.message);
+  },
+} as const satisfies Partial<Options>;
 
 /*
  * Creating a demo account writes a hundred profiles and three hundred photo

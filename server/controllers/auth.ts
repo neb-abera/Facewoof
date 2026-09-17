@@ -20,7 +20,7 @@ export const guestLogin = defineRoute({
   limit: guestLimiter,
   body: Whereabouts,
   responses: { 201: User },
-  handler: async ({ body, session }) => {
+  handler: async ({ body, session, audit }) => {
     let originZip = body.zip;
     if (!originZip && body.lat !== undefined && body.lng !== undefined) {
       const match = zipcodes.lookupByCoords(body.lat, body.lng);
@@ -31,6 +31,7 @@ export const guestLogin = defineRoute({
     // Signing in is what establishes the session. Everything after this
     // takes the caller's identity from the cookie rather than the request.
     session.userId = user.user_id;
+    audit("guest.created", { userId: user.user_id });
     return reply(201, user);
   },
 });
@@ -61,7 +62,8 @@ export const logout = defineRoute({
   summary: "Sign out",
   auth: false,
   responses: { 204: null },
-  handler: async ({ clearSession }) => {
+  handler: async ({ userId, clearSession, audit }) => {
+    if (userId !== null) audit("auth.logout", { userId });
     clearSession();
     return noContent(204);
   },

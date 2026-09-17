@@ -12,15 +12,13 @@ import compression from "compression";
 import cors from "cors";
 import express, { type Router } from "express";
 import helmet from "helmet";
-import lusca from "lusca";
 
 import { applyTrustProxy } from "./client-ip.ts";
+import { csrf } from "./csrf.ts";
 import { insecureTransport } from "./insecure-transport.ts";
 import { apiLimiter, healthLimiter } from "./limits.ts";
 import { IMAGE_SOURCES } from "./media.ts";
 import { session } from "./session.ts";
-
-const isProduction = process.env.NODE_ENV === "production";
 
 export interface AppOptions {
   /* The route table, already built (server/routes.ts in production). */
@@ -167,27 +165,9 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
   apiOnly.use(express.json({ limit: "32kb" }));
   apiOnly.use(express.urlencoded({ extended: true, limit: "32kb" }));
 
-  // CSRF, double-submit style (CodeQL js/missing-token-validation): every API
-  // response carries a readable XSRF-TOKEN cookie, and every state-changing
-  // request must echo it in an x-xsrf-token header. Safe methods
-  // (GET/HEAD/OPTIONS) pass untouched, which also covers the OIDC callback.
-  apiOnly.use(
-    lusca.csrf({
-      cookie: {
-        name: "XSRF-TOKEN",
-        // The token cookie is deliberately readable from JavaScript - the
-        // double-submit pattern needs the client to echo it in a header - but
-        // there is no reason to send it cross-site or over plain HTTP. Path /
-        // although only /api sets it: the client reads it from document.cookie
-        // on whatever page it is on.
-        options: {
-          sameSite: "lax",
-          secure: isProduction && !insecureTransport,
-        },
-      },
-      header: "x-xsrf-token",
-    }),
-  );
+  // CSRF, double-submit style; server/csrf.ts has the details. Mounted on
+  // /api only, so only API responses carry the token cookie.
+  apiOnly.use(csrf);
 
   // A backstop across the whole API. The per-endpoint limits in routes.ts are
   // what actually matter; this catches anything added later without one.

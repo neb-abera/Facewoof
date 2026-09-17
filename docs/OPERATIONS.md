@@ -12,6 +12,40 @@ and Postgres CPU-credit / connection-count / storage alerts on the shared
 B1ms server. If `postgres-cpu-credits-low` fires under real traffic, the
 fix is a tier bump, not tuning.
 
+### Security events
+
+The app writes one JSON line per security event to stdout
+(`server/security-log.ts`), which lands in Log Analytics as
+`ContainerAppConsoleLogs_CL`. Every line has `type: "security"`, an `event`,
+the `route`, the resolved client `ip`, a `userId` when there is one and a
+`requestId` (Cloudflare's ray id when present). They never contain cookies,
+tokens, email addresses, bodies or query strings.
+
+```kusto
+ContainerAppConsoleLogs_CL
+| where ContainerAppName_s == "facewoof" and Log_s startswith "{"
+| extend e = parse_json(Log_s) | where e.type == "security"
+| summarize n = count() by tostring(e.event), tostring(e.ip), bin(TimeGenerated, 5m)
+```
+
+Which ones matter, if an alert is ever wired to `ops-alerts` (none is today;
+these are log-search alerts the owner would create):
+
+- `rate_limit.hit` and `guest.refused` — a sustained rate from many
+  addresses is a distributed scrape or a demo-account flood; from one
+  address it is the limiter doing its job.
+- `authz.denied` and `csrf.rejected` — near zero in normal use, because the
+  client never sends a request the server refuses. A burst from one `userId`
+  is someone walking ids.
+- `oidc.failed` with `reason` `state-mismatch` or `failed` — a run of these
+  is a broken provider configuration or a forged callback; `expired` and
+  `refused` are people changing their minds.
+- `auth.session_revoked` — a cookie presented after its owner signed out.
+  Occasional is a second tab; repeated from a new address is a stolen cookie
+  being tried.
+- `auth.required`, `guest.created`, `oidc.signed_in`, `auth.logout`,
+  `auth.logout_everywhere` — context for the above, not alerts.
+
 ## Backup restore drill (quarterly)
 
 35-day PITR is configured, and a backup is only real if restores are

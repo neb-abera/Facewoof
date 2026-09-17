@@ -42,7 +42,7 @@ export const start = defineRoute({
   limit: guestLimiter,
   query: OidcStartQuery,
   responses: { 302: null, 502: ErrorBody, 503: ErrorBody },
-  handler: async ({ query, session }) => {
+  handler: async ({ query, session, audit }) => {
     if (!oidc.isConfigured) {
       return reply(503, { error: "sign-in is not configured" });
     }
@@ -69,6 +69,7 @@ export const start = defineRoute({
       return redirect(302, await oidc.authorizeUrl(request));
     } catch (err) {
       console.error("could not start sign-in", err);
+      audit("oidc.failed", { reason: "start-failed" });
       return reply(502, { error: "could not reach the sign-in service" });
     }
   },
@@ -87,9 +88,12 @@ export const callback = defineRoute({
   auth: false,
   query: OidcCallbackQuery,
   responses: { 302: null },
-  handler: async ({ query, session }) => {
-    const fail = (reason: string) =>
-      redirect(302, `/login?error=${encodeURIComponent(reason)}`);
+  handler: async ({ query, session, audit }) => {
+    // `reason` is one of the fixed words below, never the provider's text.
+    const fail = (reason: string) => {
+      audit("oidc.failed", { reason });
+      return redirect(302, `/login?error=${encodeURIComponent(reason)}`);
+    };
 
     if (!oidc.isConfigured) return fail("not-configured");
 
@@ -99,10 +103,12 @@ export const callback = defineRoute({
 
     if (!pending) return fail("expired");
     if (query.error) {
+      // The provider's error code only, and only in the shape OAuth defines
+      // one. This URL can be requested by anyone, so its free-text
+      // error_description is a way to write into the log, not a diagnosis.
       console.error(
-        "sign-in was refused",
-        query.error,
-        query.error_description,
+        "sign-in was refused:",
+        /^[\w.-]{1,64}$/.test(query.error) ? query.error : "(unprintable)",
       );
       return fail("refused");
     }
@@ -135,6 +141,7 @@ export const callback = defineRoute({
       });
 
       session.userId = userId;
+      audit("oidc.signed_in", { userId });
       return redirect(302, "/discover");
     } catch (err) {
       console.error("sign-in failed", err);

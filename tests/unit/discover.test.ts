@@ -15,6 +15,8 @@ const db = vi.hoisted(() => ({
   discoverFeedPage: vi.fn(),
   setRelationship: vi.fn(),
   checkForMatchAndCreate: vi.fn(),
+  canSwipeOn: vi.fn(),
+  hasLikedBack: vi.fn(),
 }));
 vi.mock("../../server/db/index.ts", () => db);
 
@@ -29,12 +31,15 @@ const call = (body: { zipcode: string; seen?: string; limit?: number }) =>
     query: undefined,
     session: {} as never,
     clearSession: () => {},
+    audit: () => {},
   });
 
 beforeEach(() => {
   vi.clearAllMocks();
   db.getUserLocation.mockResolvedValue("10011");
   db.discoverFeedPage.mockResolvedValue({ users: [], remaining: 0 });
+  db.canSwipeOn.mockResolvedValue(true);
+  db.hasLikedBack.mockResolvedValue(false);
 });
 
 describe("a page of the feed", () => {
@@ -116,6 +121,7 @@ describe("a swipe", () => {
       query: undefined,
       session: {} as never,
       clearSession: () => {},
+      audit: () => {},
     });
 
   it("on yourself is refused", async () => {
@@ -131,13 +137,30 @@ describe("a swipe", () => {
     ).toMatchObject({ status: 201 });
     expect(db.setRelationship).toHaveBeenCalledWith(7, 9, true);
 
+    // Reciprocated is the database's word, not the request's.
+    db.hasLikedBack.mockResolvedValue(true);
+    expect(
+      await swipe({ otherUserId: 9, currentUserChoice: true }),
+    ).toMatchObject({ status: 200, body: { matchedUserId: 9 } });
+    expect(db.checkForMatchAndCreate).toHaveBeenCalledWith(7, 9);
+  });
+
+  it("is never a match because the request says the other dog agreed", async () => {
     expect(
       await swipe({
         otherUserId: 9,
         currentUserChoice: true,
         otherUserChoice: true,
       }),
-    ).toMatchObject({ status: 200, body: { matchedUserId: 9 } });
-    expect(db.checkForMatchAndCreate).toHaveBeenCalledWith(7, 9);
+    ).toMatchObject({ status: 201 });
+    expect(db.checkForMatchAndCreate).not.toHaveBeenCalled();
+  });
+
+  it("on a dog the caller could not have been dealt is a 404", async () => {
+    db.canSwipeOn.mockResolvedValue(false);
+    expect(
+      await swipe({ otherUserId: 9, currentUserChoice: true }),
+    ).toMatchObject({ status: 404 });
+    expect(db.setRelationship).not.toHaveBeenCalled();
   });
 });

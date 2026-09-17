@@ -1,4 +1,5 @@
 import type { Request, RequestHandler } from "express";
+import { securityEvent } from "../security-log.ts";
 
 /*
  * Establish who is calling, from the session rather than from the request.
@@ -11,6 +12,7 @@ export const requireUser: RequestHandler = (req, res, next) => {
   const userId = req.session?.userId;
 
   if (!userId) {
+    securityEvent(req, "auth.required");
     res.status(401).json({ error: "sign in first" });
     return;
   }

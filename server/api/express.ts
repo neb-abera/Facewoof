@@ -17,6 +17,7 @@ import express, {
 } from "express";
 import type { z } from "zod";
 import { actingUser, requireUser } from "../middleware/requireUser.ts";
+import { securityEvent } from "../security-log.ts";
 import { sessionOf } from "../session.ts";
 import type { AnyRoute } from "./route.ts";
 
@@ -104,7 +105,14 @@ const handle =
         clearSession: () => {
           req.session = null;
         },
+        audit: (event, detail) => securityEvent(req, event, detail),
       });
+      // Every authorisation refusal in the table, recorded in one place: a
+      // handler says no by replying 403 (or 401 for a session whose account
+      // is gone), and never has to remember to log it.
+      const { status } = reply as { status: number };
+      if (status === 403) securityEvent(req, "authz.denied");
+      if (status === 401) securityEvent(req, "auth.required");
       send(route, reply, res);
     } catch (err) {
       console.error(
