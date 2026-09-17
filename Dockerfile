@@ -15,7 +15,7 @@
 # consumer derives from this one stage so a bump moves them all together.
 # Pinned to a digest so the build is reproducible and a tag repoint upstream
 # cannot change what ships; Dependabot bumps the digest and the tag together.
-FROM node:26-alpine@sha256:ef24c5053d50fdc3e4e56eb4e7ddb7861874ab0fdc797046ba897581deb8e868 AS nodebase
+FROM node:26-alpine@sha256:2c45bdcbf63561a54da9549612084b43ca309854a4110c87857d609ddeb61c9e AS nodebase
 
 # ---- deps -------------------------------------------------------------------
 FROM nodebase AS deps
