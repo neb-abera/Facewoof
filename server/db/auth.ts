@@ -236,16 +236,23 @@ export async function createGuestUser(
 }
 
 /*
- * Drop guest accounts older than the given age. Their photos, swipes, packs
- * and posts go with them through ON DELETE CASCADE.
+ * A new identity arrived with a verified email address that an existing
+ * account already holds. Refused rather than resolved: see
+ * findOrCreateExternalUser.
  */
-export function purgeExpiredGuests(maxAgeHours = 24) {
-  return pool.query(
-    `DELETE FROM users
-     WHERE is_guest AND created_at < now() - ($1 || ' hours')::interval`,
-    [maxAgeHours],
-  );
+export class EmailInUseError extends Error {
+  constructor() {
+    super("that email address already belongs to another account");
+    this.name = "EmailInUseError";
+  }
 }
+
+const UNIQUE_VIOLATION = "23505";
+
+const isUniqueViolation = (err: unknown) =>
+  typeof err === "object" &&
+  err !== null &&
+  (err as { code?: unknown }).code === UNIQUE_VIOLATION;
 
 export interface ExternalIdentity {
   issuer: string;
@@ -266,6 +273,16 @@ export interface ExternalIdentity {
  * claimed rather than abandoned: they keep the swipes, packs and playdates
  * they built up during the demo, and it stops being a guest so the cleanup
  * leaves it alone. Signing in should feel like keeping your work.
+ *
+ * What it never does is adopt an account because the email matches. The
+ * insert used to be `ON CONFLICT (owner_email) DO UPDATE ... RETURNING
+ * user_id`, which quietly handed a NEW identity the EXISTING account that
+ * held the address: anyone who could get a provider to assert an address —
+ * a second provider, an unverified claim, a recycled mailbox — signed
+ * straight in to somebody else's dogs, packs and posts. There is no
+ * account-linking flow, so a collision is refused (EmailInUseError) and the
+ * person is told to sign in the way they did before. `email` must already be
+ * a verified claim by the time it gets here (controllers/oidc.ts).
  */
 export async function findOrCreateExternalUser({
   issuer,
@@ -315,7 +332,6 @@ export async function findOrCreateExternalUser({
       const inserted = await client.query<{ user_id: number }>(
         `INSERT INTO users (owner_email, owner_name, is_guest)
               VALUES ($1, $2, false)
-         ON CONFLICT (owner_email) DO UPDATE SET owner_email = EXCLUDED.owner_email
            RETURNING user_id`,
         [address, name || null],
       );
@@ -335,6 +351,9 @@ export async function findOrCreateExternalUser({
     return { userId, created: true };
   } catch (err) {
     await client.query("ROLLBACK");
+    // owner_email is the only unique column either statement can trip on: the
+    // guest claim's UPDATE, or the INSERT.
+    if (isUniqueViolation(err)) throw new EmailInUseError();
     throw err;
   } finally {
     client.release();

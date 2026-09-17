@@ -76,6 +76,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Not available right now: sign-in is not configured, or the demo is at capacity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -242,7 +252,7 @@
             }
           },
           "503": {
-            "description": "Sign-in is not configured on this instance",
+            "description": "Not available right now: sign-in is not configured, or the demo is at capacity",
             "content": {
               "application/json": {
                 "schema": {

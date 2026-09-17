@@ -1,9 +1,13 @@
 import zipcodes from "zipcodes";
 import { defineRoute, noContent, reply } from "../api/route.ts";
 import { ErrorBody, User, Whereabouts } from "../api/schemas.ts";
-import { createGuestUser, getCurrentUserPromise } from "../db/index.ts";
+import {
+  countLiveGuests,
+  createGuestUser,
+  getCurrentUserPromise,
+} from "../db/index.ts";
 import { bumpSessionVersion } from "../db/sessions.ts";
-import { guestLimiter } from "../limits.ts";
+import { GUEST_MAX_LIVE, guestLimiter } from "../limits.ts";
 import { establishSession } from "../session.ts";
 
 /*
@@ -21,8 +25,19 @@ export const guestLogin = defineRoute({
   auth: false,
   limit: guestLimiter,
   body: Whereabouts,
-  responses: { 201: User },
+  responses: { 201: User, 503: ErrorBody },
   handler: async ({ body, session, audit }) => {
+    // One indexed count, before the hundred-row insert it guards. Two
+    // requests racing past it together overshoot by one; it is a ceiling on
+    // abuse, not an invariant.
+    if ((await countLiveGuests()) >= GUEST_MAX_LIVE) {
+      audit("guest.refused", { reason: "capacity" });
+      return reply(503, {
+        error:
+          "The demo is full right now. Please try again in a little while.",
+      });
+    }
+
     let originZip = body.zip;
     if (!originZip && body.lat !== undefined && body.lng !== undefined) {
       const match = zipcodes.lookupByCoords(body.lat, body.lng);

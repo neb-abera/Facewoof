@@ -31,7 +31,7 @@ const DESCRIPTIONS: Record<number, string> = {
   429: "Rate limited; see the RateLimit-* headers",
   500: "Internal error",
   502: "The sign-in provider could not be reached",
-  503: "Sign-in is not configured on this instance",
+  503: "Not available right now: sign-in is not configured, or the demo is at capacity",
 };
 
 /*

@@ -55,6 +55,8 @@ vi.mock("../../server/db/index.ts", () => ({
     session_version: 0,
   })),
   getCurrentUserPromise: vi.fn(async () => ({ rows: [] })),
+  countLiveGuests: vi.fn(async () => 0),
+  EmailInUseError: class EmailInUseError extends Error {},
   findOrCreateExternalUser: vi.fn(async () => ({ userId: 55, created: true })),
 }));
 

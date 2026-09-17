@@ -5,11 +5,11 @@ import {
   OidcStartQuery,
   Providers,
 } from "../api/schemas.ts";
-import { findOrCreateExternalUser } from "../db/index.ts";
+import { EmailInUseError, findOrCreateExternalUser } from "../db/index.ts";
 import { sessionVersionOf } from "../db/sessions.ts";
 import { guestLimiter } from "../limits.ts";
 import * as oidc from "../oidc.ts";
-import { establishSession } from "../session.ts";
+import { establishSession, PENDING_OIDC_MAX_AGE_MS } from "../session.ts";
 
 /*
  * What the sign-in page should offer.
@@ -68,6 +68,7 @@ export const start = defineRoute({
         // The live session's user, not whatever the cookie claims: a revoked
         // guest cookie must not be able to claim that guest account.
         guestUserId: userId,
+        startedAt: Date.now(),
       };
 
       return redirect(302, await oidc.authorizeUrl(request));
@@ -105,7 +106,13 @@ export const callback = defineRoute({
     // Used once. Clearing first means a replayed callback finds nothing.
     session.oidc = null;
 
-    if (!pending) return fail("expired");
+    if (
+      !pending ||
+      typeof pending.startedAt !== "number" ||
+      Date.now() - pending.startedAt > PENDING_OIDC_MAX_AGE_MS
+    ) {
+      return fail("expired");
+    }
     if (query.error) {
       // The provider's error code only, and only in the shape OAuth defines
       // one. This URL can be requested by anyone, so its free-text
@@ -139,7 +146,11 @@ export const callback = defineRoute({
         issuer: claims.iss ?? "",
         subject: claims.sub,
         provider: pending.provider,
-        email: claims.email || claims.preferred_username || null,
+        // Only an address the provider says it verified. An unverified
+        // `email` — or preferred_username, which is whatever the person
+        // typed — is a claim about somebody else's mailbox, and owner_email
+        // is a unique column other accounts already sit in.
+        email: claims.email_verified === true ? claims.email || null : null,
         name: claims.name || null,
         guestUserId: pending.guestUserId,
       });
@@ -150,6 +161,7 @@ export const callback = defineRoute({
       audit("oidc.signed_in", { userId });
       return redirect(302, "/discover");
     } catch (err) {
+      if (err instanceof EmailInUseError) return fail("email-in-use");
       console.error("sign-in failed", err);
       return fail("failed");
     }

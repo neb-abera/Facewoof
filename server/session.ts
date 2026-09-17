@@ -60,7 +60,17 @@ export interface PendingOidc {
   nonce: string;
   provider: string;
   guestUserId: number | null;
+  /* When the sign-in was started, in epoch milliseconds. */
+  startedAt: number;
 }
+
+/*
+ * How long a started sign-in stays answerable. The verifier, state and nonce
+ * ride in the session cookie, and without a limit of their own they were
+ * good for as long as the cookie was: a callback URL could be completed a
+ * day after it was issued. Ten minutes is an unhurried sign-in.
+ */
+export const PENDING_OIDC_MAX_AGE_MS = 10 * 60 * 1000;
 
 export const session = cookieSession({
   name: cookieName("facewoof.sid"),

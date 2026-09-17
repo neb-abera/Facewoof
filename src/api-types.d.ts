@@ -747,6 +747,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description Not available right now: sign-in is not configured, or the demo is at capacity */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     getAuthMe: {
@@ -897,7 +906,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Sign-in is not configured on this instance */
+            /** @description Not available right now: sign-in is not configured, or the demo is at capacity */
             503: {
                 headers: {
                     [name: string]: unknown;

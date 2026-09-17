@@ -22,8 +22,11 @@ export const app = createApp({
   checkDatabase: () => db.query("SELECT 1"),
 });
 
-// Guest accounts are throwaway. Sweep the expired ones hourly rather than
-// letting the table grow for as long as the app is up.
+// Guest accounts are throwaway. Sweep the expired ones once at boot and then
+// hourly. The boot sweep is what keeps a crash loop honest: a process that
+// never lives an hour never reaches the timer, and the sweep itself deletes
+// in batches that each commit (server/db/guests.ts), so a backlog shrinks
+// even if the process dies partway through.
 const GUEST_SWEEP_INTERVAL_MS = 60 * 60 * 1000;
 const sweepGuests = () =>
   purgeExpiredGuests(Number(process.env.GUEST_TTL_HOURS) || 24)

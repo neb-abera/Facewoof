@@ -69,6 +69,16 @@ const shared = {
 export const GUEST_LIMIT_PER_HOUR =
   Number(process.env.GUEST_LIMIT_PER_HOUR) || 10;
 
+/*
+ * A ceiling on demo accounts alive at once, whoever asked for them. The
+ * limiter above is per address, and addresses are cheap: a few hundred of
+ * them could each stay under it and still fill the database with a hundred
+ * rows apiece, faster than the daily sweep empties it. 1000 accounts is about
+ * a hundred thousand profile rows — far more demos than this site has ever
+ * had in a day, and a size the smallest Postgres tier holds comfortably.
+ */
+export const GUEST_MAX_LIVE = Number(process.env.GUEST_MAX_LIVE) || 1000;
+
 export const guestLimiter = rateLimit({
   ...shared,
   windowMs: minutes(60),
