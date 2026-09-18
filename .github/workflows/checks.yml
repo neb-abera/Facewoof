@@ -39,6 +39,18 @@ jobs:
         # else and against a copy of the tree rather than a mount.
         run: docker build --target lint .
 
+      - name: No dependency is held behind a major that cannot install
+        # Dependabot only opens a pull request for a bump that installs, so a
+        # major whose peer range the manifest cannot satisfy is never offered
+        # and nothing goes red (openapi-typescript sat at 6 for two years that
+        # way). A `docker run`, not a build stage: the answer depends on the
+        # registry, and a cached layer would never ask again. The self-test
+        # runs first, every time, so a check that can no longer fail is caught.
+        run: |
+          set -euo pipefail
+          scripts/check-held-majors.sh --self-test
+          scripts/check-held-majors.sh
+
       - name: Unit tests
         # --progress=plain and a tee so the vitest totals the build prints
         # can be lifted into the job summary without running anything twice.

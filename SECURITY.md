@@ -30,6 +30,9 @@ What to expect:
   `.trivyignore` with their reasoning)
 - Dependabot alerts, security updates and weekly version updates across
   npm, docker and actions
+- a held-majors check on every pull request fails when a dependency's next
+  major cannot install, the one case Dependabot stays silent about (accepted
+  cases live in `.held-majors` with their reasoning)
 - dependency review blocks pull requests that introduce high-severity
   vulnerable dependencies
 - OpenSSF Scorecard grades the repository's supply-chain posture weekly
