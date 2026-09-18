@@ -59,6 +59,13 @@ make contract
 `make check` runs `scripts/check-contract.sh`, which fails if either file is
 stale.
 
+`make check` also runs `scripts/check-held-majors.sh`, which fails when a
+dependency's next major cannot install beside the rest of its manifest.
+Dependabot only opens a pull request for a bump that installs, so without it
+such a pin ages with nothing red. The fix is a manifest of its own for the
+package (see `tools/api-types/`); a case you accept goes in `.held-majors`
+with its reason, and the check tells you when that entry can be dropped.
+
 Adding a migration means regenerating the row types and committing them:
 
 ```bash
