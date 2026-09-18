@@ -347,12 +347,14 @@ jobs:
         with:
           egress-policy: block
           # checkout dials github.com; the two release tarballs redirect to
-          # the githubusercontent asset hosts.
+          # the githubusercontent asset hosts; the template parity check
+          # reads the template's files from raw.githubusercontent.com.
           allowed-endpoints: >
             github.com:443
             api.github.com:443
             objects.githubusercontent.com:443
             release-assets.githubusercontent.com:443
+            raw.githubusercontent.com:443
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -387,3 +389,9 @@ jobs:
         # would leave PRs waiting forever on a context that no longer
         # reports. The committed list is asserted against the workflows.
         run: scripts/check-required-contexts.sh
+
+      - name: Shared files match the template
+        # The files .template-parity lists are byte-identical to
+        # modern-webapp-template's default branch, or this fails. A change
+        # to one of them lands in the template first.
+        run: scripts/check-template-parity.sh
