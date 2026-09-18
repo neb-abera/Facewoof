@@ -12,13 +12,13 @@ import compression from "compression";
 import cors from "cors";
 import express, { type Router } from "express";
 import helmet from "helmet";
-import lusca from "lusca";
 
+import { applyTrustProxy } from "./client-ip.ts";
+import { csrf } from "./csrf.ts";
 import { insecureTransport } from "./insecure-transport.ts";
 import { apiLimiter, healthLimiter } from "./limits.ts";
+import { IMAGE_SOURCES } from "./media.ts";
 import { session } from "./session.ts";
-
-const isProduction = process.env.NODE_ENV === "production";
 
 export interface AppOptions {
   /* The route table, already built (server/routes.ts in production). */
@@ -54,16 +54,13 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
     app.use(cors({ origin: process.env.CORS_ORIGIN.split(",") }));
   }
 
-  /*
-   * Trust exactly one proxy hop.
-   *
-   * Container Apps terminates TLS and forwards, so without this every request
-   * appears to come from the ingress and the rate limits below would be shared
-   * by everyone at once. `true` would be worse than nothing: it makes express
-   * believe whatever X-Forwarded-For a caller sends, which hands anyone a way to
-   * forge a fresh identity per request and walk straight through the limits.
-   */
-  app.set("trust proxy", 1);
+  // How many proxy hops to believe when working out the caller's address,
+  // which every rate limit is keyed on — the in-memory ones and the Postgres
+  // store alike, since both take express-rate-limit's default key, req.ip.
+  // TRUST_PROXY_HOPS; server/client-ip.ts has the reasoning. Never `true`:
+  // that believes whatever X-Forwarded-For a caller sends and hands anyone a
+  // fresh identity per request.
+  applyTrustProxy(app);
 
   /*
    * Compress everything compressible on the way out.
@@ -102,12 +99,21 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
       contentSecurityPolicy: {
         directives: {
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-          "img-src": [
-            "'self'",
-            "data:",
-            "https://placedog.net",
-            "https://res.cloudinary.com",
-          ],
+          // helmet's defaults here are `style-src 'self' https: 'unsafe-inline'`
+          // and `font-src 'self' https: data:` — any stylesheet or font from
+          // any https origin, and any inline style, which is what a markup
+          // injection needs to restyle the page or exfiltrate through CSS.
+          // The app ships one bundled stylesheet per route and no web fonts,
+          // so both are 'self'. No 'unsafe-inline' and no style-src-attr
+          // carve-out is needed: React, react-big-calendar and react-modal
+          // set styles through the CSSOM (element.style), which CSP does not
+          // govern; only style ATTRIBUTES in markup and <style> elements are,
+          // and the app has neither. tests/e2e/security.spec.ts walks every
+          // page, the calendar included, listening for violations.
+          "style-src": ["'self'"],
+          "font-src": ["'self'"],
+          // The same list the API holds stored photo URLs to.
+          "img-src": ["'self'", "data:", ...IMAGE_SOURCES],
           // Photo uploads POST from the browser straight to Cloudinary. The
           // default connect-src 'self' silently blocked that request, so even a
           // correctly configured uploader could never have worked in
@@ -172,27 +178,9 @@ export function createApp({ router, clientDir, checkDatabase }: AppOptions) {
   apiOnly.use(express.json({ limit: "32kb" }));
   apiOnly.use(express.urlencoded({ extended: true, limit: "32kb" }));
 
-  // CSRF, double-submit style (CodeQL js/missing-token-validation): every API
-  // response carries a readable XSRF-TOKEN cookie, and every state-changing
-  // request must echo it in an x-xsrf-token header. Safe methods
-  // (GET/HEAD/OPTIONS) pass untouched, which also covers the OIDC callback.
-  apiOnly.use(
-    lusca.csrf({
-      cookie: {
-        name: "XSRF-TOKEN",
-        // The token cookie is deliberately readable from JavaScript - the
-        // double-submit pattern needs the client to echo it in a header - but
-        // there is no reason to send it cross-site or over plain HTTP. Path /
-        // although only /api sets it: the client reads it from document.cookie
-        // on whatever page it is on.
-        options: {
-          sameSite: "lax",
-          secure: isProduction && !insecureTransport,
-        },
-      },
-      header: "x-xsrf-token",
-    }),
-  );
+  // CSRF, double-submit style; server/csrf.ts has the details. Mounted on
+  // /api only, so only API responses carry the token cookie.
+  apiOnly.use(csrf);
 
   // A backstop across the whole API. The per-endpoint limits in routes.ts are
   // what actually matter; this catches anything added later without one.

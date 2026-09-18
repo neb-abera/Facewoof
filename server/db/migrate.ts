@@ -83,6 +83,45 @@ export async function migrate(): Promise<number> {
   }
 }
 
+/* The migrations this database has not recorded, without applying any. */
+export async function pendingMigrations(): Promise<string[]> {
+  const { rows } = await pool.query<{ name: string }>(
+    "SELECT name FROM schema_migrations",
+  );
+  const applied = new Set(rows.map((row) => row.name));
+  return readMigrations()
+    .map((m) => m.name)
+    .filter((name) => !applied.has(name));
+}
+
+/*
+ * What the server does about the schema before it listens.
+ *
+ * By default it migrates, as it always has, which requires the serving
+ * process to connect as the role that owns the schema. MIGRATE_ON_BOOT=false
+ * is the other half of running it as a role that cannot change the schema
+ * at all (server/db/roles/runtime.sql): migrations are then a separate step
+ * run as the owner, and the server only checks that step happened. Serving
+ * against a schema that is behind the code fails in stranger ways than
+ * refusing to start, and a revision that does not start never takes traffic.
+ */
+export async function prepareSchema(
+  env: Record<string, string | undefined> = process.env,
+): Promise<void> {
+  if (env.MIGRATE_ON_BOOT !== "false") {
+    await migrate();
+    return;
+  }
+  const pending = await pendingMigrations();
+  if (pending.length) {
+    throw new Error(
+      `MIGRATE_ON_BOOT=false and the database is missing ${pending.join(", ")}: ` +
+        "run the migrations (node server/db/migrate.ts) as the owner role first",
+    );
+  }
+  console.log("database is up to date (migrations are not run at boot)");
+}
+
 // Runnable on its own (`npm run migrate`) as well as importable, so a deploy
 // can migrate as a separate step rather than only at boot.
 if (import.meta.main) {

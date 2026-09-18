@@ -15,6 +15,7 @@
  * receives, so a timestamp is an ISO string here.
  */
 import { z } from "zod";
+import { isAllowedImageUrl, isUploadedImageUrl } from "../media.ts";
 
 // ---- building blocks --------------------------------------------------------
 
@@ -76,25 +77,52 @@ export const User = named(
   }),
 );
 
-/* A friend: a user with their photos gathered up. */
+/*
+ * What one user may learn about another: the dog, the owner's first-hand
+ * description of it, and nothing that identifies or locates the person.
+ *
+ * Deliberately a closed list rather than `User` minus a few fields. `User`
+ * is the caller's own account and carries owner_email, the zip code, and
+ * bookkeeping columns; extending it is how the friends list and the discover
+ * feed came to publish every member's email address to any demo visitor.
+ * A column added to `users` later stays private until it is added here.
+ */
+const publicProfile = {
+  user_id: z.number().int(),
+  dog_name: z.string().nullable(),
+  owner_name: z.string().nullable(),
+  dog_breed: z.string().nullable(),
+  age: z.number().int().nullable(),
+  vaccination: z.boolean(),
+};
+
+/* A friend (a mutual match): the public profile, the playdate facts and photos. */
 export const Friend = named(
   "Friend",
-  User.extend({ photos: z.array(z.string()).nullable() }),
+  z.object({
+    ...publicProfile,
+    likes_one: z.string().nullable(),
+    likes_two: z.string().nullable(),
+    likes_three: z.string().nullable(),
+    size: z.string().nullable(),
+    energy: z.string().nullable(),
+    best_time: z.string().nullable(),
+    bio: z.string().nullable(),
+    photos: z.array(z.string()).nullable(),
+  }),
 );
 
 /* One card in the discover feed. */
 export const FeedCard = named(
   "FeedCard",
   z.object({
-    user_id: z.number().int(),
-    dog_name: z.string().nullable(),
-    owner_name: z.string().nullable(),
-    dog_breed: z.string().nullable(),
-    age: z.number().int().nullable(),
-    vaccination: z.boolean(),
-    discoverable: z.boolean(),
-    owner_email: z.string(),
-    location: z.string().nullable(),
+    ...publicProfile,
+    /*
+     * Whole miles from the search origin, or null when unknown. The card
+     * used to carry the dog's zip code and the page a zip-to-distance table;
+     * the UI only ever showed the number, so the number is what is sent.
+     */
+    distance: z.number().nullable(),
     /* Whether this dog has already swiped yes on the caller. */
     user1_choice: z.boolean().nullable(),
     photos: z.array(z.string()).nullable(),
@@ -218,8 +246,6 @@ export const DiscoverPage = named(
   "DiscoverPage",
   z.object({
     users: z.array(FeedCard),
-    /* Miles from the origin, by zip code. */
-    distances: z.record(z.string(), z.number().nullable()),
     origin: zip,
     remaining: z.number().int(),
   }),
@@ -292,7 +318,35 @@ export const EditProfileBody = z.object({
   bio: text(400),
 });
 
-export const PhotoBody = z.object({ photoUrl: z.url() });
+/*
+ * A photo URL is stored and later rendered to other people, so it is not
+ * "any URL": https, on a host the CSP's img-src also allows (server/media.ts
+ * is the one list), and for a new profile photo, under this deployment's own
+ * Cloudinary cloud — the only thing an upload can produce.
+ */
+const uploadedImageUrl = z
+  .url()
+  .refine((url) => isUploadedImageUrl(url), "must be an uploaded photo's URL");
+
+const allowedImageUrl = z
+  .url()
+  .refine((url) => isAllowedImageUrl(url), "must be a photo this app hosts");
+
+export const PhotoBody = z.object({ photoUrl: uploadedImageUrl });
+
+export const UploadConfig = named(
+  "UploadConfig",
+  z.object({ signed: z.boolean() }),
+);
+
+export const UploadTicket = named(
+  "UploadTicket",
+  z.object({
+    uploadUrl: z.url(),
+    fields: z.record(z.string(), z.string()),
+    expiresAt: timestamp,
+  }),
+);
 
 export const PhotoUrl = named("PhotoUrl", z.object({ url: z.string() }));
 
@@ -300,15 +354,18 @@ export const PhotoUrl = named("PhotoUrl", z.object({ url: z.string() }));
 
 export const JoinPackBody = z.object({ pack_id: id });
 
+/* More than anyone has friends for; a ceiling on what one request can write. */
+const MAX_PACK_MEMBERS = 50;
+
 /*
  * `users` arrives as a JSON array, or — from the older client — as a string
  * holding one. The original always JSON.parse'd and threw on a real array.
  */
 export const CreatePackBody = z.object({
-  pack_name: z.string().trim().min(1),
+  pack_name: z.string().trim().min(1).max(80),
   users: z
     .union([
-      z.array(id).min(1),
+      z.array(id).min(1).max(MAX_PACK_MEMBERS),
       z
         .string()
         .transform((raw, ctx) => {
@@ -322,12 +379,14 @@ export const CreatePackBody = z.object({
             return z.NEVER;
           }
         })
-        .pipe(z.array(id).min(1)),
+        .pipe(z.array(id).min(1).max(MAX_PACK_MEMBERS)),
     ])
     .describe("the members to add; the creator is always included"),
 });
 
-export const NewPackBody = z.object({ packName: z.string().trim().min(1) });
+export const NewPackBody = z.object({
+  packName: z.string().trim().min(1).max(80),
+});
 
 export const PackId = named("PackId", z.object({ pack_id: z.number().int() }));
 
@@ -338,8 +397,9 @@ export const PackIdQuery = z.object({ packId: id });
 export const MakePostBody = z.object({
   packet: z.object({
     pack_id: id,
-    body: z.string().nullish(),
-    photo_url: z.string().nullish(),
+    body: z.string().max(5000).nullish(),
+    /* The author's profile photo; "" from an older client means none. */
+    photo_url: allowedImageUrl.or(z.literal("")).nullish(),
   }),
 });
 

@@ -1,5 +1,6 @@
 import { defineRoute, reply } from "../api/route.ts";
 import {
+  ErrorBody,
   Message,
   NewPlaydateBody,
   PackPlaydate,
@@ -9,6 +10,7 @@ import {
   createPlaydate,
   getAllPlaydates,
   getUserPlaydatesAllPacks,
+  isPackMember,
 } from "../db/index.ts";
 import { writeLimiter } from "../limits.ts";
 
@@ -32,8 +34,14 @@ export const AddPlaydate = defineRoute({
   auth: true,
   limit: writeLimiter,
   body: NewPlaydateBody,
-  responses: { 201: Message },
+  responses: { 201: Message, 403: ErrorBody },
   handler: async ({ userId, body }) => {
+    // A pack's calendar is for its members, like its feed. Without this any
+    // signed-in visitor — a throwaway demo account included — could write
+    // onto every pack's calendar by walking pack ids.
+    if (!(await isPackMember(userId, body.packId))) {
+      return reply(403, { error: "not a member of this pack" });
+    }
     await createPlaydate({
       packId: body.packId,
       userId,

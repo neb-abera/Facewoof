@@ -112,6 +112,11 @@ before moving on. If you lose it, reset it with
 The application applies its own migrations at start-up, so there is nothing to
 load by hand. The first revision creates the schema and the demo roster.
 
+That convenience is also a liability: to migrate at boot the serving process
+has to connect as the role that owns the schema, so anything that reaches the
+database through the app can `DROP` and `ALTER` as well as read. "Database
+roles" below is the owner-run procedure that ends it.
+
 ## 3. Container app
 
 ```bash
@@ -288,23 +293,223 @@ certificate with a Cloudflare Origin CA certificate (15-year validity,
 SSL/TLS → Origin Server → Create Certificate, then
 `az containerapp ssl upload`), which ends the dance permanently.
 
+### Tell the app how many proxies are in front of it
+
+Every rate limit is keyed on the caller's address, which behind proxies has
+to be read out of `X-Forwarded-For`. The app trusts a **number of hops**
+(`TRUST_PROXY_HOPS`), counted from itself outwards, and takes the entry just
+beyond them; anything a caller forges in the header sits further left and is
+never read. `server/client-ip.ts` has the full reasoning, including why it
+is not `CF-Connecting-IP`.
+
+With the subdomain proxied the chain is visitor → Cloudflare → Container Apps
+ingress → app, so production needs **2**. Left at the default of 1 the app
+keys on the Cloudflare edge address and everyone behind one PoP shares a
+rate-limit bucket (one visitor's demo sign-ins can lock out a city).
+
+```bash
+az containerapp update -g "$RG" -n "$APP" --set-env-vars TRUST_PROXY_HOPS=2
+```
+
+Set it **only while the origin accepts Cloudflare alone** (the `cf-v4-*`
+ingress rules in docs/OPERATIONS.md). The count is what makes the address
+unforgeable, and it is only right for traffic that really crossed both
+proxies: if the subdomain is ever switched back to "DNS only", or the ingress
+restriction is lifted, set it back to 1 first — too low merely coarsens the
+buckets, too high lets a caller choose their own address. An invalid value
+stops the server at start-up rather than guessing.
+
 ## Photo uploads (Cloudinary)
 
-Uploads go straight from the browser to Cloudinary with an unsigned preset;
-the app stores only the returned URL. The two identifiers are baked into the
-client bundle at build time, so they are passed to the deploy build as GitHub
-repository **variables** (Settings → Secrets and variables → Actions →
-Variables) — not secrets, since every browser receives them in the bundle
-anyway:
+Uploads go straight from the browser to Cloudinary; the app stores only the
+returned URL, and only accepts one that is `https://res.cloudinary.com/` under
+an `image/upload` path — under *your* cloud once `CLOUDINARY_CLOUD_NAME` is
+set (`server/media.ts`, the same list the CSP's `img-src` is built from).
 
-- `VITE_CLOUD_NAME` — the Cloudinary cloud name
-- `VITE_UPLOAD_PRESET` — an **unsigned** upload preset (create it in the
-  Cloudinary console under Settings → Upload; restrict it to image files and
-  a folder)
+There are two modes, and the server picks by what it has been given.
 
-While they are unset the app simply hides photo upload, in onboarding and on
-the profile page alike. After setting them, re-run the deploy workflow (or
-merge anything) so a new bundle is built.
+### Signed (what production should run)
+
+The server hands a signed-in caller a ten-minute signature
+(`POST /api/uploads/signature`, rate limited) that fixes the folder
+(`Facewoof`), the accepted formats and an incoming size limit. Nobody without
+a session can upload, and nobody can change those parameters. It turns on
+when all three of these are set on the container app:
+
+```bash
+# Cloudinary console -> Settings -> API Keys. The secret goes in as a
+# container-app secret, never a plain variable and never a VITE_ build arg.
+az containerapp secret set -g "$RG" -n "$APP" \
+  --secrets cloudinary-api-secret="<api secret>"
+az containerapp update -g "$RG" -n "$APP" --set-env-vars \
+  CLOUDINARY_CLOUD_NAME="<cloud name>" \
+  CLOUDINARY_API_KEY="<api key>" \
+  CLOUDINARY_API_SECRET=secretref:cloudinary-api-secret
+```
+
+(`CLOUDINARY_SIGNATURE_ALGORITHM=sha256` only if the Cloudinary product
+environment has been switched to SHA-256 signatures; the default is SHA-1,
+which is Cloudinary's.)
+
+### Unsigned (the fallback, and what ran before)
+
+While those are unset the endpoint answers 404 and the client falls back to
+an **unsigned** upload preset, whose two identifiers are baked into the
+bundle at build time as GitHub repository **variables** (Settings → Secrets
+and variables → Actions → Variables): `VITE_CLOUD_NAME` and
+`VITE_UPLOAD_PRESET`. An unsigned preset is a public write endpoint — its
+name ships to every browser and anyone can upload to it — so in production
+the server logs a warning at start-up for as long as it is in this mode.
+With neither mode configured the app simply hides photo upload.
+
+### Switching over
+
+1. Set the three `CLOUDINARY_*` values as above and let the new revision
+   start. The start-up warning about the unsigned preset should be gone from
+   the logs.
+2. Upload a photo from the profile page while signed in. In the browser's
+   network tab the request to `api.cloudinary.com` now carries `signature`
+   and `api_key` and no `upload_preset`.
+3. Delete the repository variable `VITE_UPLOAD_PRESET` (keep
+   `VITE_CLOUD_NAME` or not; signed mode does not read it) and redeploy so
+   the bundle stops carrying the preset name.
+4. In the Cloudinary console (Settings → Upload → Upload presets) **delete
+   the unsigned preset**, or switch it to Signed. Until this step the old
+   public endpoint still works for anyone who saved its name, whatever the
+   app does.
+5. Optional, once: look for stored URLs that predate validation. Nothing is
+   deleted by the app; rows that match are not rendered anyway (the CSP
+   blocks them), so review and remove by hand if any turn up.
+
+   ```sql
+   SELECT photo_id, user_id, url FROM profile_photos
+    WHERE url !~ '^https://(res\.cloudinary\.com|placedog\.net)/';
+   SELECT post_id, user_id, photo_url FROM posts
+    WHERE photo_url IS NOT NULL
+      AND photo_url !~ '^https://(res\.cloudinary\.com|placedog\.net)/';
+   ```
+
+## Database roles: a runtime identity with no DDL
+
+Two roles instead of one. The **owner** role owns the tables and runs
+migrations (`node server/db/migrate.ts`, which the image can run as a
+one-off). The **runtime** role is what the container app connects as:
+`SELECT/INSERT/UPDATE/DELETE` and sequence use, nothing else — no `CREATE` on
+the schema, no `TRUNCATE`, no ownership, a read-only view of
+`schema_migrations`. The grants are `server/db/roles/runtime.sql`; CI proves
+on every pull request that the app works end to end as such a role and that
+the role cannot change the schema (`scripts/check-db-roles.sh`,
+`make check-db-roles`).
+
+The code half ships dark: `MIGRATE_ON_BOOT` defaults to today's behaviour, so
+nothing changes until the steps below are done. With `MIGRATE_ON_BOOT=false`
+the server runs no DDL at boot and **refuses to start** if a migration is
+pending, so a revision deployed ahead of its migration never takes traffic.
+
+All of this is owner-run; none of it is in the deploy workflow yet.
+
+**1. A second managed identity, for migrations.** Today the container app's
+identity (`facewoof-mi`) owns the schema. It becomes the runtime role; a new
+user-assigned identity becomes the owner.
+
+```bash
+az identity create -g "$RG" -n facewoof-migrate-mi
+MIGRATE_CLIENT_ID=$(az identity show -g "$RG" -n facewoof-migrate-mi --query clientId -o tsv)
+MIGRATE_ID=$(az identity show -g "$RG" -n facewoof-migrate-mi --query id -o tsv)
+```
+
+**2. Its database role, and ownership.** As the server's Entra admin, against
+the `postgres` database and then `facewoof` (token as in docs/OPERATIONS.md):
+
+```sql
+-- dbname=postgres
+SELECT * FROM pgaadauth_create_principal('facewoof-migrate-mi', false, false);
+
+-- dbname=facewoof
+GRANT CONNECT ON DATABASE facewoof TO "facewoof-migrate-mi";
+GRANT USAGE, CREATE ON SCHEMA public TO "facewoof-migrate-mi";
+-- Everything facewoof-mi created so far changes hands. REASSIGN needs
+-- membership in both roles; azure_pg_admin has it.
+REASSIGN OWNED BY "facewoof-mi" TO "facewoof-migrate-mi";
+```
+
+**3. The runtime grants**, same session, same database:
+
+```bash
+psql "host=$PG.postgres.database.azure.com dbname=facewoof user=<entra admin> sslmode=require" \
+  -v ON_ERROR_STOP=1 -v runtime=facewoof-mi -v owner=facewoof-migrate-mi \
+  -f server/db/roles/runtime.sql
+```
+
+Check it took, as the admin: `\dp users` shows `facewoof-mi=arwd/…` and
+nothing more, and `SELECT has_schema_privilege('facewoof-mi','public','CREATE')`
+is `f`.
+
+**4. A Container Apps job that migrates**, from the same image, as the owner
+identity:
+
+```bash
+az containerapp job create -g "$RG" -n facewoof-migrate --environment "$ENVIRONMENT" \
+  --trigger-type Manual --replica-timeout 600 --replica-retry-limit 0 \
+  --image "$ACR.azurecr.io/facewoof:latest" \
+  --registry-server "$ACR.azurecr.io" --registry-identity "$MIGRATE_ID" \
+  --mi-user-assigned "$MIGRATE_ID" \
+  --command node --args server/db/migrate.ts \
+  --env-vars DATABASE_AUTH=entra PGSSL=true PGHOST="$PG.postgres.database.azure.com" \
+             PGDATABASE=facewoof PGUSER=facewoof-migrate-mi AZURE_CLIENT_ID="$MIGRATE_CLIENT_ID"
+az role assignment create --assignee "$(az identity show --ids "$MIGRATE_ID" --query principalId -o tsv)" \
+  --role AcrPull --scope "$(az acr show -n "$ACR" --query id -o tsv)"
+```
+
+Run it once by hand (`az containerapp job start -g "$RG" -n facewoof-migrate`)
+and read its logs: it should say `database is up to date`.
+
+**5. The deploy workflow migrates before it rolls out.** A sketch of the step
+to add to `.github/workflows/deploy.yml` between "Build and push" and "Deploy
+the revision" — not merged, because it fails until step 4 exists:
+
+```yaml
+      - name: Migrate, as the owner identity
+        run: |
+          set -euo pipefail
+          az containerapp job update -g "$RESOURCE_GROUP" -n facewoof-migrate \
+            --image "$REGISTRY/$IMAGE:run-${{ github.run_id }}"
+          execution=$(az containerapp job start -g "$RESOURCE_GROUP" -n facewoof-migrate \
+            --query name -o tsv)
+          for _ in $(seq 1 60); do
+            status=$(az containerapp job execution show -g "$RESOURCE_GROUP" \
+              -n facewoof-migrate --job-execution-name "$execution" \
+              --query properties.status -o tsv)
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed|Degraded|Stopped) echo "migration $status"; exit 1 ;;
+            esac
+            sleep 5
+          done
+          echo "migration did not finish"; exit 1
+```
+
+Migrations must then be backwards compatible with the revision still
+serving (add before use, remove after), because the old revision runs
+against the new schema for the length of the rollout. They already had to
+be: replicas of the old revision were serving while the first new replica
+migrated at boot.
+
+**6. Switch the app over**, only after 2–5:
+
+```bash
+az containerapp update -g "$RG" -n "$APP" --set-env-vars MIGRATE_ON_BOOT=false
+```
+
+The revision's log should say `database is up to date (migrations are not
+run at boot)`. To back out, set `MIGRATE_ON_BOOT=true` and, as the admin,
+`GRANT "facewoof-migrate-mi" TO "facewoof-mi"` — the app then inherits the
+owner's rights again until the cause is fixed.
+
+If `DATABASE_URL` is still wired to the Postgres **admin** password anywhere
+(section 3 above predates managed identities), that is the same problem in a
+worse form: remove the secret once `DATABASE_AUTH=entra` is confirmed in use
+(docs/OPERATIONS.md, "Secret lifecycle").
 
 ## Deploying
 

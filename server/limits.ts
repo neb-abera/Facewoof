@@ -1,6 +1,7 @@
-import { rateLimit } from "express-rate-limit";
+import { type Options, rateLimit } from "express-rate-limit";
 import { pool } from "./db/database.ts";
 import { PostgresStore } from "./rate-limit-store.ts";
+import { securityEvent } from "./security-log.ts";
 
 /*
  * Rate limits.
@@ -45,7 +46,13 @@ const minutes = (n: number) => n * 60 * 1000;
 const shared = {
   standardHeaders: "draft-7", // RateLimit-* response headers
   legacyHeaders: false,
-} as const;
+  // The library's own reply, plus a security event: a limiter firing is the
+  // first sign of a loop, a scraper or a guessing attack.
+  handler: (req, res, _next, options) => {
+    securityEvent(req, "rate_limit.hit");
+    res.status(options.statusCode).json(options.message);
+  },
+} as const satisfies Partial<Options>;
 
 /*
  * Creating a demo account writes a hundred profiles and three hundred photo
@@ -61,6 +68,16 @@ const shared = {
 // pinning, and the middleware object does not expose it.
 export const GUEST_LIMIT_PER_HOUR =
   Number(process.env.GUEST_LIMIT_PER_HOUR) || 10;
+
+/*
+ * A ceiling on demo accounts alive at once, whoever asked for them. The
+ * limiter above is per address, and addresses are cheap: a few hundred of
+ * them could each stay under it and still fill the database with a hundred
+ * rows apiece, faster than the daily sweep empties it. 1000 accounts is about
+ * a hundred thousand profile rows — far more demos than this site has ever
+ * had in a day, and a size the smallest Postgres tier holds comfortably.
+ */
+export const GUEST_MAX_LIVE = Number(process.env.GUEST_MAX_LIVE) || 1000;
 
 export const guestLimiter = rateLimit({
   ...shared,
@@ -105,6 +122,18 @@ export const writeLimiter = rateLimit({
   windowMs: minutes(10),
   limit: 100,
   message: { error: "Too many changes from this address. Try again shortly." },
+});
+
+/*
+ * Upload signatures. Each one is a permission to store a file on the
+ * deployment's Cloudinary account, so it is held far tighter than writes in
+ * general: nobody adds twenty photos in ten minutes.
+ */
+export const uploadLimiter = rateLimit({
+  ...shared,
+  windowMs: minutes(10),
+  limit: 20,
+  message: { error: "Too many uploads from this address. Try again shortly." },
 });
 
 /*

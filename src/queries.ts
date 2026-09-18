@@ -24,11 +24,13 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { api, unwrap } from "./api";
+import { unsignedUploadsConfigured } from "./components/FileUploader/cloudinary";
 import type { CalendarEvent, Pack, Playdate, Providers } from "./types";
 
 /* Keys, in one place, so an invalidation and the query it targets agree. */
 export const keys = {
   providers: ["providers"] as const,
+  uploads: ["uploads"] as const,
   photos: ["me", "photos"] as const,
   friends: ["me", "friends"] as const,
   packs: ["me", "packs"] as const,
@@ -49,6 +51,21 @@ export const useProviders = () =>
     // Fixed per deployment; asking once per session is plenty.
     staleTime: Number.POSITIVE_INFINITY,
   });
+
+/*
+ * Whether to offer photo upload at all: the server signs uploads, or this
+ * bundle was built with an unsigned preset. Only asked when the bundle alone
+ * cannot say yes.
+ */
+export const useUploadsOffered = (): boolean => {
+  const { data } = useQuery({
+    queryKey: keys.uploads,
+    queryFn: async () => unwrap(await api.GET("/api/uploads/config")),
+    enabled: !unsignedUploadsConfigured,
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+  return unsignedUploadsConfigured || data?.signed === true;
+};
 
 /* The signed-in user's own photo URLs, profile photo first. */
 export const usePhotos = (enabled = true) =>
