@@ -71,15 +71,22 @@ export default defineConfig(({ mode }) => {
         provider: "v8",
         // Coverage counts the modules the unit tests actually load — the
         // decision-heavy server modules — not the React client, which the
-        // browser tests cover from the outside. Thresholds sit below the
-        // measured numbers (97% lines / 89% branches / 70% funcs when set)
-        // so they catch a real coverage collapse without failing the build
-        // over one new branch.
+        // browser tests cover from the outside, and not the SQL layer or the
+        // Entra client, which tests/db and the browser suite prove against a
+        // real Postgres and a mock IdP: the test that imports the real route
+        // table stubs both, so never-run code is not counted as uncovered.
+        // Thresholds sit 5 to 10 points below the measured numbers so they
+        // catch a real coverage collapse without failing the build over one
+        // new branch. Measured 2026-09-19, once tests/unit/routes.test.ts had
+        // put every controller into the count (the packs, pack feed and
+        // calendar handlers are covered by the browser suite alone): 88.95%
+        // lines, 87.62% statements, 80.59% branches, 81.45% functions. When
+        // first set: 97% lines / 89% branches / 70% funcs.
         thresholds: {
-          lines: 90,
-          statements: 85,
-          branches: 80,
-          functions: 60,
+          lines: 80,
+          statements: 80,
+          branches: 72,
+          functions: 72,
         },
       },
     },

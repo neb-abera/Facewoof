@@ -10,12 +10,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // environment has to be set before a fresh copy is imported.
 const loadLimits = () => import("../../server/limits.ts");
 
-describe("the guest limit", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    delete process.env.GUEST_LIMIT_PER_HOUR;
-  });
+beforeEach(() => {
+  vi.resetModules();
+  delete process.env.GUEST_LIMIT_PER_HOUR;
+  delete process.env.PUBLIC_LIMIT_PER_MINUTE;
+});
 
+describe("the guest limit", () => {
   it("defaults to ten demo sessions an hour", async () => {
     expect((await loadLimits()).GUEST_LIMIT_PER_HOUR).toBe(10);
   });
@@ -28,5 +29,22 @@ describe("the guest limit", () => {
   it("falls back to the default when the value is not a number", async () => {
     process.env.GUEST_LIMIT_PER_HOUR = "plenty";
     expect((await loadLimits()).GUEST_LIMIT_PER_HOUR).toBe(10);
+  });
+});
+
+/* The same knob for the anonymous routes' per-minute limit, the same three ways. */
+describe("the public limit", () => {
+  it("defaults to sixty a minute", async () => {
+    expect((await loadLimits()).PUBLIC_LIMIT_PER_MINUTE).toBe(60);
+  });
+
+  it("honors PUBLIC_LIMIT_PER_MINUTE from the environment", async () => {
+    process.env.PUBLIC_LIMIT_PER_MINUTE = "600";
+    expect((await loadLimits()).PUBLIC_LIMIT_PER_MINUTE).toBe(600);
+  });
+
+  it("falls back to the default when the value is not a number", async () => {
+    process.env.PUBLIC_LIMIT_PER_MINUTE = "lots";
+    expect((await loadLimits()).PUBLIC_LIMIT_PER_MINUTE).toBe(60);
   });
 });
