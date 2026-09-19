@@ -178,6 +178,7 @@ jobs:
             -e INSECURE_TRANSPORT=true \
             -e GUEST_LIMIT_PER_HOUR=200 \
             -e PUBLIC_LIMIT_PER_MINUTE=600 \
+            -e FEED_LIMIT_PER_MINUTE=600 \
             -e PORT=8080 facewoof
           for _ in $(seq 1 30); do
             if curl -sf http://localhost:8080/healthz; then break; fi
@@ -290,6 +291,7 @@ jobs:
             -e INSECURE_TRANSPORT=true \
             -e GUEST_LIMIT_PER_HOUR=200 \
             -e PUBLIC_LIMIT_PER_MINUTE=600 \
+            -e FEED_LIMIT_PER_MINUTE=600 \
             -e PORT=8080 \
             -e ENTRA_PROVIDERS=email,google \
             -e ENTRA_ISSUER=http://localhost:9000 \
