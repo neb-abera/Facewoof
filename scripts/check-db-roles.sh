@@ -153,7 +153,8 @@ run_args=(-d --name "$app" --network "$network")
 docker run "${run_args[@]}" \
   -e DATABASE_URL="$runtime_url" -e MIGRATE_ON_BOOT=false \
   -e SESSION_SECRET=ci-only-not-a-real-secret -e INSECURE_TRANSPORT=true \
-  -e GUEST_LIMIT_PER_HOUR=200 -e PORT="$app_port" "$IMAGE" >/dev/null
+  -e GUEST_LIMIT_PER_HOUR=200 -e PUBLIC_LIMIT_PER_MINUTE=600 \
+  -e PORT="$app_port" "$IMAGE" >/dev/null
 healthy=0
 for _ in $(seq 1 30); do
   if docker exec "$app" node -e "fetch('http://127.0.0.1:${app_port}/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" 2>/dev/null; then

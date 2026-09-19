@@ -7,7 +7,7 @@ import {
 } from "../api/schemas.ts";
 import { EmailInUseError, findOrCreateExternalUser } from "../db/index.ts";
 import { sessionVersionOf } from "../db/sessions.ts";
-import { guestLimiter } from "../limits.ts";
+import { guestLimiter, publicLimiter } from "../limits.ts";
 import * as oidc from "../oidc.ts";
 import { establishSession, PENDING_OIDC_MAX_AGE_MS } from "../session.ts";
 
@@ -22,6 +22,7 @@ export const providers = defineRoute({
   path: "/api/auth/providers",
   summary: "The sign-in providers this instance offers",
   auth: false,
+  limit: publicLimiter(),
   responses: { 200: Providers },
   handler: async () =>
     reply(200, {
@@ -91,6 +92,7 @@ export const callback = defineRoute({
   path: "/api/auth/oidc/callback",
   summary: "Finish sign-in: exchange the provider's code for a session",
   auth: false,
+  limit: publicLimiter(),
   query: OidcCallbackQuery,
   responses: { 302: null },
   handler: async ({ query, session, audit }) => {

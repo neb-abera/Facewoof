@@ -149,6 +149,41 @@ export const healthLimiter = rateLimit({
   message: { error: "Too many health checks." },
 });
 
+/*
+ * The cheap anonymous routes: which providers this instance offers, sign-out,
+ * and the OIDC callback. None of them writes anything on its own account (the
+ * callback only gets as far as a write once Entra has issued a code), so they
+ * need nothing like the guest limiter's hour in Postgres. They used to have no
+ * limiter at all and lean on the /api backstop, which exists to catch a route
+ * added without one, not to be one: every anonymous route carries a limit of
+ * its own, and tests/unit/routes.test.ts holds the table to that. Sixty a
+ * minute is more sign-ins and sign-outs than a person manages and far fewer
+ * than a loop probing the callback's state check would want.
+ *
+ * One bucket per route, not one shared by the three: /api/auth/providers is
+ * also where the client fetches its CSRF token (src/api.ts), on every page
+ * load, so a burst of reads from a shared address — an office behind one
+ * NAT — must not take sign-out and sign-in completion down with it for a
+ * minute. Each route calls publicLimiter() for a limiter of its own.
+ *
+ * Configurable for the same reason as GUEST_LIMIT_PER_HOUR: the browser tests
+ * all arrive from one address, and Playwright's default worker count can load
+ * sixty pages in a minute, after which every CSRF token fetch is a 429 and
+ * unrelated writes fail with 403. Production leaves it at the default.
+ *
+ * Exported for the unit tests, like GUEST_LIMIT_PER_HOUR.
+ */
+export const PUBLIC_LIMIT_PER_MINUTE =
+  Number(process.env.PUBLIC_LIMIT_PER_MINUTE) || 60;
+
+export const publicLimiter = () =>
+  rateLimit({
+    ...shared,
+    windowMs: minutes(1),
+    limit: PUBLIC_LIMIT_PER_MINUTE,
+    message: { error: "Too many requests. Try again shortly." },
+  });
+
 /* A backstop over the whole API, generous enough never to catch normal use. */
 export const apiLimiter = rateLimit({
   ...shared,

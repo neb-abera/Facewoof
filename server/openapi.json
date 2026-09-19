@@ -146,6 +146,16 @@
           "204": {
             "description": "No content"
           },
+          "429": {
+            "description": "Rate limited; see the RateLimit-* headers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal error",
             "content": {
@@ -175,6 +185,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Providers"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; see the RateLimit-* headers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -309,6 +329,16 @@
           },
           "400": {
             "description": "The request did not match its schema; `issues` says where",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited; see the RateLimit-* headers",
             "content": {
               "application/json": {
                 "schema": {

@@ -812,6 +812,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             /** @description Internal error */
             500: {
                 headers: {
@@ -839,6 +848,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Providers"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Internal error */
@@ -940,6 +958,15 @@ export interface operations {
             };
             /** @description The request did not match its schema; `issues` says where */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited; see the RateLimit-* headers */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

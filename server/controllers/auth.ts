@@ -7,7 +7,7 @@ import {
   getCurrentUserPromise,
 } from "../db/index.ts";
 import { bumpSessionVersion } from "../db/sessions.ts";
-import { GUEST_MAX_LIVE, guestLimiter } from "../limits.ts";
+import { GUEST_MAX_LIVE, guestLimiter, publicLimiter } from "../limits.ts";
 import { establishSession } from "../session.ts";
 
 /*
@@ -78,6 +78,7 @@ export const logout = defineRoute({
   path: "/api/auth/logout",
   summary: "Sign out",
   auth: false,
+  limit: publicLimiter(),
   responses: { 204: null },
   handler: async ({ userId, clearSession, audit }) => {
     // Clearing the cookie only signs out the browser that asked. Bumping the
