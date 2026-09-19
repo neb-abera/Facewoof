@@ -69,6 +69,11 @@ export default defineConfig(({ mode }) => {
       testTimeout: 30_000,
       coverage: {
         provider: "v8",
+        // text for the log (checks.yml lifts "All files" into the job
+        // summary), lcov for Codecov. Its own directory, because the client
+        // run in the same container stage writes a report of its own.
+        reporter: ["text", "lcov"],
+        reportsDirectory: "coverage/server",
         // Coverage counts the modules the unit tests actually load — the
         // decision-heavy server modules — not the React client, which the
         // browser tests cover from the outside, and not the SQL layer or the

@@ -1,0 +1,33 @@
+# Codecov is dashboard-only here: the BLOCKING coverage floors are vitest's
+# own thresholds (vite.config.ts for the server's unit tests,
+# vitest.client.config.ts for the client's component tests), which fail the
+# unittest build stage on their own, so the gate works with or without a
+# Codecov account. The lint job in checks.yml uploads both lcov reports only
+# when a CODECOV_TOKEN secret exists, and never fails the build.
+ignore:
+  # Test code measuring itself would only inflate the number.
+  - "tests"
+  # The browser bootstrap runs only in a real browser; the Playwright suite
+  # covers it end to end. Generated types have nothing to cover.
+  - "src/main.tsx"
+  - "src/api-types.d.ts"
+  # Tooling, not the app.
+  - "scripts"
+  - "tools"
+
+comment:
+  require_changes: true
+
+# Informational only: these statuses annotate the dashboard and PRs without
+# ever going red — the enforced floors above are in-job.
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 2%
+        informational: true
+    patch:
+      default:
+        target: 80%
+        informational: true

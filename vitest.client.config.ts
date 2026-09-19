@@ -31,7 +31,9 @@ export default defineConfig({
       // covers it end to end; api-types.d.ts is generated.
       include: ["src/**"],
       exclude: ["src/main.tsx", "src/api-types.d.ts", "src/**/*.css"],
-      reporter: ["text", "json-summary"],
+      reporter: ["text", "json-summary", "lcov"],
+      // Beside the server's report, not over it (vite.config.ts).
+      reportsDirectory: "coverage/client",
       // Measured 2026-09-12 with the first tests (40% statements, 35%
       // branches, 33% functions, 39% lines): the components with real logic
       // are covered, the presentational views mostly are not. The floor sits

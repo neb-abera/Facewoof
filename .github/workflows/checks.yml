@@ -22,6 +22,10 @@ jobs:
     name: lint and format
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # A secret cannot be used in `if:` directly, so it is routed through
+    # job-level env for the Codecov step below.
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
@@ -56,7 +60,7 @@ jobs:
         # can be lifted into the job summary without running anything twice.
         run: |
           set -euo pipefail
-          docker build --progress=plain --target unittest . 2>&1 | tee unittest.log
+          docker build --progress=plain --target unittest -t facewoof-unittest . 2>&1 | tee unittest.log
 
       # Parses the vitest summaries already in the log — never re-runs tests.
       # The unittest stage runs the server's unit tests, prints a marker, then
@@ -85,6 +89,27 @@ jobs:
             row "server (tests/unit)" "$server"
             row "client (tests/client)" "$client"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # The two lcov reports the stage wrote (vite.config.ts and
+      # vitest.client.config.ts name the directories), lifted out of the
+      # image the build just tagged. Dashboard only: the blocking floors are
+      # vitest's own thresholds, which failed the build above if crossed, so
+      # the gate works with or without a Codecov account.
+      - name: Coverage reports out of the test image
+        if: env.CODECOV_TOKEN != ''
+        run: |
+          set -euo pipefail
+          id="$(docker create facewoof-unittest)"
+          docker cp "$id:/app/coverage" coverage-artifacts
+          docker rm "$id" > /dev/null
+          ls -l coverage-artifacts/server/lcov.info coverage-artifacts/client/lcov.info
+
+      - name: Upload coverage to Codecov (dashboard only, needs CODECOV_TOKEN)
+        if: env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: coverage-artifacts/server/lcov.info,coverage-artifacts/client/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     name: production image
