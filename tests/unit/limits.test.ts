@@ -14,6 +14,24 @@ beforeEach(() => {
   vi.resetModules();
   delete process.env.GUEST_LIMIT_PER_HOUR;
   delete process.env.PUBLIC_LIMIT_PER_MINUTE;
+  delete process.env.FEED_LIMIT_PER_MINUTE;
+});
+
+/* The same knob for the feed's per-minute limit, the same three ways. */
+describe("the feed limit", () => {
+  it("defaults to sixty reads a minute", async () => {
+    expect((await loadLimits()).FEED_LIMIT_PER_MINUTE).toBe(60);
+  });
+
+  it("honors FEED_LIMIT_PER_MINUTE from the environment", async () => {
+    process.env.FEED_LIMIT_PER_MINUTE = "600";
+    expect((await loadLimits()).FEED_LIMIT_PER_MINUTE).toBe(600);
+  });
+
+  it("falls back to the default when the value is not a number", async () => {
+    process.env.FEED_LIMIT_PER_MINUTE = "lots";
+    expect((await loadLimits()).FEED_LIMIT_PER_MINUTE).toBe(60);
+  });
 });
 
 describe("the guest limit", () => {

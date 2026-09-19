@@ -108,11 +108,24 @@ export const swipeLimiter = rateLimit({
 /*
  * Reading the feed. Paged at ten a time and topped up as cards are swiped, so
  * normal use is well under this even for someone swiping flat out.
+ *
+ * Configurable for the same reason as GUEST_LIMIT_PER_HOUR: the browser suite
+ * arrives from one address, and its discover, demo and security specs
+ * together ask for the feed close to sixty times a minute, so on a slow
+ * runner (2026-09-19, main, 41 s for the suite plus one retry) the last of
+ * them drew a 429 and two unrelated tests went red. A suite tripping a rate
+ * limit looks like a broken app rather than a working control. Production
+ * leaves it at the default.
+ *
+ * Exported for the unit tests, like GUEST_LIMIT_PER_HOUR.
  */
+export const FEED_LIMIT_PER_MINUTE =
+  Number(process.env.FEED_LIMIT_PER_MINUTE) || 60;
+
 export const feedLimiter = rateLimit({
   ...shared,
   windowMs: minutes(1),
-  limit: 60,
+  limit: FEED_LIMIT_PER_MINUTE,
   message: { error: "Too many requests. Try again shortly." },
 });
 
