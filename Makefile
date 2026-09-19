@@ -174,6 +174,7 @@ e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
 	  -e SESSION_SECRET=local-only -e INSECURE_TRANSPORT=true -e PORT=8080 \
 	  -e GUEST_LIMIT_PER_HOUR=200 \
 	  -e PUBLIC_LIMIT_PER_MINUTE=600 \
+	  -e FEED_LIMIT_PER_MINUTE=600 \
 	  -e ENTRA_PROVIDERS=email,google \
 	  -e ENTRA_ISSUER=http://oidc-mock:9000 \
 	  -e ENTRA_CLIENT_ID=facewoof-test \
