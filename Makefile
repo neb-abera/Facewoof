@@ -97,6 +97,7 @@ check: ## The gate CI runs: lint, format, the API contract and held majors
 	$(DOCKER) build --target lint .
 	scripts/check-held-majors.sh --self-test
 	scripts/check-held-majors.sh
+	scripts/check-template-parity.sh --self-test
 	scripts/check-template-parity.sh
 
 test-unit: ## Unit and component tests, hermetically, the way CI runs them

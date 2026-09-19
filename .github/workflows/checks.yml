@@ -395,5 +395,11 @@ jobs:
       - name: Shared files match the template
         # The files .template-parity lists are byte-identical to
         # modern-webapp-template's default branch, or this fails. A change
-        # to one of them lands in the template first.
-        run: scripts/check-template-parity.sh
+        # to one of them lands in the template first. The self-test runs
+        # first, every time: it plants a drifted and a missing file against
+        # a local fixture template and must catch both, so a checker that
+        # has stopped failing is caught before it is trusted.
+        run: |
+          set -euo pipefail
+          scripts/check-template-parity.sh --self-test
+          scripts/check-template-parity.sh
