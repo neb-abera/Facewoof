@@ -42,13 +42,7 @@ vi.mock(
 );
 
 const { routes } = await import("../../server/routes.ts");
-const { logout } = await import("../../server/controllers/auth.ts");
-const { callback, providers } = await import(
-  "../../server/controllers/oidc.ts"
-);
-const { PUBLIC_LIMIT_PER_MINUTE, publicLimiter } = await import(
-  "../../server/limits.ts"
-);
+const { PUBLIC_LIMIT_PER_MINUTE } = await import("../../server/limits.ts");
 const { startApi } = await import("./helpers/api-harness.ts");
 
 const nameOf = (route: AnyRoute) =>
@@ -108,12 +102,6 @@ describe("server/routes.ts", () => {
   it("declares auth on every route and a limiter on every anonymous one", () => {
     expect(auditRouteTable(routes)).toEqual([]);
   });
-
-  it("puts the three routes that used to lean on the /api backstop behind a limiter of their own", () => {
-    for (const route of [logout, providers, callback]) {
-      expect(route.limit, nameOf(route)).toBe(publicLimiter);
-    }
-  });
 });
 
 describe("the real table in the real app", () => {
@@ -142,14 +130,48 @@ describe("the real table in the real app", () => {
     },
   );
 
-  it(`refuses the anonymous request after the ${PUBLIC_LIMIT_PER_MINUTE}th in a minute from one address`, async () => {
-    const v = api.visitor();
-    for (let i = 1; i <= PUBLIC_LIMIT_PER_MINUTE; i++) {
-      const res = await v.call("/api/auth/providers");
-      expect(res.status, `request ${i}`).toBe(200);
-    }
-    const refused = await v.call("/api/auth/providers");
-    expect(refused.status).toBe(429);
-    expect(await refused.json()).toEqual({ error: expect.any(String) });
-  });
+  /*
+   * The three routes that used to lean on the /api backstop, each with a
+   * bucket of its own. What each answers an anonymous caller with no Entra
+   * tenant configured: the provider list, a sign-out of nobody, and the
+   * callback's redirect to the login page with a reason.
+   */
+  const anonymous = [
+    ["GET", "/api/auth/providers", 200],
+    ["POST", "/api/auth/logout", 204],
+    ["GET", "/api/auth/oidc/callback", 302],
+  ] as const;
+
+  it.each(anonymous.map((route, i) => [...route, i] as const))(
+    `%s %s refuses the request after the ${PUBLIC_LIMIT_PER_MINUTE}th in a minute from one address, and the other two still answer`,
+    async (method, path, expected, index) => {
+      // Buckets are per address, so each case gets an address of its own
+      // and nothing here depends on the order the cases run in.
+      const v = api.visitor(`198.51.100.${index + 1}`);
+      // Sign-out drops the session, and with it the CSRF secret, the way a
+      // real sign-out does; a browser then reloads and fetches a fresh token
+      // (src/api.ts). Do the same before every attempt, so what is measured
+      // is the limiter and not a stale token.
+      const send = async (m: string, p: string) => {
+        await v.call("/api/test/csrf");
+        return v.call(p, { method: m });
+      };
+
+      for (let i = 1; i <= PUBLIC_LIMIT_PER_MINUTE; i++) {
+        const res = await send(method, path);
+        expect(res.status, `${path} request ${i}`).toBe(expected);
+      }
+      const refused = await send(method, path);
+      expect(refused.status).toBe(429);
+      expect(await refused.json()).toEqual({ error: expect.any(String) });
+
+      // The same address, the other two routes: a burst on one — the token
+      // source, say — cannot take sign-out or sign-in completion with it.
+      for (const [otherMethod, otherPath, otherExpected] of anonymous) {
+        if (otherPath === path) continue;
+        const res = await send(otherMethod, otherPath);
+        expect(res.status, otherPath).toBe(otherExpected);
+      }
+    },
+  );
 });

@@ -78,7 +78,7 @@ export const logout = defineRoute({
   path: "/api/auth/logout",
   summary: "Sign out",
   auth: false,
-  limit: publicLimiter,
+  limit: publicLimiter(),
   responses: { 204: null },
   handler: async ({ userId, clearSession, audit }) => {
     // Clearing the cookie only signs out the browser that asked. Bumping the

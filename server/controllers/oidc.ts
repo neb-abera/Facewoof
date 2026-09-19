@@ -22,7 +22,7 @@ export const providers = defineRoute({
   path: "/api/auth/providers",
   summary: "The sign-in providers this instance offers",
   auth: false,
-  limit: publicLimiter,
+  limit: publicLimiter(),
   responses: { 200: Providers },
   handler: async () =>
     reply(200, {
@@ -92,7 +92,7 @@ export const callback = defineRoute({
   path: "/api/auth/oidc/callback",
   summary: "Finish sign-in: exchange the provider's code for a session",
   auth: false,
-  limit: publicLimiter,
+  limit: publicLimiter(),
   query: OidcCallbackQuery,
   responses: { 302: null },
   handler: async ({ query, session, audit }) => {

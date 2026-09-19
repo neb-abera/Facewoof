@@ -68,8 +68,9 @@ export interface Visitor {
 
 export interface Api {
   base: string;
-  /* A browser's worth of state: cookies kept, the CSRF token echoed. */
-  visitor(): Visitor;
+  /* A browser's worth of state: cookies kept, the CSRF token echoed, and
+   * optionally an address of its own. */
+  visitor(address?: string): Visitor;
   /* A visitor already signed in as `userId`. */
   signedInAs(userId: number): Promise<Visitor>;
   close(): void;
@@ -84,6 +85,11 @@ export async function startApi(routes: readonly AnyRoute[]): Promise<Api> {
     clientDir,
     checkDatabase: async () => {},
   });
+  // As behind the ingress: one hop is trusted, so a visitor that names its
+  // own address is counted under it and a test can give each caller a rate
+  // limit bucket of its own. (That a caller cannot move the key past the
+  // trusted hops is tests/unit/client-ip.test.ts's job.)
+  app.set("trust proxy", 1);
   const server = await new Promise<Server>((resolve) => {
     const listening: Server = app.listen(0, () => resolve(listening));
   });
@@ -91,7 +97,7 @@ export async function startApi(routes: readonly AnyRoute[]): Promise<Api> {
   if (!address || typeof address === "string") throw new Error("no port");
   const base = `http://127.0.0.1:${address.port}`;
 
-  const visitor = (): Visitor => {
+  const visitor = (address?: string): Visitor => {
     const jar = new Map<string, string>();
     const call = async (route: string, init: CallInit = {}) => {
       const method = init.method ?? "GET";
@@ -102,6 +108,7 @@ export async function startApi(routes: readonly AnyRoute[]): Promise<Api> {
 
       const headers: Record<string, string> = {
         cookie: [...jar].map(([k, v]) => `${k}=${v}`).join("; "),
+        ...(address ? { "x-forwarded-for": address } : {}),
         ...init.headers,
       };
       if (init.body !== undefined) headers["content-type"] = "application/json";
