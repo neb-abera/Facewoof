@@ -1,3 +1,8 @@
+[![checks](https://github.com/neb-abera/Facewoof/actions/workflows/checks.yml/badge.svg?branch=main)](https://github.com/neb-abera/Facewoof/actions/workflows/checks.yml)
+[![CodeQL](https://github.com/neb-abera/Facewoof/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/neb-abera/Facewoof/security/code-scanning)
+[![codecov](https://codecov.io/gh/neb-abera/Facewoof/graph/badge.svg)](https://codecov.io/gh/neb-abera/Facewoof)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/neb-abera/Facewoof/badge)](https://scorecard.dev/viewer/?uri=github.com/neb-abera/Facewoof)
+
 # Facewoof
 
 A place for dog owners to meet the dogs around them: swipe through nearby
