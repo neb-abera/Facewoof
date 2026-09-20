@@ -1,7 +1,7 @@
 # Contributing
 
-Thanks for wanting to improve Facewoof. Everything here builds and runs in
-containers: the only tools you need on your machine are Docker and git.
+Everything here builds and runs in containers: the only tools you need on
+your machine are Docker and git.
 
 ## Getting started
 
@@ -11,8 +11,8 @@ cd Facewoof
 make dev        # database, API and hot-reloading client on http://localhost:3000
 ```
 
-`make` on its own lists every target. Every copy of the repository — the main
-checkout, a git worktree, a second clone — gets its own host ports, image tag
+`make` on its own lists every target. Every copy of the repository (the main
+checkout, a git worktree, a second clone) gets its own host ports, image tag
 and compose project, derived from its directory name, so several can run side
 by side. `make ports` prints yours. The ones you will use most:
 
@@ -41,8 +41,8 @@ make check
 make test-unit
 ```
 
-Add tests with your change — unit tests for server behavior
-(`tests/unit/`), tests of what a query actually does against a real Postgres
+Add tests with your change: unit tests for server behavior
+(`tests/unit/`), tests of what a query does against a real Postgres
 (`tests/db/`, run by `make test-db` and CI's smoke job), component tests for client logic (`tests/client/`, in
 jsdom with a fake fetch), Playwright tests for anything a browser can see
 (`tests/e2e/`). Unit test coverage is enforced with thresholds in
@@ -63,7 +63,7 @@ stale.
 dependency's next major cannot install beside the rest of its manifest.
 Dependabot only opens a pull request for a bump that installs, so without it
 such a pin ages with nothing red. The fix is a manifest of its own for the
-package (see `tools/api-types/`); a case you accept goes in `.held-majors`
+package (see `tools/api-types/`). A case you accept goes in `.held-majors`
 with its reason, and the check tells you when that entry can be dropped.
 
 Adding a migration means regenerating the row types and committing them:
@@ -78,8 +78,8 @@ which fails if `server/db/rows.ts` is not what the schema generates.
 ## The bundle budget
 
 CI's `production image` job runs `scripts/check-bundle-budget.sh`
-(`make budget` locally): the gzip size of what a first visit downloads — the
-entry script, the entry stylesheet, and the first load as a whole — must stay
+(`make budget` locally): the gzip size of what a first visit downloads (the
+entry script, the entry stylesheet, and the first load as a whole) must stay
 within `bundle-budget.json`. The numbers are bytes, so the check gives the
 same answer on every machine.
 
@@ -108,27 +108,27 @@ merge (branch protection is strict: the branch must also be up to date with
 
 The committed list lives in `.github/required-contexts.txt`, and
 `scripts/check-required-contexts.sh` asserts in CI that it still matches the
-workflows — if you rename a job in a PR-gating workflow, update that file
+workflows. If you rename a job in a PR-gating workflow, update that file
 (and branch protection) in the same change.
 
 Merges are **squash-only** (linear history is required), commits must be
-signed, and review conversations — including bot code-scanning threads —
+signed, and review conversations (including bot code-scanning threads)
 must be resolved before merge.
 
 ## The Playwright version
 
 `@playwright/test` in `package.json` is pinned to an **exact version**, and
 `scripts/e2e.sh` runs the suite in Playwright's own image at that same
-version — the image ships the browsers, the package drives them, and a
+version. The image ships the browsers, the package drives them, and a
 mismatch means testing against the wrong browser build. There is no second
 pin to keep in step: Dependabot bumps the package and the image follows.
-Keep the version exact (no caret); the script refuses a range.
+Keep the version exact (no caret). The script refuses a range.
 
 ## Conventions
 
-- No CLA — contributions are accepted under the repository's
+- No CLA. Contributions are accepted under the repository's
   [Apache-2.0 license](LICENSE).
-- Never use `[skip ci]`; every commit that lands runs the full gate.
-- Formatting is biome's opinion, not yours or ours: `make fmt` settles it.
-- Security issues go through [SECURITY.md](SECURITY.md), not the issue
-  tracker.
+- Never use `[skip ci]`. Every commit that lands runs the full gate.
+- Formatting is biome's opinion. `make fmt` settles it.
+- Security issues go through [SECURITY.md](SECURITY.md). Do not open them in
+  the issue tracker.

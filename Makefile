@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql contract lint fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows check-db-roles
+.PHONY: help ports dev migrate reset-db psql contract lint prose fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows check-db-roles
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -79,6 +79,10 @@ psql: ## Open a psql shell against the development database
 lint: ## biome lint and format check, against the working tree
 	$(COMPOSE) run --rm lint
 
+prose: ## lint every tracked Markdown file against the writing rules (.vale/styles/Abera)
+	scripts/check-prose.sh --self-test
+	scripts/check-prose.sh
+
 fmt: ## Rewrite files to match biome
 	$(COMPOSE) run --rm lint npx biome check --write .
 
@@ -93,8 +97,10 @@ e2e: ## Browser tests against a running instance (BASE_URL to override)
 	# browser. The same goes for other preloaded TLDs (dev, page, new, day).
 	E2E_NETWORK=$(NET) BASE_URL=$${BASE_URL:-http://app-under-test:8080} scripts/e2e.sh
 
-check: ## The gate CI runs: lint, format, the API contract and held majors
+check: ## The gate CI runs: lint, format, prose, the API contract and held majors
 	$(DOCKER) build --target lint .
+	scripts/check-prose.sh --self-test
+	scripts/check-prose.sh
 	scripts/check-held-majors.sh --self-test
 	scripts/check-held-majors.sh
 	scripts/check-template-parity.sh --self-test

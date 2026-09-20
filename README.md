@@ -5,15 +5,15 @@
 
 # Facewoof
 
-A place for dog owners to meet the dogs around them: swipe through nearby
-profiles, turn matches into a pack, and put a playdate on a shared calendar.
+Dog owners meet the dogs around them: swipe through nearby profiles, turn
+matches into a pack, put a playdate on a shared calendar.
 
-Facewoof started as a team project, and was renamed Diggr partway through the
-course. This is the original name restored, along with everything needed to run
-and deploy it: a reconstructed schema, real migrations, session authentication,
-rate limiting, browser tests and a pipeline to Azure.
+Facewoof started as a team project, renamed Diggr partway through the course.
+This is the original name restored, with what it takes to run and deploy it:
+a reconstructed schema, migrations, session authentication, rate limiting,
+browser tests and a pipeline to Azure.
 
-**[Try the demo](https://facewoof.abera.tech)** — one click, no sign-up.
+**[Try the demo](https://facewoof.abera.tech)**. No sign-up.
 
 <p align="center">
   <img src="docs/media/demo.gif" width="900" alt="Starting the demo, swiping through nearby dogs, matching, and visiting the profile, calendar and pack feed" />
@@ -36,15 +36,13 @@ rate limiting, browser tests and a pipeline to Azure.
   <img src="docs/media/discover-phone.png" width="300" alt="The discover feed at phone width: the demo notice, the search bar, and one card with the Pass and Woof buttons at its foot" />
 </p>
 
-Every image above is captured from the current app by `make media`
-(`scripts/media/capture.spec.ts` walks the demo in the same browser image the
-tests use, and ffmpeg makes the clip), so the README cannot quietly fall behind
-the site.
+`make media` captures every image above from the current app
+(`scripts/media/capture.spec.ts` walks the demo in the browser image the tests
+use, and ffmpeg makes the clip).
 
 ## Running it
 
-Docker is the only thing that needs to be installed. There is no local node,
-npm or postgres to set up.
+Docker is the only requirement.
 
 ```
 make            # list every target
@@ -55,6 +53,7 @@ make reset-db   # throw the database away and rebuild it from the migrations
 make psql       # a psql shell against the development database
 make lint       # biome lint and format check, against your working tree
 make fmt        # rewrite files to match biome
+make prose      # the writing rules (.vale/styles/Abera) over every Markdown file
 make test-unit  # unit tests with coverage, hermetically, the way CI runs them
 make image      # build the production image the deploy pipeline builds
 make run        # build and run the production image (on http://localhost:8080)
@@ -68,15 +67,14 @@ make clean      # stop this checkout's containers and delete its database volume
 watch mode) and `web` (the vite dev server). The client and server are bind
 mounted, so edits on the host reload in the container.
 
-The ports above are the defaults for the main checkout. Every other working
-copy — a git worktree, a second clone — gets its own, derived from its
-directory name and written to `.env` the first time `make` runs, so two copies
-of the repository never fight over a port or browse each other's build. Image
-tags, container names and the compose project derive from the directory the
-same way. `make ports` prints what this copy uses.
+The ports above are the main checkout's. Every other working copy (a git
+worktree, a second clone) gets its own, derived from its directory name and
+written to `.env` the first time `make` runs. Image tags, container names and
+the compose project derive from the directory the same way. `make ports`
+prints what this copy uses.
 
 The database is brought up to date by `server/db/migrate.ts`, which the API
-runs at start-up and `make migrate` runs on demand; `make reset-db` starts over.
+runs at start-up and `make migrate` runs on demand. `make reset-db` starts over.
 
 ## How it fits together
 
@@ -106,8 +104,7 @@ whether it needs a signed-in user, its rate limiter, a Zod schema for the
 request body and query string, and a Zod schema for every status it can
 answer with. Requests are parsed against those schemas before a handler runs
 (a mismatch is a 400 that names the field), and replies are checked against
-them on the way out (a mismatch is a 500 in the log, never a surprise on the
-wire). Every error body is the same shape: `{ "error": "..." }`, with
+them on the way out (a mismatch is a 500 in the log). Every error body is the same shape: `{ "error": "..." }`, with
 `issues` when a request failed to parse.
 
 The same table generates `server/openapi.json`, and openapi-typescript turns
@@ -129,17 +126,16 @@ CI smoke job regenerates it against the migrated database and fails on any
 difference, so a migration that renames or retypes a column fails the build
 until the types, and the queries they check, catch up.
 
-The original database was never committed — no schema, no migrations, nothing
-but the queries that read it. `server/db/migrations/0001_schema.sql` is
+The original database was never committed: no schema, no migrations, only
+the queries that read it. `server/db/migrations/0001_schema.sql` is
 reconstructed from those queries, so the column names and types are what the
-application actually expects. Later migrations add provider sign-in,
+application expects. Later migrations add provider sign-in,
 onboarding and the playdate profile fields.
 
 Nine tables: `users`, `profile_photos`, `friends`, `pending_relationships`,
 `packs`, `pack_users`, `playdates`, `posts`, `external_identities`.
 
-The demo roster (`0002_demo_roster.sql`) is generated, not hand written. It
-rebuilds from `server/controllers/users.json`, the fixture the original team
+The demo roster (`0002_demo_roster.sql`) is generated. It rebuilds from `server/controllers/users.json`, the fixture the original team
 left behind, and adds packs, posts and playdates so every screen has something
 on it. Regenerate it with:
 
@@ -155,17 +151,16 @@ identical file, and CI asserts that it does.
 `POST /api/auth/guest` creates a throwaway account cloned from a seeded
 template, and the landing page's "Try the demo" button calls it.
 
-Each visitor gets their own account rather than sharing one. Sharing would mean
-the first few people to swipe through the seeded profiles emptied the discover
-feed for everyone after them, and that whatever one visitor posted to a pack
-showed up for the next. Guests are not discoverable, so they never appear in
+Each visitor gets their own account. With a shared one, the first few
+visitors would empty the discover feed for everyone after them, and one
+visitor's pack posts would show up for the next. Guests are not discoverable, so they never appear in
 anyone else's feed either. The server sweeps guests older than
 `GUEST_TTL_HOURS` (24 by default) once an hour, and `ON DELETE CASCADE` takes
 their photos, swipes, posts and playdates with them.
 
-Guest accounts are not real authentication and the API does not yet enforce who
-you are — any `userId` may be passed to any endpoint. That is acceptable for a
-demo over seeded data and is the next thing to fix.
+Guest accounts are not real authentication. The API does not yet enforce who
+you are: any `userId` may be passed to any endpoint. Acceptable for a demo
+over seeded data, and the next thing to fix.
 
 ## Configuration
 
@@ -174,7 +169,7 @@ needs no `.env` at all.
 
 | Variable                                | What it does                                                                                              |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                          | the database. Set by compose locally; the only one that matters in production                             |
+| `DATABASE_URL`                          | the database. Set by compose locally. The only one that matters in production                             |
 | `PGHOST` etc.                           | used instead of `DATABASE_URL` when it is not set                                                         |
 | `PGSSL`                                 | `true` for Azure Database for PostgreSQL, which requires TLS                                              |
 | `MIGRATE_ON_BOOT`                       | `false` when migrations run separately and the server's database role has no DDL (docs/DEPLOY.md)         |
@@ -192,7 +187,7 @@ needs no `.env` at all.
 
 Anyone can use Facewoof through a demo account without signing in, and that is
 the default. Configuring the four variables below adds Google and Microsoft
-sign-in on top; with any of them missing the buttons do not appear and nothing
+sign-in on top. With any of them missing the buttons do not appear and nothing
 else changes.
 
 | Variable              | What it does                                                                                    |
@@ -203,28 +198,25 @@ else changes.
 | `ENTRA_REDIRECT_URI`  | `https://<host>/api/auth/oidc/callback`, registered as a redirect URI                           |
 | `ENTRA_PROVIDERS`     | which sign-in buttons to show, e.g. `email,google`. Each may carry `:hint`. Defaults to `email` |
 
-Entra External ID is the front door, and the social providers are configured
+Entra External ID is the front door. The social providers are configured
 inside that tenant. The app talks OIDC to one issuer and never holds Google's
-credentials itself, so adding a provider is a change in the tenant plus one
-name in `ENTRA_PROVIDERS`, rather than a change to this code.
+credentials, so adding a provider is a change in the tenant plus one name in
+`ENTRA_PROVIDERS`.
 
-Each entry may carry a domain hint — `google:accounts.google.com` — which is
-what sends someone straight to that provider rather than to Entra's own
-chooser. The defaults suit a provider created through the Graph API, which is
+Each entry may carry a domain hint (`google:accounts.google.com`), which
+sends someone straight to that provider instead of Entra's own chooser. The defaults suit a provider created through the Graph API, which is
 addressed by its issuer domain. Entra's _built-in_ providers answer to the bare
 words `google`, `facebook` and `apple` instead, so a tenant configured through
-the portal may need the override. Getting it wrong fails hard, with
-`AADSTS90023`, rather than merely showing an extra page.
+the portal may need the override. A wrong hint fails with `AADSTS90023`.
 
-`ENTRA_PROVIDERS` exists so the page only ever offers what the tenant can
-actually do. Email needs no federation and works as soon as a tenant exists;
+`ENTRA_PROVIDERS` exists so the page only offers what the tenant can do. Email needs no federation and works as soon as a tenant exists;
 `google`, `facebook` and `apple` each need setting up at the provider first,
 and listing one before that is done gives you a button that dead-ends.
 
-Note that a personal Microsoft account is **not** one of External ID's
-providers — it federates Facebook, Google, Apple, custom OIDC and SAML. An
-organisation's own Entra tenant can be added as a custom OIDC provider, but
-that is organisational sign-in, not consumer "sign in with Microsoft".
+A personal Microsoft account is **not** one of External ID's providers. It
+federates Facebook, Google, Apple, custom OIDC and SAML. An organisation's
+own Entra tenant can be added as a custom OIDC provider. That is
+organisational sign-in, without consumer "sign in with Microsoft".
 
 To set it up: create an External ID tenant, register an application with the
 redirect URI above, create a sign-up and sign-in user flow and attach the app
@@ -233,9 +225,8 @@ provider and add it to the same user flow. The
 [Microsoft walkthrough](https://learn.microsoft.com/entra/external-id/customers/how-to-google-federation-customers)
 covers the Google side.
 
-Signing in from a demo account claims that account rather than making a second
-one, so the swipes, packs and playdates from the demo are kept and the account
-stops being swept up by the guest cleanup.
+Signing in from a demo account claims that account. The swipes, packs and
+playdates from the demo are kept, and the guest cleanup no longer sweeps it.
 
 The sign-in flow is covered by tests that run against a mock provider in
 `tests/oidc-mock`, so no Azure credentials are needed to work on it:
@@ -294,8 +285,8 @@ The app had not been run in some time and did not start. The larger items:
   carries the US zip code table locally and answers both offline.
 - **The API hard coded `http://localhost:3001`** in six components, so a build
   only ever talked to a developer's own machine. Requests are relative now.
-- Dependencies were about three years stale. React Router moved 5 → 7, vite
-  4 → 6, express 4 → 5, and tailwind is a real build step rather than the CDN
+- Dependencies were about three years stale. React Router moved 5 to 7, vite
+  4 to 6, express 4 to 5, and tailwind is a build step instead of the CDN
   script, which is not meant for production.
 
 Smaller fixes are noted in comments where they were made, next to the code that
@@ -303,10 +294,9 @@ had the problem.
 
 ## License
 
-Licensed under the
-[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) — see
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). See
 [LICENSE](LICENSE) and keep the [NOTICE](NOTICE) attribution with any copies.
 The license covers Nebyou Abera's contributions and the project from the
-revival onward; the original Diggr team project was built with Louise Ly,
+revival onward. The original Diggr team project was built with Louise Ly,
 Gabe Bennett-Brandt, Claire Tunakan and Mantaqaa Oheen, whose work remains
 credited in the git history.

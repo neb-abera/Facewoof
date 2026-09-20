@@ -23,7 +23,7 @@ A subscription only registers a resource provider the first time it uses that
 service, and the failure is `MissingSubscriptionRegistration` partway through
 the create. `Microsoft.App`, `Microsoft.ContainerRegistry` and
 `Microsoft.OperationalInsights` are already registered if aberaTech runs on this
-subscription; Postgres will not be until something asks for it.
+subscription. Postgres will not be until something asks for it.
 
 ```bash
 az provider register --namespace Microsoft.DBforPostgreSQL --wait
@@ -51,10 +51,10 @@ done
 region to every subscription, and the failure is an unhelpful "The location is
 restricted from performing this operation" _after_ the resource group has been
 created. `eastus` is restricted on this subscription even though aberaTech runs
-there, which is why `LOCATION` above is `eastus2` — adjacent, so latency to the
-registry and the rest of the account stays negligible.
+there, which is why `LOCATION` above is `eastus2`. It is adjacent, so latency
+to the registry and the rest of the account stays negligible.
 
-To confirm a region before committing to it, this lists the tiers actually
+To confirm a region before committing to it, this lists the tiers
 available to you. An empty list means the region is restricted:
 
 ```bash
@@ -94,9 +94,9 @@ az postgres flexible-server db create -g "$RG" -s "$PG" -n facewoof
 az postgres flexible-server db create -g "$RG" -s "$PG" -n scheduling
 ```
 
-`--public-access 0.0.0.0` is the "allow Azure services" rule, not "allow the
-internet": it permits connections from inside Azure only. Keep it that way. To
-connect from your laptop, add your own address for as long as you need it and
+`--public-access 0.0.0.0` is the "allow Azure services" rule: it permits
+connections from inside Azure only. Keep it that way. To connect from your
+laptop, add your own address for as long as you need it and
 remove it afterwards:
 
 ```bash
@@ -130,7 +130,7 @@ az containerapp create \
   --registry-server "$ACR.azurecr.io" --registry-identity system
 ```
 
-It starts on a placeholder image; the first deploy replaces it.
+It starts on a placeholder image. The first deploy replaces it.
 
 `--min-replicas 1` rather than 0 on purpose. Scaling to zero saves a little
 money and costs a cold start of several seconds on the first visit, which is
@@ -192,11 +192,12 @@ tighten it later, the workflow only calls `az containerapp update` and
 `az containerapp show`, so a custom role with
 `Microsoft.App/containerApps/read` and `.../write` is enough.
 
-The `subject` must match what GitHub actually puts in the token, and that
+The `subject` must match what GitHub puts in the token, and that
 depends on the workflow. `deploy.yml` declares `environment: production`, so the
-subject is `repo:...:environment:production` — **not** `ref:refs/heads/main`. Get
-this wrong and the deploy fails at login with AADSTS700213 and a message naming
-the subject it presented, which is the value to use.
+subject is `repo:...:environment:production`, and **not**
+`ref:refs/heads/main`. Get this wrong and the deploy fails at login with
+AADSTS700213 and a message naming the subject it presented, which is the
+value to use.
 
 Deploying is then restricted to the `production` environment, which is also
 where a required reviewer would be configured.
@@ -266,11 +267,11 @@ verified in a browser.
 
 ## Cloudflare in front
 
-`abera.tech` is already proxied through Cloudflare; `facewoof.abera.tech` was
+`abera.tech` is already proxied through Cloudflare. `facewoof.abera.tech` was
 left "DNS only", so every visitor opened a TLS connection straight to the
 ingress in eastus2 and downloaded every asset from there. Proxying the
 subdomain terminates TLS at the visitor's nearest edge, compresses with
-brotli, and serves the content-hashed assets from cache — the server marks
+brotli, and serves the content-hashed assets from cache. The server marks
 them `immutable, max-age=31536000`, which Cloudflare respects, while
 `index.html` and `/api/*` stay uncached (HTML is not in Cloudflare's default
 cacheable extensions, and the API sends no cache headers).
@@ -280,7 +281,7 @@ In the dashboard, zone `abera.tech`:
 1. **DNS → Records**: edit the `facewoof` CNAME and switch Proxy status to
    **Proxied**. Leave the `asuid.facewoof` TXT record alone.
 2. **SSL/TLS → Overview**: the encryption mode must be **Full (strict)**. It
-   is zone-wide; if the zone is on something weaker, scope the change with a
+   is zone-wide. If the zone is on something weaker, scope the change with a
    configuration rule for `facewoof.abera.tech` rather than loosening the
    main site.
 
@@ -288,18 +289,18 @@ Full (strict) works because the Azure-managed certificate is bound at the
 ingress, so Cloudflare's connection to the origin verifies. The one caveat:
 Azure renews that certificate by re-checking the CNAME, and while proxied the
 name resolves to Cloudflare. If a renewal email arrives, switch the record to
-DNS only, wait for the renewal, and switch back — or replace the managed
+DNS only, wait for the renewal, and switch back. Or replace the managed
 certificate with a Cloudflare Origin CA certificate (15-year validity,
 SSL/TLS → Origin Server → Create Certificate, then
-`az containerapp ssl upload`), which ends the dance permanently.
+`az containerapp ssl upload`), which ends the renewal problem.
 
 ### Tell the app how many proxies are in front of it
 
 Every rate limit is keyed on the caller's address, which behind proxies has
-to be read out of `X-Forwarded-For`. The app trusts a **number of hops**
-(`TRUST_PROXY_HOPS`), counted from itself outwards, and takes the entry just
-beyond them; anything a caller forges in the header sits further left and is
-never read. `server/client-ip.ts` has the full reasoning, including why it
+to be read out of `X-Forwarded-For`. The app trusts a **hop count**
+(`TRUST_PROXY_HOPS`), measured from itself outwards, and takes the entry just
+beyond those hops. Anything a caller forges in the header sits further left
+and is never read. `server/client-ip.ts` has the full reasoning, including why it
 is not `CF-Connecting-IP`.
 
 With the subdomain proxied the chain is visitor → Cloudflare → Container Apps
@@ -313,17 +314,17 @@ az containerapp update -g "$RG" -n "$APP" --set-env-vars TRUST_PROXY_HOPS=2
 
 Set it **only while the origin accepts Cloudflare alone** (the `cf-v4-*`
 ingress rules in docs/OPERATIONS.md). The count is what makes the address
-unforgeable, and it is only right for traffic that really crossed both
+unforgeable, and it is only right for traffic that crossed both
 proxies: if the subdomain is ever switched back to "DNS only", or the ingress
-restriction is lifted, set it back to 1 first — too low merely coarsens the
-buckets, too high lets a caller choose their own address. An invalid value
+restriction is lifted, set it back to 1 first. Too low coarsens the
+buckets. Too high lets a caller choose their own address. An invalid value
 stops the server at start-up rather than guessing.
 
 ## Photo uploads (Cloudinary)
 
-Uploads go straight from the browser to Cloudinary; the app stores only the
+Uploads go straight from the browser to Cloudinary. The app stores only the
 returned URL, and only accepts one that is `https://res.cloudinary.com/` under
-an `image/upload` path — under *your* cloud once `CLOUDINARY_CLOUD_NAME` is
+an `image/upload` path, and under *your* cloud once `CLOUDINARY_CLOUD_NAME` is
 set (`server/media.ts`, the same list the CSP's `img-src` is built from).
 
 There are two modes, and the server picks by what it has been given.
@@ -348,7 +349,7 @@ az containerapp update -g "$RG" -n "$APP" --set-env-vars \
 ```
 
 (`CLOUDINARY_SIGNATURE_ALGORITHM=sha256` only if the Cloudinary product
-environment has been switched to SHA-256 signatures; the default is SHA-1,
+environment has been switched to SHA-256 signatures. The default is SHA-1,
 which is Cloudinary's.)
 
 ### Unsigned (the fallback, and what ran before)
@@ -357,10 +358,10 @@ While those are unset the endpoint answers 404 and the client falls back to
 an **unsigned** upload preset, whose two identifiers are baked into the
 bundle at build time as GitHub repository **variables** (Settings → Secrets
 and variables → Actions → Variables): `VITE_CLOUD_NAME` and
-`VITE_UPLOAD_PRESET`. An unsigned preset is a public write endpoint — its
-name ships to every browser and anyone can upload to it — so in production
+`VITE_UPLOAD_PRESET`. An unsigned preset is a public write endpoint. Its
+name ships to every browser and anyone can upload to it, so in production
 the server logs a warning at start-up for as long as it is in this mode.
-With neither mode configured the app simply hides photo upload.
+With neither mode configured the app hides photo upload.
 
 ### Switching over
 
@@ -370,15 +371,15 @@ With neither mode configured the app simply hides photo upload.
 2. Upload a photo from the profile page while signed in. In the browser's
    network tab the request to `api.cloudinary.com` now carries `signature`
    and `api_key` and no `upload_preset`.
-3. Delete the repository variable `VITE_UPLOAD_PRESET` (keep
-   `VITE_CLOUD_NAME` or not; signed mode does not read it) and redeploy so
+3. Delete the repository variable `VITE_UPLOAD_PRESET` (`VITE_CLOUD_NAME`
+   can stay, since signed mode does not read it) and redeploy so
    the bundle stops carrying the preset name.
 4. In the Cloudinary console (Settings → Upload → Upload presets) **delete
    the unsigned preset**, or switch it to Signed. Until this step the old
    public endpoint still works for anyone who saved its name, whatever the
    app does.
 5. Optional, once: look for stored URLs that predate validation. Nothing is
-   deleted by the app; rows that match are not rendered anyway (the CSP
+   deleted by the app. Rows that match are not rendered anyway (the CSP
    blocks them), so review and remove by hand if any turn up.
 
    ```sql
@@ -394,9 +395,9 @@ With neither mode configured the app simply hides photo upload.
 Two roles instead of one. The **owner** role owns the tables and runs
 migrations (`node server/db/migrate.ts`, which the image can run as a
 one-off). The **runtime** role is what the container app connects as:
-`SELECT/INSERT/UPDATE/DELETE` and sequence use, nothing else — no `CREATE` on
-the schema, no `TRUNCATE`, no ownership, a read-only view of
-`schema_migrations`. The grants are `server/db/roles/runtime.sql`; CI proves
+`SELECT/INSERT/UPDATE/DELETE` and sequence use, nothing else. It has no
+`CREATE` on the schema, no `TRUNCATE`, no ownership, and a read-only view of
+`schema_migrations`. The grants are `server/db/roles/runtime.sql`. CI proves
 on every pull request that the app works end to end as such a role and that
 the role cannot change the schema (`scripts/check-db-roles.sh`,
 `make check-db-roles`).
@@ -406,10 +407,10 @@ nothing changes until the steps below are done. With `MIGRATE_ON_BOOT=false`
 the server runs no DDL at boot and **refuses to start** if a migration is
 pending, so a revision deployed ahead of its migration never takes traffic.
 
-All of this is owner-run; none of it is in the deploy workflow yet.
+All of this is owner-run. None of it is in the deploy workflow yet.
 
 **1. A second managed identity, for migrations.** Today the container app's
-identity (`facewoof-mi`) owns the schema. It becomes the runtime role; a new
+identity (`facewoof-mi`) owns the schema. It becomes the runtime role. A new
 user-assigned identity becomes the owner.
 
 ```bash
@@ -466,7 +467,7 @@ and read its logs: it should say `database is up to date`.
 
 **5. The deploy workflow migrates before it rolls out.** A sketch of the step
 to add to `.github/workflows/deploy.yml` between "Build and push" and "Deploy
-the revision" — not merged, because it fails until step 4 exists:
+the revision". It is not merged, because it fails until step 4 exists:
 
 ```yaml
       - name: Migrate, as the owner identity
@@ -503,7 +504,7 @@ az containerapp update -g "$RG" -n "$APP" --set-env-vars MIGRATE_ON_BOOT=false
 
 The revision's log should say `database is up to date (migrations are not
 run at boot)`. To back out, set `MIGRATE_ON_BOOT=true` and, as the admin,
-`GRANT "facewoof-migrate-mi" TO "facewoof-mi"` — the app then inherits the
+`GRANT "facewoof-migrate-mi" TO "facewoof-mi"`. The app then inherits the
 owner's rights again until the cause is fixed.
 
 If `DATABASE_URL` is still wired to the Postgres **admin** password anywhere
@@ -513,12 +514,12 @@ worse form: remove the secret once `DATABASE_AUTH=entra` is confirmed in use
 
 ## Deploying
 
-Merging to `main` runs the checks; if they pass, the deploy workflow builds in
+Merging to `main` runs the checks. If they pass, the deploy workflow builds in
 ACR, updates the container app, and polls `/healthz` until the new revision
 answers. A revision that never becomes healthy fails the run and prints the
 container logs, rather than reporting green.
 
-Rolling back is a revision switch, not a rebuild:
+Rolling back is a revision switch:
 
 ```bash
 az containerapp revision list -g "$RG" -n "$APP" -o table
