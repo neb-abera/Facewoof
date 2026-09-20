@@ -17,7 +17,7 @@ What to expect:
 
 - **Acknowledgement within 7 days** of your report.
 - **Coordinated disclosure**: please keep the details private while a fix is
-  prepared; we will credit you in the advisory unless you prefer otherwise.
+  prepared. We will credit you in the advisory unless you prefer otherwise.
 - **A fix or a status update within 90 days.** If a complete fix needs
   longer, you will hear why and what the plan is rather than silence.
 
@@ -26,8 +26,8 @@ What to expect:
 - CodeQL static analysis (JavaScript/TypeScript, workflows) on every pull
   request and weekly
 - trivy scans the production image for HIGH/CRITICAL CVEs on every pull
-  request and weekly (`security-scan.yml`; accepted findings live in
-  `.trivyignore` with their reasoning)
+  request and weekly (`security-scan.yml`). Accepted findings live in
+  `.trivyignore` with their reasoning
 - Dependabot alerts, security updates and weekly version updates across
   npm, docker and actions
 - a held-majors check on every pull request fails when a dependency's next

@@ -99,6 +99,11 @@ ENV VITE_BASE_PATH=${VITE_BASE_PATH} \
     VITE_UPLOAD_PRESET=${VITE_UPLOAD_PRESET}
 RUN npm run build
 
+# Prose linter, for scripts/check-prose.sh. Never built into anything: the
+# stage exists so the image is a FROM line Dependabot sees and bumps, and the
+# script reads it from here rather than pinning a version of its own.
+FROM jdkato/vale:v3.22.0@sha256:0ef74c2c8331a2cc8739ecc8b4f7cc6672e61524c3697e8c8857bc86b724a28e AS vale
+
 # ---- final ------------------------------------------------------------------
 FROM nodebase AS final
 WORKDIR /app

@@ -55,6 +55,17 @@ jobs:
           scripts/check-held-majors.sh --self-test
           scripts/check-held-majors.sh
 
+      - name: Markdown passes the writing rules
+        # The writing rules (.vale/styles/Abera) over every tracked Markdown
+        # file. The self-test runs first, every time: every rule must fire on
+        # a fixture that carries one violation each, and a clean fixture must
+        # pass, so a rule that has stopped matching is caught before it is
+        # trusted.
+        run: |
+          set -euo pipefail
+          scripts/check-prose.sh --self-test
+          scripts/check-prose.sh
+
       - name: Unit tests
         # --progress=plain and a tee so the vitest totals the build prints
         # can be lifted into the job summary without running anything twice.
