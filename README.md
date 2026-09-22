@@ -83,6 +83,8 @@ runs at start-up and `make migrate` runs on demand. `make reset-db` starts over.
 | `src/`                  | the React client, built by vite                                                   |
 | `server/routes.ts`      | the route table: every HTTP endpoint, all under `/api`                            |
 | `server/controllers/`   | the routes themselves: schemas in, handler, schemas out                           |
+| `docs/THREAT-MODEL.md`  | the assets, the entry points and every threat with the gate that answers it       |
+| `tests/unit/*.property.test.ts` | fast-check over the parsers that read a stranger's text                   |
 | `server/api/`           | the machinery: Zod schemas, the Express adapter, the OpenAPI generator            |
 | `server/openapi.json`   | the API contract, generated from the route table (`make contract`)                |
 | `src/api-types.d.ts`    | the client's types, generated from the contract (`make contract`)                 |
