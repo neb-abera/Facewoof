@@ -9,10 +9,12 @@ on:
   push:
     branches: [main]
 
-# A second push to a PR makes the first run irrelevant.
+# A newer push to a pull request makes the running check obsolete. A newer
+# push to the default branch does not: cancelling it left a merge commit
+# with no checks and no scan (aberaTech #169, 2026-09-18).
 concurrency:
   group: checks-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
