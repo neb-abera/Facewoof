@@ -55,8 +55,8 @@ before it is a feature.
 - Guest accounts exist so a visitor can try the app. They hold a zip code
   and nothing that identifies a person, and `guest.refused` records the
   ones turned away.
-- Geolocation is asked for, never required. The e2e suite runs with the
-  permission denied.
+- Geolocation is asked for and can be declined. The e2e suite runs with
+  the permission denied.
 - Photos live on Cloudinary. Their availability is Cloudinary's.
 
 ## When to revisit
