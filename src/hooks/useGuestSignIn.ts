@@ -12,16 +12,30 @@ import useUserContext from "./useUserContext";
  * expected rather than a surprise. Declining costs a few seconds at most and
  * the demo falls back to its default city.
  */
+// The API's own timeout covers acquiring a position, not the permission
+// prompt: a prompt nobody answers holds the call open for as long as the
+// tab lives, and the demo behind it never starts. Firefox showed that in the
+// browser suite on 2026-09-23, where headless has no prompt to answer. So
+// the wait is capped here too, and the demo starts in its default city.
+export const LOCATION_WAIT_MS = 8000;
+
 const askWhereTheyAre = () =>
   new Promise<Whereabouts | null>((resolve) => {
     if (!navigator.geolocation) {
       resolve(null);
       return;
     }
+    const cap = setTimeout(() => resolve(null), LOCATION_WAIT_MS);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => resolve({ lat: coords.latitude, lng: coords.longitude }),
-      () => resolve(null),
-      { timeout: 8000, maximumAge: 600000 },
+      ({ coords }) => {
+        clearTimeout(cap);
+        resolve({ lat: coords.latitude, lng: coords.longitude });
+      },
+      () => {
+        clearTimeout(cap);
+        resolve(null);
+      },
+      { timeout: LOCATION_WAIT_MS, maximumAge: 600000 },
     );
   });
 

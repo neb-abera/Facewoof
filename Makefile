@@ -137,6 +137,13 @@ run: image ## Build and run the production image; `make ports` says where
 	# sign-in silently fails. Both values are for this target only; real
 	# deployments set their own.
 	#
+	# The three limits are CI's values for its browser tests (checks.yml):
+	# three engines run the suite from one address, one after another, and
+	# the production defaults (server/limits.ts) refuse the second engine.
+	# The per-minute pair is ten times what one engine needed, because the
+	# next engine starts in the minute the last one ends. Real deployments
+	# set none of these.
+	#
 	# The `app-under-test` alias is what the e2e service's default BASE_URL
 	# points at, so `make e2e` finds this container whatever the checkout is
 	# called. Not a bare `app`: see compose.yaml for why Chromium refuses it.
@@ -148,6 +155,10 @@ run: image ## Build and run the production image; `make ports` says where
 		-e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
 		-e SESSION_SECRET=local-only \
 		-e INSECURE_TRANSPORT=true \
+		-e GUEST_LIMIT_PER_HOUR=600 \
+		-e PUBLIC_LIMIT_PER_MINUTE=6000 \
+		-e FEED_LIMIT_PER_MINUTE=6000 \
+		-e API_LIMIT_PER_FIVE_MINUTES=6000 \
 		$(IMAGE)
 
 media: ## Regenerate the README's screenshots and demo clip from the production image
@@ -178,9 +189,10 @@ e2e-signin: ## Sign-in tests against a mock OIDC provider (no Azure needed)
 	  --network-alias signin-under-test \
 	  -e DATABASE_URL=postgres://facewoof:facewoof@db:5432/facewoof \
 	  -e SESSION_SECRET=local-only -e INSECURE_TRANSPORT=true -e PORT=8080 \
-	  -e GUEST_LIMIT_PER_HOUR=200 \
-	  -e PUBLIC_LIMIT_PER_MINUTE=600 \
-	  -e FEED_LIMIT_PER_MINUTE=600 \
+	  -e GUEST_LIMIT_PER_HOUR=600 \
+	  -e PUBLIC_LIMIT_PER_MINUTE=6000 \
+	  -e FEED_LIMIT_PER_MINUTE=6000 \
+	  -e API_LIMIT_PER_FIVE_MINUTES=6000 \
 	  -e ENTRA_PROVIDERS=email,google \
 	  -e ENTRA_ISSUER=http://oidc-mock:9000 \
 	  -e ENTRA_CLIENT_ID=facewoof-test \
