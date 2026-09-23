@@ -153,7 +153,8 @@ run_args=(-d --name "$app" --network "$network")
 docker run "${run_args[@]}" \
   -e DATABASE_URL="$runtime_url" -e MIGRATE_ON_BOOT=false \
   -e SESSION_SECRET=ci-only-not-a-real-secret -e INSECURE_TRANSPORT=true \
-  -e GUEST_LIMIT_PER_HOUR=200 -e PUBLIC_LIMIT_PER_MINUTE=600 -e FEED_LIMIT_PER_MINUTE=600 \
+  -e GUEST_LIMIT_PER_HOUR=600 -e PUBLIC_LIMIT_PER_MINUTE=6000 -e FEED_LIMIT_PER_MINUTE=6000 \
+  -e API_LIMIT_PER_FIVE_MINUTES=6000 \
   -e PORT="$app_port" "$IMAGE" >/dev/null
 healthy=0
 for _ in $(seq 1 30); do

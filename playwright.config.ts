@@ -43,7 +43,18 @@ export default defineConfig({
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Firefox"],
+        // Headless Firefox leaves a permission prompt unanswered; Chromium
+        // and WebKit deny it. Deny it here too, the same path as the
+        // `permissions: []` above.
+        launchOptions: {
+          firefoxUserPrefs: {
+            "geo.prompt.testing": true,
+            "geo.prompt.testing.allow": false,
+          },
+        },
+      },
       dependencies: ["chromium"],
     },
     {
