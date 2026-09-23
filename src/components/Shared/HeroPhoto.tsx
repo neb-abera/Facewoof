@@ -34,11 +34,15 @@ export default function HeroPhoto({ priority = false }: HeroPhotoProps) {
     <picture className="contents">
       <source type="image/avif" srcSet={set(avif600, avif1200)} sizes={SIZES} />
       <source type="image/webp" srcSet={set(webp600, webp1200)} sizes={SIZES} />
+      {/* The JPEG is a source too, and the img carries no src of its own.
+          React gives the img its attributes before it joins the picture,
+          and WebKit fetches an img's src the moment it is set: with the
+          JPEG on the img, Safari downloaded the JPEG candidates and then
+          the AVIF the picture chose. Chromium and Firefox wait. Seen by the
+          delivery test on WebKit, 2026-09-23. */}
+      <source type="image/jpeg" srcSet={set(jpg600, jpg1200)} sizes={SIZES} />
       <img
         className="w-full h-full object-cover"
-        src={jpg600}
-        srcSet={set(jpg600, jpg1200)}
-        sizes={SIZES}
         width={600}
         height={899}
         fetchPriority={priority ? "high" : "auto"}

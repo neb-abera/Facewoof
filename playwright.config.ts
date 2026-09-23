@@ -34,9 +34,22 @@ export default defineConfig({
   // Every browser engine, every run. A fix verified in Chromium alone
   // (aberaTech #191, 2026-09-22) was no fix in Firefox. The Playwright image
   // scripts/e2e.sh runs in ships all three.
+  //
+  // One engine after another. Every limit in server/limits.ts is per
+  // address and per minute, sized for one browser, and the suite proves
+  // some of them by hitting them; three engines at once tripled the rate
+  // and the second engine saw 429 where it expected 201.
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+      dependencies: ["chromium"],
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+      dependencies: ["firefox"],
+    },
   ],
 });
