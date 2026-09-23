@@ -1,3 +1,4 @@
+import os from "node:os";
 import { defineConfig, devices } from "@playwright/test";
 
 /*
@@ -27,5 +28,15 @@ export default defineConfig({
     // their location, which is the path that reaches the fallback city.
     permissions: [],
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // Half the cores, at most eight: three engines at 24 workers put Firefox
+  // at 15 s a test on a 48-core box.
+  workers: Math.min(8, Math.max(1, Math.floor(os.cpus().length / 2))),
+  // Every browser engine, every run. A fix verified in Chromium alone
+  // (aberaTech #191, 2026-09-22) was no fix in Firefox. The Playwright image
+  // scripts/e2e.sh runs in ships all three.
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+  ],
 });
