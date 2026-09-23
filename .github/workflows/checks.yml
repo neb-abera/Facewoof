@@ -214,9 +214,10 @@ jobs:
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
             -e SESSION_SECRET=ci-only-not-a-real-secret \
             -e INSECURE_TRANSPORT=true \
-            -e GUEST_LIMIT_PER_HOUR=200 \
-            -e PUBLIC_LIMIT_PER_MINUTE=600 \
-            -e FEED_LIMIT_PER_MINUTE=600 \
+            -e GUEST_LIMIT_PER_HOUR=600 \
+            -e PUBLIC_LIMIT_PER_MINUTE=6000 \
+            -e FEED_LIMIT_PER_MINUTE=6000 \
+            -e API_LIMIT_PER_FIVE_MINUTES=6000 \
             -e PORT=8080 facewoof
           for _ in $(seq 1 30); do
             if curl -sf http://localhost:8080/healthz; then break; fi
@@ -327,9 +328,10 @@ jobs:
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
             -e SESSION_SECRET=ci-only-not-a-real-secret \
             -e INSECURE_TRANSPORT=true \
-            -e GUEST_LIMIT_PER_HOUR=200 \
-            -e PUBLIC_LIMIT_PER_MINUTE=600 \
-            -e FEED_LIMIT_PER_MINUTE=600 \
+            -e GUEST_LIMIT_PER_HOUR=600 \
+            -e PUBLIC_LIMIT_PER_MINUTE=6000 \
+            -e FEED_LIMIT_PER_MINUTE=6000 \
+            -e API_LIMIT_PER_FIVE_MINUTES=6000 \
             -e PORT=8080 \
             -e ENTRA_PROVIDERS=email,google \
             -e ENTRA_ISSUER=http://localhost:9000 \

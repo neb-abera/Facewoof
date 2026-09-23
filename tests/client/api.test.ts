@@ -122,3 +122,56 @@ test("a failed token fetch still lets the write go out, to be refused by the ser
   expect(sent).toBeNull();
   expect(response.status).toBe(403);
 });
+
+/*
+ * The token is bound to a session, and a fresh jar mints one per response.
+ * The page's first two GETs go out together, the client reads one answer's
+ * token an instant before the browser keeps the other's, and the write is
+ * refused. Seen on Firefox by the browser suite on 2026-09-23, on the demo
+ * button. The refusal is answered once, with the token the jar holds now.
+ */
+test("a write refused for its token goes out once more with the token the jar holds now", async () => {
+  const sent: (string | null)[] = [];
+  const fake = fakeApi()
+    .on("GET", "/api/auth/providers", () => ok({ providers: [] }))
+    .on("POST", "/api/auth/logout", ({ request }) => {
+      sent.push(request.headers.get("x-xsrf-token"));
+      if (sent.length === 1) {
+        // The other session's cookie lands after the header was read.
+        // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store API
+        document.cookie = "XSRF-TOKEN=settled; path=/";
+        return new Response(
+          JSON.stringify({ error: "missing or invalid CSRF token" }),
+          { status: 403, headers: { "content-type": "application/json" } },
+        );
+      }
+      return noContent();
+    });
+
+  const { response } = await api.POST("/api/auth/logout");
+
+  expect(response.status).toBe(204);
+  expect(sent).toEqual(["test-token", "settled"]);
+  expect(fake.calls.map((c) => `${c.method} ${c.path}`)).toEqual([
+    "POST /api/auth/logout",
+    "GET /api/auth/providers",
+    "POST /api/auth/logout",
+  ]);
+});
+
+test("a 403 that is not about the token is not sent again", async () => {
+  const fake = fakeApi().on(
+    "POST",
+    "/api/auth/logout",
+    () =>
+      new Response(JSON.stringify({ error: "forbidden" }), {
+        status: 403,
+        headers: { "content-type": "application/json" },
+      }),
+  );
+
+  const { response } = await api.POST("/api/auth/logout");
+
+  expect(response.status).toBe(403);
+  expect(fake.calls).toHaveLength(1);
+});

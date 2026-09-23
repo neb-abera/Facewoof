@@ -198,9 +198,15 @@ export const publicLimiter = () =>
   });
 
 /* A backstop over the whole API, generous enough never to catch normal use. */
+// Configurable for the same reason as GUEST_LIMIT_PER_HOUR: the browser suite
+// runs on three engines one after another from one address, and the second
+// engine starts inside the first one's five-minute window. Production leaves
+// it at the default.
+export const API_LIMIT_PER_FIVE_MINUTES =
+  Number(process.env.API_LIMIT_PER_FIVE_MINUTES) || 600;
 export const apiLimiter = rateLimit({
   ...shared,
   windowMs: minutes(5),
-  limit: 600,
+  limit: API_LIMIT_PER_FIVE_MINUTES,
   message: { error: "Too many requests. Try again shortly." },
 });

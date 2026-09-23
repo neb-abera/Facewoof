@@ -15,6 +15,24 @@ beforeEach(() => {
   delete process.env.GUEST_LIMIT_PER_HOUR;
   delete process.env.PUBLIC_LIMIT_PER_MINUTE;
   delete process.env.FEED_LIMIT_PER_MINUTE;
+  delete process.env.API_LIMIT_PER_FIVE_MINUTES;
+});
+
+/* The same knob for the backstop over the whole API, the same three ways. */
+describe("the API backstop", () => {
+  it("defaults to six hundred requests in five minutes", async () => {
+    expect((await loadLimits()).API_LIMIT_PER_FIVE_MINUTES).toBe(600);
+  });
+
+  it("honors API_LIMIT_PER_FIVE_MINUTES from the environment", async () => {
+    process.env.API_LIMIT_PER_FIVE_MINUTES = "6000";
+    expect((await loadLimits()).API_LIMIT_PER_FIVE_MINUTES).toBe(6000);
+  });
+
+  it("falls back to the default when the value is not a number", async () => {
+    process.env.API_LIMIT_PER_FIVE_MINUTES = "lots";
+    expect((await loadLimits()).API_LIMIT_PER_FIVE_MINUTES).toBe(600);
+  });
 });
 
 /* The same knob for the feed's per-minute limit, the same three ways. */

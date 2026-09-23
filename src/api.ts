@@ -55,9 +55,33 @@ const TOKEN_SOURCE = "/api/auth/providers";
 const readToken = (): string | null =>
   readCookie("__Host-XSRF-TOKEN") ?? readCookie("XSRF-TOKEN");
 
+/*
+ * A copy of each write, taken before it goes out, so a refused one can be
+ * sent again. A Request's body can be read once, and by the time the
+ * response is in the original has been.
+ */
+const copies = new WeakMap<Request, Request>();
+
+/* The token is bound to a session, and a fresh jar mints one per response:
+ * the page's first two GETs go out together, each answer carries its own
+ * token, and the client can read one an instant before the browser keeps
+ * the other. The write then carries a token from a session the browser no
+ * longer holds, and the server refuses it. Seen on Firefox by the browser
+ * suite on 2026-09-23, on the demo button. So a refusal is answered once
+ * with a fresh token, read after the jar has settled. */
+const refusedToken = async (response: Response): Promise<boolean> => {
+  if (response.status !== 403) return false;
+  const body = await response
+    .clone()
+    .json()
+    .catch(() => null);
+  return typeof body?.error === "string" && /csrf/i.test(body.error);
+};
+
 const xsrf: Middleware = {
   async onRequest({ request }) {
     if (request.method === "GET" || request.method === "HEAD") return;
+    copies.set(request, request.clone());
     if (!readToken()) {
       // Best effort: if this fails the write goes out bare and the server's
       // 403 is the error the caller already handles.
@@ -67,6 +91,19 @@ const xsrf: Middleware = {
     }
     const token = readToken();
     if (token) request.headers.set("x-xsrf-token", token);
+  },
+  async onResponse({ request, response }) {
+    const copy = copies.get(request);
+    if (!copy || !(await refusedToken(response))) return;
+    copies.delete(request);
+    await globalThis
+      .fetch(base + TOKEN_SOURCE, { credentials: "same-origin" })
+      .catch(() => {});
+    const token = readToken();
+    if (!token) return;
+    const headers = new Headers(copy.headers);
+    headers.set("x-xsrf-token", token);
+    return globalThis.fetch(new Request(copy, { headers }));
   },
 };
 
