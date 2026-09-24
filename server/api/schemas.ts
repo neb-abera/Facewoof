@@ -394,6 +394,29 @@ export const PackId = named("PackId", z.object({ pack_id: z.number().int() }));
 
 export const PackIdQuery = z.object({ packId: id });
 
+/*
+ * A feed page request. `cursor` is what the last page's `nextCursor` said and
+ * is opaque to the client: the server encodes (date, post_id) into it, because
+ * `date` alone is not unique and paging on it would skip posts.
+ */
+export const FeedPageQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  cursor: z.string().max(80).optional(),
+});
+
+export const PackFeedQuery = PackIdQuery.extend(FeedPageQuery.shape);
+
+/* `nextCursor` is null on the last page, which is how the client stops. */
+export const PostPage = named(
+  "PostPage",
+  z.object({ posts: Post.array(), nextCursor: z.string().nullable() }),
+);
+
+export const PackPostPage = named(
+  "PackPostPage",
+  z.object({ posts: PackPost.array(), nextCursor: z.string().nullable() }),
+);
+
 export const MakePostBody = z.object({
   packet: z.object({
     pack_id: id,
