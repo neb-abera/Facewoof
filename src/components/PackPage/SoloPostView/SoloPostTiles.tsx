@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { usePackPosts, usePhotos } from "../../../queries";
+import LoadMore from "../../Shared/LoadMore";
 import PostMaker from "./PostMaker";
 import SoloPostTile from "./SoloPostTile";
 
@@ -22,14 +23,14 @@ const styles: Record<"posts" | "packHighest", CSSProperties> = {
 };
 
 const SoloPostTiles = ({ viewing, viewingName }: SoloPostTilesProps) => {
-  const { data: posts = [] } = usePackPosts(viewing);
+  const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    usePackPosts(viewing);
   const { data: photos = [] } = usePhotos();
   const pfp = photos[0] ?? null;
 
-  // Newest first.
-  const sorted = [...posts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  // No client-side sort. The query orders by (date DESC, post_id DESC) and
+  // pages arrive in that order, so the flattened list is already newest first.
+  const sorted = data?.pages.flatMap((page) => page.posts) ?? [];
 
   return (
     <div className="card" style={styles.packHighest}>
@@ -46,6 +47,12 @@ const SoloPostTiles = ({ viewing, viewingName }: SoloPostTilesProps) => {
             parentGroup={viewingName}
           />
         ))}
+        <LoadMore
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onClick={() => void fetchNextPage()}
+          label="posts"
+        />
       </div>
     </div>
   );

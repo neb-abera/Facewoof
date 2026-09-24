@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { PackPost } from "../../../types";
+import LoadMore from "../../Shared/LoadMore";
 import PostTile from "./PostTile";
 import "./postTile.css";
 
@@ -17,11 +18,23 @@ const styles: Record<"posts" | "packHighest", CSSProperties> = {
   },
 };
 
-const AllPostTiles = ({ allPosts }: { allPosts: PackPost[] }) => {
-  // Newest first. A copy: sorting a prop in place mutated the parent's state.
-  const sorted = [...allPosts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+interface AllPostTilesProps {
+  allPosts: PackPost[];
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onLoadMore: () => void;
+}
+
+const AllPostTiles = ({
+  allPosts,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
+}: AllPostTilesProps) => {
+  // No client-side sort. The query orders by (date DESC, post_id DESC), which
+  // is stricter than the date-only sort this had, and pages arrive in that
+  // order, so re-sorting the accumulated list every render bought nothing.
+  const sorted = allPosts;
 
   return (
     <div className="card" style={styles.packHighest}>
@@ -35,6 +48,12 @@ const AllPostTiles = ({ allPosts }: { allPosts: PackPost[] }) => {
             parentGroup={each.name}
           />
         ))}
+        <LoadMore
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          onClick={onLoadMore}
+          label="posts"
+        />
       </div>
     </div>
   );

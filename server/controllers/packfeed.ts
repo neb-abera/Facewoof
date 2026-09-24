@@ -1,11 +1,12 @@
 import { defineRoute, reply } from "../api/route.ts";
 import {
   ErrorBody,
+  FeedPageQuery,
   MakePostBody,
   Message,
-  PackIdQuery,
-  PackPost,
-  Post,
+  PackFeedQuery,
+  PackPostPage,
+  PostPage,
 } from "../api/schemas.ts";
 import {
   getAllPostsFromAllPacks,
@@ -28,11 +29,12 @@ export const ctrlPackPosts = defineRoute({
   path: "/api/getAllPostsFromSpecificPack",
   summary: "A pack's posts, newest first (members only)",
   auth: true,
-  query: PackIdQuery,
-  responses: { 200: Post.array(), 403: ErrorBody },
+  query: PackFeedQuery,
+  responses: { 200: PostPage, 403: ErrorBody },
   handler: async ({ userId, query }) => {
     if (!(await isPackMember(userId, query.packId))) return notAMember;
-    return reply(200, (await getPackPosts(query.packId)).rows);
+    const page = await getPackPosts(query.packId, query.limit, query.cursor);
+    return reply(200, { posts: page.rows, nextCursor: page.nextCursor });
   },
 });
 
@@ -47,11 +49,12 @@ export const ctrlSoloPosts = defineRoute({
   path: "/api/getSoloPosts",
   summary: "A pack's posts, newest first (members only)",
   auth: true,
-  query: PackIdQuery,
-  responses: { 200: Post.array(), 403: ErrorBody },
+  query: PackFeedQuery,
+  responses: { 200: PostPage, 403: ErrorBody },
   handler: async ({ userId, query }) => {
     if (!(await isPackMember(userId, query.packId))) return notAMember;
-    return reply(200, (await getSoloPosts(query.packId)).rows);
+    const page = await getSoloPosts(query.packId, query.limit, query.cursor);
+    return reply(200, { posts: page.rows, nextCursor: page.nextCursor });
   },
 });
 
@@ -60,11 +63,15 @@ export const ctrlAllPostsFromAllPacks = defineRoute({
   path: "/api/getAllPacksPostsForUser",
   summary: "Every post in every pack the caller is in, newest first",
   auth: true,
-  responses: { 200: PackPost.array() },
-  handler: async ({ userId }) => {
-    const { rows } = await getAllPostsFromAllPacks(userId);
-    // json_agg returns one row holding NULL when nothing matched.
-    return reply(200, rows[0]?.json_agg ?? []);
+  query: FeedPageQuery,
+  responses: { 200: PackPostPage },
+  handler: async ({ userId, query }) => {
+    const page = await getAllPostsFromAllPacks(
+      userId,
+      query.limit,
+      query.cursor,
+    );
+    return reply(200, { posts: page.rows, nextCursor: page.nextCursor });
   },
 });
 

@@ -19,6 +19,7 @@
  */
 import {
   type UseQueryOptions,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -113,23 +114,49 @@ export const useMyPlaydates = () =>
       unwrap(await api.GET("/api/getUserPlaydates")),
   });
 
+/*
+ * The feeds, a page at a time.
+ *
+ * Both of these used to ask for everything: every post in every pack the
+ * caller belongs to, on every page load, with no LIMIT anywhere in the
+ * query. The server now answers a page and says whether there is another,
+ * so these are infinite queries and the views end with a Load more.
+ *
+ * `nextCursor` null is the last page, which is what stops
+ * `getNextPageParam` and hides the button.
+ */
+
 /* Every post in every pack the caller is in, newest first. */
 export const useAllPosts = () =>
-  useQuery({
+  useInfiniteQuery({
     queryKey: keys.allPosts,
-    queryFn: async () => unwrap(await api.GET("/api/getAllPacksPostsForUser")),
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) =>
+      unwrap(
+        await api.GET("/api/getAllPacksPostsForUser", {
+          // Spread, not `cursor: pageParam`. exactOptionalPropertyTypes
+          // distinguishes an absent key from one set to undefined, and the
+          // first page has no cursor at all.
+          params: { query: { ...(pageParam ? { cursor: pageParam } : {}) } },
+        }),
+      ),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 
 /* One pack's posts, newest first. */
 export const usePackPosts = (packId: number) =>
-  useQuery({
+  useInfiniteQuery({
     queryKey: keys.packPosts(packId),
-    queryFn: async () =>
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) =>
       unwrap(
         await api.GET("/api/getSoloPosts", {
-          params: { query: { packId } },
+          params: {
+            query: { packId, ...(pageParam ? { cursor: pageParam } : {}) },
+          },
         }),
       ),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 
 /* Put a playdate on a pack's calendar; every list that shows it refreshes. */
