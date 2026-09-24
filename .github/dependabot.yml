@@ -23,6 +23,15 @@ updates:
       interval: weekly
     cooldown:
       default-days: 5
+    ignore:
+      # @vitejs/plugin-react 6.1.1, the newest, peers on
+      # oxc-transform-react ^0.145.0, which for a 0.x version means 0.145.x
+      # only. Dependabot offered 0.150.0 anyway, in the group PR #93, and
+      # wrote a lockfile npm ci accepts while a fresh npm install fails with
+      # ERESOLVE. Held at 0.145.x until the plugin widens the range, which
+      # its own release will do.
+      - dependency-name: oxc-transform-react
+        versions: [">=0.146.0"]
     groups:
       # vitest and @vitest/* peer-depend on each other's exact version, so a
       # major split across two PRs cannot install in either. First match
