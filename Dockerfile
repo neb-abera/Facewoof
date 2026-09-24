@@ -119,14 +119,20 @@ ENV PORT=8080
 # any new CVE in it, and the digest-pinned FROM above is how it advances.
 RUN apk --no-cache upgrade
 
-COPY package.json package-lock.json ./
+# --chown on everything the context contributes: COPY carries the mode the
+# file had in the checkout, and a machine whose umask is 007 checks this
+# repository out at rw-rw----. The image runs as `node`, which is not root,
+# so it could not read its own package.json: EACCES at startup on every
+# image built locally. CI never saw it, since a runner checks out
+# world-readable. The image should not care what umask built it.
+COPY --chown=node:node package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # TypeScript source, run as-is: Node 26 strips the type annotations when it
 # loads a .ts file, so there is no compiled copy to keep in step with the
 # source and nothing from devDependencies is needed at run time.
-COPY server ./server
-COPY --from=build /app/dist ./dist
+COPY --chown=node:node server ./server
+COPY --from=build --chown=node:node /app/dist ./dist
 
 # Drop privileges. The node images ship a `node` user for exactly this.
 USER node
