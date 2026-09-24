@@ -606,6 +606,10 @@ export interface components {
             name: string;
             owner_name: string | null;
         };
+        PackPostPage: {
+            posts: components["schemas"]["PackPost"][];
+            nextCursor: string | null;
+        };
         PhotoUrl: {
             url: string;
         };
@@ -631,6 +635,10 @@ export interface components {
             /** Format: date-time */
             date: string;
             photo_url: string | null;
+        };
+        PostPage: {
+            posts: components["schemas"]["Post"][];
+            nextCursor: string | null;
         };
         ProfilePhoto: {
             photo_id: number;
@@ -2003,6 +2011,8 @@ export interface operations {
         parameters: {
             query: {
                 packId: number;
+                limit?: number;
+                cursor?: string;
             };
             header?: never;
             path?: never;
@@ -2016,7 +2026,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Post"][];
+                    "application/json": components["schemas"]["PostPage"];
                 };
             };
             /** @description The request did not match its schema; `issues` says where */
@@ -2059,7 +2069,10 @@ export interface operations {
     };
     getGetAllPacksPostsForUser: {
         parameters: {
-            query?: never;
+            query?: {
+                limit?: number;
+                cursor?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2072,7 +2085,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PackPost"][];
+                    "application/json": components["schemas"]["PackPostPage"];
+                };
+            };
+            /** @description The request did not match its schema; `issues` says where */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Sign in first */
@@ -2099,6 +2121,8 @@ export interface operations {
         parameters: {
             query: {
                 packId: number;
+                limit?: number;
+                cursor?: string;
             };
             header?: never;
             path?: never;
@@ -2112,7 +2136,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Post"][];
+                    "application/json": components["schemas"]["PostPage"];
                 };
             };
             /** @description The request did not match its schema; `issues` says where */
