@@ -14,6 +14,15 @@ help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
 		| awk -F':.*?## ' '{printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
 
+# Who the containers that mount this checkout run as. As root they left
+# root-owned files behind (bin/, obj/, whatever biome rewrote, the generated
+# contract files) that the owner of the checkout could not then delete, so a
+# merged worktree needed sudo to remove and repos-clean could not touch it.
+HOST_UID := $(shell id -u)
+HOST_GID := $(shell id -g)
+export HOST_UID
+export HOST_GID
+
 # Image tags, container names and the compose network derive from the checkout
 # directory, so two worktrees of this repository never build over or test
 # against each other's containers. Compose derives its project name the same
@@ -70,7 +79,12 @@ check-db-roles: image ## Prove the app works as a no-DDL database role, and that
 	$(COMPOSE) up -d --wait db
 	IMAGE=$(IMAGE) DOCKER_NETWORK=$(NET) scripts/check-db-roles.sh
 
+# The service mounts anonymous volumes over both node_modules trees, to keep
+# the bind mount from hiding the modules baked into the image. Docker creates
+# those mount points in this checkout, as root, if they are missing, leaving
+# directories the owner can neither remove nor chmod. Made here first.
 contract: ## Regenerate server/openapi.json and src/api-types.d.ts from the route table
+	@mkdir -p node_modules tools/api-types/node_modules
 	$(COMPOSE) run --rm --build contract
 
 psql: ## Open a psql shell against the development database
