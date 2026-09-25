@@ -39,6 +39,10 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # The attribution step below reads every commit this pull request
+          # would add, and a shallow clone has no merge base to measure the
+          # range from.
+          fetch-depth: 0
           persist-credentials: false
       - name: Lint and format check
         # The check is a build step, so it runs on the same node as everything
@@ -67,6 +71,21 @@ jobs:
           set -euo pipefail
           scripts/check-prose.sh --self-test
           scripts/check-prose.sh
+
+      - name: No commit in this pull request credits an AI
+        # Nothing published under Neb's name credits an AI. The commit-msg
+        # hook and the Claude PreToolUse gate both run on the machine making
+        # the commit, so neither sees one made anywhere they are not
+        # installed. On 2026-09-24 a branch cut from a pre-rewrite master put
+        # 45 stripped lines back on aberaTech's default branch, which took a
+        # second rewrite and a force push to undo. This runs where the merge
+        # happens. A step on this job rather than a job of its own so the
+        # branch protection's required contexts stay as they are.
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          scripts/check-attribution.sh --self-test
+          scripts/check-attribution.sh "origin/${GITHUB_BASE_REF}..HEAD"
 
       - name: Unit tests
         # --progress=plain and a tee so the vitest totals the build prints
