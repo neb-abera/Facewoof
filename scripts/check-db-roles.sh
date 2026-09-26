@@ -176,9 +176,13 @@ if [ "$status" -ne 0 ]; then
   docker logs "$app" >&2 || true
   exit "$status"
 fi
-if docker logs "$app" 2>&1 | grep -qi "permission denied"; then
+# The log is read whole before it is searched. Under pipefail, grep -q
+# closing the pipe at its match fails the pipeline with SIGPIPE whenever the
+# app logged another line after it, and the permission error went unreported.
+app_log="$(docker logs "$app" 2>&1)"
+if grep -qi "permission denied" <<< "$app_log"; then
   echo "error: the app hit a permission error as the runtime role:" >&2
-  docker logs "$app" 2>&1 | grep -i "permission denied" >&2
+  grep -i "permission denied" <<< "$app_log" >&2
   exit 1
 fi
 echo "ok: the app works as ${runtime}, and ${runtime} cannot change the schema"
