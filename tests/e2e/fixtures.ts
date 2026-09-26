@@ -25,7 +25,8 @@ export { expect } from "@playwright/test";
  * times. With the network quiet first, 0 of 600 failed and it logged none.
  *
  * So on WebKit, page.goto and page.reload wait until the page's network has
- * been quiet for 500 ms. Chromium and Firefox navigate as they are. The app is not at
+ * been quiet for 500 ms, and so does the end of each test, before the
+ * context closes. Chromium and Firefox run as they are. The app is not at
  * fault: Safari does not use libsoup.
  *
  * This module refuses to load once the bundled libsoup is 3.6.6 or newer,
@@ -81,8 +82,11 @@ const QUIET_MS = 500;
 // anyway. The suite's pages settle in well under a second.
 const SETTLE_MS = 15_000;
 
-/** On this page, page.goto and page.reload first wait for the network to go quiet. */
-export function settleBeforeNavigating(page: Page): void {
+/**
+ * On this page, page.goto and page.reload first wait for the network to go
+ * quiet. Returns the wait, for the end of the test.
+ */
+export function settleBeforeNavigating(page: Page): () => Promise<void> {
   const inFlight = new Set<Request>();
   let lastActivity = 0;
   page.on("request", (request) => {
@@ -116,11 +120,20 @@ export function settleBeforeNavigating(page: Page): void {
     await settle();
     return reload(...args);
   };
+  return settle;
 }
 
 export const test = base.extend({
   page: async ({ page, browserName }, use) => {
-    if (browserName === "webkit") settleBeforeNavigating(page);
+    if (browserName !== "webkit") {
+      await use(page);
+      return;
+    }
+    const settle = settleBeforeNavigating(page);
     await use(page);
+    // Closing the context cancels whatever is still loading too, and the
+    // network process is shared by every context the browser opens. A test
+    // that ended mid-load hung the next test's first page.goto.
+    await settle();
   },
 });
