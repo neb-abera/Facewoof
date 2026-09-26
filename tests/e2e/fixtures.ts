@@ -1,82 +1,36 @@
-import { readdirSync, readFileSync } from "node:fs";
-import path from "node:path";
-import {
-  test as base,
-  type Page,
-  type Request,
-  webkit,
-} from "@playwright/test";
+import { test as base, type Page, type Request } from "@playwright/test";
 
 export { expect } from "@playwright/test";
 
 /*
- * WebKit under Playwright 1.63 loses a navigation that cancels requests
- * still in flight. The WebKit build Playwright ships bundles libsoup 3.6.5,
- * which can finish a cancelled request twice. The second finish frees the
- * session's features, and WebKit's network process crashes or wedges. The
- * navigation then fails with "WebKit encountered an internal error" or never
- * commits, and page.goto waits out the test timeout. Upstream: libsoup
- * 794e089, released in 3.6.6, and microsoft/playwright#42803.
+ * On WebKit, page.goto and page.reload wait until the page's network has been
+ * quiet for 500 ms, and so does the end of each test before its context
+ * closes. Chromium and Firefox run as they are.
  *
- * Every WebKit failure in the smoke job on 2026-09-26 was a page.goto or
+ * WebKit lost navigations that cancelled requests still in flight. Every
+ * WebKit failure in the smoke job up to 2026-09-26 was a page.goto or
  * page.reload issued within 100 ms of a client-side route change, while the
- * route's chunks and API calls were loading. On GitHub's runner, 28 of 600
- * such navigations failed and the browser logged the libsoup assertion 162
- * times. With the network quiet first, 0 of 600 failed and it logged none.
+ * route's chunks and API calls were loading. It failed with "WebKit
+ * encountered an internal error" or never committed.
  *
- * So on WebKit, page.goto and page.reload wait until the page's network has
- * been quiet for 500 ms, and so does the end of each test, before the
- * context closes. Chromium and Firefox run as they are. The app is not at
- * fault: Safari does not use libsoup.
+ * Most of it was libsoup 3.6.5, bundled with WebKit in Playwright's noble
+ * image, which can finish a cancelled request twice (libsoup 794e089,
+ * microsoft/playwright#42803). The resolute image loads the system libsoup
+ * 3.6.6, and navigation.spec.ts holds WebKit to 3.6.6 or newer. On GitHub's
+ * runner, navigating the moment /discover appears:
  *
- * This module refuses to load once the bundled libsoup is 3.6.6 or newer,
- * so the Playwright bump that carries the fix is where it goes.
+ *   noble, no wait          39 of 600 failed
+ *   resolute, no wait        5 of 1,400 failed
+ *   resolute, this wait      0 of 800
+ *
+ * The resolute failures were a fresh page whose first page.goto was never
+ * answered, after the previous test closed its context mid-load, and a
+ * page.goto that ended back on /discover. Both went away with the wait.
  */
 
-/** The libsoup version inside Playwright's WebKit build, when it has one. */
-export function bundledLibsoup(): number[] | undefined {
-  let root: string;
-  try {
-    root = path.dirname(webkit.executablePath());
-  } catch {
-    return undefined;
-  }
-  for (const flavour of ["minibrowser-wpe", "minibrowser-gtk"]) {
-    const lib = path.join(root, flavour, "sys", "lib");
-    let names: string[];
-    try {
-      names = readdirSync(lib);
-    } catch {
-      continue;
-    }
-    const name = names.find((n) => n.startsWith("libsoup-3.0.so"));
-    if (!name) continue;
-    const found = /libsoup\/(\d+)\.(\d+)\.(\d+)/.exec(
-      readFileSync(path.join(lib, name)).toString("latin1"),
-    );
-    if (found) return found.slice(1).map(Number);
-  }
-  return undefined;
-}
-
-/** Whether a libsoup version carries the fix, 3.6.6 or newer. */
-export function isFixed([major = 0, minor = 0, patch = 0]: number[]): boolean {
-  return major * 1_000_000 + minor * 1_000 + patch >= 3_006_006;
-}
-
-const libsoup = bundledLibsoup();
-if (libsoup && isFixed(libsoup)) {
-  throw new Error(
-    `Playwright's WebKit now bundles libsoup ${libsoup.join(".")}, which carries the fix for ` +
-      "microsoft/playwright#42803. Remove the WebKit wait in tests/e2e/fixtures.ts.",
-  );
-}
-
-// A navigation waits for 500 ms with no request starting or finishing, the
-// quiet that Playwright's own "networkidle" uses. Waiting only for the
+// The quiet that Playwright's own "networkidle" uses. Waiting only for the
 // requests in flight at the moment of page.goto was not enough: a route's
-// chunks and API calls start up to 90 ms later, and 33 of 600 navigations
-// still failed that way.
+// chunks and API calls start up to 90 ms later.
 const QUIET_MS = 500;
 // Longest a page may keep the network busy before the navigation goes ahead
 // anyway. The suite's pages settle in well under a second.
@@ -132,8 +86,7 @@ export const test = base.extend({
     const settle = settleBeforeNavigating(page);
     await use(page);
     // Closing the context cancels whatever is still loading too, and the
-    // network process is shared by every context the browser opens. A test
-    // that ended mid-load hung the next test's first page.goto.
+    // network process is shared by every context the browser opens.
     await settle();
   },
 });
