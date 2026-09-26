@@ -61,15 +61,15 @@ jobs:
           scripts/check-held-majors.sh --self-test
           scripts/check-held-majors.sh
 
-      - name: Only LTS majors of Node are offered
-        # Every Dependabot PR auto-merges, majors included, so the ignore
-        # ranges are all that keeps a Node major out before its LTS date.
-        # It reads nodejs.org/dist/index.json: exit 2 is an outage, not a
-        # finding.
+      - name: Node on its newest GA major
+        # The newest GA Node major, LTS or not. Fails on a Dependabot range
+        # holding a major back, and on a node image 45 days behind the newest
+        # major. It reads nodejs.org/dist/index.json: exit 2 is an outage,
+        # not a finding.
         run: |
           set -euo pipefail
-          scripts/check-lts-majors.sh --self-test
-          scripts/check-lts-majors.sh
+          scripts/check-newest-majors.sh --self-test
+          scripts/check-newest-majors.sh
 
       - name: Markdown passes the writing rules
         # The writing rules (.vale/styles/Abera) over every tracked Markdown

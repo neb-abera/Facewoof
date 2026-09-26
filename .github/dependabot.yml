@@ -16,13 +16,9 @@
 # Playwright image is not a second pin any more: scripts/e2e.sh derives it
 # from @playwright/test.
 #
-# LTS majors only. A Node major turns LTS in the October after its release.
-# The ignore ranges below hold back each major that is not LTS, one range
-# per major. Dependabot reads them in Bundler syntax against the version,
-# so digest, minor and patch updates of the current major still arrive.
-# scripts/check-lts-majors.sh fails when a range is missing for a major due
-# within two years, when a major has turned LTS and its range is still
-# here, and when @types/node and the node image drift apart.
+# The newest GA major of Node is taken, LTS or not. No ignore range
+# holds a major back. scripts/check-newest-majors.sh fails on one, and when
+# a site is 45 days behind the newest GA major.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -40,12 +36,6 @@ updates:
       # its own release will do.
       - dependency-name: oxc-transform-react
         versions: [">=0.146.0"]
-      # The node image ranges: the types follow the runtime.
-      - dependency-name: "@types/node"
-        versions:
-          - ">= 27, < 28"
-          - ">= 28, < 29"
-          - ">= 29, < 30"
     groups:
       # vitest and @vitest/* peer-depend on each other's exact version, so a
       # major split across two PRs cannot install in either. First match
@@ -90,12 +80,6 @@ updates:
       interval: weekly
     cooldown:
       default-days: 5
-    ignore:
-      - dependency-name: node
-        versions:
-          - ">= 27, < 28"
-          - ">= 28, < 29"
-          - ">= 29, < 30"
     groups:
       docker-non-major:
         applies-to: version-updates

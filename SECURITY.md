@@ -69,7 +69,7 @@ Development STIG V6R4 (2025-09-09). The identity controls are NIST SP
 | ASD V-222594, V-222667 | Restrict denial of service | Met | `express-rate-limit` per route family (`server/limits.ts`), body limits, Cloudflare in front |
 | ASD V-222610 | Error messages reveal nothing exploitable | Met | Schema issues come back as field names and messages (`issuesOf`), never a stack |
 | ASD V-222642 | No embedded authentication data | Met | Secrets are container app secrets. CodeQL and push protection on the repository |
-| ASD V-222614, V-222658 | Patches current, products supported | Met | Dependabot with auto-merge for non-majors, the held-majors gate, Node LTS |
+| ASD V-222614, V-222658 | Patches current, products supported | Met | Dependabot with auto-merge for non-majors, the held-majors gate, Node on its newest GA major (`scripts/check-newest-majors.sh`) |
 | ASD V-222645 | Application files hashed before deployment | Met | Build provenance attestation on every deploy |
 | ASD V-222648 | Code review | Met | Every change is a pull request with CodeQL, Trivy, ZAP, dependency review and Scorecard |
 | ASD V-222655 | Threat model per release | Met | `docs/THREAT-MODEL.md`, reviewed with every release |
