@@ -122,14 +122,14 @@ e2e: ## Browser tests against a running instance (BASE_URL to override)
 	# browser. The same goes for other preloaded TLDs (dev, page, new, day).
 	E2E_NETWORK=$(NET) BASE_URL=$${BASE_URL:-http://app-under-test:8080} scripts/e2e.sh
 
-check: ## The gate CI runs: lint, format, prose, the API contract, held majors, LTS majors, template parity, required checks, workflow lint
+check: ## The gate CI runs: lint, format, prose, the API contract, held majors, newest majors, template parity, required checks, workflow lint
 	$(DOCKER) build --target lint .
 	scripts/check-prose.sh --self-test
 	scripts/check-prose.sh
 	scripts/check-held-majors.sh --self-test
 	scripts/check-held-majors.sh
-	scripts/check-lts-majors.sh --self-test
-	scripts/check-lts-majors.sh
+	scripts/check-newest-majors.sh --self-test
+	scripts/check-newest-majors.sh
 	scripts/check-template-parity.sh --self-test
 	scripts/check-template-parity.sh
 	scripts/check-required-contexts.sh --self-test

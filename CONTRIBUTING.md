@@ -66,10 +66,9 @@ such a pin ages with nothing red. The fix is a manifest of its own for the
 package (see `tools/api-types/`). A case you accept goes in `.held-majors`
 with its reason, and the check tells you when that entry can be dropped.
 
-`scripts/check-lts-majors.sh` fails when `.github/dependabot.yml` would let
-a Node major that is not LTS reach the node image or `@types/node`. Every
-Dependabot pull request merges itself on green CI, so the ignore ranges are
-the only hold. When a major turns LTS the check names the range to remove.
+`scripts/check-newest-majors.sh` fails when `.github/dependabot.yml` holds
+back a Node or `@types/node` major, and when the node image is 45 days behind
+the newest Node major, LTS or not.
 
 Adding a migration means regenerating the row types and committing them:
 
