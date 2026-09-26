@@ -22,10 +22,10 @@ export { expect } from "@playwright/test";
  * page.reload issued within 100 ms of a client-side route change, while the
  * route's chunks and API calls were loading. On GitHub's runner, 28 of 600
  * such navigations failed and the browser logged the libsoup assertion 162
- * times. With the page drained first, 0 of 600 failed and it logged none.
+ * times. With the network quiet first, 0 of 600 failed and it logged none.
  *
- * So on WebKit, page.goto and page.reload wait until the page has no request
- * in flight. Chromium and Firefox navigate as they are. The app is not at
+ * So on WebKit, page.goto and page.reload wait until the page's network has
+ * been quiet for 500 ms. Chromium and Firefox navigate as they are. The app is not at
  * fault: Safari does not use libsoup.
  *
  * This module refuses to load once the bundled libsoup is 3.6.6 or newer,
@@ -71,49 +71,56 @@ if (libsoup && isFixed(libsoup)) {
   );
 }
 
-// Longest a page may keep a request open before the navigation goes ahead
-// anyway. The suite's pages drain in well under a second.
-const DRAIN_MS = 15_000;
+// A navigation waits for 500 ms with no request starting or finishing, the
+// quiet that Playwright's own "networkidle" uses. Waiting only for the
+// requests in flight at the moment of page.goto was not enough: a route's
+// chunks and API calls start up to 90 ms later, and 33 of 600 navigations
+// still failed that way.
+const QUIET_MS = 500;
+// Longest a page may keep the network busy before the navigation goes ahead
+// anyway. The suite's pages settle in well under a second.
+const SETTLE_MS = 15_000;
 
-/** On this page, page.goto and page.reload first wait for requests in flight. */
-export function drainBeforeNavigating(page: Page): void {
+/** On this page, page.goto and page.reload first wait for the network to go quiet. */
+export function settleBeforeNavigating(page: Page): void {
   const inFlight = new Set<Request>();
-  let drained: (() => void) | undefined;
+  let lastActivity = 0;
+  page.on("request", (request) => {
+    inFlight.add(request);
+    lastActivity = Date.now();
+  });
   const done = (request: Request) => {
     inFlight.delete(request);
-    if (inFlight.size === 0) drained?.();
+    lastActivity = Date.now();
   };
-  page.on("request", (request) => inFlight.add(request));
   page.on("requestfinished", done);
   page.on("requestfailed", done);
 
-  const drain = async () => {
-    if (inFlight.size === 0) return;
-    await new Promise<void>((resolve) => {
-      const timer = setTimeout(resolve, DRAIN_MS);
-      drained = () => {
-        clearTimeout(timer);
-        resolve();
-      };
-    });
-    drained = undefined;
+  const settle = async () => {
+    const deadline = Date.now() + SETTLE_MS;
+    while (
+      Date.now() < deadline &&
+      (inFlight.size > 0 || Date.now() - lastActivity < QUIET_MS)
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
   };
 
   const goto = page.goto.bind(page);
   page.goto = async (...args: Parameters<Page["goto"]>) => {
-    await drain();
+    await settle();
     return goto(...args);
   };
   const reload = page.reload.bind(page);
   page.reload = async (...args: Parameters<Page["reload"]>) => {
-    await drain();
+    await settle();
     return reload(...args);
   };
 }
 
 export const test = base.extend({
   page: async ({ page, browserName }, use) => {
-    if (browserName === "webkit") drainBeforeNavigating(page);
+    if (browserName === "webkit") settleBeforeNavigating(page);
     await use(page);
   },
 });
