@@ -43,6 +43,25 @@ jobs:
     outputs:
       sha: ${{ steps.tip.outputs.sha }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: scripts/check-environment-policy.sh
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: production deploys from the default branch alone
+        # The deploy job names `environment: production`, and Azure trusts
+        # that environment's OIDC subject. Without a branch policy a
+        # workflow on any branch could name it too. A settings change that
+        # drops the policy stops the deploy here, where it is seen.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          scripts/check-environment-policy.sh --self-test
+          scripts/check-environment-policy.sh "$GITHUB_REPOSITORY" production "$BRANCH"
+
       - name: the tip of the default branch, once its checks passed
         id: tip
         env:
