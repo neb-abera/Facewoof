@@ -8,7 +8,7 @@ COMPOSE ?= docker compose
 DOCKER  ?= docker
 
 .DEFAULT_GOAL := help
-.PHONY: help ports dev migrate reset-db psql contract lint prose fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows check-db-roles
+.PHONY: help ports dev migrate reset-db psql contract lint lint-ci prose fmt e2e e2e-signin check test-unit test-db budget image run logs down clean media rows check-rows check-db-roles
 
 help: ## List the available targets
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -93,6 +93,17 @@ psql: ## Open a psql shell against the development database
 lint: ## biome lint and format check, against the working tree
 	$(COMPOSE) run --rm lint
 
+# actionlint and the shellcheck it bundles come from the `actionlint` stage of
+# the Dockerfile, so the version lives in one FROM line Dependabot bumps.
+LINT_IMAGE := $(shell sed -n 's|^FROM \(rhysd/actionlint:[^ ]*\) AS actionlint$$|\1|p' Dockerfile)
+
+lint-ci: ## actionlint on the workflows and their run: blocks, shellcheck on scripts, workflow concurrency
+	@test -n "$(LINT_IMAGE)" || { echo "error: no 'FROM rhysd/actionlint:... AS actionlint' stage in the Dockerfile" >&2; exit 1; }
+	$(DOCKER) run --rm --user $(HOST_UID):$(HOST_GID) -v $(CURDIR):/repo:ro -w /repo --entrypoint actionlint $(LINT_IMAGE) -color
+	$(DOCKER) run --rm --user $(HOST_UID):$(HOST_GID) -v $(CURDIR):/repo:ro -w /repo --entrypoint shellcheck $(LINT_IMAGE) scripts/*.sh
+	scripts/check-concurrency.sh --self-test
+	scripts/check-concurrency.sh
+
 prose: ## lint every tracked Markdown file against the writing rules (.vale/styles/Abera)
 	scripts/check-prose.sh --self-test
 	scripts/check-prose.sh
@@ -111,7 +122,7 @@ e2e: ## Browser tests against a running instance (BASE_URL to override)
 	# browser. The same goes for other preloaded TLDs (dev, page, new, day).
 	E2E_NETWORK=$(NET) BASE_URL=$${BASE_URL:-http://app-under-test:8080} scripts/e2e.sh
 
-check: ## The gate CI runs: lint, format, prose, the API contract and held majors
+check: ## The gate CI runs: lint, format, prose, the API contract, held majors, template parity, required checks, workflow lint
 	$(DOCKER) build --target lint .
 	scripts/check-prose.sh --self-test
 	scripts/check-prose.sh
@@ -119,6 +130,9 @@ check: ## The gate CI runs: lint, format, prose, the API contract and held major
 	scripts/check-held-majors.sh
 	scripts/check-template-parity.sh --self-test
 	scripts/check-template-parity.sh
+	scripts/check-required-contexts.sh --self-test
+	scripts/check-required-contexts.sh
+	$(MAKE) lint-ci
 
 test-unit: ## Unit and component tests, hermetically, the way CI runs them
 	$(DOCKER) build --target unittest .

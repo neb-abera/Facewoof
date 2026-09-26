@@ -1,0 +1,23 @@
+# The checks branch protection on main requires.
+#
+# scripts/check-required-contexts.sh (the workflow lint job and `make check`)
+# fails when these lines and the pull-request jobs of the `workflow` files
+# disagree, in either direction. Add a job to one of these workflows and its
+# name goes here in the same pull request, and in branch protection:
+#
+#   gh api repos/neb-abera/Facewoof/branches/main/protection \
+#     --jq '.required_status_checks.contexts[]'
+#
+# workflow <path>   a workflow whose pull-request jobs gate merges
+# check <name>      a job name, as the job reports it
+workflow .github/workflows/checks.yml
+workflow .github/workflows/codeql.yml
+workflow .github/workflows/security-scan.yml
+check lint and format
+check production image
+check smoke test against postgres
+check lint (actionlint + shellcheck)
+check analyze (javascript-typescript)
+check analyze (actions)
+check container scan (trivy)
+check dependency review
