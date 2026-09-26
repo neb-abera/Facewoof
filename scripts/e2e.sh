@@ -28,7 +28,7 @@ if [ -z "$version" ]; then
   echo "error: @playwright/test must be pinned to an exact version in package.json" >&2
   exit 1
 fi
-image="mcr.microsoft.com/playwright:v${version}-noble"
+image="mcr.microsoft.com/playwright:v${version}-resolute"
 
 # Names derive from the directory so two checkouts never share a container or
 # an npm cache.

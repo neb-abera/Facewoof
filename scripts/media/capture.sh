@@ -49,7 +49,7 @@ version="$(sed -n 's|^ *"@playwright/test": *"\([0-9][0-9.]*\)",*$|\1|p' package
 docker run --rm --network "$NET" -e BASE_URL=http://media-under-test:8080 \
   -v "$PWD":/src:ro -v "$PWD/$OUT":/w/scripts/media/out \
   -v "$IMAGE-npm:/npm-cache" -e npm_config_cache=/npm-cache \
-  "mcr.microsoft.com/playwright:v${version}-noble" bash -c '
+  "mcr.microsoft.com/playwright:v${version}-resolute" bash -c '
     set -e
     cd /w
     cp /src/package.json /src/package-lock.json .

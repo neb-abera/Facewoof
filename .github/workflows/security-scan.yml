@@ -27,7 +27,7 @@ permissions:
 jobs:
   image-scan:
     name: container scan (trivy)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: read
@@ -73,7 +73,7 @@ jobs:
   dependency-review:
     name: dependency review
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
       - name: Harden runner

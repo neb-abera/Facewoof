@@ -35,7 +35,7 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       actions: read
@@ -70,7 +70,7 @@ jobs:
   build:
     needs: target
     if: needs.target.outputs.sha != ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -119,7 +119,7 @@ jobs:
     # would then name the environment, and any branch can be dispatched into
     # an environment that has no branch policy.
     needs: [target, build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -161,7 +161,7 @@ jobs:
 
   deploy:
     needs: [target, migrate]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     environment: production
     permissions:
