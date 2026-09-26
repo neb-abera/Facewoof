@@ -73,8 +73,9 @@ written to `.env` the first time `make` runs. Image tags, container names and
 the compose project derive from the directory the same way. `make ports`
 prints what this copy uses.
 
-The database is brought up to date by `server/db/migrate.ts`, which the API
-runs at start-up and `make migrate` runs on demand. `make reset-db` starts over.
+The database is brought up to date by `server/db/migrate.ts`, which the
+development API runs at start-up and `make migrate` runs on demand.
+`make reset-db` starts over.
 
 ## How it fits together
 
@@ -246,13 +247,18 @@ one-time Azure and DNS setup is in [docs/DEPLOY.md](docs/DEPLOY.md).
 
 The production image serves the client and the API on port 8080 and runs as a
 non-root user. `/healthz` checks the database and is what the platform polls.
-Migrations run at start-up behind an advisory lock, so several replicas
-starting at once on a deploy is safe.
+It does not migrate at start-up. The deploy workflow's `migrate` job
+applies migrations first, as the `facewoof-migrator` identity, and the server
+connects as a role with rows and no DDL. It refuses to start while a
+migration is pending. [docs/DEPLOY.md](docs/DEPLOY.md), "Database roles", has
+the detail. Set `MIGRATE_ON_BOOT=true` to migrate at start-up outside
+development.
 
 At the root of its own host:
 
 ```bash
 docker build --target final -t facewoof .
+docker run --rm -e DATABASE_URL=... facewoof npm run migrate
 docker run -p 8080:8080 -e DATABASE_URL=... facewoof
 ```
 

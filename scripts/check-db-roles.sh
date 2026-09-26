@@ -9,11 +9,13 @@
 #
 #   1. the runtime role really cannot CREATE, ALTER, DROP or TRUNCATE, nor
 #      write the migration ledger;
-#   2. the app, started as that role with MIGRATE_ON_BOOT=false, works: the
-#      browser suite's demo and authorisation specs pass against it (sign-in,
-#      the feed, swipes and matches, packs, posts, playdates, sign-out);
-#   3. with MIGRATE_ON_BOOT=false and migrations NOT applied, it refuses to
-#      start instead of serving against a schema that is behind.
+#   2. the app, started as that role with the production image's defaults,
+#      works: the browser suite's demo and authorisation specs pass against
+#      it (sign-in, the feed, swipes and matches, packs, posts, playdates,
+#      sign-out);
+#   3. with the production image's defaults (no MIGRATE_ON_BOOT) and
+#      migrations NOT applied, it refuses to start instead of serving against
+#      a schema that is behind.
 #
 # A checker that has never failed proves nothing, so the denial probe is
 # first pointed at the OWNER role, where every statement succeeds, and must
@@ -73,20 +75,21 @@ admin -d postgres \
   -c "CREATE ROLE ${runtime} LOGIN PASSWORD 'runtime-local-only'" \
   -c "CREATE DATABASE ${database} OWNER ${owner}"
 
-echo "== 3. an unmigrated database and MIGRATE_ON_BOOT=false: the server must refuse to start"
+echo "== 3. an unmigrated database and the image's defaults: the server must refuse to start"
 # The owner creates an empty ledger so the refusal is about pending
 # migrations, not about a missing table.
 as_role "$owner" owner-local-only \
   -c "CREATE TABLE schema_migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())" \
   -c "GRANT SELECT ON schema_migrations TO ${runtime}"
+# No MIGRATE_ON_BOOT: outside development the image must not migrate at boot.
 if out="$(docker run --rm --network "$network" \
-  -e DATABASE_URL="$runtime_url" -e MIGRATE_ON_BOOT=false \
+  -e DATABASE_URL="$runtime_url" \
   -e SESSION_SECRET=ci-only-not-a-real-secret -e INSECURE_TRANSPORT=true \
   -e PORT="$app_port" "$IMAGE" 2>&1)"; then
   echo "error: the server started against an unmigrated database" >&2
   exit 1
 fi
-grep -q "MIGRATE_ON_BOOT=false and the database is missing" <<<"$out" || {
+grep -q "migrations are not run at boot and the database is missing" <<<"$out" || {
   echo "error: the server exited, but not for the expected reason:" >&2
   echo "$out" >&2
   exit 1
@@ -112,6 +115,7 @@ probes=(
   "INSERT INTO schema_migrations (name) VALUES ('9999_probe.sql')"
   "DELETE FROM schema_migrations"
   "CREATE SCHEMA probe_schema"
+  "CREATE TEMP TABLE probe_temp (id int)"
 )
 # Succeeds (exit 0) only if the role is DENIED every probe.
 denied_everything() {
@@ -151,7 +155,7 @@ echo "== 2. the app, end to end, as the runtime role"
 run_args=(-d --name "$app" --network "$network")
 [ "$network" = "host" ] || run_args+=(--network-alias roles-under-test)
 docker run "${run_args[@]}" \
-  -e DATABASE_URL="$runtime_url" -e MIGRATE_ON_BOOT=false \
+  -e DATABASE_URL="$runtime_url" \
   -e SESSION_SECRET=ci-only-not-a-real-secret -e INSECURE_TRANSPORT=true \
   -e GUEST_LIMIT_PER_HOUR=600 -e PUBLIC_LIMIT_PER_MINUTE=6000 -e FEED_LIMIT_PER_MINUTE=6000 \
   -e API_LIMIT_PER_FIVE_MINUTES=6000 \

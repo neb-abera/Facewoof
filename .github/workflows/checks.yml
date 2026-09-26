@@ -237,11 +237,13 @@ jobs:
         run: |
           set -euo pipefail
           docker build --target final -t facewoof .
-          # Migrations run from the image, the same way production does.
+          # Migrations run from the image as their own step, the same way
+          # the deploy workflow's migrate job does.
           docker run --rm --network host \
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
             facewoof npm run migrate
-          # And again on start-up, which must be a no-op.
+          # Outside development the server does not migrate at start-up. It
+          # checks the ledger and refuses to serve a schema that is behind.
           docker run -d --name app --network host \
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
             -e SESSION_SECRET=ci-only-not-a-real-secret \
@@ -384,9 +386,9 @@ jobs:
         # The serving process is meant to run as a role with no DDL rights,
         # with migrations applied separately by the owner (docs/DEPLOY.md).
         # In a scratch database on the same Postgres: the runtime role is
-        # denied CREATE/ALTER/DROP/TRUNCATE (after the probe has been seen to
-        # fail against the owner), the image refuses to start on an
-        # unmigrated schema with MIGRATE_ON_BOOT=false, and the demo and
+        # denied CREATE/ALTER/DROP/TRUNCATE/TEMP (after the probe has been
+        # seen to fail against the owner), the image refuses to start on an
+        # unmigrated schema with its production defaults, and the demo and
         # authorisation specs pass against the image running as that role.
         env:
           IMAGE: facewoof

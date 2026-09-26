@@ -47,9 +47,10 @@ if (import.meta.main) {
   warnIfUploadsUnsigned();
   db.query("SELECT 1")
     // Bring the schema up to date before serving. The runner takes an advisory
-    // lock, so several replicas starting at once on a deploy is safe: one
-    // applies, the rest wait and find nothing to do. With MIGRATE_ON_BOOT=false
-    // (a runtime role with no DDL rights) it only checks nothing is pending.
+    // lock, so several replicas starting at once is safe: one applies, the
+    // rest wait and find nothing to do. That is development only. Elsewhere
+    // the runtime role has no DDL rights and it only checks nothing is
+    // pending (server/db/migrate.ts, migratesOnBoot).
     .then(() => prepareSchema())
     .then(() => {
       console.log("database connected");

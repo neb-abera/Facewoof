@@ -95,37 +95,80 @@ export async function pendingMigrations(): Promise<string[]> {
 }
 
 /*
+ * Whether the server applies migrations before it listens.
+ *
+ * Only in development, where `make dev` serves as the compose owner role.
+ * Everywhere else the serving process connects as a role that cannot change
+ * the schema (server/db/roles/runtime.sql), and migrations are their own step
+ * run as the owner: the `migrate` job of the deploy workflow, as the
+ * facewoof-migrator identity. MIGRATE_ON_BOOT=true or false overrides the
+ * default. Anything else is a typo, and a typo here decides who may run DDL,
+ * so it stops the server.
+ */
+export function migratesOnBoot(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  switch (env.MIGRATE_ON_BOOT) {
+    case "true":
+      return true;
+    case "false":
+      return false;
+    case undefined:
+    case "":
+      return env.NODE_ENV === "development";
+    default:
+      throw new Error(
+        `MIGRATE_ON_BOOT must be true or false, not ${JSON.stringify(env.MIGRATE_ON_BOOT)}`,
+      );
+  }
+}
+
+/*
  * What the server does about the schema before it listens.
  *
- * By default it migrates, as it always has, which requires the serving
- * process to connect as the role that owns the schema. MIGRATE_ON_BOOT=false
- * is the other half of running it as a role that cannot change the schema
- * at all (server/db/roles/runtime.sql): migrations are then a separate step
- * run as the owner, and the server only checks that step happened. Serving
- * against a schema that is behind the code fails in stranger ways than
- * refusing to start, and a revision that does not start never takes traffic.
+ * With migrations on boot, it applies them. Otherwise it only checks the
+ * separate step happened. Serving against a schema that is behind the code
+ * fails in stranger ways than refusing to start, and a revision that does
+ * not start never takes traffic.
  */
 export async function prepareSchema(
   env: Record<string, string | undefined> = process.env,
 ): Promise<void> {
-  if (env.MIGRATE_ON_BOOT !== "false") {
+  if (migratesOnBoot(env)) {
     await migrate();
     return;
   }
   const pending = await pendingMigrations();
   if (pending.length) {
     throw new Error(
-      `MIGRATE_ON_BOOT=false and the database is missing ${pending.join(", ")}: ` +
+      `migrations are not run at boot and the database is missing ${pending.join(", ")}: ` +
         "run the migrations (node server/db/migrate.ts) as the owner role first",
     );
   }
   console.log("database is up to date (migrations are not run at boot)");
 }
 
-// Runnable on its own (`npm run migrate`) as well as importable, so a deploy
-// can migrate as a separate step rather than only at boot.
+/* `node server/db/migrate.ts list`: name what is pending and apply nothing. */
+export async function listPending(): Promise<void> {
+  const pending = await pendingMigrations();
+  console.log(
+    pending.length ? `pending: ${pending.join(", ")}` : "pending: none",
+  );
+}
+
+// Runnable on its own (`npm run migrate`, or `npm run migrate -- list`) as
+// well as importable, so a deploy migrates as a separate step.
 if (import.meta.main) {
-  migrate()
+  const verb = process.argv[2];
+  const run =
+    verb === undefined
+      ? migrate()
+      : verb === "list"
+        ? listPending()
+        : Promise.reject(
+            new Error(`unknown verb ${verb}: expected list or nothing`),
+          );
+  run
     .then(() => pool.end())
     .then(() => process.exit(0))
     .catch((err: unknown) => {

@@ -109,13 +109,9 @@ There is no way to read that password back out of Azure later, so save it
 before moving on. If you lose it, reset it with
 `az postgres flexible-server update -g "$RG" -n "$PG" --admin-password ...`.
 
-The application applies its own migrations at start-up, so there is nothing to
-load by hand. The first revision creates the schema and the demo roster.
-
-That convenience is also a liability: to migrate at boot the serving process
-has to connect as the role that owns the schema, so anything that reaches the
-database through the app can `DROP` and `ALTER` as well as read. "Database
-roles" below is the owner-run procedure that ends it.
+The deploy workflow's `migrate` job creates the schema and the demo roster on
+the first deploy, as the `facewoof-migrator` identity. "Database roles" below
+sets that identity up, and the serving identity with rows and no DDL.
 
 ## 3. Container app
 
@@ -392,130 +388,147 @@ With neither mode configured the app hides photo upload.
 
 ## Database roles: a runtime identity with no DDL
 
-Two roles instead of one. The **owner** role owns the tables and runs
-migrations (`node server/db/migrate.ts`, which the image can run as a
-one-off). The **runtime** role is what the container app connects as:
-`SELECT/INSERT/UPDATE/DELETE` and sequence use, nothing else. It has no
-`CREATE` on the schema, no `TRUNCATE`, no ownership, and a read-only view of
-`schema_migrations`. The grants are `server/db/roles/runtime.sql`. CI proves
-on every pull request that the app works end to end as such a role and that
-the role cannot change the schema (`scripts/check-db-roles.sh`,
-`make check-db-roles`).
+Two identities touch the `facewoof` database. Neither holds a password.
 
-The code half ships dark: `MIGRATE_ON_BOOT` defaults to today's behaviour, so
-nothing changes until the steps below are done. With `MIGRATE_ON_BOOT=false`
-the server runs no DDL at boot and **refuses to start** if a migration is
-pending, so a revision deployed ahead of its migration never takes traffic.
+| Identity | Postgres role | Rights | Used by |
+|---|---|---|---|
+| `facewoof-migrator`, a user-assigned managed identity in `facewoof-rg` | `facewoof-migrator` | Owns every table, sequence and index and the migration ledger. `USAGE, CREATE` on schema `public` | The `migrate` job of the deploy workflow, and nothing else |
+| The container app's system-assigned identity | `facewoof-mi` | `SELECT, INSERT, UPDATE, DELETE` on tables, `USAGE, SELECT` on sequences, `SELECT` on `schema_migrations`. No `CREATE`, no `TEMPORARY`, no ownership | Serving requests |
 
-All of this is owner-run. None of it is in the deploy workflow yet.
+`facewoof-migrator` holds no Azure role. It trusts one thing: a GitHub token
+for this repository's `main` branch, through two federated credentials, one
+per subject format (`repo:neb-abera/Facewoof:ref:refs/heads/main` and
+`repo:neb-abera@29741322/Facewoof@610509973:ref:refs/heads/main`). Its
+client id is the repository variable `DATABASE_MIGRATOR_CLIENT_ID`. The
+`migrate` job has no `environment:`, because the subject would then name the
+environment, and the `production` environment has no branch policy.
 
-**1. A second managed identity, for migrations.** Today the container app's
-identity (`facewoof-mi`) owns the schema. It becomes the runtime role. A new
-user-assigned identity becomes the owner.
+The grants are `server/db/roles/runtime.sql`. CI proves on every pull request
+that the app works end to end as such a role and that the role is refused
+`CREATE`, `ALTER`, `DROP`, `TRUNCATE`, `CREATE SCHEMA`, temp tables and writes
+to the ledger (`scripts/check-db-roles.sh`, `make check-db-roles`).
+
+### How a deploy migrates
+
+The deploy workflow runs `build`, then `migrate`, then `deploy`.
+
+1. `build` builds the image once and hands it on as an artifact.
+2. `migrate` loads it, signs in to Azure as `facewoof-migrator`, and runs
+   `scripts/migrate-production.sh`. The script takes an Entra token for
+   Postgres and runs the image twice: `node server/db/migrate.ts list` names
+   the pending migrations, then `node server/db/migrate.ts` applies them. The
+   token reaches the container in a mode 600 env file and is masked in the
+   log.
+3. `deploy` pushes the same image and starts a revision of it. Outside
+   development the server does not migrate at start-up. It reads the ledger
+   and refuses to start while a migration is pending, so the previous
+   revision keeps serving.
+
+A failed `migrate` stops the run before anything is pushed. Each migration
+commits on its own, so a failure leaves the ones before it applied.
+
+A migration must work with the revision before it for one release (add
+before use, remove after). That revision serves on the new schema until the
+new one is ready.
+
+`MIGRATE_ON_BOOT` decides the start-up behaviour: `true` migrates, `false`
+does not, and unset means migrate in development only (`NODE_ENV`). Any other
+value stops the server.
+
+### How production was set up
+
+On 2026-09-26, as the Entra administrator, from the dev box (an Azure
+address, so the "allow Azure services" firewall rule admits it). The admin
+connects with `az account get-access-token --resource-type oss-rdbms` as the
+password. Two admin role names map to the same Entra user:
+`neb.abera@outlook.com` holds `ADMIN` on `facewoof-migrator`, and
+`nebyouabera_gmail.com#EXT#@nebyouaberagmail.onmicrosoft.com` holds `ADMIN` on
+`facewoof-mi`. The handover needs both.
 
 ```bash
-az identity create -g "$RG" -n facewoof-migrate-mi
-MIGRATE_CLIENT_ID=$(az identity show -g "$RG" -n facewoof-migrate-mi --query clientId -o tsv)
-MIGRATE_ID=$(az identity show -g "$RG" -n facewoof-migrate-mi --query id -o tsv)
+RG=facewoof-rg
+az identity create -g "$RG" -n facewoof-migrator -l eastus2
+az identity federated-credential create -g "$RG" --identity-name facewoof-migrator \
+  -n github-main --issuer https://token.actions.githubusercontent.com \
+  --subject repo:neb-abera/Facewoof:ref:refs/heads/main --audiences api://AzureADTokenExchange
+az identity federated-credential create -g "$RG" --identity-name facewoof-migrator \
+  -n github-main-immutable --issuer https://token.actions.githubusercontent.com \
+  --subject repo:neb-abera@29741322/Facewoof@610509973:ref:refs/heads/main --audiences api://AzureADTokenExchange
+gh variable set DATABASE_MIGRATOR_CLIENT_ID -R neb-abera/Facewoof \
+  -b "$(az identity show -g "$RG" -n facewoof-migrator --query clientId -o tsv)"
 ```
 
-**2. Its database role, and ownership.** As the server's Entra admin, against
-the `postgres` database and then `facewoof` (token as in docs/OPERATIONS.md):
+As `neb.abera@outlook.com`, in `postgres` and then `facewoof`:
 
 ```sql
--- dbname=postgres
-SELECT * FROM pgaadauth_create_principal('facewoof-migrate-mi', false, false);
-
--- dbname=facewoof
-GRANT CONNECT ON DATABASE facewoof TO "facewoof-migrate-mi";
-GRANT USAGE, CREATE ON SCHEMA public TO "facewoof-migrate-mi";
--- Everything facewoof-mi created so far changes hands. REASSIGN needs
--- membership in both roles; azure_pg_admin has it.
-REASSIGN OWNED BY "facewoof-mi" TO "facewoof-migrate-mi";
+SELECT * FROM pgaadauth_create_principal_with_oid('facewoof-migrator', '<principal id>', 'service', false, false);
+GRANT "facewoof-migrator" TO "nebyouabera_gmail.com#EXT#@nebyouaberagmail.onmicrosoft.com" WITH INHERIT TRUE, SET TRUE;
 ```
 
-**3. The runtime grants**, same session, same database:
+As the gmail admin role, in `facewoof`, in one transaction, so the app never
+loses access to a table. The same file ran first with `ROLLBACK` in place of
+`COMMIT`, and printed the owners and privileges below before rolling back.
 
-```bash
-psql "host=$PG.postgres.database.azure.com dbname=facewoof user=<entra admin> sslmode=require" \
-  -v ON_ERROR_STOP=1 -v runtime=facewoof-mi -v owner=facewoof-migrate-mi \
-  -f server/db/roles/runtime.sql
+```sql
+BEGIN;
+GRANT "facewoof-mi" TO CURRENT_USER WITH INHERIT TRUE, SET TRUE;
+GRANT USAGE, CREATE ON SCHEMA public TO "facewoof-migrator";
+-- Object by object: ALTER TABLE ... OWNER TO "facewoof-migrator" for each
+-- table in public owned by facewoofadmin, then ALTER SEQUENCE for any
+-- sequence left. REASSIGN OWNED BY facewoofadmin would also hand over the
+-- databases that role owns, scheduling and fitness among them.
+\set runtime facewoof-mi
+\set owner facewoof-migrator
+\i server/db/roles/runtime.sql
+GRANT "facewoof-migrator" TO "facewoof-mi";                                  -- the bridge
+ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = 'facewoof-migrator';  -- the bridge
+GRANT "facewoof-migrator" TO facewoofadmin;   -- sessions already open, until the restart
+REVOKE facewoofadmin FROM "facewoof-mi";
+REVOKE "facewoof-mi" FROM CURRENT_USER GRANTED BY CURRENT_USER;
+COMMIT;
 ```
 
-Check it took, as the admin: `\dp users` shows `facewoof-mi=arwd/…` and
-nothing more, and `SELECT has_schema_privilege('facewoof-mi','public','CREATE')`
-is `f`.
+Before it, `facewoof-mi` was a member of `facewoofadmin`, the server
+administrator (`CREATEROLE`, `CREATEDB`, `BYPASSRLS`, `azure_pg_admin`), which
+owned all 11 tables, 5 sequences and 24 indexes, and the `scheduling` and
+`fitness` databases too. After it, `facewoof-migrator` owns all 40 objects and
+`facewoof-mi` is no administrator.
 
-**4. A Container Apps job that migrates**, from the same image, as the owner
-identity:
+Then the serving revision was restarted
+(`az containerapp revision restart`), so no session still ran as
+`facewoofadmin`, and the gmail admin role ran
+`REVOKE "facewoof-migrator" FROM facewoofadmin`.
 
-```bash
-az containerapp job create -g "$RG" -n facewoof-migrate --environment "$ENVIRONMENT" \
-  --trigger-type Manual --replica-timeout 600 --replica-retry-limit 0 \
-  --image "$ACR.azurecr.io/facewoof:latest" \
-  --registry-server "$ACR.azurecr.io" --registry-identity "$MIGRATE_ID" \
-  --mi-user-assigned "$MIGRATE_ID" \
-  --command node --args server/db/migrate.ts \
-  --env-vars DATABASE_AUTH=entra PGSSL=true PGHOST="$PG.postgres.database.azure.com" \
-             PGDATABASE=facewoof PGUSER=facewoof-migrate-mi AZURE_CLIENT_ID="$MIGRATE_CLIENT_ID"
-az role assignment create --assignee "$(az identity show --ids "$MIGRATE_ID" --query principalId -o tsv)" \
-  --role AcrPull --scope "$(az acr show -n "$ACR" --query id -o tsv)"
+After the first deploy whose `migrate` job was green, the bridge came down,
+as the gmail admin role in `facewoof`, then another restart:
+
+```sql
+BEGIN;
+ALTER ROLE "facewoof-mi" IN DATABASE facewoof RESET role;
+REVOKE "facewoof-migrator" FROM "facewoof-mi";
+COMMIT;
 ```
 
-Run it once by hand (`az containerapp job start -g "$RG" -n facewoof-migrate`)
-and read its logs: it should say `database is up to date`.
+And as `neb.abera@outlook.com`:
+`REVOKE "facewoof-migrator" FROM "nebyouabera_gmail.com#EXT#@nebyouaberagmail.onmicrosoft.com"`.
 
-**5. The deploy workflow migrates before it rolls out.** A sketch of the step
-to add to `.github/workflows/deploy.yml` between "Build and push" and "Deploy
-the revision". It is not merged, because it fails until step 4 exists:
+### Rolling back
 
-```yaml
-      - name: Migrate, as the owner identity
-        run: |
-          set -euo pipefail
-          az containerapp job update -g "$RESOURCE_GROUP" -n facewoof-migrate \
-            --image "$REGISTRY/$IMAGE:run-${{ github.run_id }}"
-          execution=$(az containerapp job start -g "$RESOURCE_GROUP" -n facewoof-migrate \
-            --query name -o tsv)
-          for _ in $(seq 1 60); do
-            status=$(az containerapp job execution show -g "$RESOURCE_GROUP" \
-              -n facewoof-migrate --job-execution-name "$execution" \
-              --query properties.status -o tsv)
-            case "$status" in
-              Succeeded) exit 0 ;;
-              Failed|Degraded|Stopped) echo "migration $status"; exit 1 ;;
-            esac
-            sleep 5
-          done
-          echo "migration did not finish"; exit 1
-```
+Each step has its reverse. Run them newest first. None of them touches a row.
 
-Migrations must then be backwards compatible with the revision still
-serving (add before use, remove after), because the old revision runs
-against the new schema for the length of the rollout. They already had to
-be: replicas of the old revision were serving while the first new replica
-migrated at boot.
-
-**6. Switch the app over**, only after 2–5:
-
-```bash
-az containerapp update -g "$RG" -n "$APP" --set-env-vars MIGRATE_ON_BOOT=false
-```
-
-The revision's log should say `database is up to date (migrations are not
-run at boot)`. To back out, set `MIGRATE_ON_BOOT=true` and, as the admin,
-`GRANT "facewoof-migrate-mi" TO "facewoof-mi"`. The app then inherits the
-owner's rights again until the cause is fixed.
-
-If `DATABASE_URL` is still wired to the Postgres **admin** password anywhere
-(section 3 above predates managed identities), that is the same problem in a
-worse form: remove the secret once `DATABASE_AUTH=entra` is confirmed in use
-(docs/OPERATIONS.md, "Secret lifecycle").
+| To undo | Run |
+|---|---|
+| The runtime identity's loss of DDL | `GRANT "facewoof-migrator" TO "facewoof-mi";` and `ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = 'facewoof-migrator';`, then restart the revision |
+| Migrations outside the app | `az containerapp update -g facewoof-rg -n facewoof --set-env-vars MIGRATE_ON_BOOT=true`, with the two lines above |
+| The `migrate` job | Revert the workflow change. The app then needs both rows above |
+| The handover | In `facewoof`, `ALTER TABLE ... OWNER TO facewoofadmin` for each table and sequence, `GRANT facewoofadmin TO "facewoof-mi";`, `ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = facewoofadmin;` and `GRANT TEMPORARY ON DATABASE facewoof TO PUBLIC;` |
+| The identity | `az identity delete -g facewoof-rg -n facewoof-migrator` (its federated credentials go with it), `gh variable delete DATABASE_MIGRATOR_CLIENT_ID -R neb-abera/Facewoof`, and `DROP ROLE "facewoof-migrator"` once it owns nothing |
 
 ## Deploying
 
-Merging to `main` runs the checks. If they pass, the deploy workflow builds in
-ACR, updates the container app, and polls `/healthz` until the new revision
+Merging to `main` runs the checks. If they pass, the deploy workflow builds
+the image on the runner, migrates as `facewoof-migrator`, pushes the image,
+updates the container app, and polls `/healthz` until the new revision
 answers. A revision that never becomes healthy fails the run and prints the
 container logs, rather than reporting green.
 
