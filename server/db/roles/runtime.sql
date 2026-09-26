@@ -6,13 +6,15 @@
 -- DROP, ALTER and CREATE. Split in two: an OWNER role runs migrations
 -- (`node server/db/migrate.ts`, as a separate step), and this RUNTIME role
 -- serves requests with SELECT/INSERT/UPDATE/DELETE and sequence use only.
--- No CREATE on the schema, no TRUNCATE, no ownership, and the migration
--- ledger is read-only to it.
+-- No CREATE on the schema, no TEMPORARY, no TRUNCATE, no ownership, and the
+-- migration ledger is read-only to it.
 --
--- Run as the owner (or an admin), after the migrations, against the app's
--- database. It does not create either role — locally that is CREATE ROLE,
--- on Azure it is pgaadauth_create_principal for a managed identity — it only
--- grants. It is idempotent: run it again after adding a role or restoring.
+-- Run as the owner of the database and the tables (or an admin who holds
+-- both), after the migrations, against the app's database. It does not
+-- create either role. Locally that is CREATE ROLE. On Azure it is
+-- pgaadauth_create_principal_with_oid for a managed identity. It only
+-- grants, and it is idempotent: run it again after adding a role or
+-- restoring.
 --
 --   psql "$OWNER_URL" -v ON_ERROR_STOP=1 \
 --        -v runtime=facewoof_app -v owner=facewoof_owner \
@@ -33,8 +35,15 @@
   \quit
 \endif
 
--- Nobody creates objects in public by default. (Already so on a database
--- created under PostgreSQL 15+; older and restored ones still carry it.)
+-- PUBLIC's defaults give every role more than it was granted: TEMPORARY on
+-- the database, and before PostgreSQL 15 CREATE on schema public. CONNECT
+-- stays with PUBLIC. Who may log in is the server's authentication, and
+-- revoking CONNECT could lock out an administrator who does not own this
+-- database. Revoking TEMPORARY needs the database's owner. DBNAME is psql's
+-- own variable for the database it is connected to.
+REVOKE TEMPORARY ON DATABASE :"DBNAME" FROM PUBLIC;
+REVOKE ALL ON DATABASE :"DBNAME" FROM :"runtime";
+GRANT CONNECT ON DATABASE :"DBNAME" TO :"runtime";
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM :"runtime";
 GRANT USAGE ON SCHEMA public TO :"runtime";
