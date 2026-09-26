@@ -74,7 +74,9 @@ Delete any temporary firewall rules you created, on both servers.
 ## Secret lifecycle
 
 - **Database**: production uses Entra managed-identity tokens
-  (`DATABASE_AUTH=entra`, role `facewoof-mi`). No DB password is in use. The
+  (`DATABASE_AUTH=entra`, role `facewoof-mi`, rows and no DDL). Migrations
+  run as `facewoof-migrator` from the deploy workflow (docs/DEPLOY.md,
+  "Database roles"). No DB password is in use. The
   legacy `facewoof` password role and the parked `DATABASE_URL` secret are
   scheduled for deletion after 2026-09-06 given a week of clean traffic.
 - **SESSION_SECRET**: a comma-separated, ordered list of keys. The first

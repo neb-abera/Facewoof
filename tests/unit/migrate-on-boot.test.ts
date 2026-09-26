@@ -1,8 +1,9 @@
 /*
- * What the server does about the schema before listening. By default it
- * migrates; with MIGRATE_ON_BOOT=false it must not attempt any DDL (the
- * runtime role has no right to) and must refuse to start on a schema that
- * is behind the code. The pool is a stand-in that records every statement.
+ * What the server does about the schema before listening. It migrates in
+ * development only. Everywhere else it must not attempt any DDL (the runtime
+ * role has no right to) and must refuse to start on a schema that is behind
+ * the code. MIGRATE_ON_BOOT=true or false overrides the default. The pool is
+ * a stand-in that records every statement.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -26,7 +27,9 @@ vi.mock("../../server/db/database.ts", () => ({
   },
 }));
 
-const { prepareSchema } = await import("../../server/db/migrate.ts");
+const { listPending, prepareSchema } = await import(
+  "../../server/db/migrate.ts"
+);
 
 const onDisk = fs
   .readdirSync(path.join(import.meta.dirname, "../../server/db/migrations"))
@@ -40,29 +43,65 @@ beforeEach(() => {
 });
 
 describe("preparing the schema at boot", () => {
-  it("migrates by default, as it always has", async () => {
+  it("migrates in development", async () => {
     applied = onDisk.slice(0, -1);
-    await prepareSchema({});
+    await prepareSchema({ NODE_ENV: "development" });
     expect(statements).toContain("CREATE TABLE IF");
     expect(statements).toContain("INSERT INTO schema_migrations");
   });
 
-  it("runs no DDL and takes no lock when MIGRATE_ON_BOOT=false", async () => {
-    await prepareSchema({ MIGRATE_ON_BOOT: "false" });
+  it.each([
+    ["production", { NODE_ENV: "production" }],
+    ["no NODE_ENV", {}],
+    ["test", { NODE_ENV: "test" }],
+  ])("runs no DDL and takes no lock by default in %s", async (_, env) => {
+    await prepareSchema(env);
     expect(statements).toEqual(["SELECT name FROM"]);
+  });
+
+  it("runs no DDL with MIGRATE_ON_BOOT=false, even in development", async () => {
+    await prepareSchema({ NODE_ENV: "development", MIGRATE_ON_BOOT: "false" });
+    expect(statements).toEqual(["SELECT name FROM"]);
+  });
+
+  it("migrates in production only when MIGRATE_ON_BOOT=true, the rollback lever", async () => {
+    applied = onDisk.slice(0, -1);
+    await prepareSchema({ NODE_ENV: "production", MIGRATE_ON_BOOT: "true" });
+    expect(statements).toContain("INSERT INTO schema_migrations");
   });
 
   it("refuses to start on a schema that is behind, naming what is missing", async () => {
     applied = onDisk.slice(0, -1);
-    await expect(prepareSchema({ MIGRATE_ON_BOOT: "false" })).rejects.toThrow(
+    await expect(prepareSchema({ NODE_ENV: "production" })).rejects.toThrow(
       new RegExp(`missing ${onDisk.at(-1)}`),
     );
     expect(statements).toEqual(["SELECT name FROM"]);
   });
 
-  it("treats anything but the literal false as the default", async () => {
-    applied = onDisk.slice(0, -1);
-    await prepareSchema({ MIGRATE_ON_BOOT: "0" });
-    expect(statements).toContain("INSERT INTO schema_migrations");
+  it.each(["0", "yes", "FALSE"])(
+    "refuses MIGRATE_ON_BOOT=%s rather than guessing",
+    async (value) => {
+      await expect(
+        prepareSchema({ NODE_ENV: "production", MIGRATE_ON_BOOT: value }),
+      ).rejects.toThrow(/MIGRATE_ON_BOOT must be true or false/);
+      expect(statements).toEqual([]);
+    },
+  );
+});
+
+describe("migrate list", () => {
+  it("names what is pending and writes nothing", async () => {
+    applied = onDisk.slice(0, -2);
+    await listPending();
+    expect(statements).toEqual(["SELECT name FROM"]);
+    expect(console.log).toHaveBeenCalledWith(
+      `pending: ${onDisk.slice(-2).join(", ")}`,
+    );
+  });
+
+  it("says none when the ledger is complete", async () => {
+    await listPending();
+    expect(statements).toEqual(["SELECT name FROM"]);
+    expect(console.log).toHaveBeenCalledWith("pending: none");
   });
 });
