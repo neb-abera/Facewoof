@@ -104,6 +104,12 @@ RUN npm run build
 # script reads it from here rather than pinning a version of its own.
 FROM jdkato/vale:v3.22.0@sha256:0ef74c2c8331a2cc8739ecc8b4f7cc6672e61524c3697e8c8857bc86b724a28e AS vale
 
+# Workflow and script linter, for `make lint-ci` and the CI lint job. Never
+# built into anything, like the vale stage. The image carries actionlint and
+# the shellcheck it runs on embedded run: blocks, and this FROM line is what
+# Dependabot bumps.
+FROM rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 AS actionlint
+
 # ---- final ------------------------------------------------------------------
 FROM nodebase AS final
 WORKDIR /app

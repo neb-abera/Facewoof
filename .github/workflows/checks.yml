@@ -397,9 +397,9 @@ jobs:
   # built out of get no checks from the app toolchain, so a typo'd `if:` or
   # an unquoted variable in an embedded run: block fails silently until it
   # matters. actionlint validates the workflow files (delegating embedded
-  # run: blocks to shellcheck); shellcheck covers scripts/*.sh. Both binaries
-  # are version- and checksum-pinned so this job runs exactly what was
-  # reviewed.
+  # run: blocks to shellcheck). shellcheck covers scripts/*.sh. Both come
+  # from the digest-pinned `actionlint` stage of the Dockerfile, the one
+  # place their version is written, and `make lint-ci` runs them there.
   workflow-lint:
     name: lint (actionlint + shellcheck)
     runs-on: ubuntu-latest
@@ -408,50 +408,28 @@ jobs:
       - name: Harden runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: block
-          # checkout dials github.com; the two release tarballs redirect to
-          # the githubusercontent asset hosts; the template parity check
-          # reads the template's files from raw.githubusercontent.com.
-          allowed-endpoints: >
-            github.com:443
-            api.github.com:443
-            objects.githubusercontent.com:443
-            release-assets.githubusercontent.com:443
-            raw.githubusercontent.com:443
+          # Audit, not block: this job runs containers, and container-side
+          # DNS bypasses the resolver harden-runner watches. The image layers
+          # come from storage hosts that change without notice.
+          egress-policy: audit
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install pinned actionlint and shellcheck
-        env:
-          ACTIONLINT_VERSION: 1.7.12
-          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
-          SHELLCHECK_VERSION: 0.11.0
-          SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+      - name: actionlint (workflows, including embedded shell), shellcheck (scripts), workflow concurrency
+        run: make lint-ci
+
+      - name: Required checks match the workflows
+        # Branch protection requires checks by name. A renamed job here
+        # would leave PRs waiting forever on a check that no longer reports,
+        # and a new job missing from the list would not block a merge.
+        # .github/required-checks is asserted against the workflows in both
+        # directions. The self-test plants each failure first.
         run: |
           set -euo pipefail
-          cd "$RUNNER_TEMP"
-          curl -fsSLo actionlint.tar.gz \
-            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
-          echo "${ACTIONLINT_SHA256}  actionlint.tar.gz" | sha256sum -c -
-          tar -xzf actionlint.tar.gz actionlint
-          curl -fsSLo shellcheck.tar.xz \
-            "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
-          echo "${SHELLCHECK_SHA256}  shellcheck.tar.xz" | sha256sum -c -
-          tar -xJf shellcheck.tar.xz --strip-components=1 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck"
-
-      - name: actionlint (workflows, including embedded shell)
-        run: '"$RUNNER_TEMP/actionlint" -color -shellcheck "$RUNNER_TEMP/shellcheck"'
-
-      - name: shellcheck (scripts/*.sh)
-        run: '"$RUNNER_TEMP/shellcheck" scripts/*.sh'
-
-      - name: Required contexts match the workflows
-        # Branch protection requires contexts by name; a renamed job here
-        # would leave PRs waiting forever on a context that no longer
-        # reports. The committed list is asserted against the workflows.
-        run: scripts/check-required-contexts.sh
+          scripts/check-required-contexts.sh --self-test
+          scripts/check-required-contexts.sh
 
       - name: Shared files match the template
         # The files .template-parity lists are byte-identical to
