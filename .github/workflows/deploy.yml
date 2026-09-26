@@ -10,6 +10,12 @@ on:
   # For redeploying the current main without a new commit.
   workflow_dispatch:
 
+# One deploy at a time, never cancelled: a cancelled deploy is half a
+# rollout. The group holds one running and one pending run, and a newer run
+# replaces the pending one. Checks finish in any order, so the replaced run
+# can be for a newer commit than the one that replaces it. Nothing is lost:
+# every run deploys the tip of the default branch (the target job), not the
+# commit that triggered it.
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -22,17 +28,55 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  # Checks run once per commit, so two merges minutes apart can pass in
+  # either order. Deploying the commit that triggered the run would then
+  # roll production back to the older one. This job names the tip of the
+  # default branch, and only once the tip's own checks have passed. While
+  # they are still running it names nothing, and the tip's own run deploys.
+  target:
     # workflow_run fires whether or not the checks passed, so a failed run has
     # to be filtered out here rather than assumed away.
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      sha: ${{ steps.tip.outputs.sha }}
+    steps:
+      - name: the tip of the default branch, once its checks passed
+        id: tip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          BRANCH: ${{ github.event.repository.default_branch }}
+          CHECKS: ${{ github.event.workflow_run.workflow_id }}
+        run: |
+          set -euo pipefail
+          tip=$(gh api "repos/$GITHUB_REPOSITORY/commits/$BRANCH" --jq .sha)
+          # A manual redeploy takes the tip as it is.
+          if [ "$EVENT" != workflow_dispatch ]; then
+            passed=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$CHECKS/runs?head_sha=$tip&status=success" --jq .total_count)
+            if [ "$passed" = 0 ]; then
+              echo "::notice::$BRANCH is at $tip and its checks have not passed yet. Its own run deploys it."
+              exit 0
+            fi
+          fi
+          echo "deploying $tip"
+          echo "sha=$tip" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: target
+    if: needs.target.outputs.sha != ''
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
 
     env:
+      SHA: ${{ needs.target.outputs.sha }}
       REGISTRY: ${{ vars.ACR_LOGIN_SERVER }}
       IMAGE: facewoof
       CONTAINER_APP: ${{ vars.CONTAINER_APP_NAME }}
@@ -41,14 +85,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # workflow_run checks out the default branch by default, which is
-          # what we want, but be explicit about the commit that passed.
-          #
-          # Scorecard flags any workflow_run + head_sha checkout as a
-          # potentially untrusted checkout. Here it is not: the trigger above
-          # is gated to `branches: [main]`, so head_sha is always a commit
-          # that already landed on main - never fork or PR code.
-          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+          # The tip of main, checked, as the target job found it. Scorecard
+          # flags a workflow_run checkout of a named commit as potentially
+          # untrusted. This one is not: it is the head of main, never fork or
+          # PR code.
+          ref: ${{ needs.target.outputs.sha }}
           # This job pushes images to ACR via the Azure OIDC login, never to
           # git, so the checkout token has no reason to stay on disk.
           persist-credentials: false
@@ -82,11 +123,11 @@ jobs:
           docker build --target final \
             --build-arg VITE_CLOUD_NAME="${{ vars.VITE_CLOUD_NAME }}" \
             --build-arg VITE_UPLOAD_PRESET="${{ vars.VITE_UPLOAD_PRESET }}" \
-            --tag "$REGISTRY/$IMAGE:${{ github.sha }}" \
+            --tag "$REGISTRY/$IMAGE:$SHA" \
             --tag "$REGISTRY/$IMAGE:run-${{ github.run_id }}" \
             --tag "$REGISTRY/$IMAGE:latest" \
             --file Dockerfile .
-          docker push "$REGISTRY/$IMAGE:${{ github.sha }}"
+          docker push "$REGISTRY/$IMAGE:$SHA"
           docker push "$REGISTRY/$IMAGE:run-${{ github.run_id }}"
           docker push "$REGISTRY/$IMAGE:latest"
 
