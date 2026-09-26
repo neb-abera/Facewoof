@@ -198,6 +198,22 @@ value to use.
 Deploying is then restricted to the `production` environment, which is also
 where a required reviewer would be configured.
 
+The environment deploys from `main` alone. Without a branch policy, a
+workflow on any branch that names `production` gets a token with this
+subject, and Azure accepts it. That was the state until 2026-09-26.
+
+```bash
+gh api -X PUT repos/neb-abera/Facewoof/environments/production \
+  -F 'deployment_branch_policy[protected_branches]=false' \
+  -F 'deployment_branch_policy[custom_branch_policies]=true'
+gh api -X POST repos/neb-abera/Facewoof/environments/production/deployment-branch-policies \
+  -f name=main -f type=branch
+```
+
+The deploy workflow's `target` job runs `scripts/check-environment-policy.sh`
+before anything else. If the policy is gone, or allows any branch beside
+`main`, the deploy stops there with the reason.
+
 ## 6. GitHub configuration
 
 Repository **secrets**:
@@ -400,8 +416,8 @@ for this repository's `main` branch, through two federated credentials, one
 per subject format (`repo:neb-abera/Facewoof:ref:refs/heads/main` and
 `repo:neb-abera@29741322/Facewoof@610509973:ref:refs/heads/main`). Its
 client id is the repository variable `DATABASE_MIGRATOR_CLIENT_ID`. The
-`migrate` job has no `environment:`, because the subject would then name the
-environment, and the `production` environment has no branch policy.
+`migrate` job has no `environment:`, so its subject names the branch rather
+than the environment.
 
 The grants are `server/db/roles/runtime.sql`. CI proves on every pull request
 that the app works end to end as such a role and that the role is refused
