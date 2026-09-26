@@ -76,9 +76,15 @@ Delete any temporary firewall rules you created, on both servers.
 - **Database**: production uses Entra managed-identity tokens
   (`DATABASE_AUTH=entra`, role `facewoof-mi`, rows and no DDL). Migrations
   run as `facewoof-migrator` from the deploy workflow (docs/DEPLOY.md,
-  "Database roles"). No DB password is in use. The
-  legacy `facewoof` password role and the parked `DATABASE_URL` secret are
-  scheduled for deletion after 2026-09-06 given a week of clean traffic.
+  "Database roles"). No DB password is in use. The legacy `facewoof`
+  password role cannot log in and is no longer a member of `facewoofadmin`
+  (2026-09-26). To undo, as the Entra admin: `ALTER ROLE facewoof LOGIN` and
+  `GRANT facewoofadmin TO facewoof`. The container app secret `db-url` is
+  still there, unreferenced. It holds the `facewoofadmin` password, so anyone
+  who can read the app's secrets can read it:
+  `az containerapp secret remove -g facewoof-rg -n facewoof --secret-names db-url`.
+  If the password is ever needed again, reset it with
+  `az postgres flexible-server update -g facewoof-rg -n abera-postgres --admin-password`.
 - **SESSION_SECRET**: a comma-separated, ordered list of keys. The first
   signs new cookies. All of them verify. Rotate by prepending:
   `SESSION_SECRET="<new>,<old>"`, deploy, and one session lifetime (24 h)
