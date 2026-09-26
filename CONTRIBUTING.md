@@ -106,9 +106,9 @@ merge (branch protection is strict: the branch must also be up to date with
 - `container scan (trivy)`
 - `dependency review`
 
-The committed list lives in `.github/required-contexts.txt`, and
+The committed list lives in `.github/required-checks`, and
 `scripts/check-required-contexts.sh` asserts in CI that it still matches the
-workflows. If you rename a job in a PR-gating workflow, update that file
+workflows, in both directions. If you rename a job in a PR-gating workflow, update that file
 (and branch protection) in the same change.
 
 Merges are **squash-only** (linear history is required), commits must be
