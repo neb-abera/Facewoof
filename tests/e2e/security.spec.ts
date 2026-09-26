@@ -103,6 +103,19 @@ test("the health endpoint is rate limited", async ({ page }) => {
 });
 
 /*
+ * The Firefox project in playwright.config.ts switches off Firefox's own
+ * enforcement of this header, to dodge microsoft/playwright#42731. The header
+ * itself must still reach every visitor, and this is what would notice if it
+ * stopped.
+ */
+test("the document isolates itself from cross-origin openers", async ({
+  page,
+}) => {
+  const res = await page.request.get("/");
+  expect(res.headers()["cross-origin-opener-policy"]).toBe("same-origin");
+});
+
+/*
  * The Content-Security-Policy, tightened past helmet's defaults — which
  * allow any https stylesheet or font and any inline style — and then proven
  * not to break the app, by walking every page with a listener on the

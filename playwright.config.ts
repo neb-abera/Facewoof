@@ -1,5 +1,39 @@
+import { readFileSync } from "node:fs";
 import os from "node:os";
 import { defineConfig, devices } from "@playwright/test";
+
+/*
+ * Firefox under Playwright 1.63 loses the commit of a navigation that
+ * crosses a Cross-Origin-Opener-Policy boundary when the new page then calls
+ * history.replaceState, which React Router does on start-up. The page loads
+ * and fires load, but page.goto waits for a commit event the browser's
+ * Playwright agent never sends, until the test times out. Upstream bug
+ * microsoft/playwright#42731, fixed after 1.63.0.
+ *
+ * Measured on GitHub's runner on 2026-09-26: 59 of 1,200 Firefox runs of
+ * delivery.spec.ts hung in page.goto("/") with the header enforced. The
+ * server sends COOP same-origin (helmet's default), so every test's first
+ * navigation crosses that boundary.
+ *
+ * The pref stops Firefox acting on the header. The server still sends it,
+ * and Chromium and WebKit still enforce it. No spec depends on the opener
+ * isolation it provides.
+ *
+ * The fix is on Playwright's main branch after 1.63.0, so 1.64 is the first
+ * release that can carry it. When package.json reaches 1.64, this
+ * refuses to load, so the Dependabot pull request that takes 1.64 is where
+ * the workaround goes.
+ */
+const playwrightVersion: string = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+).devDependencies["@playwright/test"];
+const [pwMajor = 0, pwMinor = 0] = playwrightVersion.split(".").map(Number);
+if (pwMajor > 1 || (pwMajor === 1 && pwMinor >= 64)) {
+  throw new Error(
+    `@playwright/test ${playwrightVersion} carries the fix for microsoft/playwright#42731. ` +
+      "Remove browser.tabs.remote.useCrossOriginOpenerPolicy from the Firefox project in playwright.config.ts.",
+  );
+}
 
 /*
  * Browser tests against a running instance.
@@ -52,6 +86,8 @@ export default defineConfig({
           firefoxUserPrefs: {
             "geo.prompt.testing": true,
             "geo.prompt.testing.allow": false,
+            // microsoft/playwright#42731, see the top of this file.
+            "browser.tabs.remote.useCrossOriginOpenerPolicy": false,
           },
         },
       },
