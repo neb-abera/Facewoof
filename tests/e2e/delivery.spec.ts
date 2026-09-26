@@ -1,4 +1,5 @@
-import { expect, type Page, type Response, test } from "@playwright/test";
+import type { Page, Response } from "@playwright/test";
+import { expect, test } from "./fixtures.ts";
 
 /*
  * How the app reaches the browser.
