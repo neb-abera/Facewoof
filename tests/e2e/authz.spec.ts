@@ -1,10 +1,9 @@
-import {
-  type APIRequestContext,
-  type Browser,
-  type BrowserContext,
-  expect,
-  test,
+import type {
+  APIRequestContext,
+  Browser,
+  BrowserContext,
 } from "@playwright/test";
+import { expect, test } from "./fixtures.ts";
 
 /*
  * Who may see and do what, asked over HTTP the way an attacker would.

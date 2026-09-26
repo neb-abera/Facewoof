@@ -1,4 +1,5 @@
-import { type APIRequestContext, expect, test } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
+import { expect, test } from "./fixtures.ts";
 
 /*
  * The discover feed's contract, through the API a browser uses.
