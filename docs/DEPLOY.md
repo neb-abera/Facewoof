@@ -86,7 +86,7 @@ echo "postgres admin password: $PG_PASSWORD"   # save this now
 az postgres flexible-server create \
   --resource-group "$RG" --name "$PG" --location "$LOCATION" \
   --tier Burstable --sku-name Standard_B1ms \
-  --storage-size 32 --version 16 \
+  --storage-size 32 --version 18 \
   --admin-user "$PG_ADMIN" --admin-password "$PG_PASSWORD" \
   --public-access 0.0.0.0
 
