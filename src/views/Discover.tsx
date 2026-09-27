@@ -43,9 +43,15 @@ export default function Discover() {
    * feed and no explanation. Denial now falls back to the profile's own zip
    * code, so the feed always has somewhere to look.
    */
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberately mount-only (per user) — re-running would overwrite whatever the visitor has since typed into the search box
+  // Start once the profile is in hand. On a reload the stored id is there at
+  // once and the profile a round trip later, and starting on the id alone
+  // took the missing location as a reason to ask the device: a permission
+  // prompt or up to ten seconds, and possibly a zip other than the account's.
+  const profileLoaded = userData !== null;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberately once per user, when the profile arrives. Re-running would overwrite whatever the visitor has since typed into the search box
   useEffect(() => {
-    if (!userId) return undefined;
+    if (!userId || !profileLoaded) return undefined;
 
     let cancelled = false;
     setResolving(true);
@@ -67,7 +73,7 @@ export default function Discover() {
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, profileLoaded]);
 
   // Re-search when the radius changes, but not before a location is known.
   // biome-ignore lint/correctness/useExhaustiveDependencies: radius is the trigger — searching again on every keystroke in the location box is exactly what the Search button exists to avoid
