@@ -104,6 +104,11 @@ RUN npm run build
 # script reads it from here rather than pinning a version of its own.
 FROM jdkato/vale:v3.23.0@sha256:d87d6355dc8992f92ec39c4c862a388e56e30302a771fd4512c02660fb25cdf3 AS vale
 
+# The scanners CI runs, for their versions only: trivy-action and
+# sbom-action take a version input, and these FROM lines are what
+# Dependabot bumps. Nothing is built from them.
+FROM aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 AS trivy
+
 # Workflow and script linter, for `make lint-ci` and the CI lint job. Never
 # built into anything, like the vale stage. The image carries actionlint and
 # the shellcheck it runs on embedded run: blocks, and this FROM line is what
