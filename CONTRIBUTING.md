@@ -128,6 +128,20 @@ mismatch means testing against the wrong browser build. There is no second
 pin to keep in step: Dependabot bumps the package and the image follows.
 Keep the version exact (no caret). The script refuses a range.
 
+## Versions
+
+The site publishes nothing anyone builds on, so it has no SemVer number.
+Every manifest says 0.0.0, and `scripts/check-version.sh` holds them there.
+A deploy worth rolling back to gets a date tag, `vYYYY.MM.DD`, from the
+milestone workflow:
+
+```bash
+gh workflow run milestone.yml -f notes="What this milestone is"
+```
+
+It tags the commit production runs and names the previous tag as the
+rollback point. The v1 and v2 tags from before 2026-09-27 stay as they are.
+
 ## Conventions
 
 - No CLA. Contributions are accepted under the repository's
