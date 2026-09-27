@@ -97,12 +97,14 @@ lint: ## biome lint and format check, against the working tree
 # the Dockerfile, so the version lives in one FROM line Dependabot bumps.
 LINT_IMAGE := $(shell sed -n 's|^FROM \(rhysd/actionlint:[^ ]*\) AS actionlint$$|\1|p' Dockerfile)
 
-lint-ci: ## actionlint on the workflows and their run: blocks, shellcheck on scripts, workflow concurrency
+lint-ci: ## actionlint on the workflows and their run: blocks, shellcheck on scripts, workflow concurrency, version numbers
 	@test -n "$(LINT_IMAGE)" || { echo "error: no 'FROM rhysd/actionlint:... AS actionlint' stage in the Dockerfile" >&2; exit 1; }
 	$(DOCKER) run --rm --user $(HOST_UID):$(HOST_GID) -v $(CURDIR):/repo:ro -w /repo --entrypoint actionlint $(LINT_IMAGE) -color
 	$(DOCKER) run --rm --user $(HOST_UID):$(HOST_GID) -v $(CURDIR):/repo:ro -w /repo --entrypoint shellcheck $(LINT_IMAGE) scripts/*.sh
 	scripts/check-concurrency.sh --self-test
 	scripts/check-concurrency.sh
+	scripts/check-version.sh --self-test
+	scripts/check-version.sh
 
 prose: ## lint every tracked Markdown file against the writing rules (.vale/styles/Abera)
 	scripts/check-prose.sh --self-test
