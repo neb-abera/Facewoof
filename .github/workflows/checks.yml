@@ -335,9 +335,12 @@ jobs:
       - name: DAST baseline (OWASP ZAP)
         # An attacker's-eye scan of the running production image. Accepted
         # findings live in .zap/rules.tsv with their reasoning.
+        # The image is the digest-pinned zap stage in the Dockerfile.
         run: |
+          image="$(sed -n 's/^FROM \(ghcr\.io\/zaproxy\/zaproxy:[^ ]*\) AS zap$/\1/p' Dockerfile)"
+          if [ -z "$image" ]; then echo "no 'FROM ghcr.io/zaproxy/zaproxy:... AS zap' line in Dockerfile"; exit 1; fi
           docker run --rm --network host -v "$PWD/.zap":/zap/wrk:ro \
-            -t ghcr.io/zaproxy/zaproxy:stable \
+            -t "$image" \
             zap-baseline.py -t http://localhost:8080 -c rules.tsv
 
       - name: Sign-in, against a mock provider

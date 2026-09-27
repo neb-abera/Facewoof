@@ -104,9 +104,9 @@ RUN npm run build
 # script reads it from here rather than pinning a version of its own.
 FROM jdkato/vale:v3.23.0@sha256:d87d6355dc8992f92ec39c4c862a388e56e30302a771fd4512c02660fb25cdf3 AS vale
 
-# The scanners CI runs, for their versions only: trivy-action and
-# sbom-action take a version input, and these FROM lines are what
-# Dependabot bumps. Nothing is built from them.
+# The scanner CI runs, for its version only: trivy-action takes a version
+# input, and this FROM line is what Dependabot bumps. Nothing is built from
+# it.
 FROM aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 AS trivy
 
 # Workflow and script linter, for `make lint-ci` and the CI lint job. Never
@@ -114,6 +114,13 @@ FROM aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9
 # the shellcheck it runs on embedded run: blocks, and this FROM line is what
 # Dependabot bumps.
 FROM rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 AS actionlint
+
+# Images CI and the scripts run, for their versions only, like the stages
+# above: ZAP for the DAST baseline in checks.yml, ffmpeg and curl for
+# scripts/media/capture.sh. Nothing is built from them.
+FROM ghcr.io/zaproxy/zaproxy:2.17.0@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef AS zap
+FROM linuxserver/ffmpeg:version-9.0-cli@sha256:47fbdc93828be04d7c52ca9a9a95f7957f887b80369f3581b8ff661873ed77a0 AS ffmpeg
+FROM curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777 AS curl
 
 # ---- final ------------------------------------------------------------------
 FROM nodebase AS final
