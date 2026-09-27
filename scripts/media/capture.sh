@@ -19,7 +19,11 @@ IMAGE="$(basename "$PWD" | tr '[:upper:]' '[:lower:]')"
 NET="${IMAGE}_default"
 APP="${IMAGE}-media-app"
 DB_URL=postgres://facewoof:facewoof@db:5432/facewoof
-FFMPEG_IMAGE="linuxserver/ffmpeg:version-7.1-cli"
+# ffmpeg and curl are the digest-pinned stages in the Dockerfile.
+stage() { sed -n "s/^FROM \([^ ]*\) AS $1\$/\1/p" Dockerfile; }
+FFMPEG_IMAGE="$(stage ffmpeg)"
+CURL_IMAGE="$(stage curl)"
+if [ -z "$FFMPEG_IMAGE" ] || [ -z "$CURL_IMAGE" ]; then echo "no ffmpeg or curl stage in the Dockerfile" >&2; exit 1; fi
 OUT="scripts/media/out"
 
 cleanup() { docker rm -f "$APP" >/dev/null 2>&1 || true; }
@@ -34,7 +38,7 @@ docker run -d --rm --name "$APP" --network "$NET" --network-alias media-under-te
   -e DATABASE_URL="$DB_URL" -e SESSION_SECRET=local-only -e INSECURE_TRANSPORT=true \
   -e PORT=8080 "$IMAGE" >/dev/null
 for _ in $(seq 1 30); do
-  if docker run --rm --network "$NET" curlimages/curl:latest -sf http://media-under-test:8080/healthz >/dev/null 2>&1; then break; fi
+  if docker run --rm --network "$NET" "$CURL_IMAGE" -sf http://media-under-test:8080/healthz >/dev/null 2>&1; then break; fi
   sleep 2
 done
 
