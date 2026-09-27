@@ -31,6 +31,51 @@ async function startDemo(page: Page) {
   await page.waitForURL("**/discover", { timeout: 30_000 });
 }
 
+test("a returning visitor's feed searches from the account, without asking the device", async ({
+  page,
+}) => {
+  // On a reload the profile is still loading when the feed starts. The feed
+  // took the missing location as a reason to ask the device instead: a
+  // permission prompt, or up to ten seconds, and possibly a zip other than
+  // the one the account's roster was built around. The stub below never
+  // answers, so a feed that asks the device never searches at all.
+  await startDemo(page);
+  await page.addInitScript(() => {
+    const w = window as unknown as { asked: number };
+    w.asked = 0;
+    if (navigator.geolocation)
+      navigator.geolocation.getCurrentPosition = () => {
+        w.asked += 1;
+      };
+  });
+  // The profile answers in milliseconds here and in 300 ms or more from far
+  // away, where the feed's code is ready first. Hold it back to be far away.
+  await page.route("**/api/auth/me", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.continue();
+  });
+  let reloaded = false;
+  const searched = page.waitForResponse(
+    (response) =>
+      reloaded &&
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === "/api/discover",
+  );
+  reloaded = true;
+  await page.reload();
+
+  // The feed names the zip it searched from.
+  const { origin } = (await (await searched).json()) as { origin: string };
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  const me = (await (await page.request.get("/api/auth/me")).json()) as {
+    location: string;
+  };
+  expect(origin).toBe(me.location);
+  expect(
+    await page.evaluate(() => (window as unknown as { asked: number }).asked),
+  ).toBe(0);
+});
+
 test("the landing page starts the demo in one click", async ({ page }) => {
   await page.goto("/");
 
