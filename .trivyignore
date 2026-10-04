@@ -8,3 +8,13 @@ CVE-2026-69152
 CVE-2026-14257
 CVE-2026-69192
 CVE-2026-73566
+
+# Same class, published 2026-10-04: undici 6.28.0, brace-expansion 5.0.9 and
+# http-cache-semantics 4.2.0 inside npm. npm 11.19.1 (the base image) through
+# 12.2.0 (latest) all bundle these versions. http-cache-semantics has no fixed
+# release at all. Remove when the base image ships an npm that bundles
+# undici >= 6.28.1 and brace-expansion >= 5.0.11.
+CVE-2026-19534
+CVE-2026-102276
+CVE-2026-102278
+CVE-2026-93748
