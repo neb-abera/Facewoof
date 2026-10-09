@@ -118,7 +118,7 @@ FROM rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fe
 # Images CI and the scripts run, for their versions only, like the stages
 # above: ZAP for the DAST baseline in checks.yml, ffmpeg and curl for
 # scripts/media/capture.sh. Nothing is built from them.
-FROM ghcr.io/zaproxy/zaproxy:2.17.0@sha256:781a2bdaea47324e7bab583e2263f21d257b0aee61ed51521a5be45f5f5081ef AS zap
+FROM ghcr.io/zaproxy/zaproxy:2.17.0@sha256:7aaa659b0d43078febd82e29bad112285c370727e86ab8340444220e17d9f0d2 AS zap
 FROM linuxserver/ffmpeg:version-9.0-cli@sha256:47fbdc93828be04d7c52ca9a9a95f7957f887b80369f3581b8ff661873ed77a0 AS ffmpeg
 FROM curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777 AS curl
 
