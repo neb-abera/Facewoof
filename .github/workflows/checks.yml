@@ -332,6 +332,21 @@ jobs:
         # out of step.
         run: E2E_NETWORK=host CI=true BASE_URL=http://localhost:8080 scripts/e2e.sh
 
+      - name: Browser tests again, after a restart on the same database
+        # Every CI run starts on an empty database. A developer's database
+        # outlives the process, so state one run leaves can break the next.
+        # In aberaTech a fake that numbered receipts from 1 at each start
+        # failed only the second local run (aberaTech #307). One engine,
+        # because the state is the server's. 20 s on the dev box.
+        run: |
+          set -euo pipefail
+          docker restart app
+          for _ in $(seq 1 30); do
+            if curl -sf http://localhost:8080/healthz; then break; fi
+            sleep 2
+          done
+          E2E_NETWORK=host CI=true BASE_URL=http://localhost:8080 scripts/e2e.sh --project=chromium
+
       - name: DAST baseline (OWASP ZAP)
         # An attacker's-eye scan of the running production image. Accepted
         # findings live in .zap/rules.tsv with their reasoning.
