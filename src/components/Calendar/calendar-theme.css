@@ -2,8 +2,8 @@
  * react-big-calendar on a dark theme.
  *
  * Its stylesheet is written for a light page: near-white backgrounds and dark
- * grey text, both hardcoded. On this theme that produced light grey headers on
- * near-white and dark grey toolbar buttons on near-black — legible only if you
+ * gray text, both hardcoded. On this theme that produced light gray headers on
+ * near-white and dark gray toolbar buttons on near-black — legible only if you
  * already knew what it said.
  *
  * Everything below maps its surfaces onto the same theme tokens the rest of
@@ -26,9 +26,9 @@
 .rbc-calendar * {
   /* !important because the library's own rules are compound selectors like
      `.rbc-day-bg + .rbc-day-bg`, which outrank anything reasonable here, and
-     because they set colour through the `border` shorthand rather than
+     because they set color through the `border` shorthand rather than
      `border-color`. Scoped to the calendar, and only touching the border
-     colour, so it cannot leak into the rest of the app. */
+     color, so it cannot leak into the rest of the app. */
   /* biome-ignore lint/complexity/noImportantStyles: see comment above - rbc sets border-color inline-strength; scoped override */
   border-color: var(--color-base-300) !important;
 }

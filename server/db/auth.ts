@@ -316,7 +316,7 @@ export async function findOrCreateExternalUser({
                 owner_email = COALESCE($2, owner_email),
                 -- The provider's name wins. Guest accounts are created called
                 -- 'Guest', so keeping the existing value left someone who had
-                -- just signed in still labelled a guest on their own profile.
+                -- just signed in still labeled a guest on their own profile.
                 owner_name = COALESCE($3, owner_name)
           WHERE user_id = $1 AND is_guest
           RETURNING user_id`,

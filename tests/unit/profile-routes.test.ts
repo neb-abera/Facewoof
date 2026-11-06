@@ -146,7 +146,7 @@ describe("PUT /api/edituser", () => {
     expect(db.editProfilePromise).not.toHaveBeenCalled();
   });
 
-  it("writes the normalised fields to the caller's own row, whatever id the body names", async () => {
+  it("writes the normalized fields to the caller's own row, whatever id the body names", async () => {
     db.editProfilePromise.mockResolvedValueOnce({ rowCount: 1 });
     const me = await api.signedInAs(7);
     const res = await me.call("/api/edituser", {

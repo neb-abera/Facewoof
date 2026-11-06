@@ -66,7 +66,7 @@ interface ProviderInfo {
  * There is deliberately no Microsoft entry. External ID federates Facebook,
  * Google, Apple, custom OIDC and SAML; a personal Microsoft account is not one
  * of its providers, so a "Continue with Microsoft" button had nowhere to go.
- * An organisation's Entra tenant can be added as a custom OIDC provider, which
+ * An organization's Entra tenant can be added as a custom OIDC provider, which
  * is a different thing from consumer Microsoft sign-in.
  */
 const KNOWN_PROVIDERS: Record<string, ProviderInfo> = {

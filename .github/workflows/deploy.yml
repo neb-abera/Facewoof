@@ -10,7 +10,7 @@ on:
   # For redeploying the current main without a new commit.
   workflow_dispatch:
 
-# One deploy at a time, never cancelled: a cancelled deploy is half a
+# One deploy at a time, never canceled: a canceled deploy is half a
 # rollout. The group holds one running and one pending run, and a newer run
 # replaces the pending one. Checks finish in any order, so the replaced run
 # can be for a newer commit than the one that replaces it. Nothing is lost:

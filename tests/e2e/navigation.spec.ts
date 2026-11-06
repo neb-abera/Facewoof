@@ -30,7 +30,7 @@ function loadedLibsoup(pid: string): number[] | undefined {
   return version?.slice(1).map(Number);
 }
 
-// libsoup 3.6.5 finishes a cancelled request twice and takes WebKit's
+// libsoup 3.6.5 finishes a canceled request twice and takes WebKit's
 // network process down with it (libsoup 794e089, fixed in 3.6.6). Playwright
 // bundles 3.6.5 with WebKit in its noble image. The resolute image loads the
 // system's 3.6.6. This fails if the suite moves back to a 3.6.5 WebKit.

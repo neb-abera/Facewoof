@@ -109,6 +109,8 @@ lint-ci: ## actionlint on the workflows and their run: blocks, shellcheck on scr
 prose: ## lint every tracked Markdown file against the writing rules (.vale/styles/Abera)
 	scripts/check-prose.sh --self-test
 	scripts/check-prose.sh
+	scripts/check-american-spelling.sh --self-test
+	scripts/check-american-spelling.sh
 
 fmt: ## Rewrite files to match biome
 	$(COMPOSE) run --rm lint npx biome check --write .
@@ -128,6 +130,8 @@ check: ## The gate CI runs: lint, format, prose, the API contract, held majors, 
 	$(DOCKER) build --target lint .
 	scripts/check-prose.sh --self-test
 	scripts/check-prose.sh
+	scripts/check-american-spelling.sh --self-test
+	scripts/check-american-spelling.sh
 	scripts/check-held-majors.sh --self-test
 	scripts/check-held-majors.sh
 	scripts/check-newest-majors.sh --self-test
