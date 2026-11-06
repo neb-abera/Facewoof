@@ -121,7 +121,7 @@ out.append(
     + ",\n".join(rows) + "\nON CONFLICT (owner_email) DO NOTHING;")
 out.append("")
 
-# The fixture's photos were grey dummyimage placeholders. placedog.net serves
+# The fixture's photos were gray dummyimage placeholders. placedog.net serves
 # real dog photos at a stable id, which makes the discover feed worth showing.
 photos = ["  (1, 'https://placedog.net/500/400?id=7')"]
 for u in users:

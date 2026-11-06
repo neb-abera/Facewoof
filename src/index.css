@@ -5,10 +5,10 @@
  * which tailwind 4 no longer uses. The theme below is the same palette as
  * before: abera.tech's, taken from its themePrimitives.ts — blue at hue 210,
  * near-black greys at hue 220. Written as hsl() rather than converted to hex
- * so the two stay legibly the same colours.
+ * so the two stay legibly the same colors.
  *
- * Theme colours are read as var(--color-x). daisyUI 5 stores each theme
- * colour as a complete colour value, unlike daisyUI 4's bare oklch components
+ * Theme colors are read as var(--color-x). daisyUI 5 stores each theme
+ * color as a complete color value, unlike daisyUI 4's bare oklch components
  * that had to be wrapped in oklch(); translucent uses go through color-mix().
  */
 @plugin "daisyui" {
@@ -70,7 +70,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* The whole app sits inside this, so it has to carry the page colour too. */
+/* The whole app sits inside this, so it has to carry the page color too. */
 .App,
 .App-header {
   background-color: var(--color-base-100);

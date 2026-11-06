@@ -447,7 +447,7 @@ A migration must work with the revision before it for one release (add
 before use, remove after). That revision serves on the new schema until the
 new one is ready.
 
-`MIGRATE_ON_BOOT` decides the start-up behaviour: `true` migrates, `false`
+`MIGRATE_ON_BOOT` decides the start-up behavior: `true` migrates, `false`
 does not, and unset means migrate in development only (`NODE_ENV`). Any other
 value stops the server.
 
