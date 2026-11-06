@@ -66,7 +66,7 @@ cleanup
 
 # The screenshots the README embeds go over; the recording becomes a GIF for
 # the README and an MP4 for anyone who wants the full clip. The GIF is scaled to
-# 720px wide at 10 fps with a 128-colour palette: readable, and a few
+# 720px wide at 10 fps with a 128-color palette: readable, and a few
 # megabytes rather than the tens a raw conversion produces.
 for name in landing discover match profile calendar packfeed discover-phone; do
   cp "$OUT/$name.png" docs/media/

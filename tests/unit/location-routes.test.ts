@@ -244,7 +244,7 @@ describe("POST /api/resolve-location", () => {
   it("always names somewhere: the lookup has no distance cutoff, so the 404 it declares never fires", async () => {
     // zipcodes 8 returns the nearest code however far away it is. A pair of
     // coordinates in the southern Indian Ocean is still "near" some US zip
-    // code, which is the behaviour a client gets today; pinned so that a
+    // code, which is the behavior a client gets today; pinned so that a
     // change to it is a deliberate one.
     const me = await api.signedInAs(7);
     const res = await post(me, { lat: -40, lng: 100 });

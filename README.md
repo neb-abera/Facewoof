@@ -217,9 +217,9 @@ the portal may need the override. A wrong hint fails with `AADSTS90023`.
 and listing one before that is done gives you a button that dead-ends.
 
 A personal Microsoft account is **not** one of External ID's providers. It
-federates Facebook, Google, Apple, custom OIDC and SAML. An organisation's
+federates Facebook, Google, Apple, custom OIDC and SAML. An organization's
 own Entra tenant can be added as a custom OIDC provider. That is
-organisational sign-in, without consumer "sign in with Microsoft".
+organizational sign-in, without consumer "sign in with Microsoft".
 
 To set it up: create an External ID tenant, register an application with the
 redirect URI above, create a sign-up and sign-in user flow and attach the app

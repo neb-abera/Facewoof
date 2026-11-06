@@ -64,7 +64,7 @@ const Login = () => {
             {signInError && (
               <p className="text-error text-sm">
                 {signInError === "refused"
-                  ? "That sign-in was cancelled."
+                  ? "That sign-in was canceled."
                   : signInError === "email-in-use"
                     ? "That email address already belongs to an account here. Sign in the way you did the first time."
                     : "Sign-in did not complete. Please try again."}

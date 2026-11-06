@@ -8,7 +8,7 @@ interface AvatarProps {
   name: string | null | undefined;
 }
 
-/* An image when there is one, and a labelled circle when there is not. */
+/* An image when there is one, and a labeled circle when there is not. */
 const Avatar = ({ className, src, name }: AvatarProps) =>
   src ? (
     // Square by CSS (max(25vh, 25vw) each way); the attributes only say so

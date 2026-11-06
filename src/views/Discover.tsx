@@ -53,7 +53,7 @@ export default function Discover() {
   useEffect(() => {
     if (!userId || !profileLoaded) return undefined;
 
-    let cancelled = false;
+    let canceled = false;
     setResolving(true);
 
     // The account already carries the location the demo was built around, so
@@ -63,7 +63,7 @@ export default function Discover() {
       .then((known) => known || getUserLocation())
       .catch(() => userData?.location || FALLBACK_ZIP)
       .then((zip) => {
-        if (cancelled) return undefined;
+        if (canceled) return undefined;
         const resolved = zip || userData?.location || FALLBACK_ZIP;
         setSearchLocation(resolved);
         setResolving(false);
@@ -71,7 +71,7 @@ export default function Discover() {
       });
 
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [userId, profileLoaded]);
 

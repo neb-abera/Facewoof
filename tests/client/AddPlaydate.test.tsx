@@ -6,7 +6,7 @@ import { created, fakeApi, ok } from "./fakeApi";
 import { withUser } from "./withUser";
 
 // The date picker renders AM/PM selects of its own; the pack select is the
-// one labelled as such.
+// one labeled as such.
 const packSelect = () => screen.getByRole("combobox", { name: /pack/i });
 
 const start = new Date("2026-09-12T10:00:00Z");
