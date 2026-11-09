@@ -14,7 +14,7 @@
 #
 # The first form reads the live settings with `gh api` and fails unless the
 # environment takes custom branch policies (not "protected branches") and
-# its only policy is the named branch. --self-test feeds the judgement
+# its only policy is the named branch. --self-test feeds the judgment
 # planted settings, the defect among them, and must see each one refused
 # and the correct one pass.
 

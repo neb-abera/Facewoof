@@ -46,11 +46,11 @@ async function contrastRatio(locator: Locator): Promise<number | null> {
     };
     // Walks up for the first non-transparent background, the way paint does.
     const parse = (str: string): Rgb | null => {
-      // Painting one pixel resolves any colour syntax to sRGB bytes. Computed
-      // colours are not reliably rgb(): color-mix(), which the stylesheets use
-      // for translucent theme colours, computes to oklab(...), and reading
+      // Painting one pixel resolves any color syntax to sRGB bytes. Computed
+      // colors are not reliably rgb(): color-mix(), which the stylesheets use
+      // for translucent theme colors, computes to oklab(...), and reading
       // that with a number regex silently produced near-black. fillStyle
-      // cannot be read back either — Chromium serialises it in the colour
+      // cannot be read back either — Chromium serializes it in the color
       // space it was written in.
       const canvas = document.createElement("canvas");
       canvas.width = 1;
@@ -105,7 +105,7 @@ test("nothing covers the navigation links", async ({ page }) => {
   await page.locator('a[href="/profile"]:visible').first().click();
   await expect(page).toHaveURL(/\/profile/);
 
-  // Whatever sits at the centre of the Discover link must be the link itself.
+  // Whatever sits at the center of the Discover link must be the link itself.
   // toBeVisible() passes for an element buried under another one.
   const covered = await page.evaluate((): string | null => {
     const link = [...document.querySelectorAll("a")].find(
@@ -130,8 +130,8 @@ test("the calendar is legible", async ({ page }) => {
   await expect(page.locator(".rbc-calendar")).toBeVisible({ timeout: 20_000 });
 
   // Regression: react-big-calendar ships a light stylesheet, so on the dark
-  // theme the day headers were light grey on near-white and the toolbar
-  // buttons were dark grey on near-black.
+  // theme the day headers were light gray on near-white and the toolbar
+  // buttons were dark gray on near-black.
   for (const selector of [".rbc-header", ".rbc-toolbar button", ".rbc-label"]) {
     const el = page.locator(selector).first();
     if ((await el.count()) === 0) continue;
@@ -214,7 +214,7 @@ test("a demo visitor lands on their profile, not an edit form", async ({
  * corner. Its default overlay is also rgba(255,255,255,0.75) — a white wash
  * over a dark app.
  */
-test("the add-playdate form opens centred, over a dark scrim", async ({
+test("the add-playdate form opens centered, over a dark scrim", async ({
   page,
 }) => {
   await signIn(page);
@@ -239,7 +239,7 @@ test("the add-playdate form opens centred, over a dark scrim", async ({
     };
   });
 
-  // Centred to within a tenth of the viewport on each axis.
+  // Centered to within a tenth of the viewport on each axis.
   expect(Math.abs(geometry.centreX - geometry.viewportW / 2)).toBeLessThan(
     geometry.viewportW * 0.1,
   );
@@ -251,7 +251,7 @@ test("the add-playdate form opens centred, over a dark scrim", async ({
 
   // A dark scrim, not the library's white default.
   const scrim = (geometry.overlayBg?.match(/[\d.]+/g) ?? []).map(Number);
-  expect(scrim.length, "the overlay has a colour").toBeGreaterThanOrEqual(3);
+  expect(scrim.length, "the overlay has a color").toBeGreaterThanOrEqual(3);
   expect(
     scrim.slice(0, 3).reduce((a, b) => a + b, 0) / 3,
     "the scrim is light",

@@ -130,11 +130,6 @@ ENV PORT=8080
 
 # The base image trails Alpine's security fixes between releases: upgrade the
 # packages so the image scan stays clean without waiting for a new node tag.
-# npm deliberately stays at the version the base image bundles — a floating
-# `npm install -g npm@latest` here was an unpinned input to the shipped image
-# that no ecosystem could see or bump. The base image's npm is clean under
-# .trivyignore today (verified by scan), the weekly trivy schedule catches
-# any new CVE in it, and the digest-pinned FROM above is how it advances.
 RUN apk --no-cache upgrade
 
 # --chown on everything the context contributes: COPY carries the mode the
@@ -144,7 +139,14 @@ RUN apk --no-cache upgrade
 # image built locally. CI never saw it, since a runner checks out
 # world-readable. The image should not care what umask built it.
 COPY --chown=node:node package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# npm installs the dependencies and then leaves the image. Nothing at run time
+# calls it: the server and the migrations both start with `node`. The npm the
+# base image bundles carried 11 HIGH CVEs in its own dependencies (undici,
+# brace-expansion, http-cache-semantics) by 2026-11-09, none of them in code
+# Facewoof runs, and each needed a .trivyignore entry until a node release
+# shipped a fixed npm.
+RUN npm ci --omit=dev && npm cache clean --force \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # TypeScript source, run as-is: Node 26 strips the type annotations when it
 # loads a .ts file, so there is no compiled copy to keep in step with the

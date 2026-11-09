@@ -84,6 +84,8 @@ jobs:
           set -euo pipefail
           scripts/check-prose.sh --self-test
           scripts/check-prose.sh
+          scripts/check-american-spelling.sh --self-test
+          scripts/check-american-spelling.sh
 
       - name: No commit in this pull request credits an AI
         # Nothing published under Neb's name credits an AI. The commit-msg
@@ -109,7 +111,7 @@ jobs:
 
       # Parses the vitest summaries already in the log — never re-runs tests.
       # The unittest stage runs the server's unit tests, prints a marker, then
-      # the client's component tests; each half is summarised on its own row.
+      # the client's component tests; each half is summarized on its own row.
       - name: Append test totals to the job summary
         run: |
           set -euo pipefail
@@ -241,7 +243,7 @@ jobs:
           # the deploy workflow's migrate job does.
           docker run --rm --network host \
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
-            facewoof npm run migrate
+            facewoof node server/db/migrate.ts
           # Outside development the server does not migrate at start-up. It
           # checks the ledger and refuses to serve a schema that is behind.
           docker run -d --name app --network host \

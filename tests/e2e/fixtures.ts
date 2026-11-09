@@ -7,14 +7,14 @@ export { expect } from "@playwright/test";
  * quiet for 500 ms, and so does the end of each test before its context
  * closes. Chromium and Firefox run as they are.
  *
- * WebKit lost navigations that cancelled requests still in flight. Every
+ * WebKit lost navigations that canceled requests still in flight. Every
  * WebKit failure in the smoke job up to 2026-09-26 was a page.goto or
  * page.reload issued within 100 ms of a client-side route change, while the
  * route's chunks and API calls were loading. It failed with "WebKit
  * encountered an internal error" or never committed.
  *
  * Most of it was libsoup 3.6.5, bundled with WebKit in Playwright's noble
- * image, which can finish a cancelled request twice (libsoup 794e089,
+ * image, which can finish a canceled request twice (libsoup 794e089,
  * microsoft/playwright#42803). The resolute image loads the system libsoup
  * 3.6.6, and navigation.spec.ts holds WebKit to 3.6.6 or newer. On GitHub's
  * runner, navigating the moment /discover appears:
