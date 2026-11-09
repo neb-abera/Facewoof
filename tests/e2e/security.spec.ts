@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures.ts";
+import { expect, reportCspViolations, test } from "./fixtures.ts";
 
 /*
  * The three CodeQL findings, pinned as behavior.
@@ -123,18 +123,15 @@ test("the document isolates itself from cross-origin openers", async ({
  */
 test("the CSP allows no inline or third-party styles and fonts, and blocks nothing the app uses", async ({
   page,
+  browserName,
 }) => {
   const violations: string[] = [];
-  await page.addInitScript(() => {
-    document.addEventListener("securitypolicyviolation", (event) => {
-      console.error(
-        `CSP-VIOLATION ${event.effectiveDirective} ${event.blockedURI} ${event.sourceFile ?? ""}:${event.lineNumber}`,
-      );
-    });
-  });
+  await reportCspViolations(page, browserName);
   page.on("console", (message) => {
     const text = message.text();
-    if (/CSP-VIOLATION|Content Security Policy/i.test(text)) {
+    // The event names the script behind a violation. The browser's own
+    // console line for it names none, so the event is what counts.
+    if (/CSP-VIOLATION/.test(text)) {
       violations.push(text);
     }
   });
