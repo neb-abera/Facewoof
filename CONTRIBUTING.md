@@ -16,21 +16,21 @@ checkout, a git worktree, a second clone) gets its own host ports, image tag
 and compose project, derived from its directory name, so several can run side
 by side. `make ports` prints yours. The ones you will use most:
 
-| Target           | What it does                                                    |
-| ---------------- | --------------------------------------------------------------- |
-| `make ports`     | This checkout's host ports, image name and compose network      |
-| `make dev`       | Database, API and hot-reloading client (`make ports` says where)|
-| `make check`     | The lint/format gate CI runs (biome, in-container)              |
-| `make test-unit` | Unit and component tests with coverage, the way CI runs them    |
-| `make test-db`   | Tests that need a real Postgres, against this copy's database   |
-| `make budget`    | Fail if the production bundle outgrew `bundle-budget.json`      |
-| `make fmt`       | Rewrite files to match biome                                    |
-| `make run`       | Build and run the production image on http://localhost:8080     |
-| `make e2e`       | Browser tests against a running instance                        |
-| `make e2e-signin`| Sign-in tests against a mock OIDC provider (no Azure needed)    |
-| `make migrate`   | Apply pending database migrations                               |
-| `make check-db-roles` | The app as a no-DDL database role, end to end (a CI gate)  |
-| `make clean`     | Stop the containers and delete the database volume              |
+| Target                | What it does                                                     |
+| --------------------- | ---------------------------------------------------------------- |
+| `make ports`          | This checkout's host ports, image name and compose network       |
+| `make dev`            | Database, API and hot-reloading client (`make ports` says where) |
+| `make check`          | The lint/format gate CI runs (biome, in-container)               |
+| `make test-unit`      | Unit and component tests with coverage, the way CI runs them     |
+| `make test-db`        | Tests that need a real Postgres, against this copy's database    |
+| `make budget`         | Fail if the production bundle outgrew `bundle-budget.json`       |
+| `make fmt`            | Rewrite files to match biome                                     |
+| `make run`            | Build and run the production image on http://localhost:8080      |
+| `make e2e`            | Browser tests against a running instance                         |
+| `make e2e-signin`     | Sign-in tests against a mock OIDC provider (no Azure needed)     |
+| `make migrate`        | Apply pending database migrations                                |
+| `make check-db-roles` | The app as a no-DDL database role, end to end (a CI gate)        |
+| `make clean`          | Stop the containers and delete the database volume               |
 
 ## Before you open a pull request
 
