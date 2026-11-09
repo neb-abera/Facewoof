@@ -97,7 +97,7 @@ grep -q "migrations are not run at boot and the database is missing" <<<"$out" |
 echo "ok: refused to start"
 
 echo "== migrations, as the owner, from the image"
-docker run --rm --network "$network" -e DATABASE_URL="$owner_url" "$IMAGE" npm run --silent migrate
+docker run --rm --network "$network" -e DATABASE_URL="$owner_url" "$IMAGE" node server/db/migrate.ts
 
 echo "== grants"
 as_role "$owner" owner-local-only -v runtime="$runtime" -v owner="$owner" \
