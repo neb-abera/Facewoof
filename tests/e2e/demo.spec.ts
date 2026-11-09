@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures.ts";
+import { expect, reportCspViolations, test } from "./fixtures.ts";
 
 /*
  * The demo, as a visitor experiences it.
@@ -9,11 +9,27 @@ import { expect, test } from "./fixtures.ts";
  * implementation details, so they keep their value as the code moves.
  */
 
-/* Collect anything the browser refused to load or complained about. */
-function watchForFailures(page: Page): string[] {
+/*
+ * Collect anything the browser refused to load or complained about. A Content
+ * Security Policy violation counts by the browser's securitypolicyviolation
+ * event, through reportCspViolations. The browser's own console line for the
+ * same violation names no source, so it is left to the event.
+ */
+async function watchForFailures(
+  page: Page,
+  browserName: string,
+): Promise<string[]> {
   const problems: string[] = [];
+  await reportCspViolations(page, browserName);
   page.on("console", (msg) => {
-    if (msg.type() === "error") problems.push(`console: ${msg.text()}`);
+    if (msg.type() !== "error") return;
+    const text = msg.text();
+    if (
+      /Content Security Policy/i.test(text) &&
+      !text.startsWith("CSP-VIOLATION")
+    )
+      return;
+    problems.push(`console: ${text}`);
   });
   page.on("requestfailed", (req) => {
     problems.push(`request failed: ${req.url()} (${req.failure()?.errorText})`);
@@ -54,18 +70,22 @@ test("a returning visitor's feed searches from the account, without asking the d
     await new Promise((resolve) => setTimeout(resolve, 1500));
     await route.continue();
   });
+  // The search's answer is read where it passes through a route. WebKit under
+  // Playwright 1.64 drops the body of this POST before response.json() can
+  // read it: "Missing resource for given requestId".
   let reloaded = false;
-  const searched = page.waitForResponse(
-    (response) =>
-      reloaded &&
-      response.request().method() === "POST" &&
-      new URL(response.url()).pathname === "/api/discover",
-  );
+  let origin: string | undefined;
+  await page.route("**/api/discover", async (route) => {
+    const response = await route.fetch();
+    const body = (await response.json()) as { origin: string };
+    if (reloaded && route.request().method() === "POST") origin = body.origin;
+    await route.fulfill({ response, json: body });
+  });
   reloaded = true;
   await page.reload();
 
   // The feed names the zip it searched from.
-  const { origin } = (await (await searched).json()) as { origin: string };
+  await expect.poll(() => origin, { timeout: 30_000 }).toBeDefined();
   await page.unrouteAll({ behavior: "ignoreErrors" });
   const me = (await (await page.request.get("/api/auth/me")).json()) as {
     location: string;
@@ -90,8 +110,9 @@ test("the landing page starts the demo in one click", async ({ page }) => {
 
 test("the discover feed shows dogs, and their photos actually load", async ({
   page,
+  browserName,
 }) => {
-  const problems = watchForFailures(page);
+  const problems = await watchForFailures(page, browserName);
   await startDemo(page);
 
   await expect(page.locator(".profile-card").first()).toBeVisible();

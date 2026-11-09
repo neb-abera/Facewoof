@@ -90,3 +90,49 @@ export const test = base.extend({
     await settle();
   },
 });
+
+/*
+ * Reports each Content Security Policy violation on the page as a console
+ * error that starts with CSP-VIOLATION, from the browser's
+ * securitypolicyviolation event.
+ *
+ * WebKit in Playwright 1.64 reports a style-src-attr violation each time a
+ * page creates a <select>. The browser builds the control's own shadow tree
+ * with inline styles and checks them against the page's policy. Measured on
+ * 2026-11-09: document.createElement("select") under style-src 'self' raised
+ * one violation in WebKit and none in Chromium, and the page styled nothing.
+ * On WebKit this counts the <select> elements the page creates and drops one
+ * inline style-src-attr violation for each. Every other violation counts.
+ */
+export async function reportCspViolations(
+  page: Page,
+  browserName: string,
+): Promise<void> {
+  await page.addInitScript((webkit: boolean) => {
+    let selects = 0;
+    if (webkit) {
+      const create = Document.prototype.createElement;
+      Document.prototype.createElement = function (
+        this: Document,
+        tagName: string,
+        options?: ElementCreationOptions,
+      ) {
+        if (String(tagName).toLowerCase() === "select") selects += 1;
+        return create.call(this, tagName, options);
+      } as typeof Document.prototype.createElement;
+    }
+    document.addEventListener("securitypolicyviolation", (event) => {
+      if (
+        selects > 0 &&
+        event.effectiveDirective === "style-src-attr" &&
+        event.blockedURI === "inline"
+      ) {
+        selects -= 1;
+        return;
+      }
+      console.error(
+        `CSP-VIOLATION ${event.effectiveDirective} ${event.blockedURI} ${event.sourceFile ?? ""}:${event.lineNumber}`,
+      );
+    });
+  }, browserName === "webkit");
+}

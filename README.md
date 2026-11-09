@@ -20,16 +20,16 @@ browser tests and a pipeline to Azure.
 </p>
 <p align="center"><sub>The demo, start to finish. <a href="docs/media/demo.mp4">Full-quality clip</a>.</sub></p>
 
-| Discover | Match |
-| --- | --- |
+| Discover                                                                                                                                          | Match                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | ![The discover feed: a card for a nearby dog with photos, breed, age, distance and interests, and Pass and Woof buttons](docs/media/discover.png) | ![A match: both dogs' photos with Keep searching and Add to Pack](docs/media/match.png) |
 
-| Profile | Calendar |
-| --- | --- |
+| Profile                                                                                                                         | Calendar                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | ![A dog's profile: photo, breed, age, location, vaccination badge, playdate facts and the friends list](docs/media/profile.png) | ![The shared playdate calendar in week view, with a playdate just added and the Add Playdate button](docs/media/calendar.png) |
 
-| Pack feed | Landing page |
-| --- | --- |
+| Pack feed                                                                                                            | Landing page                                                                                                   |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | ![The pack feed: posts from every pack, with the packs and upcoming playdates in a sidebar](docs/media/packfeed.png) | ![The landing page: a dog on a beach, the three features, and the Try the demo button](docs/media/landing.png) |
 
 <p align="center">
@@ -79,22 +79,22 @@ development API runs at start-up and `make migrate` runs on demand.
 
 ## How it fits together
 
-| Piece                   | What it is                                                                        |
-| ----------------------- | --------------------------------------------------------------------------------- |
-| `src/`                  | the React client, built by vite                                                   |
-| `server/routes.ts`      | the route table: every HTTP endpoint, all under `/api`                            |
-| `server/controllers/`   | the routes themselves: schemas in, handler, schemas out                           |
-| `docs/THREAT-MODEL.md`  | the assets, the entry points and every threat with the gate that answers it       |
-| `tests/unit/*.property.test.ts` | fast-check over the parsers that read a stranger's text                   |
-| `server/api/`           | the machinery: Zod schemas, the Express adapter, the OpenAPI generator            |
-| `server/openapi.json`   | the API contract, generated from the route table (`make contract`)                |
-| `src/api-types.d.ts`    | the client's types, generated from the contract (`make contract`)                 |
-| `tools/api-types/`      | openapi-typescript and the TypeScript 5 it needs, in a manifest of their own      |
-| `server/db/`            | the queries, one module per feature                                               |
-| `server/db/rows.ts`     | the tables as TypeScript, generated from the schema (`make rows`)                 |
-| `server/db/migrations/` | the schema and the demo roster, applied in order by `server/db/migrate.ts`        |
-| `tests/unit/`           | vitest, for the decisions inside the server                                       |
-| `tests/e2e/`            | Playwright, against the production image                                          |
+| Piece                           | What it is                                                                   |
+| ------------------------------- | ---------------------------------------------------------------------------- |
+| `src/`                          | the React client, built by vite                                              |
+| `server/routes.ts`              | the route table: every HTTP endpoint, all under `/api`                       |
+| `server/controllers/`           | the routes themselves: schemas in, handler, schemas out                      |
+| `docs/THREAT-MODEL.md`          | the assets, the entry points and every threat with the gate that answers it  |
+| `tests/unit/*.property.test.ts` | fast-check over the parsers that read a stranger's text                      |
+| `server/api/`                   | the machinery: Zod schemas, the Express adapter, the OpenAPI generator       |
+| `server/openapi.json`           | the API contract, generated from the route table (`make contract`)           |
+| `src/api-types.d.ts`            | the client's types, generated from the contract (`make contract`)            |
+| `tools/api-types/`              | openapi-typescript and the TypeScript 5 it needs, in a manifest of their own |
+| `server/db/`                    | the queries, one module per feature                                          |
+| `server/db/rows.ts`             | the tables as TypeScript, generated from the schema (`make rows`)            |
+| `server/db/migrations/`         | the schema and the demo roster, applied in order by `server/db/migrate.ts`   |
+| `tests/unit/`                   | vitest, for the decisions inside the server                                  |
+| `tests/e2e/`                    | Playwright, against the production image                                     |
 
 In development the client is served by vite and proxies `/api` to the API
 container. In production a single container serves both: express serves the
@@ -170,21 +170,21 @@ over seeded data, and the next thing to fix.
 Copy `.env.example` to `.env`. Every value has a working default, so `make dev`
 needs no `.env` at all.
 
-| Variable                                | What it does                                                                                              |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                          | the database. Set by compose locally. The only one that matters in production                             |
-| `PGHOST` etc.                           | used instead of `DATABASE_URL` when it is not set                                                         |
-| `PGSSL`                                 | `true` for Azure Database for PostgreSQL, which requires TLS                                              |
-| `MIGRATE_ON_BOOT`                       | `false` when migrations run separately and the server's database role has no DDL (docs/DEPLOY.md)         |
-| `PORT`                                  | what the server listens on (8080 in the production image)                                                 |
-| `BASE_PATH`                             | mount the whole app under a path, e.g. `/facewoof`                                                        |
-| `GUEST_TTL_HOURS`                       | how long a demo account lives                                                                             |
-| `CORS_ORIGIN`                           | comma separated. Unset means no cross-origin requests are allowed                                         |
-| `VITE_BASE_PATH`                        | build time. Must match `BASE_PATH`                                                                        |
-| `TRUST_PROXY_HOPS`                      | reverse proxies in front of the server, for the rate limits' client address. 2 behind Cloudflare + ingress |
-| `CLOUDINARY_CLOUD_NAME`, `_API_KEY`, `_API_SECRET` | signed photo uploads (docs/DEPLOY.md). Optional                                                |
-| `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET` | build time. Cloudinary's unsigned preset, the fallback when uploads are not signed. Optional              |
-| `ENTRA_ISSUER` etc.                     | sign-in through Entra External ID. Optional: see below                                                    |
+| Variable                                           | What it does                                                                                               |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                     | the database. Set by compose locally. The only one that matters in production                              |
+| `PGHOST` etc.                                      | used instead of `DATABASE_URL` when it is not set                                                          |
+| `PGSSL`                                            | `true` for Azure Database for PostgreSQL, which requires TLS                                               |
+| `MIGRATE_ON_BOOT`                                  | `false` when migrations run separately and the server's database role has no DDL (docs/DEPLOY.md)          |
+| `PORT`                                             | what the server listens on (8080 in the production image)                                                  |
+| `BASE_PATH`                                        | mount the whole app under a path, e.g. `/facewoof`                                                         |
+| `GUEST_TTL_HOURS`                                  | how long a demo account lives                                                                              |
+| `CORS_ORIGIN`                                      | comma separated. Unset means no cross-origin requests are allowed                                          |
+| `VITE_BASE_PATH`                                   | build time. Must match `BASE_PATH`                                                                         |
+| `TRUST_PROXY_HOPS`                                 | reverse proxies in front of the server, for the rate limits' client address. 2 behind Cloudflare + ingress |
+| `CLOUDINARY_CLOUD_NAME`, `_API_KEY`, `_API_SECRET` | signed photo uploads (docs/DEPLOY.md). Optional                                                            |
+| `VITE_CLOUD_NAME`, `VITE_UPLOAD_PRESET`            | build time. Cloudinary's unsigned preset, the fallback when uploads are not signed. Optional               |
+| `ENTRA_ISSUER` etc.                                | sign-in through Entra External ID. Optional: see below                                                     |
 
 ### Sign-in
 

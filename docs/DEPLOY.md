@@ -336,7 +336,7 @@ stops the server at start-up rather than guessing.
 
 Uploads go straight from the browser to Cloudinary. The app stores only the
 returned URL, and only accepts one that is `https://res.cloudinary.com/` under
-an `image/upload` path, and under *your* cloud once `CLOUDINARY_CLOUD_NAME` is
+an `image/upload` path, and under _your_ cloud once `CLOUDINARY_CLOUD_NAME` is
 set (`server/media.ts`, the same list the CSP's `img-src` is built from).
 
 There are two modes, and the server picks by what it has been given.
@@ -406,10 +406,10 @@ With neither mode configured the app hides photo upload.
 
 Two identities touch the `facewoof` database. Neither holds a password.
 
-| Identity | Postgres role | Rights | Used by |
-|---|---|---|---|
-| `facewoof-migrator`, a user-assigned managed identity in `facewoof-rg` | `facewoof-migrator` | Owns every table, sequence and index and the migration ledger. `USAGE, CREATE` on schema `public` | The `migrate` job of the deploy workflow, and nothing else |
-| The container app's system-assigned identity | `facewoof-mi` | `SELECT, INSERT, UPDATE, DELETE` on tables, `USAGE, SELECT` on sequences, `SELECT` on `schema_migrations`. No `CREATE`, no `TEMPORARY`, no ownership | Serving requests |
+| Identity                                                               | Postgres role       | Rights                                                                                                                                               | Used by                                                    |
+| ---------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `facewoof-migrator`, a user-assigned managed identity in `facewoof-rg` | `facewoof-migrator` | Owns every table, sequence and index and the migration ledger. `USAGE, CREATE` on schema `public`                                                    | The `migrate` job of the deploy workflow, and nothing else |
+| The container app's system-assigned identity                           | `facewoof-mi`       | `SELECT, INSERT, UPDATE, DELETE` on tables, `USAGE, SELECT` on sequences, `SELECT` on `schema_migrations`. No `CREATE`, no `TEMPORARY`, no ownership | Serving requests                                           |
 
 `facewoof-migrator` holds no Azure role. It trusts one thing: a GitHub token
 for this repository's `main` branch, through two federated credentials, one
@@ -532,13 +532,13 @@ And as `neb.abera@outlook.com`:
 
 Each step has its reverse. Run them newest first. None of them touches a row.
 
-| To undo | Run |
-|---|---|
-| The runtime identity's loss of DDL | `GRANT "facewoof-migrator" TO "facewoof-mi";` and `ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = 'facewoof-migrator';`, then restart the revision |
-| Migrations outside the app | `az containerapp update -g facewoof-rg -n facewoof --set-env-vars MIGRATE_ON_BOOT=true`, with the two lines above |
-| The `migrate` job | Revert the workflow change. The app then needs both rows above |
-| The handover | In `facewoof`, `ALTER TABLE ... OWNER TO facewoofadmin` for each table and sequence, `GRANT facewoofadmin TO "facewoof-mi";`, `ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = facewoofadmin;` and `GRANT TEMPORARY ON DATABASE facewoof TO PUBLIC;` |
-| The identity | `az identity delete -g facewoof-rg -n facewoof-migrator` (its federated credentials go with it), `gh variable delete DATABASE_MIGRATOR_CLIENT_ID -R neb-abera/Facewoof`, and `DROP ROLE "facewoof-migrator"` once it owns nothing |
+| To undo                            | Run                                                                                                                                                                                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The runtime identity's loss of DDL | `GRANT "facewoof-migrator" TO "facewoof-mi";` and `ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = 'facewoof-migrator';`, then restart the revision                                                                                                  |
+| Migrations outside the app         | `az containerapp update -g facewoof-rg -n facewoof --set-env-vars MIGRATE_ON_BOOT=true`, with the two lines above                                                                                                                                             |
+| The `migrate` job                  | Revert the workflow change. The app then needs both rows above                                                                                                                                                                                                |
+| The handover                       | In `facewoof`, `ALTER TABLE ... OWNER TO facewoofadmin` for each table and sequence, `GRANT facewoofadmin TO "facewoof-mi";`, `ALTER ROLE "facewoof-mi" IN DATABASE facewoof SET role = facewoofadmin;` and `GRANT TEMPORARY ON DATABASE facewoof TO PUBLIC;` |
+| The identity                       | `az identity delete -g facewoof-rg -n facewoof-migrator` (its federated credentials go with it), `gh variable delete DATABASE_MIGRATOR_CLIENT_ID -R neb-abera/Facewoof`, and `DROP ROLE "facewoof-migrator"` once it owns nothing                             |
 
 ## Deploying
 
