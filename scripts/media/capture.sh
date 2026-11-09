@@ -31,7 +31,7 @@ trap cleanup EXIT
 
 docker build --target final -t "$IMAGE" .
 docker compose up -d --wait db
-docker run --rm --network "$NET" -e DATABASE_URL="$DB_URL" "$IMAGE" npm run migrate
+docker run --rm --network "$NET" -e DATABASE_URL="$DB_URL" "$IMAGE" node server/db/migrate.ts
 
 cleanup
 docker run -d --rm --name "$APP" --network "$NET" --network-alias media-under-test \

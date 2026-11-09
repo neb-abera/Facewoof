@@ -241,7 +241,7 @@ jobs:
           # the deploy workflow's migrate job does.
           docker run --rm --network host \
             -e DATABASE_URL=postgres://facewoof:facewoof@localhost:5432/facewoof \
-            facewoof npm run migrate
+            facewoof node server/db/migrate.ts
           # Outside development the server does not migrate at start-up. It
           # checks the ledger and refuses to serve a schema that is behind.
           docker run -d --name app --network host \

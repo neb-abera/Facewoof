@@ -258,7 +258,7 @@ At the root of its own host:
 
 ```bash
 docker build --target final -t facewoof .
-docker run --rm -e DATABASE_URL=... facewoof npm run migrate
+docker run --rm -e DATABASE_URL=... facewoof node server/db/migrate.ts
 docker run -p 8080:8080 -e DATABASE_URL=... facewoof
 ```
 
