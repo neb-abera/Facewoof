@@ -107,7 +107,7 @@ FROM jdkato/vale:v3.26.0@sha256:d4ebc402b255dacc759c468ed8c91bd5be82918bbb595835
 # The scanner CI runs, for its version only: trivy-action takes a version
 # input, and this FROM line is what Dependabot bumps. Nothing is built from
 # it.
-FROM aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c AS trivy
+FROM aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb AS trivy
 
 # Workflow and script linter, for `make lint-ci` and the CI lint job. Never
 # built into anything, like the vale stage. The image carries actionlint and
